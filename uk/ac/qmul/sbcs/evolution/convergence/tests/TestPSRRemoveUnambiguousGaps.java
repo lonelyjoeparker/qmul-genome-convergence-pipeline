@@ -6,7 +6,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.*;
 import uk.ac.qmul.sbcs.evolution.convergence.util.*;
 import javax.swing.*;
 
-public class TestPSR {
+public class TestPSRRemoveUnambiguousGaps {
 
 	private JFileChooser chooser = new JFileChooser();
 	private File inputFile;
@@ -16,7 +16,7 @@ public class TestPSR {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		new TestPSR().go();
+		new TestPSRRemoveUnambiguousGaps().go();
 	}
 	
 	public void go(){
@@ -31,13 +31,10 @@ public class TestPSR {
 				}catch(TaxaLimitException ex){
 					ex.printStackTrace();
 				}
-/*
-				ArrayList<String> rawFileContents = PSR.getRawInput();
-				System.out.println("\n\nfirst:\t"+rawFileContents.get(0));
-				System.out.println("last:\t"+rawFileContents.get(rawFileContents.size()-1));
-*/
-				PSR.printShortSequences(20);
+				PSR.printShortSequences(25);
 				System.out.println("read "+PSR.getNumberOfSites()+" sites and "+PSR.getNumberOfTaxa()+" taxa.");
+				PSR.removeUnambiguousGaps();
+				PSR.printShortSequences(25);
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

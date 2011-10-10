@@ -6,7 +6,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.*;
 import uk.ac.qmul.sbcs.evolution.convergence.util.*;
 import javax.swing.*;
 
-public class TestPSR {
+public class TestPSRsimulateConvergence {
 
 	private JFileChooser chooser = new JFileChooser();
 	private File inputFile;
@@ -16,7 +16,7 @@ public class TestPSR {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		new TestPSR().go();
+		new TestPSRsimulateConvergence().go();
 	}
 	
 	public void go(){
@@ -38,6 +38,14 @@ public class TestPSR {
 */
 				PSR.printShortSequences(20);
 				System.out.println("read "+PSR.getNumberOfSites()+" sites and "+PSR.getNumberOfTaxa()+" taxa.");
+				
+				String first = PSR.getTaxaList().first();
+				String last = PSR.getTaxaList().last();
+				
+				System.out.println("converging "+last+" sequence to "+first);
+				String[] taxaToForce = {last};
+				PSR.simulateConvergence(first, taxaToForce, 69);
+				PSR.printShortSequences(20);
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

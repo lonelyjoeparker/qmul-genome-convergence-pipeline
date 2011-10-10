@@ -3,10 +3,11 @@ package uk.ac.qmul.sbcs.evolution.convergence.tests;
 import java.io.*;
 import java.util.*;
 import uk.ac.qmul.sbcs.evolution.convergence.*;
-import uk.ac.qmul.sbcs.evolution.convergence.util.*;
+import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
+
 import javax.swing.*;
 
-public class TestPSR {
+public class TestPSRphylipFileWriting {
 
 	private JFileChooser chooser = new JFileChooser();
 	private File inputFile;
@@ -16,28 +17,29 @@ public class TestPSR {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		new TestPSR().go();
+		try{
+			new TestPSRphylipFileWriting().go();
+		}catch (Exception ex){
+			ex.printStackTrace();
+		}
 	}
 	
-	public void go(){
+	public void go() throws TaxaLimitException{
 		int fileChosenStatus = chooser.showOpenDialog(null);
 		if(fileChosenStatus == JFileChooser.APPROVE_OPTION){
 			try {
 				inputFile = chooser.getSelectedFile();
 				System.out.println("trying to read "+inputFile.getAbsolutePath()+" file\n");
 				PhymlSequenceRepresentation PSR = new PhymlSequenceRepresentation();
-				try{
-					PSR.loadSequences(inputFile);
-				}catch(TaxaLimitException ex){
-					ex.printStackTrace();
-				}
-/*
-				ArrayList<String> rawFileContents = PSR.getRawInput();
-				System.out.println("\n\nfirst:\t"+rawFileContents.get(0));
-				System.out.println("last:\t"+rawFileContents.get(rawFileContents.size()-1));
-*/
+				PSR.loadSequences(inputFile);
 				PSR.printShortSequences(20);
 				System.out.println("read "+PSR.getNumberOfSites()+" sites and "+PSR.getNumberOfTaxa()+" taxa.");
+				PSR.writePhylipFile("/Users/gsjones/Documents/all_work/programming/java/testingOutputAndOtherCrap/testPSRwrite.txt");
+				try{
+					PSR.translate(true);
+					PSR.printShortSequences(20);
+					PSR.writePhylipFile("/Users/gsjones/Documents/all_work/programming/java/testingOutputAndOtherCrap/testPSRwriteTRANSLATED.txt");
+				}catch(Exception e){}
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

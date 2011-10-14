@@ -6,7 +6,9 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.*;
 public class BasemlDocumentTest extends TestCase {
 
 	public void testPrintTemplate() {
-		new BasemlDocument().printTemplate();
+		BasemlDocument b = new BasemlDocument();
+		b.finalizeParameters();
+		b.printTemplate();
 	}
 
 }

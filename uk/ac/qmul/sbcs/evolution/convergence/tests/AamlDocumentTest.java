@@ -18,7 +18,7 @@ public class AamlDocumentTest extends TestCase {
 	}
 
 	public void testAamlDocument() {
-		fail("Not yet implemented"); // TODO
+		this.testAddParam();
 	}
 
 	public void testAddParam() {
@@ -26,9 +26,10 @@ public class AamlDocumentTest extends TestCase {
 		document.setParameter("SEQFILE", "seqfile = test.phy");
 		document.setParameter("TREEFILE", "treefile = test.tre");
 		document.setParameter("FOOFILE", "foo = test.foo");
+		document.setParameter("TREEFILE", "treefile = another.tre");
 		assert(!document.hasBeenWritten);
 		if(!document.hasBeenWritten){
-			document.write(".");
+			document.write(".","out.ctl");
 		}
 		assert(document.hasBeenWritten);
 		System.out.println("\n\n\nTEMPLATE\n\n");

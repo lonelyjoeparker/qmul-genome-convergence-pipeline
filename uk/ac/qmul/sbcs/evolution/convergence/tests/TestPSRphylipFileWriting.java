@@ -30,7 +30,7 @@ public class TestPSRphylipFileWriting {
 			try {
 				inputFile = chooser.getSelectedFile();
 				System.out.println("trying to read "+inputFile.getAbsolutePath()+" file\n");
-				PhymlSequenceRepresentation PSR = new PhymlSequenceRepresentation();
+				AlignedSequenceRepresentation PSR = new AlignedSequenceRepresentation();
 				PSR.loadSequences(inputFile);
 				PSR.printShortSequences(20);
 				System.out.println("read "+PSR.getNumberOfSites()+" sites and "+PSR.getNumberOfTaxa()+" taxa.");

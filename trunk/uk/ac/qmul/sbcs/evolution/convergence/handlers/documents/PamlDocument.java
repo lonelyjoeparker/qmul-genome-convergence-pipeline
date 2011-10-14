@@ -1,6 +1,8 @@
 package uk.ac.qmul.sbcs.evolution.convergence.handlers.documents;
 
+import java.io.File;
 import java.util.*;
+import uk.ac.qmul.sbcs.evolution.convergence.util.*;
 
 public class PamlDocument {
 	protected HashMap<String, String> parameterSet = new HashMap<String, String>();
@@ -26,7 +28,7 @@ public class PamlDocument {
     "\n" +
     "	PARAM_FIX_ALPHA  	* 0: estimate gamma shape parameter; 1: fix it at alpha\n" +
     "	PARAM_ALPHA 		* initial or fixed alpha, 0:infinity (constant rate)\n" +
-    "	PARAM_ALPHA  		* different alphas for genes\n" +
+    "	PARAM_MALPHA  		* different alphas for genes\n" +
     "	PARAM_NCATG  		* # of categories in dG of NSsites models\n" +
     "\n" +
     "	PARAM_CLOCK   		* 0:no clock, 1:global clock; 2:local clock; 3:TipDate\n" +
@@ -68,13 +70,13 @@ public class PamlDocument {
 		"	PARAM_ALPHA   		* initial or fixed alpha, 0:infinity (constant rate)\n" +
 		"	PARAM_MALPHA   		* 1: different alpha's for genes, 0: one alpha\n" +
 		"	PARAM_NCATG  		* # of categories in the dG, AdG, or nparK models of rates\n" +
-		"	PARAMNPARK  		* rate-class models. 1:rK, 2:rK&fK, 3:rK&MK(1/K), 4:rK&MK \n" +
+		"	PARAM_NPARK  		* rate-class models. 1:rK, 2:rK&fK, 3:rK&MK(1/K), 4:rK&MK \n" +
 		"	\n" +
 		"	PARAM_NHOMO   		* 0 & 1: homogeneous, 2: kappa for branches, 3: N1, 4: N2\n" +
 		"	PARAM_GETSE   		* 0: don't want them, 1: want S.E.s of estimates\n" +
 		"	PARAM_RATEANCESTOR	* (0,1,2): rates (alpha>0) or ancestral states\n" +
 		"	\n" +
-		"	PARAM_SMALLDIFF\n" +
+		"	PARAM_SMALL_DIFF\n" +
 		"	PARAM_CLEANDATA  	* remove sites with ambiguity data (1:yes, 0:no)?\n" +
 		"*	PARAM_ICODE			* (with RateAncestor=1. try \"GC\" in data,model=4,Mgene=4)\n" +
 		"*	PARAM_FIX_BLENGTH	* 0: ignore, -1: random, 1: initial, 2: fixed\n" +
@@ -129,7 +131,7 @@ public class PamlDocument {
 		"	PARAM_GETSE   		* 0: don't want them, 1: want S.E.s of estimates\n" +
 		"	PARAM_RATEANCESTOR	* (0,1,2): rates (alpha>0) or ancestral states\n" +
 		"\n" +
-		"	PARAM_SMALLDIFF\n" +
+		"	PARAM_SMALL_DIFF\n" +
 		"	PARAM_CLEANDATA  	* remove sites with ambiguity data (1:yes, 0:no)?\n" +
 		"*	PARAM_FIX_BLENGTH  	* 0: ignore, -1: random, 1: initial, 2: fixed\n" +
 		"	PARAM_METHOD  		* Optimization method 0: simultaneous; 1: one branch a time\n" +
@@ -140,9 +142,16 @@ public class PamlDocument {
 		"						* 10: blepharisma nu.\n" +
 		"						* These codes correspond to transl_table 1 to 11 of GENEBANK.\n";
 	
-	public void write(String workingdir){
-		finalizeParameters();
-		this.hasBeenWritten = true;
+	public enum AamlParameters{
+		SEQFILE, TREEFILE, OUTFILE, NOISY, VERBOSE, RUNMODE, SEQTYPE, AARATEFILE, MODEL, MGENE, FIX_ALPHA, ALPHA, MALPHA, NCATG, CLOCK, GETSE, RATEANCESTOR, SMALL_DIFF, CLEANDATA, METHOD;
+	}
+	
+	public enum BasemlParameters{
+		SEQFILE, TREEFILE, OUTFILE, NOISY, VERBOSE, RUNMODE, MODEL, MGENE, NDATA, CLOCK, FIX_KAPPA, KAPPA, FIX_ALPHA, ALPHA, MALPHA, NCATG, NPARK, NHOMO, GETSE, RATEANCESTOR, SMALL_DIFF, CLEANDATA, ICODE, FIX_BLENGTH, METHOD;
+	}
+	
+	public enum CodemlParameters{
+		SEQFILE, TREEFILE, OUTFILE, NOISY, VERBOSE, RUNMODE, SEQTYPE, CODONFREQ, NDATA, CLOCK, AADIST, AARATEFILE, MODEL, NSSITES, ICODE, MGENE, FIX_KAPPA, KAPPA, FIX_OMEGA, OMEGA, FIX_ALPHA, ALPHA, MALPHA, NCATG, GETSE, RATEANCESTOR, SMALL_DIFF, CLEANDATA, FIX_BLENGTH, METHOD
 	}
 	
 	public void setParameter(String param, String value){
@@ -161,5 +170,9 @@ public class PamlDocument {
 		System.out.println(aamlTemplate);
 		System.out.println(basemlTemplate);
 		System.out.println(codemlTemplate);
+	}
+
+	public void write(File file) {
+		// TODO Auto-generated method stub		
 	}
 }

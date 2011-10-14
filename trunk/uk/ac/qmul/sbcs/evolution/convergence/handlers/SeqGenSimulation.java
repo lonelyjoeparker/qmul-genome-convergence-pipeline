@@ -2,10 +2,10 @@ package uk.ac.qmul.sbcs.evolution.convergence.handlers;
 
 import java.util.HashMap;
 
-import uk.ac.qmul.sbcs.evolution.convergence.PhymlSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 
 public class SeqGenSimulation extends AbstractSequenceSimulation {
-	private PhymlSequenceRepresentation simulatedDataSet;
+	private AlignedSequenceRepresentation simulatedDataSet;
 	private HashMap<String, String> truncatedNamesHash = new HashMap<String, String>();
 	private String phylogeny;
 	private int sitesToSimulate;
@@ -28,7 +28,7 @@ public class SeqGenSimulation extends AbstractSequenceSimulation {
 	}
 
 	@Override
-	public PhymlSequenceRepresentation simulate() {
+	public AlignedSequenceRepresentation simulate() {
 		// TODO Auto-generated method stub
 		// TODO provision to re-sun this in order to resimulate
 		return null;

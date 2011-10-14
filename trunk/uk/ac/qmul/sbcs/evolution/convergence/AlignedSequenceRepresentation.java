@@ -31,6 +31,7 @@ public class AlignedSequenceRepresentation {
 	private boolean sequenceFileTypeSet = false;
 	private TreeMap<String,Character> translationLookup;
 	protected boolean[] invariantSitesIndices;
+	private String[] transposedSites;
 	
 	public void PhymlSequenceRespresentation(){}
 	
@@ -434,6 +435,27 @@ public class AlignedSequenceRepresentation {
 		for(String taxon:taxaListArray){
 			// TODO get shortname from truncatedNamesHash
 			StringBuilder paddedTaxon = new StringBuilder(truncatedNamesHash.get(taxon));
+			while(paddedTaxon.length() < 15){
+				paddedTaxon.append(" ");
+			}
+			buffer.append(paddedTaxon);
+			buffer.append(sequenceHash.get(taxon));
+			buffer.append("\n");
+		}
+		new BasicFileWriter(fullyPathQualifiedFileName,buffer.toString());
+	}
+
+	public void writePhylipFile(String fullyPathQualifiedFileName, boolean useOriginalTaxonNames){
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(numberOfTaxa+"   "+numberOfSites+"\n");
+		for(String taxon:taxaListArray){
+			// TODO get shortname from truncatedNamesHash
+			StringBuilder paddedTaxon;
+			if(useOriginalTaxonNames){
+				paddedTaxon = new StringBuilder(taxon);
+			}else{
+				paddedTaxon = new StringBuilder(truncatedNamesHash.get(taxon));
+			}
 			while(paddedTaxon.length() < 15){
 				paddedTaxon.append(" ");
 			}
@@ -945,5 +967,33 @@ public class AlignedSequenceRepresentation {
 	 */
 	public HashMap<String, String> getTruncatedNamesHash() {
 		return truncatedNamesHash;
+	}
+	
+	public String[] getTransposedSites(){
+		if(transposedSites != null){
+			return transposedSites;
+		}else{
+			assert(numberOfSites>0);
+			transposedSites = new String[numberOfSites];
+			StringBuilder[] sb = new StringBuilder[numberOfSites];
+			for(int p=0;p<numberOfSites;p++){
+				sb[p] = new StringBuilder();
+			}
+			int i=0;
+			for(String taxon:taxaListArray){
+				char[] chars = this.sequenceHash.get(taxon);
+				assert(chars.length>0);
+				assert(chars.length == this.numberOfSites);
+				for(int j=0;j<chars.length;j++){
+					sb[j].append(chars[j]);
+				}
+				i++;
+			}
+			for(int k=0;k<numberOfSites;k++){
+				System.out.println(sb[k].toString());
+				transposedSites[k] = sb[k].toString();
+			}
+			return transposedSites;
+		}
 	}
 }

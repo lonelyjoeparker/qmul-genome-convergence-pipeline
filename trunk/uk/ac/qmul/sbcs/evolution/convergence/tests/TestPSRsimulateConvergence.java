@@ -25,7 +25,7 @@ public class TestPSRsimulateConvergence {
 			try {
 				inputFile = chooser.getSelectedFile();
 				System.out.println("trying to read "+inputFile.getAbsolutePath()+" file\n");
-				PhymlSequenceRepresentation PSR = new PhymlSequenceRepresentation();
+				AlignedSequenceRepresentation PSR = new AlignedSequenceRepresentation();
 				try{
 					PSR.loadSequences(inputFile);
 				}catch(TaxaLimitException ex){

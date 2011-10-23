@@ -2,6 +2,11 @@ package org.virion;
 
 import java.util.Arrays;
 
+/**
+ * 
+ * @author Joe Parker, 2008-2011.
+ * 
+ */
 public class StatisticHandler {
         final float[] oVals;
         final float[] nVals;

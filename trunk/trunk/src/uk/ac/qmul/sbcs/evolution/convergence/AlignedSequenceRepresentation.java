@@ -250,8 +250,12 @@ public class AlignedSequenceRepresentation {
 			index++;
 		}
 	}
-	
+
+	/**
+	 * TODO testing revealing some very strange behaviour in some fasta reads. work out why.
+	 */
 	public void readFastaFile(){
+		assert(false);
 		System.out.println("Processing a fasta file");
 		String lastname = null;
 		String lastdata = null;
@@ -554,6 +558,9 @@ public class AlignedSequenceRepresentation {
 				// TODO force RNA/DNA (e.g., codon) convergence
 				// TODO pay close attention to perl implementation
 				break;
+			case CODON:
+				// TODO this is not implemented... 
+				// TODO urrrrrrrk
 			default:
 				break;
 		}

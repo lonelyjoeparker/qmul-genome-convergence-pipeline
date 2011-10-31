@@ -53,8 +53,8 @@ public class BasicFileReader {
 					String line = null;
 					while((line = inputBuffer.readLine()) != null){
 						if(reportBuffer){
-							int readlength = 5;
-							if(line.length()<5){
+							int readlength = 20;
+							if(line.length()<20){
 								readlength = line.length();
 							}
 							System.out.println("buffer reading:\t"+line.substring(0,readlength));

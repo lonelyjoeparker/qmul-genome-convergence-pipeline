@@ -35,10 +35,10 @@ public class AlignedSequenceRepresentation {
 	
 	public void PhymlSequenceRespresentation(){}
 	
-	public void loadSequences(File inputFile) throws TaxaLimitException{
+	public void loadSequences(File inputFile, boolean reportInputRead) throws TaxaLimitException{
 		file = inputFile;
 		try{
-			rawInput = new BasicFileReader().loadSequences(file,false);
+			rawInput = new BasicFileReader().loadSequences(file,reportInputRead);
 			this.determineInputFileDatatype();
 			assert(sequenceFileTypeSet);
 			switch(inputSequenceFileFormat){
@@ -252,37 +252,68 @@ public class AlignedSequenceRepresentation {
 	}
 
 	/**
-	 * TODO testing revealing some very strange behaviour in some fasta reads. work out why.
+	 * @since 31/10/2011
+	 * RESOLVED: 31/10/2011: TODO testing revealing some very strange behaviour in some fasta reads. work out why.
+	 * A number of errors - 
+	 * 		lastname and lastdata initialised wrongly to null not ""
+	 * 		taxon names added as substr(1) not substr(1,length-1) so not now truncated
+	 * 		(incidental) loadSequences() now takes boolean arg for line reporting
+	 * 		MAJOR error: 	lastname was always being reinitialised after sequenceHash.add() to "", so half of the time
+	 * 						e.g. some taxa names are ignored, and their data entered in the other taxa, doubling line length
+	 * 		MAJOR error:	the final taxon was never being added to sequenceHash as its match condition was not being filled.
 	 */
 	public void readFastaFile(){
-		assert(false);
-		System.out.println("Processing a fasta file");
-		String lastname = null;
-		String lastdata = null;
+//		assert(true);
+//		System.out.println("Processing a fasta file");
+		String lastname = "";
+		String lastdata = "";
 		int maxNoOfSites = 0;
-		for(String aline:rawInput){
+		Iterator lines = rawInput.iterator();
+		int count = 1;
+		while(lines.hasNext()){
+			String aline = (String)lines.next();
+//			System.out.println(count+"\tname:["+lastname+"]\tdata ["+lastdata+"]\tline ["+aline+"]");
+			count ++;
 			Pattern fasta = Pattern.compile(">");
 			Matcher isFasta = fasta.matcher(aline);
 			if(isFasta.find()){
-				if(lastname != null){
+				if(lastname != ""){
 					// a taxon name has previously been read in
 					// add sequence to hash and reset lastname
+//					System.out.println("about to add a taxon, data length is: "+lastdata.length());
 					if(lastdata.length()>maxNoOfSites){
 						maxNoOfSites = lastdata.length();
+//						System.out.println("max site count increased to "+maxNoOfSites);
 					}
 					sequenceHash.put(lastname, lastdata.toCharArray());
 					taxaList.add(lastname);
 					numberOfTaxa++;
 //					System.out.println("putting "+lastname+" "+lastdata);
-					lastname = null;
+					lastname = aline.substring(1);
 					lastdata = "";
 				}else{
-					lastname = aline.substring(1, aline.length()-1);
+					lastname = aline.substring(1);
 				}
 			}else{
-				lastdata += aline;
+//				System.out.println("data line, length "+aline.length());
+				if(lastdata == ""){
+					lastdata = aline;
+//					System.out.println("adding to null lastdata:\t"+aline);
+				}else{
+					lastdata += aline;
+//					System.out.println("adding to existing lastdata:\t"+aline);
+				}
 			}
 		}
+//		System.out.println("about to add LAST taxon, data length is: "+lastdata.length());
+		if(lastdata.length()>maxNoOfSites){
+			maxNoOfSites = lastdata.length();
+//			System.out.println("max site count increased to "+maxNoOfSites);
+		}
+		sequenceHash.put(lastname, lastdata.toCharArray());
+		taxaList.add(lastname);
+		numberOfTaxa++;
+//		System.out.println("putting "+lastname+" "+lastdata);
 		numberOfSites = maxNoOfSites;
 		Iterator<String> itr = taxaList.iterator();
 		taxaListArray = new String[taxaList.size()];
@@ -927,8 +958,11 @@ public class AlignedSequenceRepresentation {
 
 		char[] firstSequence = sequenceHash.get(sequenceHash.firstKey());
 		
-		for(String taxon:taxaListArray){
+		Iterator seqItr = sequenceHash.keySet().iterator();
+		while(seqItr.hasNext()){
+			String taxon = seqItr.next().toString();
 			int index = 0;
+			System.out.println(taxon);
 			for(char testChar:sequenceHash.get(taxon)){
 				if(!(testChar == firstSequence[index])){
 					invariantSitesIndices[index] = false;
@@ -1002,5 +1036,19 @@ public class AlignedSequenceRepresentation {
 			}
 			return transposedSites;
 		}
+	}
+
+	public void printNumberOfSites() {
+		// TODO Auto-generated method stub
+		System.out.println(this.numberOfSites+" sites.");
+	}
+
+	public void printNumberOfTaxa() {
+		// TODO Auto-generated method stub
+		System.out.println(this.numberOfTaxa+" taxa.");
+	}
+	
+	public void printNumberOfInvariantSites() {
+		System.out.println(this.numberOfInvariantSites+" invariant sites.");
 	}
 }

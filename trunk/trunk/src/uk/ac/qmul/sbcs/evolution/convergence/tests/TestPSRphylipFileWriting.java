@@ -31,7 +31,7 @@ public class TestPSRphylipFileWriting {
 				inputFile = chooser.getSelectedFile();
 				System.out.println("trying to read "+inputFile.getAbsolutePath()+" file\n");
 				AlignedSequenceRepresentation PSR = new AlignedSequenceRepresentation();
-				PSR.loadSequences(inputFile);
+				PSR.loadSequences(inputFile,true);
 				PSR.printShortSequences(20);
 				System.out.println("read "+PSR.getNumberOfSites()+" sites and "+PSR.getNumberOfTaxa()+" taxa.");
 				PSR.writePhylipFile("/Users/gsjones/Documents/all_work/programming/java/testingOutputAndOtherCrap/testPSRwrite.txt");

@@ -176,4 +176,13 @@ public abstract class PamlAnalysis {
 		}
 		return this.SSLS;
 	}
+
+	public File getWorkingDir() {
+		return workingDir;
+	}
+
+	public void setWorkingDir(File workingDir) {
+		this.workingDir = workingDir;
+		System.out.println("working dir set to "+this.workingDir.getAbsolutePath());
+	}
 }

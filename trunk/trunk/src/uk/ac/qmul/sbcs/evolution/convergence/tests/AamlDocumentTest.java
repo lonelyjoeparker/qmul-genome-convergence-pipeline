@@ -22,6 +22,7 @@ public class AamlDocumentTest extends TestCase {
 	}
 
 	public void testAddParam() {
+		System.out.println("I reckon Working Directory = " + System.getProperty("user.dir"));
 		AamlDocument document = new AamlDocument();
 		document.setParameter("SEQFILE", "seqfile = test.phy");
 		document.setParameter("TREEFILE", "treefile = test.tre");

@@ -27,7 +27,7 @@ public class TestPSRstopCodonsAndTranslate {
 				System.out.println("trying to read "+inputFile.getAbsolutePath()+" file\n");
 				AlignedSequenceRepresentation PSR = new AlignedSequenceRepresentation();
 				try{
-					PSR.loadSequences(inputFile);
+					PSR.loadSequences(inputFile,true);
 				}catch(TaxaLimitException ex){
 					ex.printStackTrace();
 				}

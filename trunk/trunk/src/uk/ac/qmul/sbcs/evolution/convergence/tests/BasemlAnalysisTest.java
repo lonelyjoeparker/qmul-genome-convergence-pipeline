@@ -26,7 +26,7 @@ public class BasemlAnalysisTest extends TestCase {
 		parameters.put(BasemlParameters.TREEFILE, "treefile = /pamlTest/brown.trees");
 		parameters.put(BasemlParameters.OUTFILE, "outfile = /pamlTest/lnf.out");
 		BasemlAnalysis a = new BasemlAnalysis(PSR, treefiles, parameters,"another.ctl");
-		a.setBinaryDir(new File("/Applications/Phylogenetics/paml44/bin/").getAbsoluteFile());
+		a.setBinaryDir(new File("/Applications/Phylogenetics/PAML/paml44_myVersion/bin/").getAbsoluteFile());
 		a.setExecutionBinary(new File(a.getBinaryDir(),"baseml"));
 		System.out.println(a.getBinaryDir().getAbsolutePath());
 		System.out.println(a.getExecutionBinary().getAbsolutePath());

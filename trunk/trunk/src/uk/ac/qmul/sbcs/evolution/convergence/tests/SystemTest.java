@@ -6,7 +6,7 @@ public class SystemTest {
 	public static void main(String[] args){
 		System.out.println("I reckon Working Directory = " + System.getProperty("user.dir"));
 		try {
-			Process p = Runtime.getRuntime().exec("qsub /home/hep/parker/test/qbatchTest");
+			Process p = Runtime.getRuntime().exec("java -version");
 			try {
 				p.waitFor();
 			} catch (InterruptedException e) {
@@ -19,6 +19,14 @@ public class SystemTest {
 			while(line != null){
 				System.out.println(i+" "+line);
 				line = iReader.readLine();
+				i++;
+			}
+			BufferedReader eReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			line = eReader.readLine();
+			i = 0;
+			while(line != null){
+				System.out.println("ERROR: "+i+" "+line);
+				line = eReader.readLine();
 				i++;
 			}
 			System.out.println("done");

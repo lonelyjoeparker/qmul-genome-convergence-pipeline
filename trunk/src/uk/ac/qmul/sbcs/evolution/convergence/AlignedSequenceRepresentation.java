@@ -1,6 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.convergence;
 
 import java.io.*;
+import java.nio.CharBuffer;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -13,6 +14,13 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.*;
  * @version 0.1
  * @mailto: joe@kitson-consulting.co.uk
  * @since 09/19/2011
+ * @param sequenceHash				:	The main data structure; String taxon name, char[] sequence data
+ * @param numberOfSites				:	The MAXIMUM number of sites in the alignment; NOTE not implicitly safe for IndexOutOfBoundsExceptions
+ * @param numberOfInvariantSites	:	The number of INVARIANT sites in the alignment; Same array indices warning as for numberOfSites
+ * @param numberOfTaxa				:	The number of taxa in the alignment. *most* alignment operations *should* preserve this (but worth checking where practicable.)	
+ * @param taxaList					:	An TreeSet<String> holding the taxon names. NB it would usually be better to use an Iterator to iterate through sequenceHash.
+ * @param taxaListArray				:	A String[] of taxon names.
+ * @param truncatedNamesHash		:	A HashMap<String fullTaxonName, String truncatedTaxonName> of the truncated taxon names. These are max 10 chars, with unique taxon IDs ²999. Padded with underscores.
  */
 		
 public class AlignedSequenceRepresentation {
@@ -39,6 +47,9 @@ public class AlignedSequenceRepresentation {
 		file = inputFile;
 		try{
 			rawInput = new BasicFileReader().loadSequences(file,reportInputRead);
+			for(String line:rawInput){
+				if(line.length() == 0){System.out.println("read: ["+line+"]");}
+			}
 			this.determineInputFileDatatype();
 			assert(sequenceFileTypeSet);
 			switch(inputSequenceFileFormat){
@@ -215,6 +226,13 @@ public class AlignedSequenceRepresentation {
 		}
 	}
 	
+	/**
+	 * @version 0.0.2
+	 * @since 31/10/2011
+	 * 
+	 * Added methods to parse lines that include spaces within sequence lines.
+	 * NOTE that this assumes rawInput has NO blank lines (before data, at least).
+	 */
 	public void readPhylipFile(){
 		int maxNoOfSites = 0;
 		System.out.println("Processing a phylip file");
@@ -226,7 +244,17 @@ public class AlignedSequenceRepresentation {
 			String[] lineData = aline.split(" {1,}");
 			if((aline.length()>1)){
 				String name = lineData[0];
-				char[] charSequence = lineData[1].toCharArray(); 
+				char[] charSequence;
+				if(lineData.length<3){
+					charSequence = lineData[1].toCharArray(); 
+				}else{
+					// There are probably spaces in the sequence, parse accordingly
+					StringBuilder sb = new StringBuilder();
+					for(int s = 1;s<lineData.length;s++){
+						sb.append(lineData[s]);
+					}		
+					charSequence = sb.toString().toCharArray();
+				}
 				if(charSequence.length>maxNoOfSites){
 					maxNoOfSites = charSequence.length;
 				}
@@ -480,7 +508,7 @@ public class AlignedSequenceRepresentation {
 		new BasicFileWriter(fullyPathQualifiedFileName,buffer.toString());
 	}
 
-	public void writePhylipFile(String fullyPathQualifiedFileName, boolean useOriginalTaxonNames){
+	public void writePhylipFile(File fullyPathQualifiedFileName, boolean useOriginalTaxonNames){
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(numberOfTaxa+"   "+numberOfSites+"\n");
 		for(String taxon:taxaListArray){
@@ -1050,5 +1078,69 @@ public class AlignedSequenceRepresentation {
 	
 	public void printNumberOfInvariantSites() {
 		System.out.println(this.numberOfInvariantSites+" invariant sites.");
+	}
+
+	public void writePhylipFile(String fullyPathQualifiedFileName, boolean useOriginalTaxonNames){
+		StringBuffer buffer = new StringBuffer();
+		buffer.append(numberOfTaxa+"   "+numberOfSites+"\n");
+		for(String taxon:taxaListArray){
+			// TODO get shortname from truncatedNamesHash
+			StringBuilder paddedTaxon;
+			if(useOriginalTaxonNames){
+				paddedTaxon = new StringBuilder(taxon);
+			}else{
+				paddedTaxon = new StringBuilder(truncatedNamesHash.get(taxon));
+			}
+			while(paddedTaxon.length() < 15){
+				paddedTaxon.append(" ");
+			}
+			buffer.append(paddedTaxon);
+			buffer.append(sequenceHash.get(taxon));
+			buffer.append("\n");
+		}
+		new BasicFileWriter(fullyPathQualifiedFileName,buffer.toString());
+	}
+	
+	/**
+	 * 
+	 * @since 31/10/2011
+	 * @param oldName - the old name of the taxon (existing name)
+	 * @param newName - the new name to change it to
+	 * @return true if successful.
+	 * 
+	 * This is a VERY quickly written and tested name-changing routine.
+	 * TODO could do with a LOT more testing... 31/10/2011
+	 */
+	public boolean renameTaxon(String oldName, String newName){
+		boolean exitState = false;
+		if(taxaList.contains(oldName)){
+			int oldNumTaxa = sequenceHash.size();
+			char[] dataHolder = sequenceHash.get(oldName);
+			sequenceHash.remove(oldName);
+			int tmpNumTaxa = sequenceHash.size();
+			assert(oldNumTaxa != tmpNumTaxa);
+			sequenceHash.put(newName, dataHolder);
+			int newNumTaxa = sequenceHash.size();
+			assert(oldNumTaxa == newNumTaxa);
+			// TODO update taxaList
+			taxaList.remove(oldName);
+			taxaList.add(newName);
+			// TODO update taxaListArray
+			this.taxaListArray = new String[taxaList.size()];
+			int nameIndex = 0;
+			Iterator nameItr = taxaList.iterator();
+			while(nameItr.hasNext()){
+				taxaListArray[nameIndex] = (String)nameItr.next();
+				nameIndex++;
+			}
+			// TODO update truncatedNamesHash
+			String tempTruncatedName = truncatedNamesHash.get(oldName);
+			truncatedNamesHash.remove(oldName);
+			truncatedNamesHash.put(newName, tempTruncatedName);
+			exitState = true;
+		}else{
+			exitState = false;
+		}
+		return exitState;
 	}
 }

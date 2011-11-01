@@ -23,9 +23,11 @@ public class BasicFileReader {
 						if(line.length()<5){
 							readlength = line.length();
 						}
-						System.out.println("buffer reading:\t"+line.substring(0,readlength));
-						rawInput.add(line); // LINE SEPARATORS REMOVED, 30/09/2011
-						lines++;
+						if(line.length() > 1){
+							System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
+							rawInput.add(line);
+							lines++;
+						} // LINE SEPARATORS REMOVED, 30/09/2011
 					}
 				}
 				catch(Exception ex){
@@ -43,23 +45,31 @@ public class BasicFileReader {
 		return rawInput;
 	}
 
-	public ArrayList<String> loadSequences(File inputFile, boolean reportBuffer){
+	public ArrayList<String> loadSequences(File inputFile, boolean reportBufferStatus){
 		file = inputFile;
 		int lines = 0;
 		try{
 			if(file.canRead()){
 				BufferedReader inputBuffer = new BufferedReader(new FileReader(file));
+				int readlength = 20;
 				try{
 					String line = null;
 					while((line = inputBuffer.readLine()) != null){
-						if(reportBuffer){
-							int readlength = 20;
+						if(reportBufferStatus){
 							if(line.length()<20){
 								readlength = line.length();
+								if(line =="\n"){assert(false);}
+								if(line =="\r"){assert(false);}
 							}
 							System.out.println("buffer reading:\t"+line.substring(0,readlength));
 						}
-						rawInput.add(line); // LINE SEPARATORS REMOVED, 30/09/2011
+						if(line.length() > 1){
+							if(reportBufferStatus){
+								System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
+							}
+							rawInput.add(line);
+							lines++;
+						} // LINE SEPARATORS REMOVED, 30/09/2011
 						lines++;
 					}
 				}

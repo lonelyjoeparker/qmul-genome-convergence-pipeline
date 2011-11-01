@@ -20,7 +20,7 @@ public class CustomFileWriter {
 	public CustomFileWriter(File outputFileArg, String dataArg){
 		outputFile = outputFileArg;
 		data = dataArg;
-		assert(outputFile.canWrite());
+//		assert(outputFile.canWrite());
 		try{
 			FileWriter writer = new FileWriter(outputFile);
 			writer.write(data);

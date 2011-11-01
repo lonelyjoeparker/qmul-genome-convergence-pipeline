@@ -22,7 +22,7 @@ public class AamlAnalysisTest extends TestCase {
 	public void testAamlAnalysis() {
 		AlignedSequenceRepresentation[] PSR ={new AlignedSequenceRepresentation()};
 		try {
-			PSR[0].loadSequences(new File("/pamlTest/stewart.aa.alternative.phy"));
+			PSR[0].loadSequences(new File("/pamlTest/stewart.aa.alternative.phy"),true);
 			PSR[0].writePhylipFile("/pamlTest/input.phy");
 		} catch (TaxaLimitException e) {
 			// TODO Auto-generated catch block
@@ -32,10 +32,10 @@ public class AamlAnalysisTest extends TestCase {
 		TreeMap<AamlParameters, String> parameters = new TreeMap<AamlParameters, String>();
 		parameters.put(AamlParameters.SEQFILE, "seqfile = /pamlTest/input.phy");
 		parameters.put(AamlParameters.TREEFILE, "treefile = /pamlTest/stewart.alternative.trees");
-		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = /Applications/Phylogenetics/paml44/dat/wag.dat");
+		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = /Applications/Phylogenetics/PAML/paml44/dat/wag.dat");
 		parameters.put(AamlParameters.OUTFILE, "outfile = /pamlTest/lnf.out");
 		AamlAnalysis a = new AamlAnalysis(PSR, treefiles, parameters,"another.ctl");
-		a.setBinaryDir(new File("/Applications/Phylogenetics/paml44/bin/").getAbsoluteFile());
+		a.setBinaryDir(new File("/Applications/Phylogenetics/PAML/paml44_myVersion/bin/").getAbsoluteFile());
 		a.setExecutionBinary(new File(a.getBinaryDir(),"codeml"));
 		System.out.println(a.getBinaryDir().getAbsolutePath());
 		System.out.println(a.getExecutionBinary().getAbsolutePath());

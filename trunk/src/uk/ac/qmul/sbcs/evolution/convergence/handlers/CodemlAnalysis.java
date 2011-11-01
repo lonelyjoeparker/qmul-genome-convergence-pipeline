@@ -1,17 +1,21 @@
 package uk.ac.qmul.sbcs.evolution.convergence.handlers;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.TreeMap;
 import javax.swing.JFileChooser;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.CodemlDocument;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.CodemlParameters;
+import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
 
 public class CodemlAnalysis extends PamlAnalysis {
 	private CodemlDocument ctlFile;
 	private File codemlOutput;
 	private TreeMap<CodemlParameters, String> typedCodemlParameters;
 	private boolean hasRun = false;
+	private TreeMap<String, Float> patternSSLS;
+	private float[] SSLS;
 	
 
 	public CodemlAnalysis(AlignedSequenceRepresentation[] datasets, File[] treefiles, TreeMap<CodemlParameters,String> parameters, String name){
@@ -94,5 +98,65 @@ public class CodemlAnalysis extends PamlAnalysis {
 	 */
 	public void setHasRun(boolean hasRun) {
 		this.hasRun = hasRun;
+	}
+
+
+	public TreeMap<String, Float> getPatternSSLS(){
+		if((patternSSLS != null)&& hasRun){
+			return patternSSLS;									// Use the one in memory
+		}else{
+			patternSSLS = new TreeMap<String, Float>();		// Instantiate a new one. NB if !hasRun the object returned will be null...
+			if(hasRun){
+				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
+				assert(lnfFile.canRead());
+				ArrayList<String> SSLSdata = new BasicFileReader().loadSequences(lnfFile, false);
+				boolean firstlineRead = false;
+				String firstline = "";
+				int numPatterns;
+				for(String line:SSLSdata){
+					if(!firstlineRead){
+						firstline = line;
+						firstlineRead = true;
+					}else{
+						if(line.length()>5){
+							String[] lineData = line.split(" {1,}");
+							assert(lineData.length>0);
+							patternSSLS.put(lineData[6], Float.parseFloat(lineData[3]));
+							System.out.println(lineData[6]+","+ Float.parseFloat(lineData[3]));
+						}
+					}
+				}
+				String[] firstlineData = firstline.split(" {1,}");
+				assert(firstlineData.length>0);
+				numPatterns = Integer.parseInt(firstlineData[3]);
+				for(String dat:firstlineData){
+					System.out.println(dat);
+				}
+				System.out.println(patternSSLS.size()+" "+firstlineData[3]);
+				assert(numPatterns == patternSSLS.size());
+			}
+			return patternSSLS;
+		}
+	}
+
+
+	public float[] getSitewiseSSLS(AlignedSequenceRepresentation PSR){
+		if(this.SSLS == null){
+			this.determineSitewiseSSLS(PSR);
+		}
+		return this.SSLS;
+	}
+
+
+	public void printSitewiseSSLS(AlignedSequenceRepresentation PSR){
+		this.getPatternSSLS();
+		String[] transposedSites = PSR.getTransposedSites();
+		assert(transposedSites.length>0);
+		SSLS = new float[transposedSites.length];
+		int position = 0;
+		for(String site:transposedSites){
+			SSLS[position] = patternSSLS.get(site);
+			System.out.println(site+"\t"+SSLS[position]);
+		}
 	}
 }

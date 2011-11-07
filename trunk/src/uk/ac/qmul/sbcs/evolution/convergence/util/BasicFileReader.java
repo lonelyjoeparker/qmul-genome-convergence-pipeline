@@ -25,7 +25,7 @@ public class BasicFileReader {
 						}
 						if(line.length() > 1){
 							System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
-							rawInput.add(line);
+							rawInput.add(line.toUpperCase());
 							lines++;
 						} // LINE SEPARATORS REMOVED, 30/09/2011
 					}
@@ -48,6 +48,9 @@ public class BasicFileReader {
 	public ArrayList<String> loadSequences(File inputFile, boolean reportBufferStatus){
 		file = inputFile;
 		int lines = 0;
+		if(reportBufferStatus){
+			System.out.println("Trying to read file "+file.getAbsolutePath());
+		}
 		try{
 			if(file.canRead()){
 				BufferedReader inputBuffer = new BufferedReader(new FileReader(file));
@@ -68,7 +71,7 @@ public class BasicFileReader {
 								System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
 							}
 							rawInput.add(line);
-							lines++;
+					//		lines++;
 						} // LINE SEPARATORS REMOVED, 30/09/2011
 						lines++;
 					}
@@ -79,6 +82,8 @@ public class BasicFileReader {
 				finally{
 					inputBuffer.close();
 				}
+			}else{
+				System.out.println("SERIOUS: unable to open this file.");
 			}
 		}
 		catch(Exception ex){

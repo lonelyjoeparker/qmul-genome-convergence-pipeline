@@ -95,24 +95,26 @@ public class AamlAnalysis extends PamlAnalysis {
 	//			activeCtlFile.write(workingDir.getAbsolutePath(), name);
 			}
 			// TODO how to run a shell script?
-			try {
-				String exeString = (this.executionBinary.getAbsolutePath() + " " + aamlOutput.getAbsolutePath());
-				System.out.println(exeString);
-				Process p = Runtime.getRuntime().exec(exeString);
-				BufferedReader iReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				String line = iReader.readLine();
-				int i = 0;
-				while(line != null){
-					System.out.println(i+" "+line);
-					line = iReader.readLine();
-					i++;
-				}
-				System.out.println("done");
-				this.hasRun = true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String exeString = (this.executionBinary.getAbsolutePath() + " " + aamlOutput.getAbsolutePath());
+			System.out.println(exeString);
+			new VerboseSystemCommand(exeString);
+			this.hasRun = true;
+//			try {
+//				Process p = Runtime.getRuntime().exec(exeString);
+//				BufferedReader iReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+//				String line = iReader.readLine();
+//				int i = 0;
+//				while(line != null){
+//					System.out.println(i+" "+line);
+//					line = iReader.readLine();
+//					i++;
+//				}
+//				System.out.println("done");
+//				this.hasRun = true;
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 
 	/**
@@ -137,6 +139,7 @@ public class AamlAnalysis extends PamlAnalysis {
 			if(hasRun){
 				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
 				assert(lnfFile.canRead());
+				System.out.println("trying to read site patterns' lnL from "+lnfFile.getAbsolutePath());
 				ArrayList<String> SSLSdata = new BasicFileReader().loadSequences(lnfFile, false);
 				boolean firstlineRead = false;
 				String firstline = "";

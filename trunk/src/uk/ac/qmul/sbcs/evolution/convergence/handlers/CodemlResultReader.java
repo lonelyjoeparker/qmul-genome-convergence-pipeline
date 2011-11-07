@@ -11,23 +11,19 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.*;
  * 
  * @author <mailto:joe@kitson-consulting.co.uk>Joe Parker</a>
  * @version 0.0.1
- * @since 01/11/2011
+ * @since 03/11/2011
  *
- *JOE_PARAM_EQRB_begin
-JOE_PARAM_RATES Rate parameters:    0.92586  0.05582  0.00001  0.07883  0.01573
-JOE_PARAM_BFREQS Base frequencies:   0.27106  0.32622  0.28411  0.11861
-JOE_PARAM_RMAT Rate matrix Q, Average Ts/Tv =   9.4618
-JOE_MAT    -1.243912    1.181848    0.062060    0.000005
-JOE_MAT     0.981989   -1.076924    0.087636    0.007299
-JOE_MAT     0.059208    0.100625   -0.623950    0.464117
-JOE_MAT     0.000011    0.020076    1.111706   -1.131793
-JOE_MAT 
-JOE_PARAM_EQRB_end
-JOE_PARAM_ALPHA alpha (gamma, K=5) =  0.25466
-JOE_PARAM_rKAPPA rate:   0.00097  0.02882  0.19742  0.81376  3.95903
-JOE_PARAM_fKAPPA f
+ *<H1>04/11/2011 - This class now tested in a limited way (see below)</H1>
+ *
+ *<H2>03/11/201 - Important note - Deprecated class</H2>
+ *CodemlResultReader is marked as deprecated at the moment until I can figure out a way to read omega and kappa parameters reliably from Codeml.
+ *Use an AA (aaml) or NT (baseml) analysis, and the relevant reader, instead.
+ *
+ *<p>Also note that this class is just a copy-and-paste from BasemlResultReader, has not been codeml-ized or tested.
  */
-public class BasemlResultReader {
+
+
+public class CodemlResultReader {
 	private final File file;
 	private BasicFileReader reader;
 	private ArrayList<String> rawData;
@@ -40,10 +36,13 @@ public class BasemlResultReader {
 	private String alpha;
 	private String kappaRates;
 	private String kappaFreqs;
+	private String treeLength;
+	private String omegaVal;
+	private String kappaVal;
 	private boolean initialised;
 	
 	@Deprecated
-	public BasemlResultReader(){
+	public CodemlResultReader(){
 		this.file = null;
 		this.reader = null;
 		this.rawData = null;
@@ -54,7 +53,7 @@ public class BasemlResultReader {
 	 * @param afile - 	the baseml output file (named 'mlb' by default).
 	 * 					NB this class assumes that my custom version of Paml4.4 (with additonal output writing) was used.
 	 */
-	public BasemlResultReader(File afile){
+	public CodemlResultReader(File afile){
 		this.file = afile;
 		this.reader = new BasicFileReader();
 		this.rawData = reader.loadSequences(file, false);
@@ -68,6 +67,9 @@ public class BasemlResultReader {
 		Pattern inQmat= Pattern.compile("JOE_PARAM_RMAT");
 		Pattern matrixLine = Pattern.compile("JOE_MAT");
 		Pattern endQmat = Pattern.compile("JOE_PARAM_EQRB_end");
+		Pattern treeLen = Pattern.compile("JOE_PARAM_TREELENGTH");
+		Pattern kappa = Pattern.compile("JOE_PARAM_KAPPA");
+		Pattern omega = Pattern.compile("JOE_PARAM_OMEGA");
 		Pattern obsAvg = Pattern.compile("JOE_PARAM_AVG");	// FIXME currently no 'zxcv' token on this line
 		boolean inQmatrix = false;
 		String Qmatrix = "";
@@ -83,6 +85,9 @@ public class BasemlResultReader {
 			Matcher isMatrixLine = matrixLine.matcher(someline);
 			Matcher isOutQmat = endQmat.matcher(someline);
 			Matcher isObsAvg = obsAvg.matcher(someline);
+			Matcher isTreeLength = treeLen.matcher(someline);
+			Matcher isKappa = kappa.matcher(someline);
+			Matcher isOmega = omega.matcher(someline);
 			if(inQmatrix){
 				if(isMatrixLine.find()){
 					String[] tokens = someline.split("zxcv");
@@ -131,6 +136,15 @@ public class BasemlResultReader {
 			}
 			if(isKFreqs.find()){
 				this.kappaFreqs = someline.split("zxcv")[1];
+			}
+			if(isKappa.find()){
+				this.kappaVal = someline.split("zxcv")[1];
+			}
+			if(isOmega.find()){
+				this.omegaVal = someline.split("zxcv")[1];
+			}
+			if(isTreeLength.find()){
+				this.treeLength = someline.split("zxcv")[1];
 			}
 		}
 		this.initialised = true;
@@ -202,5 +216,17 @@ public class BasemlResultReader {
 
 	public String getKappaFreqs() {
 		return kappaFreqs;
+	}
+
+	public String getTreeLength() {
+		return treeLength;
+	}
+
+	public String getOmegaVal() {
+		return omegaVal;
+	}
+
+	public String getKappaVal() {
+		return kappaVal;
 	}
 }

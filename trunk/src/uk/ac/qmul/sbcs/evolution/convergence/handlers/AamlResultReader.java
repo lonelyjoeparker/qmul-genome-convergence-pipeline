@@ -27,7 +27,7 @@ JOE_PARAM_ALPHA alpha (gamma, K=5) =  0.25466
 JOE_PARAM_rKAPPA rate:   0.00097  0.02882  0.19742  0.81376  3.95903
 JOE_PARAM_fKAPPA f
  */
-public class BasemlResultReader {
+public class AamlResultReader {
 	private final File file;
 	private BasicFileReader reader;
 	private ArrayList<String> rawData;
@@ -40,10 +40,11 @@ public class BasemlResultReader {
 	private String alpha;
 	private String kappaRates;
 	private String kappaFreqs;
+	private String treeLength;
 	private boolean initialised;
 	
 	@Deprecated
-	public BasemlResultReader(){
+	public AamlResultReader(){
 		this.file = null;
 		this.reader = null;
 		this.rawData = null;
@@ -54,7 +55,7 @@ public class BasemlResultReader {
 	 * @param afile - 	the baseml output file (named 'mlb' by default).
 	 * 					NB this class assumes that my custom version of Paml4.4 (with additonal output writing) was used.
 	 */
-	public BasemlResultReader(File afile){
+	public AamlResultReader(File afile){
 		this.file = afile;
 		this.reader = new BasicFileReader();
 		this.rawData = reader.loadSequences(file, false);
@@ -69,6 +70,7 @@ public class BasemlResultReader {
 		Pattern matrixLine = Pattern.compile("JOE_MAT");
 		Pattern endQmat = Pattern.compile("JOE_PARAM_EQRB_end");
 		Pattern obsAvg = Pattern.compile("JOE_PARAM_AVG");	// FIXME currently no 'zxcv' token on this line
+		Pattern treeLen = Pattern.compile("JOE_PARAM_TREELENGTH");
 		boolean inQmatrix = false;
 		String Qmatrix = "";
 		for(String someline:rawData){
@@ -83,6 +85,7 @@ public class BasemlResultReader {
 			Matcher isMatrixLine = matrixLine.matcher(someline);
 			Matcher isOutQmat = endQmat.matcher(someline);
 			Matcher isObsAvg = obsAvg.matcher(someline);
+			Matcher isTreeLength = treeLen.matcher(someline);
 			if(inQmatrix){
 				if(isMatrixLine.find()){
 					String[] tokens = someline.split("zxcv");
@@ -131,6 +134,9 @@ public class BasemlResultReader {
 			}
 			if(isKFreqs.find()){
 				this.kappaFreqs = someline.split("zxcv")[1];
+			}
+			if(isTreeLength.find()){
+				this.treeLength = someline.split("zxcv")[1];
 			}
 		}
 		this.initialised = true;
@@ -202,5 +208,9 @@ public class BasemlResultReader {
 
 	public String getKappaFreqs() {
 		return kappaFreqs;
+	}
+	
+	public String getTreeLength() {
+		return treeLength;
 	}
 }

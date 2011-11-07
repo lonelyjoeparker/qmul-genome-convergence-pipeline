@@ -16,7 +16,7 @@ public class VerboseSystemCommand {
 			String line = iReader.readLine();
 			int i = 0;
 			while(line != null){
-				System.out.println(i+" "+line);
+				System.out.println("o"+i+" "+line);
 				line = iReader.readLine();
 				i++;
 			}
@@ -25,7 +25,7 @@ public class VerboseSystemCommand {
 			line = eReader.readLine();
 			int e = 0;
 			while(line != null){
-				System.out.println(e+" "+line);
+				System.out.println("e"+e+" "+line);
 				line = eReader.readLine();
 				e++;
 			}

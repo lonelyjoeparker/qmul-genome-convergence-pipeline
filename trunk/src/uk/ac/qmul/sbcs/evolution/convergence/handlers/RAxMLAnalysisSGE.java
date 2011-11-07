@@ -14,7 +14,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.VerboseSystemCommand;
  * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker</a>
  * @since 29/10/2011
  */
-public class RAxMLAnalysis {
+public class RAxMLAnalysisSGE {
 	private String identifier;
 	private File dataFile;
 	private File treeConstraintFile;
@@ -28,7 +28,6 @@ public class RAxMLAnalysis {
 	private NTmodelOptions NTmodel;
 	private algorithmOptions algorithm;
 	private boolean constrainTree = false;
-	private boolean noStartingTree = false;
 
 	public enum AAmodelOptions{
 		DAYHOFF, DCMUT, JTT, MTREV, WAG, RTREV, CPREV, VT, BLOSUM62, MTMAM, GTR,
@@ -46,7 +45,7 @@ public class RAxMLAnalysis {
 	public enum NTmodelOptions{GTRMIX, GTRCAT, GTRGAMMA}		
 	public enum algorithmOptions {o, e, b, c, s}
 
-	public RAxMLAnalysis(File input, File constraint, String id){
+	public RAxMLAnalysisSGE(File input, File constraint, String id){
 		this.dataFile = input;
 		this.treeConstraintFile = constraint;
 		this.identifier = id;
@@ -54,6 +53,62 @@ public class RAxMLAnalysis {
 		this.executionBinary = null;
 		this.binaryDir = null;
 		this.workingDir = null;
+		this.parameters = new TreeMap<String,String>();
+		// TODO set up other default parameters at this point?
+		// TODO set up the -s, -n and -g parameters at this point? and/or maybe overload the constructor for 
+		//	    instances where we want to infer phylogeny?
+	}
+
+	/**
+	 * 
+	 * @param binaryLocation - location of the RAxML binary
+	 * @param input - the dataFile for the sequence data itself
+	 * @param workingDir - the directory to write output files to
+	 * @param constraint - the tree to constrain the topology to
+	 * @param id  - a run ID for this job
+	 * @param NTmodel
+	 * @param algorithm
+	 * 
+	 * This constructor for NT analyses WITH BINARY LOCATION
+	 */
+	public RAxMLAnalysisSGE(File binaryLocation, File input, File workingDir, File constraint, String id, NTmodelOptions NTmodel, algorithmOptions algorithm){
+		this.executionBinary = binaryLocation;
+		this.dataFile = input;
+		this.treeConstraintFile = constraint;
+		this.identifier = id;
+		this.hasRun = false;
+		this.binaryDir = null;
+		this.workingDir = workingDir;
+		this.NTmodel = NTmodel;
+		this.algorithm = algorithm;
+		this.parameters = new TreeMap<String,String>();
+		// TODO set up other default parameters at this point?
+		// TODO set up the -s, -n and -g parameters at this point? and/or maybe overload the constructor for 
+		//	    instances where we want to infer phylogeny?
+	}
+
+	/**
+	 * 
+	 * @param binaryLocation - location of the RAxML binary
+	 * @param input - the dataFile for the sequence data itself
+	 * @param workingDir - the directory to write output files to
+	 * @param constraint - the tree to constrain the topology to
+	 * @param id  - a run ID for this job
+	 * @param AAmodel
+	 * @param algorithm
+	 * 
+	 * This constructor for AA analyses WITH BINARY LOCATION
+	 */
+	public RAxMLAnalysisSGE(File binaryLocation, File input, File workingDir, File constraint, String id, AAmodelOptions AAmodel, algorithmOptions algorithm){
+		this.executionBinary = binaryLocation;
+		this.dataFile = input;
+		this.treeConstraintFile = constraint;
+		this.identifier = id;
+		this.hasRun = false;
+		this.binaryDir = null;
+		this.workingDir = workingDir;
+		this.AAmodel = AAmodel;
+		this.algorithm = algorithm;
 		this.parameters = new TreeMap<String,String>();
 		// TODO set up other default parameters at this point?
 		// TODO set up the -s, -n and -g parameters at this point? and/or maybe overload the constructor for 
@@ -71,7 +126,7 @@ public class RAxMLAnalysis {
 	 * 
 	 * This constructor for AA analyses
 	 */
-	public RAxMLAnalysis(File input, File workingDir, File constraint, String id, AAmodelOptions AAmodel, algorithmOptions algorithm){
+	public RAxMLAnalysisSGE(File input, File workingDir, File constraint, String id, AAmodelOptions AAmodel, algorithmOptions algorithm){
 		this.dataFile = input;
 		this.treeConstraintFile = constraint;
 		this.identifier = id;
@@ -98,7 +153,7 @@ public class RAxMLAnalysis {
 	 * 
 	 * This constructor for NUCLEOTIDE analyses
 	 */
-	public RAxMLAnalysis(File input, File workingDir, File constraint, String id, NTmodelOptions NTmodel, algorithmOptions algorithm){
+	public RAxMLAnalysisSGE(File input, File workingDir, File constraint, String id, NTmodelOptions NTmodel, algorithmOptions algorithm){
 		this.dataFile = input;
 		this.treeConstraintFile = constraint;
 		this.identifier = id;
@@ -134,8 +189,8 @@ public class RAxMLAnalysis {
 				System.out.println("Selected wd "+this.workingDir.getAbsolutePath());
 			}
 		}
-		// TODO how to run a shell script?
-		new VerboseSystemCommand(this.getExeString());
+		// TODO shell script call should really pass working dir to runCommand... maybe?!?
+		new VerboseSystemCommand("/usr/bin/perl/ runCommand.pl"+this.getExeString());
 		this.outputFile = new File(this.workingDir.getAbsolutePath()+"/RAxML_bestTree."+identifier);
 	}
 
@@ -160,7 +215,6 @@ public class RAxMLAnalysis {
 		//return sb.toString();
 		//return "/Applications/Phylogenetics/RAxML/RAxML-7.2.8-ALPHA/raxmlHPC -m PROTCATJTT -n hpc-constrained-test -s /pamlTest/stewart.aa.alternative.phy -r /pamlTest/stewart.constraint.tre";
 		if(this.constrainTree){
-			// Constrain the topology (-r option)
 			if(this.NTmodel == null){
 				// Assume a AA tree - note, this needs to be handled better... 
 				return binaryDir.getAbsolutePath() + " -m " + AAmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -r " + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
@@ -168,23 +222,11 @@ public class RAxMLAnalysis {
 				return binaryDir.getAbsolutePath() + " -m " + NTmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -r " + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
 			}
 		}else{
-			// Topology will not be constrained
-			if(this.noStartingTree){
-				// Don't provide a starting tree
-				if(this.NTmodel == null){
-					// Assume a AA tree - note, this needs to be handled better... 
-					return binaryDir.getAbsolutePath() + " -m " + AAmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
-				}else{
-					return binaryDir.getAbsolutePath() + " -m " + NTmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
-				}
+			if(this.NTmodel == null){
+				// Assume a AA tree - note, this needs to be handled better... 
+				return binaryDir.getAbsolutePath() + " -m " + AAmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -t " + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
 			}else{
-				// DO provide a starting tree (-t option)
-				if(this.NTmodel == null){
-					// Assume a AA tree - note, this needs to be handled better... 
-					return binaryDir.getAbsolutePath() + " -m " + AAmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -t " + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
-				}else{
-					return binaryDir.getAbsolutePath() + " -m " + NTmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -t " + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
-				}
+				return binaryDir.getAbsolutePath() + " -m " + NTmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -t " + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
 			}
 		}
 		// TODO build execution string from parameters and binary location using stringbuilder
@@ -193,10 +235,6 @@ public class RAxMLAnalysis {
 	
 	public void setTreeConstraint(boolean newConstraintState){
 		this.constrainTree = newConstraintState;
-	}
-	
-	public void setNoStartTree(boolean newStartingTreeState){
-		this.noStartingTree = true;
 	}
 	
 	public File getOutputFile(){

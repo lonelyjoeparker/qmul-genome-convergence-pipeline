@@ -8,6 +8,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.BasemlDocument;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.BasemlParameters;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
+import uk.ac.qmul.sbcs.evolution.convergence.util.VerboseSystemCommand;
 
 public class BasemlAnalysis extends PamlAnalysis {
 	private TreeMap<BasemlParameters, String> typedBasemlParameters;
@@ -97,24 +98,26 @@ public class BasemlAnalysis extends PamlAnalysis {
 	//			activeCtlFile.write(workingDir.getAbsolutePath(), name);
 			}
 			// TODO how to run a shell script?
-			try {
-				String exeString = (this.executionBinary.getAbsolutePath() + " " + basemlOutput.getAbsolutePath());
-				System.out.println(exeString);
-				Process p = Runtime.getRuntime().exec(exeString);
-				BufferedReader iReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-				String line = iReader.readLine();
-				int i = 0;
-				while(line != null){
-					System.out.println(i+" "+line);
-					line = iReader.readLine();
-					i++;
-				}
-				System.out.println("done");
-				this.hasRun = true;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String exeString = (this.executionBinary.getAbsolutePath() + " " + basemlOutput.getAbsolutePath());
+			System.out.println(exeString);
+			new VerboseSystemCommand(exeString);
+			this.hasRun = true;
+//			try {
+//				Process p = Runtime.getRuntime().exec(exeString);
+//				BufferedReader iReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+//				String line = iReader.readLine();
+//				int i = 0;
+//				while(line != null){
+//					System.out.println(i+" "+line);
+//					line = iReader.readLine();
+//					i++;
+//				}
+//				System.out.println("done");
+//				this.hasRun = true;
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 
 	/**
@@ -173,6 +176,16 @@ public class BasemlAnalysis extends PamlAnalysis {
 		if(this.SSLS == null){
 			this.determineSitewiseSSLS(PSR);
 		}
+		return this.SSLS;
+	}
+	
+	/**
+	 * @since - 02/11/2011
+	 * @return - a float[] of unsorted sitewise lnL values
+	 * NB this assumes determineSSLS() has already been called.
+	 * If it hasn't, will throw NullPointerException.
+	 */
+	public float[] getSitewiseSSLS(){
 		return this.SSLS;
 	}
 

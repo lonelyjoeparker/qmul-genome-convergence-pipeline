@@ -1,6 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.convergence.tests;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 import uk.ac.qmul.sbcs.evolution.convergence.*;
@@ -9,6 +10,8 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.*;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.BasemlParameters;
 import uk.ac.qmul.sbcs.evolution.convergence.runners.*;
 import uk.ac.qmul.sbcs.evolution.convergence.util.*;
+import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
+import uk.ac.qmul.sbcs.evolution.convergence.util.stats.PercentileOutOfRangeError;
 
 public class BasicConvergencePipelineTest {
 	/*
@@ -33,13 +36,15 @@ public class BasicConvergencePipelineTest {
 	 * 
 	 * 		Goto pub; exit();
 	 */
-	private String runID = "firstCongruenceTest";
+	private String runID = "secondCongruenceTest";
 	private File workDir;
 	private File sourceData;
 	private AlignedSequenceRepresentation sourceDataASR;
 	private SequenceCodingType inputSequenceCodingType;
 	private File sourceTree;
 	private String sourceTreeString;
+	private BasemlResultReader ntAnalysisOutput;
+	private File ntAnalysisOutputFile;
 	private File optimisedTreeNT;
 	private File pamlDataFileNT;
 	private File simulatedNTData;
@@ -57,6 +62,8 @@ public class BasicConvergencePipelineTest {
 	private File pamlCTLFileAASimulated;
 	private File SSLSaa;
 	private File SSLSaaTranslated;
+	private DataSeries empiricalNTDataLnL;
+	private DataSeries simulatedNTDataLnL;
 
 	public static void main(String[] args){
 		BasicConvergencePipelineTest pipeline = new BasicConvergencePipelineTest();
@@ -67,6 +74,7 @@ public class BasicConvergencePipelineTest {
 		pipeline.simulateNT();
 		pipeline.readSimulatedNTdata();
 		pipeline.doBasemlOnSimulatedData();
+		pipeline.compareSSLS(pipeline.empiricalNTDataLnL, pipeline.simulatedNTDataLnL);
 		pipeline.optimiseTreeAA();
 		pipeline.doAamlOnData();
 		pipeline.simulateAA();
@@ -104,13 +112,15 @@ public class BasicConvergencePipelineTest {
 		// TODO RAxMLAnalysis has not been tested.
 		RAxMLAnalysis ra = new RAxMLAnalysis(pamlDataFileNT, workDir, sourceTree, runID, RAxMLAnalysis.NTmodelOptions.GTRCAT, RAxMLAnalysis.algorithmOptions.e);
 		ra.RunAnalysis();
+		System.out.println(ra.getOutputFile().getAbsolutePath());
 	}
 
 	public void doBasemlOnData(){
+		this.ntAnalysisOutputFile = new File(pamlDataFileNT.getPath()+".baseml.out");
 		TreeMap<BasemlParameters, String> parameters = new TreeMap<BasemlParameters, String>();
 		parameters.put(BasemlParameters.SEQFILE, "seqfile = "+pamlDataFileNT.getAbsolutePath());
 		parameters.put(BasemlParameters.TREEFILE, "treefile = "+sourceTree.getAbsolutePath());
-		parameters.put(BasemlParameters.OUTFILE, "outfile = "+pamlDataFileNT.getPath()+"baseml.out");
+		parameters.put(BasemlParameters.OUTFILE, "outfile = "+ntAnalysisOutputFile.getAbsolutePath());
 		File[] treefiles = {sourceTree};
 		AlignedSequenceRepresentation[] datasets = {sourceDataASR};
 		BasemlAnalysis a = new BasemlAnalysis(datasets, treefiles, parameters,"basemlOnActualDataWhoop.ctl");
@@ -130,14 +140,23 @@ public class BasicConvergencePipelineTest {
 		 * 
 		 * TODO the treefile is still screwy, btw..
 		 */
-		a.getPatternSSLS();
+		TreeMap<String, Float> ntDataSSLS = a.getPatternSSLS();
+		float[] ntDataSSLSlnL = new float[ntDataSSLS.size()];
+		Iterator dataSSLSItr = ntDataSSLS.keySet().iterator();
+		int sIndex = 0;
+		while(dataSSLSItr.hasNext()){
+			ntDataSSLSlnL[sIndex] = ntDataSSLS.get(dataSSLSItr.next());
+			sIndex++;
+		}
+		empiricalNTDataLnL = new DataSeries(ntDataSSLSlnL,"nt lnL data");
+		this.ntAnalysisOutput = new BasemlResultReader(this.ntAnalysisOutputFile);
 	}
 	
 	public void simulateNT(){
 		// TODO get parametisation from treefile and pamlDataFileNT.getPath()+"baseml.out"
-		String simTree = "(((((((Bos:0.05785052,Tursiops:0.02951931):0.02616886,(Canis:0.04529243,Felis:0.03771493):0.02116793):0.00168035,Equus:0.04477773):0.00116782,(((Eidolon:0.01985485,Pteropus:0.01366940):0.03294410,(Megaderma:0.05900343,Rhinolophu:0.04393850):0.00690785):0.00372053,(Myotis:0.05432516,Pteronotus:0.05521158):0.01233150):0.01037568):0.00301172,Erinaceus:0.13013506):0.00750098,((Homo:0.00253268,Pan:0.00259210):0.04837197,Mus:0.16652704):0.00781731):0.00829466,(Dasypus:0.07494703,Loxodonta:0.06742841):0.00320961,Monodelphi:0.33543707);";
+//		String simTree = "(((((((Bos:0.05785052,Tursiops:0.02951931):0.02616886,(Canis:0.04529243,Felis:0.03771493):0.02116793):0.00168035,Equus:0.04477773):0.00116782,(((Eidolon:0.01985485,Pteropus:0.01366940):0.03294410,(Megaderma:0.05900343,Rhinolophu:0.04393850):0.00690785):0.00372053,(Myotis:0.05432516,Pteronotus:0.05521158):0.01233150):0.01037568):0.00301172,Erinaceus:0.13013506):0.00750098,((Homo:0.00253268,Pan:0.00259210):0.04837197,Mus:0.16652704):0.00781731):0.00829466,(Dasypus:0.07494703,Loxodonta:0.06742841):0.00320961,Monodelphi:0.33543707);";
 		File f = new File(workDir+"/testEvolverDocWrite_NT");
-		EvolverSimulation es = new EvolverSimulation(workDir,f,simTree,this.sourceDataASR.getNumberOfTaxa(),1000,1,this.inputSequenceCodingType);
+		EvolverSimulation es = new EvolverSimulation(workDir,f,this.ntAnalysisOutput.getOptimisedTree(),this.sourceDataASR.getNumberOfTaxa(),1000,1,this.inputSequenceCodingType);
 //		String exeString = "touch "+f.getAbsolutePath();
 //		System.out.println("\n\nattempting command "+exeString);
 //		try {
@@ -150,6 +169,10 @@ public class BasicConvergencePipelineTest {
 //		assert(f.canWrite());
 		es.initialiseSimulation();
 		es.addParameterReadyToSet("PAMLFLAG", "0");
+		es.setParameter("RATES", ntAnalysisOutput.getBaseRates());
+		es.setParameter("ALPHA", ntAnalysisOutput.getAlpha());
+		es.setParameter("BASEFREQS", ntAnalysisOutput.getBaseFreqs());
+//		es.setParameter("BASEFREQS", "0.25  0.25  0.25  0.25");
 		es.simulateNoArg();
 //		this.doSystem("/Applications/Phylogenetics/PAML/paml44_myVersion/src/evolver 5 "+f.getAbsolutePath());
 		new VerboseSystemCommand("cp -v "+System.getProperty("user.dir")+"/mc.paml /pamlTest/trialDataFromGeorgia/evolver.output.phy");
@@ -191,9 +214,57 @@ public class BasicConvergencePipelineTest {
 		 * 
 		 * TODO the treefile is still screwy, btw..
 		 */
-		a.getPatternSSLS();
+		TreeMap<String,Float> simulatedSSLS = a.getPatternSSLS();
+		assert(simulatedSSLS.size()>1);
+		float[] simulatedSSLSlnL = new float[simulatedSSLS.size()];
+		int sIndex = 0;
+		Iterator simulatedSSLSItr = simulatedSSLS.keySet().iterator();
+		while(simulatedSSLSItr.hasNext()){
+			String key = (String)simulatedSSLSItr.next();
+			assert(key != null);
+			simulatedSSLSlnL[sIndex] = simulatedSSLS.get(key);
+			sIndex++;
+		}
+		for(float lnL:simulatedSSLSlnL){
+			System.out.println("\tlnL: "+lnL);
+		}
+		simulatedNTDataLnL = new DataSeries(simulatedSSLSlnL, "Simulated NT lnL");
 	}
 
+	public void compareSSLS(DataSeries empirical, DataSeries simulated){
+		System.out.println("comparing data series '"+empirical.getName()+"' and '"+simulated.getName()+"'");
+		System.out.println(empirical.getName()+" mean: "+empirical.getMean()+" (SE: "+empirical.getSE()+")");
+		System.out.println(simulated.getName()+" mean: "+simulated.getMean()+" (SE: "+simulated.getSE()+")");
+		int[] intervals = {0,5,25,50,75,95,100};
+		float[] empiricalPercentiles = new float[7];
+		try {
+			for(int i=0;i<7;i++){
+				empiricalPercentiles[i] = empirical.getValueAtPercentile(intervals[i]);
+			}
+		} catch (PercentileOutOfRangeError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		float[] simulatedPercentiles = new float[7];
+		try {
+			for(int i=0;i<7;i++){
+				simulatedPercentiles[i] = simulated.getValueAtPercentile(intervals[i]);
+			}
+		} catch (PercentileOutOfRangeError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Interval\tEmpirical\t\tSimulated\n===================================================");
+		for(int i=0;i<7;i++){
+			System.out.println(intervals[i]+"\t\t"+empiricalPercentiles[i]+"\t\t"+simulatedPercentiles[i]);
+		}
+		try {
+			System.out.println("\nSimulated data lower 5% (value: "+simulated.getValueAtPercentile(5)+") overlaps empirical data at percentile: "+empirical.getPercentileCorrespondingToValue(simulated.getValueAtPercentile(5))+" (value: "+empirical.getValueAtPercentile(empirical.getPercentileCorrespondingToValue(simulated.getValueAtPercentile(5)))+")");
+		} catch (PercentileOutOfRangeError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
 	public void translateData(){}
 	public void optimiseTreeAA(){}
 	public void doAamlOnData(){}

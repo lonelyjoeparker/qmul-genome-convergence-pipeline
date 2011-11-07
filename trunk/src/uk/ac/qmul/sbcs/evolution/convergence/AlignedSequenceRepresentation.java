@@ -45,11 +45,13 @@ public class AlignedSequenceRepresentation {
 	
 	public void loadSequences(File inputFile, boolean reportInputRead) throws TaxaLimitException{
 		file = inputFile;
+		if(!file.canRead()){System.out.println("SERIOUS: cannot find input file "+file.getAbsolutePath());}
 		try{
 			rawInput = new BasicFileReader().loadSequences(file,reportInputRead);
 			for(String line:rawInput){
 				if(line.length() == 0){System.out.println("read: ["+line+"]");}
 			}
+			assert(rawInput.size()>0);
 			this.determineInputFileDatatype();
 			assert(sequenceFileTypeSet);
 			switch(inputSequenceFileFormat){

@@ -323,8 +323,8 @@ public class EvolverDocument {
 	public void finalizeParameters(){
 		for(String param: parameterSet.keySet()){
 			String value = parameterSet.get(param);
+			System.out.println(param+" will be set to "+value+"... hopefully?");
 			activeTemplate = activeTemplate.replaceFirst("PARAM_"+param, value);
-			System.out.println(param+" set to "+value+"... hopefully?");
 			// FIXME why aren't we writing this activeTemplate correctly?
 		}
 	}
@@ -375,7 +375,7 @@ public class EvolverDocument {
 	}
 
 	public void write(){
-		assert(this.outputFile.canWrite());
+//		assert(this.outputFile.canWrite());
 		finalizeParameters();
 		try {
 			assert(activeTemplate.length()>0);
@@ -399,5 +399,13 @@ public class EvolverDocument {
 			}
 		}
 		return retval;
+	}
+
+	public HashMap<String, String> getParameterSet() {
+		return parameterSet;
+	}
+
+	public void setParameterSet(HashMap<String, String> parameterSet) {
+		this.parameterSet = parameterSet;
 	}
 }

@@ -58,7 +58,7 @@ public class AamlResultReader {
 	public AamlResultReader(File afile){
 		this.file = afile;
 		this.reader = new BasicFileReader();
-		this.rawData = reader.loadSequences(file, false);
+		this.rawData = reader.loadSequences(file, false, false);
 		Pattern ratesK = Pattern.compile("JOE_PARAM_rKAPPA");
 		Pattern freqsK = Pattern.compile("JOE_PARAM_fKAPPA");
 		Pattern tree = Pattern.compile("JOE_PARAM_TREE");
@@ -124,6 +124,7 @@ public class AamlResultReader {
 				this.alpha = someline.split("zxcv")[1];
 			}
 			if(isObsAvg.find()){
+//				System.out.println(someline);
 				this.obsAvgFreqs = someline.split("AVG Average")[1];
 			}
 			if(isKRates.find()){

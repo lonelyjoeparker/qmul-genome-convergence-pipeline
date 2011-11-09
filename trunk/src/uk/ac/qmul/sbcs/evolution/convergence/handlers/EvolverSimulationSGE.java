@@ -18,7 +18,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.EvolverDocument;
  * @since 23/10/2011
  * @version 0.0.1
  */
-public class EvolverSimulation extends AbstractSequenceSimulation {
+public class EvolverSimulationSGE extends AbstractSequenceSimulation {
 	private AlignedSequenceRepresentation simulatedDataSet;
 	private HashMap<String, String> truncatedNamesHash = new HashMap<String, String>();
 	private HashMap<String, String> parameterSet = new HashMap<String, String>();
@@ -32,24 +32,14 @@ public class EvolverSimulation extends AbstractSequenceSimulation {
 	boolean hasRun = false;
 	boolean initialised = false;
 	private EvolverDocument activeSimDoc;
+	private File binaryLocation;
 	private File workingDir;
 	private File evolverDocumentFile;
 	private File evolverOutputFile;
-	private File binaryLocation;
 
-	public EvolverSimulation(){}
+	public EvolverSimulationSGE(){}
 
-	public EvolverSimulation(HashMap<String, String> truncatedNamesHash, String phylogeny, int sitesToSimulate, int replicates, SequenceCodingType sqt){
-		this.truncatedNamesHash = truncatedNamesHash;
-		this.phylogeny = phylogeny;
-		this.sitesToSimulate = sitesToSimulate;
-		this.replicates = replicates;
-		this.simulationSequenceCodingType = sqt;
-		// TODO consider explicit seed?
-	}
-
-	public EvolverSimulation(File binary, HashMap<String, String> truncatedNamesHash, String phylogeny, int sitesToSimulate, int replicates, SequenceCodingType sqt){
-		this.binaryLocation = binary;
+	public EvolverSimulationSGE(HashMap<String, String> truncatedNamesHash, String phylogeny, int sitesToSimulate, int replicates, SequenceCodingType sqt){
 		this.truncatedNamesHash = truncatedNamesHash;
 		this.phylogeny = phylogeny;
 		this.sitesToSimulate = sitesToSimulate;
@@ -67,7 +57,7 @@ public class EvolverSimulation extends AbstractSequenceSimulation {
 	 * 
 	 * This should be the preferred constructor.
 	 */
-	public EvolverSimulation(File binary, File workingDir, File ctlFile, String phylogeny, int numTaxa, int sitesToSimulate, int replicates, SequenceCodingType sqt){
+	public EvolverSimulationSGE(File binary, File workingDir, File ctlFile, String phylogeny, int numTaxa, int sitesToSimulate, int replicates, SequenceCodingType sqt){
 		this.binaryLocation = binary;
 		this.workingDir = workingDir;
 		this.phylogeny = phylogeny;
@@ -79,7 +69,7 @@ public class EvolverSimulation extends AbstractSequenceSimulation {
 		this.activeSimDoc = new EvolverDocument(this.simulationSequenceCodingType, this.evolverDocumentFile);
 	}
 
-	public EvolverSimulation(File workingDir, File ctlFile, String phylogeny, int numTaxa, int sitesToSimulate, int replicates, SequenceCodingType sqt){
+	public EvolverSimulationSGE(File workingDir, File ctlFile, String phylogeny, int numTaxa, int sitesToSimulate, int replicates, SequenceCodingType sqt){
 		this.workingDir = workingDir;
 		this.phylogeny = phylogeny;
 		this.numTaxa = numTaxa;
@@ -120,17 +110,17 @@ public class EvolverSimulation extends AbstractSequenceSimulation {
 		// TODO evolver binary location is currently HARD CODED
 		switch(this.simulationSequenceCodingType){
 		case DNA: 
-			new VerboseSystemCommand(this.binaryLocation+" 5 "+evolverDocumentFile.getAbsolutePath());
+			new VerboseSystemCommand("/usr/bin/perl -w runCmd.pl "+this.workingDir+" "+this.binaryLocation+" 5 "+evolverDocumentFile.getAbsolutePath());
 			break;
 		case RNA:
 			// FIXME need to check the theory/flow design here.. if the input actual data was RNA will the correct nt freqs be available???
-			new VerboseSystemCommand(this.binaryLocation+" 5 "+evolverDocumentFile.getAbsolutePath());
+			new VerboseSystemCommand("/usr/bin/perl -w runCmd.pl "+this.workingDir+" "+this.binaryLocation+" 5 "+evolverDocumentFile.getAbsolutePath());
 			break;
 		case CODON: 
-			new VerboseSystemCommand(this.binaryLocation+" 6 "+evolverDocumentFile.getAbsolutePath());
+			new VerboseSystemCommand("/usr/bin/perl -w runCmd.pl "+this.workingDir+" "+this.binaryLocation+" 6 "+evolverDocumentFile.getAbsolutePath());
 			break;
 		case AA: 
-			new VerboseSystemCommand(this.binaryLocation+" 7 "+evolverDocumentFile.getAbsolutePath());
+			new VerboseSystemCommand("/usr/bin/perl -w runCmd.pl "+this.workingDir+" "+this.binaryLocation+" 7 "+evolverDocumentFile.getAbsolutePath());
 			break;
 		default: assert(false); break;
 		}
@@ -189,5 +179,14 @@ public class EvolverSimulation extends AbstractSequenceSimulation {
 
 	public void setBinaryLocation(File binaryLocation) {
 		this.binaryLocation = binaryLocation;
+	}
+	
+	public void printCurrentParams(){
+		Iterator itr = this.activeSimDoc.getParameterSet().keySet().iterator();
+		System.out.println("Current evolver settings:");
+		while(itr.hasNext()){
+			String key = (String) itr.next();
+			System.out.println(key + "=  "+activeSimDoc.getParameterSet().get(key));
+		}
 	}
 }

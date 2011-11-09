@@ -47,7 +47,7 @@ public class AlignedSequenceRepresentation {
 		file = inputFile;
 		if(!file.canRead()){System.out.println("SERIOUS: cannot find input file "+file.getAbsolutePath());}
 		try{
-			rawInput = new BasicFileReader().loadSequences(file,reportInputRead);
+			rawInput = new CapitalisedFileReader().loadSequences(file,reportInputRead);
 			for(String line:rawInput){
 				if(line.length() == 0){System.out.println("read: ["+line+"]");}
 			}

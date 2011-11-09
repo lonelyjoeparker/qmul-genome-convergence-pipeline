@@ -140,7 +140,7 @@ public abstract class PamlAnalysis {
 			if(hasRun){
 				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
 				assert(lnfFile.canRead());
-				ArrayList<String> SSLSdata = new BasicFileReader().loadSequences(lnfFile, false);
+				ArrayList<String> SSLSdata = new CapitalisedFileReader().loadSequences(lnfFile, false);
 				boolean firstlineRead = false;
 				String firstline = "";
 				int numPatterns;

@@ -95,9 +95,10 @@ public class AamlAnalysisSGE extends PamlAnalysis {
 	//			activeCtlFile.write(workingDir.getAbsolutePath(), name);
 			}
 			// TODO how to run a shell script?
-			String exeString = ("/usr/bin/perl "+this.executionBinary.getAbsolutePath() + " " + aamlOutput.getAbsolutePath());
+			String exeString = ("/usr/bin/perl -w runCmd.pl "+this.workingDir.getAbsolutePath()+" "+this.executionBinary.getAbsolutePath() + " " + aamlOutput.getAbsolutePath());
 			System.out.println(exeString);
 			new VerboseSystemCommand(exeString);
+			this.hasRun = true;
 //			try {
 //				Process p = Runtime.getRuntime().exec(exeString);
 //				BufferedReader iReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -136,9 +137,12 @@ public class AamlAnalysisSGE extends PamlAnalysis {
 		}else{
 			patternSSLS = new TreeMap<String, Float>();		// Instantiate a new one. NB if !hasRun the object returned will be null...
 			if(hasRun){
-				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
+//				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
+				File lnfFile = new File(workingDir.getAbsolutePath()+"/lnf");
+				System.out.println("trying to read site patterns' lnL from "+lnfFile.getAbsolutePath());
 				assert(lnfFile.canRead());
-				ArrayList<String> SSLSdata = new BasicFileReader().loadSequences(lnfFile, false);
+				System.out.println("trying to read site patterns' lnL from "+lnfFile.getAbsolutePath());
+				ArrayList<String> SSLSdata = new CapitalisedFileReader().loadSequences(lnfFile, false);
 				boolean firstlineRead = false;
 				String firstline = "";
 				int numPatterns;

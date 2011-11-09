@@ -140,7 +140,7 @@ public class AamlAnalysis extends PamlAnalysis {
 				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
 				assert(lnfFile.canRead());
 				System.out.println("trying to read site patterns' lnL from "+lnfFile.getAbsolutePath());
-				ArrayList<String> SSLSdata = new BasicFileReader().loadSequences(lnfFile, false);
+				ArrayList<String> SSLSdata = new CapitalisedFileReader().loadSequences(lnfFile, false);
 				boolean firstlineRead = false;
 				String firstline = "";
 				int numPatterns;

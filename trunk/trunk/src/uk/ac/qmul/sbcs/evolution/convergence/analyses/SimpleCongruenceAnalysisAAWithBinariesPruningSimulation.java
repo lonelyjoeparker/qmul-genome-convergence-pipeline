@@ -12,6 +12,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.TaxonNotFoundError;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlResultReader;
+import uk.ac.qmul.sbcs.evolution.convergence.handlers.EvolverSimulationSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.AamlParameters;
@@ -26,7 +27,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.PercentileOutOfRangeErro
  *
  * A very simple congruence analysis to compare the SSLS values of an AA dataset on two input trees.
  */
-public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
+public class SimpleCongruenceAnalysisAAWithBinariesPruningSimulation {
 	// Initialise with data and two trees
 	// Aaml on tree 1
 	// Aaml on tree 2
@@ -39,6 +40,7 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 	private File treeFileTwoPruned;
 	private File workDir;
 	private File binariesLocation;
+	private File evolverBinary;
 	private String runID;
 	private AlignedSequenceRepresentation sourceDataASR;
 	private SequenceCodingType inputSequenceCodingType;
@@ -47,16 +49,20 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 	private File aaTreeDeNovoAnalysisOutputFile;
 	private File pamlDataFileAA;
 	private DataSeries treeOnelnL;
+	private DataSeries treeOneSimlnL;
 	private DataSeries treeTwolnL;
+	private DataSeries treeTwoSimlnL;
 	private DataSeries treeDeNovolnL;
+	private DataSeries treeDeNovoSimlnL;
 	private NewickTreeRepresentation treeOne;
 	private NewickTreeRepresentation treeOnePruned;
 	private NewickTreeRepresentation treeTwo;
 	private NewickTreeRepresentation treeTwoPruned;
 	private NewickTreeRepresentation treeRAxML;
 	private TreeSet<String> taxaList;
+	private int sitesInSimulations;
 	
-	public VerySimpleCongruenceAnalysisAAWithBinariesPruning(File data, File one, File two, File work, File binariesLocation, String ID, TreeSet<String> taxaList){
+	public SimpleCongruenceAnalysisAAWithBinariesPruningSimulation(File data, File one, File two, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate){
 		this.dataset = data;
 		this.treeFileOne = one;
 		this.treeFileTwo = two;
@@ -64,6 +70,8 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 		this.runID = ID;
 		this.taxaList = taxaList;
 		this.binariesLocation = binariesLocation;
+		this.sitesInSimulations = sitesToSimulate;
+		this.evolverBinary = new File(binariesLocation+"/evolver");
 	}
 	
 	public void go(){
@@ -135,8 +143,8 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileOnePruned.getAbsolutePath());
 		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaTreeOneAnalysisOutputFile.getAbsolutePath());
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
-		File[] treefiles = {this.treeFileOne};
-		AlignedSequenceRepresentation[] datasets = {sourceDataASR};
+		File[] treefiles = {this.treeFileOnePruned};
+		AlignedSequenceRepresentation[] datasets = {new AlignedSequenceRepresentation()};
 		AamlAnalysisSGE treeOneAaml = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeOne.ctl");
 		treeOneAaml.setBinaryDir(this.binariesLocation.getAbsoluteFile());
 		treeOneAaml.setExecutionBinary(new File(treeOneAaml.getBinaryDir(),"codeml"));
@@ -156,9 +164,9 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 		this.aaTreeTwoAnalysisOutputFile = new File(pamlDataFileAA.getPath()+".aamlTreeTwo.out");
 		parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileTwoPruned.getAbsolutePath());
-		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaTreeOneAnalysisOutputFile.getAbsolutePath());
+		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaTreeTwoAnalysisOutputFile.getAbsolutePath());
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
-		treefiles[0] = this.treeFileTwo;
+		treefiles[0] = this.treeFileTwoPruned;
 		AamlAnalysisSGE treeTwoAaml = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeTwo.ctl");
 		treeTwoAaml.setBinaryDir(this.binariesLocation.getAbsoluteFile());
 		treeTwoAaml.setExecutionBinary(new File(treeTwoAaml.getBinaryDir(),"codeml"));
@@ -197,7 +205,157 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 		}
 		treeDeNovolnL = new DataSeries(aaDataSSLSlnLdeNovo,"aa lnL data - RAxML tree");
 
+
+		/* Do simulation on Species tree */
+
+		File f = new File(workDir+"/testSimulationsFromParamsNucleotides");
+		AamlResultReader speciesTreeAaml = new AamlResultReader(aaTreeOneAnalysisOutputFile);
+		String tree = speciesTreeAaml.getOptimisedTree();
+		String treeLen = speciesTreeAaml.getTreeLength();
+		String alpha = "0";
+		String optimisedTree = speciesTreeAaml.getOptimisedTree();
+		int numberOfTaxa = this.sourceDataASR.getNumberOfTaxa();
+		int numberOfSites = this.sitesInSimulations;
+		int numberOfReplicates = 1;
+		EvolverSimulationSGE es = new EvolverSimulationSGE(this.evolverBinary,workDir,f,tree,numberOfTaxa,numberOfSites,numberOfReplicates,SequenceCodingType.AA);
+		es.initialiseSimulation();
+		es.addParameterReadyToSet("PAMLFLAG", "0");
+		es.setParameter("ALPHA", alpha);
+		es.setParameter("TREE_LENGTH", treeLen);
+		es.setParameter("AARATEFILE", this.binariesLocation+"/dat/mtmam.dat");
+		es.printCurrentParams();
+		es.simulateNoArg();
+		AlignedSequenceRepresentation simulatedSpp = new AlignedSequenceRepresentation();
+		try {
+			simulatedSpp.loadSequences(new File(this.workDir.getAbsoluteFile()+"/mc.paml"),false);
+		} catch (TaxaLimitException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		/* Do Aaml on data simulated on spp tree */
+		File aaSimTreeOneAnalysisOutputFile = new File(pamlDataFileAA.getPath()+".aamlSimTreeOne.out");
+		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
+		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileOnePruned.getAbsolutePath());
+		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSimTreeOneAnalysisOutputFile.getAbsolutePath());
+		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+		treefiles[0] = this.treeFileOnePruned;
+		datasets[0] = simulatedSpp;
+		AamlAnalysisSGE treeOneAamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeOneSim.ctl");
+		treeOneAamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+		treeOneAamlSim.setExecutionBinary(new File(treeOneAamlSim.getBinaryDir(),"codeml"));
+		treeOneAamlSim.setWorkingDir(workDir);
+		treeOneAamlSim.RunAnalysis();
+		TreeMap<String, Float> aaDataTreeOneSimSSLS = treeOneAamlSim.getPatternSSLS();
+		float[] aaDataSimSSLSlnL1 = new float[aaDataTreeOneSimSSLS.size()];
+		Iterator dataSimSSLSItr1 = aaDataTreeOneSimSSLS.keySet().iterator();
+		sIndex = 0;
+		while(dataSimSSLSItr1.hasNext()){
+			aaDataSimSSLSlnL1[sIndex] = aaDataTreeOneSimSSLS.get(dataSimSSLSItr1.next());
+			sIndex++;
+		}
+		treeOneSimlnL = new DataSeries(aaDataSimSSLSlnL1,"aa lnL data - tree 1 (sim)");
 		
+		/* Do simulation on Prestin tree */
+		
+		AamlResultReader prestinTreeAaml = new AamlResultReader(aaTreeTwoAnalysisOutputFile);
+		tree = prestinTreeAaml.getOptimisedTree();
+		treeLen = prestinTreeAaml.getTreeLength();
+		alpha = "0";
+		optimisedTree = prestinTreeAaml.getOptimisedTree();
+		numberOfTaxa = this.sourceDataASR.getNumberOfTaxa();
+		numberOfSites = this.sitesInSimulations;
+		numberOfReplicates = 1;
+		EvolverSimulationSGE ep = new EvolverSimulationSGE(this.evolverBinary,workDir,f,tree,numberOfTaxa,numberOfSites,numberOfReplicates,SequenceCodingType.AA);
+		ep.initialiseSimulation();
+		ep.addParameterReadyToSet("PAMLFLAG", "0");
+		ep.setParameter("ALPHA", alpha);
+		ep.setParameter("TREE_LENGTH", treeLen);
+		ep.setParameter("AARATEFILE", this.binariesLocation+"/dat/mtmam.dat");
+		ep.printCurrentParams();
+		ep.simulateNoArg();
+		AlignedSequenceRepresentation simulatedPre = new AlignedSequenceRepresentation();
+		try {
+			simulatedPre.loadSequences(new File(this.workDir.getAbsoluteFile()+"/mc.paml"),false);
+		} catch (TaxaLimitException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		/* Do Aaml on data simulated on prestin tree */
+
+		File aaSimTreeTwoAnalysisOutputFile = new File(pamlDataFileAA.getPath()+".aamlSimTreeTwo.out");
+		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
+		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileOnePruned.getAbsolutePath());
+		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSimTreeTwoAnalysisOutputFile.getAbsolutePath());
+		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+		treefiles[0] = this.treeFileTwoPruned;
+		datasets[0] = simulatedPre;
+		AamlAnalysisSGE treeTwoAamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreePreSim.ctl");
+		treeTwoAamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+		treeTwoAamlSim.setExecutionBinary(new File(treeTwoAamlSim.getBinaryDir(),"codeml"));
+		treeTwoAamlSim.setWorkingDir(workDir);
+		treeTwoAamlSim.RunAnalysis();
+		TreeMap<String, Float> aaDataTreeTwoSimSSLS = treeTwoAamlSim.getPatternSSLS();
+		float[] aaDataSimSSLSlnL2 = new float[aaDataTreeTwoSimSSLS.size()];
+		Iterator dataSimSSLSItr2 = aaDataTreeTwoSimSSLS.keySet().iterator();
+		sIndex = 0;
+		while(dataSimSSLSItr2.hasNext()){
+			aaDataSimSSLSlnL2[sIndex] = aaDataTreeTwoSimSSLS.get(dataSimSSLSItr2.next());
+			sIndex++;
+		}
+		treeTwoSimlnL = new DataSeries(aaDataSimSSLSlnL2,"aa lnL data - tree 2 (sim)");
+
+		/* Do simulation on de-novo (RAxML tree */
+
+		AamlResultReader raxTreeAaml = new AamlResultReader(this.aaTreeDeNovoAnalysisOutputFile);
+		tree = raxTreeAaml.getOptimisedTree();
+		treeLen = raxTreeAaml.getTreeLength();
+		alpha = "0";
+		optimisedTree = raxTreeAaml.getOptimisedTree();
+		numberOfTaxa = this.sourceDataASR.getNumberOfTaxa();
+		numberOfSites = this.sitesInSimulations;
+		numberOfReplicates = 1;
+		EvolverSimulationSGE er = new EvolverSimulationSGE(this.evolverBinary,workDir,f,tree,numberOfTaxa,numberOfSites,numberOfReplicates,SequenceCodingType.AA);
+		er.initialiseSimulation();
+		er.addParameterReadyToSet("PAMLFLAG", "0");
+		er.setParameter("ALPHA", alpha);
+		er.setParameter("TREE_LENGTH", treeLen);
+		er.setParameter("AARATEFILE", this.binariesLocation+"/dat/mtmam.dat");
+		er.printCurrentParams();
+		er.simulateNoArg();
+		AlignedSequenceRepresentation simulatedRax = new AlignedSequenceRepresentation();
+		try {
+			simulatedRax.loadSequences(new File(this.workDir.getAbsoluteFile()+"/mc.paml"),false);
+		} catch (TaxaLimitException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		/* Do Aaml on data simulated on RAxML (de novo) tree */
+
+		File aaSimTreeDeNovoAnalysisOutputFile = new File(pamlDataFileAA.getPath()+".aamlSimTreeDeNovo.out");
+		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
+		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileRAxMLdeNovo.getAbsolutePath());
+		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSimTreeDeNovoAnalysisOutputFile.getAbsolutePath());
+		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+		treefiles[0] = this.treeFileTwoPruned;
+		datasets[0] = simulatedRax;
+		AamlAnalysisSGE treeDeNovoAamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeRaxSim.ctl");
+		treeDeNovoAamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+		treeDeNovoAamlSim.setExecutionBinary(new File(treeDeNovoAamlSim.getBinaryDir(),"codeml"));
+		treeDeNovoAamlSim.setWorkingDir(workDir);
+		treeDeNovoAamlSim.RunAnalysis();
+		TreeMap<String, Float> aaDataTreeDeNovoSimSSLS = treeDeNovoAamlSim.getPatternSSLS();
+		float[] aaDataSimSSLSlnLrax = new float[aaDataTreeDeNovoSimSSLS.size()];
+		Iterator dataSimSSLSItrrax = aaDataTreeDeNovoSimSSLS.keySet().iterator();
+		sIndex = 0;
+		while(dataSimSSLSItrrax.hasNext()){
+			aaDataSimSSLSlnLrax[sIndex] = aaDataTreeDeNovoSimSSLS.get(dataSimSSLSItrrax.next());
+			sIndex++;
+		}
+		treeDeNovoSimlnL = new DataSeries(aaDataSimSSLSlnLrax,"aa lnL data - tree de novo (sim)");
+
 		/* Compare SSLS */
 
 		int[] intervals = new int[101];
@@ -231,13 +389,40 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		float[] treeOneSimPercentiles = new float[101];
+		try {
+			for(int i=0;i<101;i++){
+				treeOneSimPercentiles[i] = treeOneSimlnL.getValueAtPercentile(intervals[i]);
+			}
+		} catch (PercentileOutOfRangeError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		float[] treeTwoSimPercentiles = new float[101];
+		try {
+			for(int i=0;i<101;i++){
+				treeTwoSimPercentiles[i] = treeTwoSimlnL.getValueAtPercentile(intervals[i]);
+			}
+		} catch (PercentileOutOfRangeError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		float[] treeRaxSimPercentiles = new float[101];
+		try {
+			for(int i=0;i<101;i++){
+				treeRaxSimPercentiles[i] = treeDeNovoSimlnL.getValueAtPercentile(intervals[i]);
+			}
+		} catch (PercentileOutOfRangeError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		StringBuilder logfileData = new StringBuilder();
-		System.out.println("Interval\tTree 1\t\tTree 2\t\tRAxML\n=============================================================");
+		System.out.println("Interval\tTree 1\t\tTree1 sim\t\tTree 2\t\tTree2 sim\t\tRAxML\t\tRaxML sim\n=============================================================");
 		logfileData.append(runID+"\nInput: "+this.dataset.getAbsolutePath().toString()+"\nInterval\tTree 1\t\tTree 2\t\tRAxML\n=============================================================\n");
 		for(int i=0;i<101;i++){
-			System.out.println(intervals[i]+"\t\t"+treeOnePercentiles[i]+"\t"+treeTwoPercentiles[i]+"\t"+treeDeNovoPercentiles[i]);
-			logfileData.append(intervals[i]+"\t\t"+treeOnePercentiles[i]+"\t"+treeTwoPercentiles[i]+"\t"+treeDeNovoPercentiles[i]+"\n");
+			System.out.println(intervals[i]+"\t\t"+treeOnePercentiles[i]+"\t"+treeOneSimPercentiles[i]+"\t"+treeTwoPercentiles[i]+"\t"+treeTwoSimPercentiles[i]+"\t"+treeDeNovoPercentiles[i]+"\t"+treeRaxSimPercentiles[i]);
+			logfileData.append(intervals[i]+"\t\t"+treeOnePercentiles[i]+"\t"+treeOneSimPercentiles[i]+"\t"+treeTwoPercentiles[i]+"\t"+treeTwoSimPercentiles[i]+"\t"+treeDeNovoPercentiles[i]+"\t"+treeRaxSimPercentiles[i]+"\n");
 		}
 		File logfile = new File(this.workDir.getAbsolutePath()+"/"+runID+".SSLS.out");
 		BasicFileWriter writer = new BasicFileWriter(logfile, logfileData.toString());

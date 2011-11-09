@@ -56,7 +56,7 @@ public class CodemlResultReader {
 	public CodemlResultReader(File afile){
 		this.file = afile;
 		this.reader = new BasicFileReader();
-		this.rawData = reader.loadSequences(file, false);
+		this.rawData = reader.loadSequences(file, false, false);
 		Pattern ratesK = Pattern.compile("JOE_PARAM_rKAPPA");
 		Pattern freqsK = Pattern.compile("JOE_PARAM_fKAPPA");
 		Pattern tree = Pattern.compile("JOE_PARAM_TREE");

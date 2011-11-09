@@ -13,6 +13,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.TaxonNotFoundError;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.BasemlAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.BasemlResultReader;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysis;
+import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.BasemlParameters;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
@@ -67,7 +68,7 @@ public class VerySimpleCongruenceAnalysisWithTreePruning {
 		System.out.println(workDir.getAbsolutePath().toString());
 		this.sourceDataASR = new AlignedSequenceRepresentation();
 		try {
-			sourceDataASR.loadSequences(dataset,true);
+			sourceDataASR.loadSequences(dataset,false);
 		} catch (TaxaLimitException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -96,7 +97,7 @@ public class VerySimpleCongruenceAnalysisWithTreePruning {
 		
 		/* Get a de-novo RAxML tree */
 		
-		RAxMLAnalysis ra = new RAxMLAnalysis(pamlDataFileNT, workDir, treeOne.getTreeFile(), runID, RAxMLAnalysis.NTmodelOptions.GTRCAT, RAxMLAnalysis.algorithmOptions.e);
+		RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileNT, workDir, treeOne.getTreeFile(), runID, RAxMLAnalysisSGE.NTmodelOptions.GTRCAT, RAxMLAnalysisSGE.algorithmOptions.e);
 		ra.setTreeConstraint(false);
 		ra.setNoStartTree(true);
 		ra.RunAnalysis();

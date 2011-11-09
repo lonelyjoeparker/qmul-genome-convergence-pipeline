@@ -5,7 +5,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
+import uk.ac.qmul.sbcs.evolution.convergence.util.CapitalisedFileReader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 
 /**
@@ -35,7 +35,7 @@ public class NewickTreeRepresentation {
 	
 	public NewickTreeRepresentation(File inputFile, TreeSet<String> names){
 		this.treeFile = inputFile;
-		this.treeString = new BasicFileReader().loadSequences(treeFile,true).get(0);
+		this.treeString = new CapitalisedFileReader().loadSequences(treeFile,true).get(0);
 		this.taxaNames = names;
 		this.numberOfTaxa = taxaNames.size();
 	}
@@ -48,7 +48,7 @@ public class NewickTreeRepresentation {
 	 */
 	public NewickTreeRepresentation(File inputFile){
 		this.treeFile = inputFile;
-		this.treeString = new BasicFileReader().loadSequences(treeFile,true).get(0);
+		this.treeString = new CapitalisedFileReader().loadSequences(treeFile,true).get(0);
 		this.taxaNames = this.obtainTaxaNames(treeString);
 		this.numberOfTaxa = taxaNames.size();
 	}

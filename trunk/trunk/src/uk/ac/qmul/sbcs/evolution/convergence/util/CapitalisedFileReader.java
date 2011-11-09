@@ -5,7 +5,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
-public class BasicFileReader {
+/**
+ * 
+ * @author Joe Parker
+ * @version 0.1
+ * @since 08/11/2011
+ * 
+ * This version of the BasicFileReader class automatically capitalises all input. Intended for use when reading sequence files and phylogenies to avoid taxon name conflicts.
+ *
+ */
+public class CapitalisedFileReader {
 
 	private File file;
 	private ArrayList<String> rawInput = new ArrayList<String>();
@@ -45,7 +54,7 @@ public class BasicFileReader {
 		return rawInput;
 	}
 
-	public ArrayList<String> loadSequences(File inputFile, boolean reportBufferStatus, boolean capitaliseInput){
+	public ArrayList<String> loadSequences(File inputFile, boolean reportBufferStatus){
 		file = inputFile;
 		int lines = 0;
 		if(reportBufferStatus){
@@ -70,11 +79,7 @@ public class BasicFileReader {
 							if(reportBufferStatus){
 								System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
 							}
-							if(capitaliseInput){
-								rawInput.add(line.toUpperCase());
-							}else{
-								rawInput.add(line);
-							}
+							rawInput.add(line.toUpperCase());
 					//		lines++;
 						} // LINE SEPARATORS REMOVED, 30/09/2011
 						lines++;

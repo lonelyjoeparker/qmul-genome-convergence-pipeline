@@ -7,7 +7,7 @@ import javax.swing.JFileChooser;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.BasemlDocument;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.BasemlParameters;
-import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
+import uk.ac.qmul.sbcs.evolution.convergence.util.CapitalisedFileReader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.VerboseSystemCommand;
 
 public class BasemlAnalysis extends PamlAnalysis {
@@ -142,7 +142,7 @@ public class BasemlAnalysis extends PamlAnalysis {
 			if(hasRun){
 				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
 				assert(lnfFile.canRead());
-				ArrayList<String> SSLSdata = new BasicFileReader().loadSequences(lnfFile, false);
+				ArrayList<String> SSLSdata = new CapitalisedFileReader().loadSequences(lnfFile, false);
 				boolean firstlineRead = false;
 				String firstline = "";
 				int numPatterns;

@@ -1,0 +1,18 @@
+#summary Basic information about this library
+
+= Introduction =
+
+The Genome Convergence Pipeline library is an API for running batch-enabled high-throughput analyses of aligned genomic data, primarily to explore signals of molecular convergence.
+
+
+= Details =
+
+*This API is at alpha level only*
+This readme is a placeholder until we have tested the package to beta level. 
+For more questions please contact Joe Parker: j.d.parker@qmul.ac.uk
+
+= Acknowledgements =
+
+This work at Queen Mary, University of Lonfon, is supported by BBSRC and the Royal Society, UK.
+Written by Joe Parker in the Rossiter research group.
+Infrastructure support for this project comes from Mahesh Pancholi (School of Biological and Chemical Sciences) and Christopher Walker (Engineering and Physical Sciences)

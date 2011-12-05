@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.Random;
 
 import uk.ac.qmul.sbcs.evolution.convergence.util.*;
+import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
 
 /**
  * @author Joe Parker, <a href="http://code.google.com/a/eclipselabs.org/u/joeparkerandthemegahairymen/">Kitson Consulting Ltd / Queen Mary, University of London.</a>
@@ -1144,5 +1145,41 @@ public class AlignedSequenceRepresentation {
 			exitState = false;
 		}
 		return exitState;
+	}
+
+	/**
+	 * 
+	 * @param SitePatternsSSLS - a TreeMap<String, Float> of site patterns and their lnL values
+	 * @return fullSSLS - the sitewise lnL for each site in the alignment.
+	 * @see DataSeries
+	 * @since 2011/11/30
+	 * @author Joe Parker
+	 * 
+	 * This method takes a set of site patterns (as in PAML) with associated lnL values and the *actual* sites in this ASR, and matches each site with the correct lnL.  
+	 * <h2>IMPORTANT!</h2>
+	 * Site patterns that are present in the data but <b>not</b> in the PAML output (e.g., gaps that aren't processed by codeml) are coded with lnL = 0.0f.
+	 * This is done to avoid fails but all lnL of 0.0 should therefore be treated properly.
+	 * A different option would be to code them 99.9...
+	 */
+	public DataSeries getFullSitesLnL(TreeMap<String, Float> SitePatternsSSLS) {
+		// TODO Auto-generated method stub
+		transposedSites = this.getTransposedSites();
+		float[] sitePatterns = new float[transposedSites.length];
+		/*
+		 * Iterate through the sites, querying the site patterns to get their lnL
+		 */
+		int i = 0;
+		for(String pattern:transposedSites){
+			try {
+				sitePatterns[i] = SitePatternsSSLS.get(pattern);
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				sitePatterns[i] = 0.0f; // this site pattern has not been seen (contains a gap?)
+			}
+			i++;
+		}
+		DataSeries fullSSLS= new DataSeries(sitePatterns,"full site lnL");
+		return fullSSLS;
 	}
 }

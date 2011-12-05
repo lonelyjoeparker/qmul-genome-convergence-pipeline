@@ -150,7 +150,8 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 			aaDataSSLSlnL1[sIndex] = aaDataTreeOneSSLS.get(dataSSLSItr1.next());
 			sIndex++;
 		}
-		treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
+//		treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
+		treeOnelnL = sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS);
 
 		// Tree 2
 		this.aaTreeTwoAnalysisOutputFile = new File(pamlDataFileAA.getPath()+".aamlTreeTwo.out");
@@ -172,7 +173,8 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 			aaDataSSLSlnL2[sIndex] = aaDataTreeTwoSSLS.get(dataSSLSItr2.next());
 			sIndex++;
 		}
-		treeTwolnL = new DataSeries(aaDataSSLSlnL2,"aa lnL data - tree 2");
+//		treeTwolnL = new DataSeries(aaDataSSLSlnL2,"aa lnL data - tree 2");
+		treeTwolnL = sourceDataASR.getFullSitesLnL(aaDataTreeTwoSSLS);
 		
 
 		// RAxML tree 
@@ -195,7 +197,8 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 			aaDataSSLSlnLdeNovo[sIndex] = aaDataTreeDeNovoSSLS.get(dataSSLSItrdeNovo.next());
 			sIndex++;
 		}
-		treeDeNovolnL = new DataSeries(aaDataSSLSlnLdeNovo,"aa lnL data - RAxML tree");
+//		treeDeNovolnL = new DataSeries(aaDataSSLSlnLdeNovo,"aa lnL data - RAxML tree");
+		treeDeNovolnL = sourceDataASR.getFullSitesLnL(aaDataTreeDeNovoSSLS);
 
 		
 		/* Compare SSLS */
@@ -207,7 +210,13 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 		float[] treeOnePercentiles = new float[101];
 		try {
 			for(int i=0;i<101;i++){
-				treeOnePercentiles[i] = treeOnelnL.getValueAtPercentile(intervals[i]);
+				try {
+					treeOnePercentiles[i] = treeOnelnL.getValueAtPercentile(intervals[i]);
+				} catch (IndexOutOfBoundsException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.out.println("tree one lnL size "+treeOnelnL.getCount());
+				}
 			}
 		} catch (PercentileOutOfRangeError e) {
 			// TODO Auto-generated catch block

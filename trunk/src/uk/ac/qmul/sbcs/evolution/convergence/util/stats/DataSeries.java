@@ -172,4 +172,9 @@ public class DataSeries {
 	public String getName() {
 		return name;
 	}
+
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return count;
+	}
 }

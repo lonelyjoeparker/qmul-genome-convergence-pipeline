@@ -158,7 +158,8 @@ public class SimpleCongruenceAnalysisAAWithBinariesPruningSimulation {
 			aaDataSSLSlnL1[sIndex] = aaDataTreeOneSSLS.get(dataSSLSItr1.next());
 			sIndex++;
 		}
-		treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
+//		treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
+		treeOnelnL = sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS);
 
 		// Tree 2
 		this.aaTreeTwoAnalysisOutputFile = new File(pamlDataFileAA.getPath()+".aamlTreeTwo.out");
@@ -180,7 +181,8 @@ public class SimpleCongruenceAnalysisAAWithBinariesPruningSimulation {
 			aaDataSSLSlnL2[sIndex] = aaDataTreeTwoSSLS.get(dataSSLSItr2.next());
 			sIndex++;
 		}
-		treeTwolnL = new DataSeries(aaDataSSLSlnL2,"aa lnL data - tree 2");
+//		treeTwolnL = new DataSeries(aaDataSSLSlnL2,"aa lnL data - tree 2");
+		treeTwolnL = sourceDataASR.getFullSitesLnL(aaDataTreeTwoSSLS);
 		
 
 		// RAxML tree 
@@ -203,7 +205,8 @@ public class SimpleCongruenceAnalysisAAWithBinariesPruningSimulation {
 			aaDataSSLSlnLdeNovo[sIndex] = aaDataTreeDeNovoSSLS.get(dataSSLSItrdeNovo.next());
 			sIndex++;
 		}
-		treeDeNovolnL = new DataSeries(aaDataSSLSlnLdeNovo,"aa lnL data - RAxML tree");
+//		treeDeNovolnL = new DataSeries(aaDataSSLSlnLdeNovo,"aa lnL data - RAxML tree");
+		treeDeNovolnL = sourceDataASR.getFullSitesLnL(aaDataTreeDeNovoSSLS);
 
 
 		/* Do simulation on Species tree */
@@ -254,7 +257,8 @@ public class SimpleCongruenceAnalysisAAWithBinariesPruningSimulation {
 			aaDataSimSSLSlnL1[sIndex] = aaDataTreeOneSimSSLS.get(dataSimSSLSItr1.next());
 			sIndex++;
 		}
-		treeOneSimlnL = new DataSeries(aaDataSimSSLSlnL1,"aa lnL data - tree 1 (sim)");
+//		treeOneSimlnL = new DataSeries(aaDataSimSSLSlnL1,"aa lnL data - tree 1 (sim)");
+		treeOneSimlnL = simulatedSpp.getFullSitesLnL(aaDataTreeOneSimSSLS);
 		
 		/* Do simulation on Prestin tree */
 		
@@ -304,7 +308,8 @@ public class SimpleCongruenceAnalysisAAWithBinariesPruningSimulation {
 			aaDataSimSSLSlnL2[sIndex] = aaDataTreeTwoSimSSLS.get(dataSimSSLSItr2.next());
 			sIndex++;
 		}
-		treeTwoSimlnL = new DataSeries(aaDataSimSSLSlnL2,"aa lnL data - tree 2 (sim)");
+//		treeTwoSimlnL = new DataSeries(aaDataSimSSLSlnL2,"aa lnL data - tree 2 (sim)");
+		treeTwoSimlnL = simulatedPre.getFullSitesLnL(aaDataTreeTwoSimSSLS);
 
 		/* Do simulation on de-novo (RAxML tree */
 
@@ -354,7 +359,8 @@ public class SimpleCongruenceAnalysisAAWithBinariesPruningSimulation {
 			aaDataSimSSLSlnLrax[sIndex] = aaDataTreeDeNovoSimSSLS.get(dataSimSSLSItrrax.next());
 			sIndex++;
 		}
-		treeDeNovoSimlnL = new DataSeries(aaDataSimSSLSlnLrax,"aa lnL data - tree de novo (sim)");
+//		treeDeNovoSimlnL = new DataSeries(aaDataSimSSLSlnLrax,"aa lnL data - tree de novo (sim)");
+		treeDeNovoSimlnL = simulatedRax.getFullSitesLnL(aaDataTreeDeNovoSimSSLS);
 
 		/* Compare SSLS */
 

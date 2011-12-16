@@ -179,11 +179,21 @@ public class NewickTreeRepresentation {
 					editsThisPass++;
 				}
 
+				
 				/* This may be the most complicated edit:
 				 * Look for whole taxa (incl. branch lengths) surrounded by brackets.
 				 * Remove brackets
 				 * Replace .... 
 				 */
+				System.out.println("Skipping orphan taxa check, refer to javadoc for NewickTreeRepresentation.");
+/**
+ * 
+ * 	VERY IMPORTANT
+ *  @since 0.0.1 - Date 7/12/2011
+ *  This routine has been removed... seems to be unnecessary for PAML and causes errors.
+ *  
+ *  BEGIN DELETION
+ */
 				System.out.println("CHECK: orphan taxa");
 				regex = "\\([A-Za-z|\\_|\\-]{1,}:[0-9|\\.]{1,}\\)";
 		//		regex = "Bos";
@@ -192,19 +202,24 @@ public class NewickTreeRepresentation {
 				Matcher orphanMatch = orphan.matcher(this.treeString);
 				if(orphanMatch.find()){
 					String foundOrphan = orphanMatch.group();
-					System.out.println("WARNING! detected orphan taxon "+foundOrphan+", paml may have trouble: tmp"+tmp);
+					String replacement = foundOrphan.substring(1,foundOrphan.length()-2);
+					System.out.println("WARNING! detected orphan taxon "+foundOrphan+", paml may have trouble: tmp"+tmp+"\nReplacing "+replacement);
 					tmp = treeString.replaceAll(regex, foundOrphan.substring(1,foundOrphan.length()-2)); //set with an arbitrary branch length...
 					this.treeString = tmp;
 					System.out.println("tst"+treeString);
 					editsThisPass++;
 //					tmp = treeString; //just for now, reset tmp just in case...
 				}
-				System.out.println("NO: orphan taxa");
-
+ 				System.out.println("NO: orphan taxa");
+/**
+ *	END DELETION
+ *
+ */
 				if(editsThisPass < 1){
 					replacementNeeded = false;
 					System.out.println("Done pruning tree");
 				}
+
 			}
 		}else{
 			throw new TaxonNotFoundError();

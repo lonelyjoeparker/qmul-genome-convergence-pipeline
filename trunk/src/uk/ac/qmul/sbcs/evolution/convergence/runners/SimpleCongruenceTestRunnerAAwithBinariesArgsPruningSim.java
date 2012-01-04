@@ -45,7 +45,7 @@ public class SimpleCongruenceTestRunnerAAwithBinariesArgsPruningSim {
 		taxaList.add("ORYCTOLAGUS");
 		taxaList.add("SOREX");
 		SimpleCongruenceAnalysisAAWithBinariesPruningSimulation analysis = new SimpleCongruenceAnalysisAAWithBinariesPruningSimulation(dataSet, treeFileOne, treeFileTwo, workDir, binaries, runID, taxaList, replicatesForNull);
-		analysis.go();
+			analysis.go();
 	}
 
 }

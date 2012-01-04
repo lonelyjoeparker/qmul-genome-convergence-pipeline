@@ -20,6 +20,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.PercentileOutOfRangeError;
+import uk.ac.qmul.sbcs.evolution.convergence.util.stats.UnequalDataSeriesLengthException;
 
 /**
  * 
@@ -362,7 +363,23 @@ public class SimpleCongruenceAnalysisAAWithBinariesPruningSimulation {
 //		treeDeNovoSimlnL = new DataSeries(aaDataSimSSLSlnLrax,"aa lnL data - tree de novo (sim)");
 		treeDeNovoSimlnL = simulatedRax.getFullSitesLnL(aaDataTreeDeNovoSimSSLS);
 
-		/* Compare SSLS */
+		/* Compute SSLS */
+		try {
+			DataSeries sppPreDifferences = treeOnelnL.compareData(treeTwolnL);
+			sppPreDifferences.printBasic();
+		} catch (UnequalDataSeriesLengthException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
+			DataSeries sppRaxDifferences = treeOnelnL.compareData(treeDeNovolnL);
+			sppRaxDifferences.printBasic();
+		} catch (UnequalDataSeriesLengthException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		/* Compare lnL distributions */
 
 		int[] intervals = new int[101];
 		for(int aBin=0;aBin<101;aBin++){

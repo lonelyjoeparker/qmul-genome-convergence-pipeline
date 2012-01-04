@@ -189,4 +189,9 @@ public class EvolverSimulationSGE extends AbstractSequenceSimulation {
 			System.out.println(key + "=  "+activeSimDoc.getParameterSet().get(key));
 		}
 	}
+
+	public void setSitesToSimulate(int sitesToSimulate) {
+		this.sitesToSimulate = sitesToSimulate;
+	}
+
 }

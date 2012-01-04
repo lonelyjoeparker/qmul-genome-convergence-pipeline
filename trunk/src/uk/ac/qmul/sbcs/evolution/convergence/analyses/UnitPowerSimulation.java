@@ -51,6 +51,23 @@ public class UnitPowerSimulation {
 	@Deprecated
 	public UnitPowerSimulation(){}
 	
+	/**
+	 * 
+	 * @param dataSimulation
+	 * @param nullSimulation
+	 * @param workDir
+	 * @param binariesLocation
+	 * @param runID
+	 * @param model
+	 * @param datasetSize
+	 * @param nullDataSize
+	 * @param sitesToConverge
+	 * @param taxaToConverge
+	 * @param taxaToRemove
+	 * @param masterTaxon
+	 * @param sequenceCodingType
+	 * @param taxaList
+	 */
 	public UnitPowerSimulation(EvolverSimulationSGE dataSimulation, EvolverSimulationSGE nullSimulation, File workDir, File binariesLocation, String runID, String model, int datasetSize, int nullDataSize, int sitesToConverge, String[] taxaToConverge, String[] taxaToRemove, String masterTaxon, SequenceCodingType sequenceCodingType,TreeSet<String> taxaList){
 		this.dataSimulation = dataSimulation;
 		this.nullSimulation = nullSimulation;

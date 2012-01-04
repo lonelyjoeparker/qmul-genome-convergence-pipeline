@@ -7,7 +7,9 @@ import java.util.Collections;
  * 
  * @author Joe Parker
  * @since 19 October, 2011
- *
+ * @see PercentileOutOfRangeError
+ * 
+ * This class is intended to provide basic utility methods for a vector of float data.
  */
 public class DataSeries {
 	private final ArrayList<Float> listData;
@@ -41,6 +43,10 @@ public class DataSeries {
 			this.data[i] = listData.get(i); 
 		}
 		this.listData = listData;
+	}
+	
+	public float[] getData(){
+		return data;
 	}
 	
 	public void formBins(float[] intervals){
@@ -93,6 +99,9 @@ public class DataSeries {
 	 * @param percentile - the desired percentile of the data
 	 * @return float - value found in the distribution at that percentile
 	 * @throws PercentileOutOfRangeError - if argument < 0 or > 100
+	 * 
+	 * TODO Note that this class will return zeroes or NaN when there are fewer than 100 floats in the bin - RIRO
+	 * FIXME This needs correcting.
 	 */
 	public float getValueAtPercentile(int percentile) throws PercentileOutOfRangeError{
 		Collections.sort(this.listData);
@@ -117,6 +126,9 @@ public class DataSeries {
 	 * 
 	 * @param bound - the data position we are looking from
 	 * @return percentile - the percentile at which this data is found in the data
+	 * 
+	 * TODO Note that this class will return zeroes or NaN when there are fewer than 100 floats in the bin - RIRO
+	 * FIXME This needs correcting.
 	 */
 	public int getPercentileCorrespondingToValue(float bound){
 		int percentile = 0;
@@ -176,5 +188,28 @@ public class DataSeries {
 	public int getCount() {
 		// TODO Auto-generated method stub
 		return count;
+	}
+	
+	public DataSeries compareData(DataSeries otherData) throws UnequalDataSeriesLengthException{
+		if(otherData.count != this.count){
+			throw new UnequalDataSeriesLengthException();
+		}else{
+			float[] differences = new float[count];
+			float[] otherDataArray = otherData.getData();
+			for(int i=0;i<count;i++){
+				differences[i] = data[i] - otherDataArray[i];
+			}
+			return new DataSeries(differences, "Differences between "+this.name+" and "+otherData.getMode());
+		}
+	}
+	
+	/*
+	 * Prints the data series to stdout.
+	 */
+	public void printBasic(){
+		System.out.println(name);
+		for(float value:data){
+			System.out.println(value);
+		}
 	}
 }

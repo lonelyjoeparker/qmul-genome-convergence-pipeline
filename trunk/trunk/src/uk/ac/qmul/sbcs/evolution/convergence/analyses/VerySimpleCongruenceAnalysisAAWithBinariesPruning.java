@@ -135,6 +135,7 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileOnePruned.getAbsolutePath());
 		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaTreeOneAnalysisOutputFile.getAbsolutePath());
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+		parameters.put(AamlParameters.CLEANDATA, "cleandata = 0");
 		File[] treefiles = {this.treeFileOne};
 		AlignedSequenceRepresentation[] datasets = {sourceDataASR};
 		AamlAnalysisSGE treeOneAaml = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeOne.ctl");
@@ -159,6 +160,7 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileTwoPruned.getAbsolutePath());
 		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaTreeOneAnalysisOutputFile.getAbsolutePath());
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+		parameters.put(AamlParameters.CLEANDATA, "cleandata = 0");
 		treefiles[0] = this.treeFileTwo;
 		AamlAnalysisSGE treeTwoAaml = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeTwo.ctl");
 		treeTwoAaml.setBinaryDir(this.binariesLocation.getAbsoluteFile());
@@ -183,6 +185,7 @@ public class VerySimpleCongruenceAnalysisAAWithBinariesPruning {
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileRAxMLdeNovo.getAbsolutePath());
 		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaTreeDeNovoAnalysisOutputFile.getAbsolutePath());
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+		parameters.put(AamlParameters.CLEANDATA, "cleandata = 0");
 		treefiles[0] = this.treeFileRAxMLdeNovo;
 		AamlAnalysisSGE treeDeNovoAaml = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeDeNovo.ctl");
 		treeDeNovoAaml.setBinaryDir(this.binariesLocation.getAbsoluteFile());

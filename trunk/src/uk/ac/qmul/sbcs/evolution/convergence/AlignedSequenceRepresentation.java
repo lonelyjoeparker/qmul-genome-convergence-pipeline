@@ -559,9 +559,10 @@ public class AlignedSequenceRepresentation {
 	 * @param masterTaxon - The taxon that is being treated as the master. Sites will be converged to this taxon's sequence randomly
 	 * @param taxaToForce - The taxa that in which convergence is to be simulated.
 	 * @param numberOfSitesToConverge - The number of sites to be forced to converge.
+	 * @throws TaxaAbsentFromAlignmentException  - In cases where the taxaToForce are not present in the alignment (check case of taxa?) 
+	 * @throws VariantSitesUnavailableException 
 	 */
-	public void simulateConvergence(String masterTaxon, String[] taxaToForce, int numberOfSitesToConverge){
-		System.out.println("Not implemented");
+	public void simulateConvergence(String masterTaxon, String[] taxaToForce, int numberOfSitesToConverge) throws TaxaAbsentFromAlignmentException, VariantSitesUnavailableException{
 		char[] masterSequence = sequenceHash.get(masterTaxon);
 		int[] targetSitesIndices;
 		// TODO determine which sites we will converge at.
@@ -580,6 +581,7 @@ public class AlignedSequenceRepresentation {
 					targetSet.add(i);
 				}
 			}
+			throw new VariantSitesUnavailableException();
 		}else{
 			targetSitesIndices = new int[numberOfSitesToConverge];
 			// TODO time to randomize and get those indices.
@@ -602,14 +604,18 @@ public class AlignedSequenceRepresentation {
 			case AA:
 				// TODO force AA convergence
 				// TODO pay close attention to perl implementation
-				for(String taxon:taxaListArray){
-					char[] currentSequence = sequenceHash.remove(taxon);
-					// Do stuff to it
-					for(int index:targetSitesIndices){
-						currentSequence[index] = masterSequence[index];
+				for(String taxon:taxaToForce){
+					if(taxaList.contains(taxon)){
+						char[] currentSequence = sequenceHash.remove(taxon);
+						// Do stuff to it
+						for(int index:targetSitesIndices){
+							currentSequence[index] = masterSequence[index];
+						}
+						char[] newSequence = currentSequence;
+						sequenceHash.put(taxon, newSequence);
+					}else{
+						throw new TaxaAbsentFromAlignmentException();
 					}
-					char[] newSequence = currentSequence;
-					sequenceHash.put(taxon, newSequence);
 				}
 				break;
 			case RNA:

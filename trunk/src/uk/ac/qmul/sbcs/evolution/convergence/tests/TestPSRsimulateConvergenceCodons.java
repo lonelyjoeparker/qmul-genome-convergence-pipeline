@@ -44,7 +44,7 @@ public class TestPSRsimulateConvergenceCodons {
 				
 				System.out.println("converging "+last+" sequence to "+first);
 				String[] taxaToForce = {last};
-				PSR.simulateConvergence(first, taxaToForce, 69);
+				PSR.simulateConvergence(first, taxaToForce, 6);
 				PSR.printShortSequences(20);
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block

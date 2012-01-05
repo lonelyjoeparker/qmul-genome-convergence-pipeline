@@ -194,4 +194,7 @@ public class EvolverSimulationSGE extends AbstractSequenceSimulation {
 		this.sitesToSimulate = sitesToSimulate;
 	}
 
+	public void pokeSeed(){
+		this.activeSimDoc.pokeSeed();
+	}
 }

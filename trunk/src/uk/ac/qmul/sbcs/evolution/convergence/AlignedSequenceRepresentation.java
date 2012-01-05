@@ -973,6 +973,7 @@ public class AlignedSequenceRepresentation {
 	}
 
 	public void determineInvariantSites(){
+		numberOfInvariantSites = 0;
 		invariantSitesIndices = new boolean[numberOfSites];
 		for(int i = 0; i<invariantSitesIndices.length;i++){
 			invariantSitesIndices[i] = true;

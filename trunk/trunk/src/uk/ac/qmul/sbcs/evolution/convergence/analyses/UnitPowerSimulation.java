@@ -8,6 +8,8 @@ import java.util.TreeSet;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.SequenceCodingType;
+import uk.ac.qmul.sbcs.evolution.convergence.TaxaAbsentFromAlignmentException;
+import uk.ac.qmul.sbcs.evolution.convergence.VariantSitesUnavailableException;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.EvolverSimulationSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.AamlParameters;
@@ -111,7 +113,15 @@ public class UnitPowerSimulation {
 			e1.printStackTrace();
 		}
 		// CONVERGE!!
-		simulatedData.simulateConvergence(masterTaxon, taxaToConverge , sitesToConverge);
+		try {
+			simulatedData.simulateConvergence(masterTaxon, taxaToConverge , sitesToConverge);
+		} catch (TaxaAbsentFromAlignmentException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (VariantSitesUnavailableException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		dataPhylipFile = new File(this.workDir.getAbsolutePath()+"/data.converged.phy");
 		simulatedData.writePhylipFile(dataPhylipFile, true);
 		

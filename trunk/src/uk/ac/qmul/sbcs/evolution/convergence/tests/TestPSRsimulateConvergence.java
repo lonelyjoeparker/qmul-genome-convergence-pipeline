@@ -44,7 +44,15 @@ public class TestPSRsimulateConvergence {
 				
 				System.out.println("converging "+last+" sequence to "+first);
 				String[] taxaToForce = {last};
-				PSR.simulateConvergence(first, taxaToForce, 69);
+				try {
+					PSR.simulateConvergence(first, taxaToForce, 69);
+				} catch (TaxaAbsentFromAlignmentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (VariantSitesUnavailableException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				PSR.printShortSequences(20);
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block

@@ -408,4 +408,10 @@ public class EvolverDocument {
 	public void setParameterSet(HashMap<String, String> parameterSet) {
 		this.parameterSet = parameterSet;
 	}
+
+	public void pokeSeed() {
+		// TODO Auto-generated method stub
+		int seed = this.getRandomOddInteger();
+		this.setParameter("SEED",new Integer(seed).toString());
+	}
 }

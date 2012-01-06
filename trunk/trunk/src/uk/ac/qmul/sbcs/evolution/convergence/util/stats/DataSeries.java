@@ -63,7 +63,18 @@ public class DataSeries {
 	}
 
 	public float getMedian(){
-		return 0.0f;
+		float median;
+		Collections.sort(this.listData);
+		if((Math.floor(count/2))*2<count){
+			// odd
+			int index = (int)Math.floor(count/2);
+			median = listData.get(index);
+		}else{
+			// even
+			int index = count/2;
+			median = (listData.get(index)+listData.get(index-1))/2;
+		}
+		return median;
 	}
 	
 	public float getSE(){
@@ -211,5 +222,25 @@ public class DataSeries {
 		for(float value:data){
 			System.out.println(value);
 		}
+	}
+	
+	public int numObservationsGreaterThan(float threshold){
+		int score = 0;
+		for(float observation:data){
+			if(observation>threshold){
+				score++;
+			}
+		}
+		return score;
+	}
+	
+	public int numObservationsLessThan(float floor){
+		int score = 0;
+		for(float observation:data){
+			if(observation<floor){
+				score++;
+			}
+		}
+		return score;
 	}
 }

@@ -269,6 +269,7 @@ public class UnitPowerSimulation {
 		output.append("03\t"+dataObsLessThan3+"\t");
 		output.append("02\t"+dataObsLessThan2+"\t");
 		output.append("01\t"+dataObsLessThan1+"\t");
+		output.append("\n");
 		return output.toString();
 	}
 }

@@ -70,9 +70,9 @@ public class UnitPowerSimulationRunnerHardcoded {
 		 * 		- print results to file.
 		 */
 		
-		treeFile = new File("/pamlTest/trialPowerSim/22t_WAG.tre");
 		workDir = new File(inputArgs[0]);
 		binariesLocation = new File(inputArgs[1]);
+		treeFile = new File(workDir.getAbsolutePath()+"/22t_WAG.tre");
 		evolverBinary = new File(binariesLocation.getAbsolutePath()+"/evolver");
 		evolverCtl = new File(workDir.getAbsolutePath()+"/evolver.ctl");
 		runID = "UnitPowerSimHC";

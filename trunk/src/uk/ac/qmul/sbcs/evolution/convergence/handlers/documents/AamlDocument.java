@@ -20,7 +20,7 @@ public class AamlDocument extends PamlDocument {
 		this.setParameter("AARATEFILE", "aaRatefile = dat/wag.dat");	// TODO ideally should check for location of this and throw error if appropriate
 		this.setParameter("MODEL", "model = 3");
 		this.setParameter("MGENE", "Mgene = 0");
-		this.setParameter("FIX_ALPHA", "fix_alpha = 1");
+		this.setParameter("FIX_ALPHA", "fix_alpha = 0");
 		this.setParameter("ALPHA", "alpha = 0.");
 		this.setParameter("MALPHA", "Malpha = 0");
 		this.setParameter("NCATG", "ncatG = 2");
@@ -28,7 +28,7 @@ public class AamlDocument extends PamlDocument {
 		this.setParameter("GETSE", "getSE = 0");
 		this.setParameter("RATEANCESTOR", "RateAncestor = 1");
 		this.setParameter("SMALL_DIFF", "Small_Diff = .5e-6");
-		this.setParameter("CLEANDATA", "cleandata = 1");
+		this.setParameter("CLEANDATA", "cleandata = 0");
 		this.setParameter("NDATA", "ndata = 2");
 		this.setParameter("METHOD", "method = 0");
 	}

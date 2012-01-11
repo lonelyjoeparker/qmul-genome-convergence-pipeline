@@ -47,5 +47,12 @@ public class AamlResultReaderTest extends TestCase {
 			System.out.println("tree length "+arr.getTreeLength());
 		}
 	}
+	
+	public void testGetObsAvgFreqs(){
+		if(this.arrInit){
+			System.out.println("obs AA freqs "+arr.getObsAvgFreqs());
+		}
+	}
+	
 
 }

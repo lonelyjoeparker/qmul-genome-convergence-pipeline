@@ -3,7 +3,7 @@ package uk.ac.qmul.sbcs.evolution.convergence;
 /**
  * 
  * @author joeparker
- * @since 0.0.1 r1
+ * @since 0.0.1 r77
  * @see AlignedSequenceRepresentation
  * This class is thrown whenever the filterForMissingData() method in AlignedSequenceRepresentation is called with inappropriate filter. 
  * The allowable filter bounds are:

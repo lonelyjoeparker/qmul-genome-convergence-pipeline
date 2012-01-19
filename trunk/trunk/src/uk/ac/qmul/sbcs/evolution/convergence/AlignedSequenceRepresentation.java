@@ -3,6 +3,7 @@ package uk.ac.qmul.sbcs.evolution.convergence;
 import java.io.*;
 import java.nio.CharBuffer;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Random;
@@ -42,8 +43,110 @@ public class AlignedSequenceRepresentation {
 	protected boolean[] invariantSitesIndices;
 	private String[] transposedSites;
 	
-	public void PhymlSequenceRespresentation(){}
+	/**
+	 * This is the default, and currently preferred constructor for an AlignedSequenceRepresentation from a file.
+	 * <p>TODO In future a stable AlignedSequenceRepresentation(File file) constructor should be built and tested. 
+	 * @author joeparker
+	 * @since v0.0.1
+	 */
+	public AlignedSequenceRepresentation(){}
 	
+	/**
+	 * This is the preferred AlignmentSequenceRepresentation constructor when <i>cloning</i> (i.e., copying) an alignment a donor AlignmentSequenceRepresentation via the <code>clone()</code> method.
+	 * <p><b>This constructor is not tested for use by any other method or class</b>
+	 * <p>numberOfTaxa, numberOfInvariantSites, numberOfSites, truncatedNamesHash and invariantSitesIndices are all calculated again using the buildBlah() family of methods.
+	 * <p>rawInput, inputSequenceFileFormat, translationLookup, transposedSites will all be null or not instantiated
+	 * <p>File file location is set as "parentFilename_clone"
+	 * @author joeparker
+	 * @since 0.0.1 r63
+	 * @param data - TreeMap<String, char[]> sequenceHash from donor AlignmentSequenceRepresentation.
+	 * @param taxa - TreeSet<String> taxaList from donor AlignmentSequenceRepresentation.
+	 * @param taxaArray - String[] taxaListArray from donor AlignmentSequenceRepresentation.
+	 * @param type - SequenceCodingType alignmentSequenceCodingType from donor AlignmentSequenceRepresentation.
+	 * @param parent - File file from donor AlignmentSequenceRepresentation.
+	 * @throws TaxaLimitException
+	 */
+	protected AlignedSequenceRepresentation(TreeMap<String, char[]> data, TreeSet<String> taxa, String[] taxaArray, SequenceCodingType type, File parent) throws TaxaLimitException{
+		file = new File(parent.getAbsoluteFile()+"_clone");
+		alignmentSequenceCodingType = type;
+		taxaList = taxa;
+		taxaListArray = taxaArray;
+		sequenceHash = data;
+		numberOfSites = this.buildNumberOfSites();
+		numberOfTaxa = sequenceHash.size();
+		truncatedNamesHash = this.buildTruncatedNamesHash();
+		this.determineInvariantSites();
+		rawInput = null;
+		inputSequenceFileFormat = null;
+		sequenceFileTypeSet = false;
+		
+	}
+	
+	@Deprecated
+	/**
+	 * This constructor is currently deprecated until such time as I get round to writing and testing a robust AlignedSequenceRepresentation(File input) constructor.
+	 * @author joeparker
+	 * @since 0.0.1 r63
+	 */
+	public AlignedSequenceRepresentation(File inputFile) {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * A private method to build the numberOfSites by iteration through data sequenceHash
+	 * @return the numberOfSites
+	 * @author joeparker
+	 */
+	private int buildNumberOfSites() {
+		int maxSites = 0;
+		// TODO Auto-generated method stub
+		Iterator itr = sequenceHash.keySet().iterator();
+		while(itr.hasNext()){
+			String thisKey = itr.next().toString();
+			char[] thisSeq = sequenceHash.get(thisKey);
+			if(thisSeq.length>maxSites){
+				maxSites = thisSeq.length;
+			}
+		}
+		return maxSites;
+	}
+
+	/**
+	 * A private method to build the truncatedNamesHash, intended for the AlignedSequenceRepresentation(TreeMap<String, char[]> data, TreeSet<String> taxa, String[] taxaArray, SequenceCodingType type, File parent) constructor <b><ONLY/b>
+	 * <p>Pasted from the identical operation in the loadSequences() method.
+	 * TODO Should probably test to see if this method can be used in loadSequences() in fact, for robustness. This is not a priority now however (18/01/2012)
+	 * @author joeparker
+	 * @return the newly-built truncatedNamesHash
+	 * @throws TaxaLimitException
+	 */
+	private HashMap<String, String> buildTruncatedNamesHash() throws TaxaLimitException {
+		HashMap<String, String> newTnameHash = new HashMap<String,String>(); 	// A local hash to hold the truncated names hash for now..
+		int UIDroot = 1;
+		for(String longTaxon:taxaListArray){
+			if(UIDroot > 1000){
+				System.out.println("Too many taxa in alignment - limit is 999");
+				throw new TaxaLimitException(UIDroot);
+			}else{
+				StringBuilder shortTaxon = new StringBuilder();
+				if(longTaxon.length()>7){
+					shortTaxon.append(longTaxon.substring(0, 7));
+					shortTaxon.append(String.format("%03d", UIDroot));
+				}else{
+					shortTaxon.append(longTaxon);
+					while(shortTaxon.length() < 7){
+						shortTaxon.append("_");
+					}
+					shortTaxon.append(String.format("%03d", UIDroot));
+				}
+				assert(longTaxon.length()>1);
+				assert(shortTaxon.length()>1);
+				newTnameHash.put(longTaxon, shortTaxon.toString());
+			}
+			UIDroot++;
+		}
+		return newTnameHash;
+	}
+
 	public void loadSequences(File inputFile, boolean reportInputRead) throws TaxaLimitException{
 		file = inputFile;
 		if(!file.canRead()){System.out.println("SERIOUS: cannot find input file "+file.getAbsolutePath());}
@@ -242,7 +345,7 @@ public class AlignedSequenceRepresentation {
 		String firstline = rawInput.remove(0);
 		String[] firstlineData = firstline.split(" {1,}");
 		assert(firstlineData.length>1);
-		System.out.println(firstlineData[0]+" taxa, "+firstlineData[1]+" characters");
+//		System.out.println(firstlineData[0]+" taxa, "+firstlineData[1]+" characters");
 		for(String aline:rawInput){
 			String[] lineData = aline.split(" {1,}");
 			if((aline.length()>1)){
@@ -269,7 +372,7 @@ public class AlignedSequenceRepresentation {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				System.out.println(name+" (name), "+charSequence[0]+" (characters; truncated to 20)");
+//				System.out.println(name+" (name), "+charSequence[0]+" (characters; truncated to 20)");
 			}
 		}
 		numberOfSites = maxNoOfSites;
@@ -634,21 +737,6 @@ public class AlignedSequenceRepresentation {
 		}
 	}
 	
-	public void printShortSequences(int printLimit){
-		System.out.println("\nPrinting short sequence set:");
-		for(String taxon:taxaList){
-			String shortTaxon = truncatedNamesHash.get(taxon);
-			char[] sequenceData = sequenceHash.get(taxon);
-			if(sequenceData.length < printLimit){
-				printLimit = sequenceData.length;
-			}
-			System.out.print(shortTaxon+"\t"+taxon+"\t");
-			for(int i=0;i<printLimit;i++){
-				System.out.print(sequenceData[i]);
-			}
-			System.out.println(" (truncated to "+printLimit+" sites)");
-		}
-	}
 	
 	/**
 	 * 
@@ -1000,7 +1088,7 @@ public class AlignedSequenceRepresentation {
 		while(seqItr.hasNext()){
 			String taxon = seqItr.next().toString();
 			int index = 0;
-			System.out.println(taxon);
+//			System.out.println(taxon);
 			for(char testChar:sequenceHash.get(taxon)){
 				if(!(testChar == firstSequence[index])){
 					invariantSitesIndices[index] = false;
@@ -1016,6 +1104,14 @@ public class AlignedSequenceRepresentation {
 		}
 	}
 	
+	protected TreeMap<String, char[]> getSequenceHash() {
+		return sequenceHash;
+	}
+
+	protected void setSequenceHash(TreeMap<String, char[]> sequenceHash) {
+		this.sequenceHash = sequenceHash;
+	}
+
 	public ArrayList<String> getRawInput() {
 		return rawInput;
 	}
@@ -1090,6 +1186,48 @@ public class AlignedSequenceRepresentation {
 		System.out.println(this.numberOfInvariantSites+" invariant sites.");
 	}
 
+	/**
+	 * A method to print a truncated version of the alignment, including the truncatedNamesHash (with UIDs)
+	 * @param printLimit
+	 */
+	public void printShortSequences(int printLimit){
+		System.out.println("\nPrinting short sequence set:");
+		for(String taxon:taxaList){
+			String shortTaxon = truncatedNamesHash.get(taxon);
+			char[] sequenceData = sequenceHash.get(taxon);
+			if(sequenceData.length < printLimit){
+				printLimit = sequenceData.length;
+			}
+			System.out.print(shortTaxon+"\t"+taxon+"\t");
+			for(int i=0;i<printLimit;i++){
+				System.out.print(sequenceData[i]);
+			}
+			System.out.println(" (truncated to "+printLimit+" sites)");
+		}
+	}
+	
+	/**
+	 * A method to print the entire alignment.
+	 */
+	public void printCompleteSequences() {
+		Iterator itr = sequenceHash.keySet().iterator();
+		while(itr.hasNext()){
+			String thisTaxon = itr.next().toString();
+			char[] paddedTaxon = new char[30];
+			char[] taxonChar = thisTaxon.toCharArray();
+			for(int i=0;i<30;i++){
+				if(i<taxonChar.length){
+					paddedTaxon[i] = taxonChar[i];
+				}else{
+					paddedTaxon[i] = ' ';
+				}
+			}
+			char[] thisSeq = sequenceHash.get(thisTaxon);
+			System.out.println(new String(paddedTaxon)+"\t"+new String(thisSeq));
+		}
+		
+	}
+	
 	public void writePhylipFile(String fullyPathQualifiedFileName, boolean useOriginalTaxonNames){
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(numberOfTaxa+"   "+numberOfSites+"\n");
@@ -1188,5 +1326,121 @@ public class AlignedSequenceRepresentation {
 		}
 		DataSeries fullSSLS= new DataSeries(sitePatterns,"full site lnL");
 		return fullSSLS;
+	}
+	
+	public AlignedSequenceRepresentation clone(){
+		AlignedSequenceRepresentation aClone;
+		try {
+			aClone = new AlignedSequenceRepresentation(this.sequenceHash,this.taxaList,this.taxaListArray,this.alignmentSequenceCodingType,this.file);
+		} catch (TaxaLimitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			aClone = null;
+		}
+		return aClone;
+	}
+	
+	/**
+	 * @author joeparker
+	 * @since 0.0.1 r63/4
+	 * @param filter - either the number of missing taxa at any given site, or the proportion (0-100 out of 100) of taxa that are allowed to have missing data at any given site [e.g. if the ratio (gapped taxa/total taxa) > (filter/100), for any given site]
+	 * @param filterByFactor - false to just use number of taxa missing as the threshold, true to use proportions.
+	 * @throws FilterOutOfAllowableRangeException 
+	 * The allowable filter bounds are:
+	 * 	0<filter²100 	- when using filterFactor = true;
+	 *  0<numberOfTaxa 	- when using filterFactor = false (e.g., threshold no. of gaps per site.
+	 */
+	public void filterForMissingData(int filter, boolean filterByFactor) throws FilterOutOfAllowableRangeException{
+		int[] gapCounts = new int[numberOfSites];
+		int[] datCounts = new int[numberOfSites];
+		int[] nCounts = new int[numberOfSites];
+		boolean[] sitesToFilter = new boolean[numberOfSites];
+		Iterator itr = sequenceHash.keySet().iterator();
+		while(itr.hasNext()){
+			String aTaxon = itr.next().toString();
+			char[] theseChars =	sequenceHash.get(aTaxon);
+			for(int e=0;e<theseChars.length;e++){
+				if(theseChars[e] == '-'){
+					gapCounts[e]++;
+				}else{
+					datCounts[e]++;
+				}
+				nCounts[e]++;
+			}
+		}
+		
+		for(int i=0;i<numberOfSites;i++){
+			assert((gapCounts[i]+datCounts[i]) == nCounts[i]); // Important: check that every character has been counted...
+		}
+		
+		itr = null;
+		//TODO
+		/*
+		 * Build up the gapCounts array by iteration throug sequenceHash
+		 * then act appropriately to swap out sites with gaps, e.g.: 
+		 * 		iterate again to replace data with gaps
+		 * 		call removeUnambiguousGaps()
+		 * 		housekeeping (invariant sites, numSites etc)
+		 */
+		if(filterByFactor){
+			// TODO filter the alignment by factor of sites - implies factor 0²n<100
+			if((filter<0) || (filter>100)){
+				throw new FilterOutOfAllowableRangeException();
+			}
+			for(int g=0;g<numberOfSites;g++){
+				if(nCounts[g]< numberOfTaxa){
+					// for some reason this site does not have data at all sites. lose it.
+					sitesToFilter[g] = true;
+				}else if(((float)gapCounts[g]/(float)numberOfTaxa) > ((float)filter/(float)100)){		// This is the ratio: (gapped taxa/total taxa) > (filter/100)
+					// remove this site
+					sitesToFilter[g] = true;
+				}else{
+					// keep this site
+					sitesToFilter[g] = false;
+				}
+			}
+		}else{
+			// TODO filter sites that have more than filter gaps.
+			if((filter>numberOfTaxa) || (filter<0)){
+				throw new FilterOutOfAllowableRangeException();
+			}
+			for(int g=0;g<numberOfSites;g++){
+				if(nCounts[g]< numberOfTaxa){
+					// for some reason this site does not have data at all sites. lose it.
+					sitesToFilter[g] = true;
+				}else if(gapCounts[g] > filter){
+					// remove this site
+					sitesToFilter[g] = true;
+				}else{
+					// keep this site
+					sitesToFilter[g] = false;
+				}
+			}
+		}
+		// Actually insert the required gaps and remove them.
+		// TODO consider the case of missing data...
+		Iterator etr = sequenceHash.keySet().iterator();
+		TreeMap<String,char[]> newHash = new TreeMap<String, char[]>();
+		while(etr.hasNext()){
+			String oldTaxon = etr.next().toString();
+			char[] oldChars = sequenceHash.get(oldTaxon);
+			char[] newChars = new char[numberOfSites];
+			for(int sub=0;sub<numberOfSites;sub++){
+				if(sitesToFilter[sub]){
+					newChars[sub] = '-';
+				}else{
+					newChars[sub] = oldChars[sub];
+				}
+			}
+			newHash.put(oldTaxon, newChars);
+		}
+		assert(sequenceHash.size() == newHash.size());
+		sequenceHash = newHash;
+		numberOfSites = this.buildNumberOfSites();
+		this.determineInvariantSites();
+		this.removeUnambiguousGaps();
+		numberOfSites = this.buildNumberOfSites();
+		this.determineInvariantSites();
+		etr = null;
 	}
 }

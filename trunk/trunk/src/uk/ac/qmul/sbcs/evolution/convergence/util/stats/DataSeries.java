@@ -201,6 +201,12 @@ public class DataSeries {
 		return count;
 	}
 	
+	/**
+	 * 
+	 * @param otherData
+	 * @return a new DataSeries which is the differences (this - otherData)
+	 * @throws UnequalDataSeriesLengthException
+	 */
 	public DataSeries compareData(DataSeries otherData) throws UnequalDataSeriesLengthException{
 		if(otherData.count != this.count){
 			throw new UnequalDataSeriesLengthException();

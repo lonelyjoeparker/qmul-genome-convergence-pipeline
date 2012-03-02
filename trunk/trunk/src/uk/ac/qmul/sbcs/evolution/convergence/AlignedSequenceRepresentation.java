@@ -1420,7 +1420,7 @@ public class AlignedSequenceRepresentation {
 		// Actually insert the required gaps and remove them.
 		// TODO consider the case of missing data...
 		Iterator etr = sequenceHash.keySet().iterator();
-		TreeMap<String,char[]> newHash = new TreeMap<String, char[]>();
+			TreeMap<String,char[]> newHash = new TreeMap<String, char[]>();
 		while(etr.hasNext()){
 			String oldTaxon = etr.next().toString();
 			char[] oldChars = sequenceHash.get(oldTaxon);

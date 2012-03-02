@@ -5,6 +5,18 @@ import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.swing.JFrame;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.FilterOutOfAllowableRangeException;
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
@@ -20,6 +32,8 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.Aam
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
+
+import uk.ac.qmul.sbcs.evolution.convergence.util.stats.ExperimentalDataSeries;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.PercentileOutOfRangeError;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.UnequalDataSeriesLengthException;
 
@@ -41,7 +55,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.UnequalDataSeriesLengthE
  * 
  * 		Also note that this means the PamlParameter cleandata should probably be set to cleandata=0 for most purposes.
  */
-public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
+public class CongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFs {
 	// Initialise with data and two trees
 	// Aaml on tree 1
 	// Aaml on tree 2
@@ -62,12 +76,12 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 	private File aaTreeTwoAnalysisOutputFile;
 	private File aaTreeDeNovoAnalysisOutputFile;
 	private File pamlDataFileAA;
-	private DataSeries treeOnelnL;
-	private DataSeries treeOneSimlnL;
-	private DataSeries treeTwolnL;
-	private DataSeries treeTwoSimlnL;
-	private DataSeries treeDeNovolnL;
-	private DataSeries treeDeNovoSimlnL;
+	private ExperimentalDataSeries treeOnelnL;
+	private ExperimentalDataSeries treeOneSimlnL;
+	private ExperimentalDataSeries treeTwolnL;
+	private ExperimentalDataSeries treeTwoSimlnL;
+	private ExperimentalDataSeries treeDeNovolnL;
+	private ExperimentalDataSeries treeDeNovoSimlnL;
 	private NewickTreeRepresentation treeOne;
 	private NewickTreeRepresentation treeOnePruned;
 	private NewickTreeRepresentation treeTwo;
@@ -78,9 +92,9 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 	StringBuilder logfileData = new StringBuilder();
 	private int filter;
 	private boolean filterByFactor;
-
+	private XYSeriesCollection XY;
 	
-	public CongruenceAnalysisAAWithBinariesPruningSimulationFiltering(File data, File one, File two, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
+	public CongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFs(File data, File one, File two, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
 		this.dataset = data;
 		this.treeFileOne = one;
 		this.treeFileTwo = two;
@@ -196,7 +210,7 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 			sIndex++;
 		}
 //		treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
-		treeOnelnL = sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS);
+		treeOnelnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS));
 
 		// Tree 2
 		this.aaTreeTwoAnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeTwo.out");
@@ -219,7 +233,7 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 			sIndex++;
 		}
 //		treeTwolnL = new DataSeries(aaDataSSLSlnL2,"aa lnL data - tree 2");
-		treeTwolnL = sourceDataASR.getFullSitesLnL(aaDataTreeTwoSSLS);
+		treeTwolnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeTwoSSLS));
 		
 
 		// RAxML tree 
@@ -243,7 +257,7 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 			sIndex++;
 		}
 //		treeDeNovolnL = new DataSeries(aaDataSSLSlnLdeNovo,"aa lnL data - RAxML tree");
-		treeDeNovolnL = sourceDataASR.getFullSitesLnL(aaDataTreeDeNovoSSLS);
+		treeDeNovolnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeDeNovoSSLS));
 
 
 		/* Do simulation on Species tree */
@@ -299,7 +313,7 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 			sIndex++;
 		}
 //		treeOneSimlnL = new DataSeries(aaDataSimSSLSlnL1,"aa lnL data - tree 1 (sim)");
-		treeOneSimlnL = simulatedSpp.getFullSitesLnL(aaDataTreeOneSimSSLS);
+		treeOneSimlnL = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeOneSimSSLS));
 		
 		/* Do simulation on Prestin tree */
 		
@@ -353,7 +367,7 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 			sIndex++;
 		}
 //		treeTwoSimlnL = new DataSeries(aaDataSimSSLSlnL2,"aa lnL data - tree 2 (sim)");
-		treeTwoSimlnL = simulatedPre.getFullSitesLnL(aaDataTreeTwoSimSSLS);
+		treeTwoSimlnL = new ExperimentalDataSeries(simulatedPre.getFullSitesLnL(aaDataTreeTwoSimSSLS));
 
 		/* Do simulation on de-novo (RAxML tree */
 
@@ -408,15 +422,15 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 		}
 //		treeDeNovoSimlnL = new DataSeries(aaDataSimSSLSlnLrax,"aa lnL data - tree de novo (sim)");
 		try {
-			treeDeNovoSimlnL = simulatedRax.getFullSitesLnL(aaDataTreeDeNovoSimSSLS);
+			treeDeNovoSimlnL = new ExperimentalDataSeries(simulatedRax.getFullSitesLnL(aaDataTreeDeNovoSimSSLS));
 		} catch (NullPointerException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 
 		/* Compute SSLS */
-		DataSeries sppPreDifferences = new DataSeries();
-		DataSeries sppRaxDifferences = new DataSeries();
+		ExperimentalDataSeries sppPreDifferences = new ExperimentalDataSeries();
+		ExperimentalDataSeries sppRaxDifferences = new ExperimentalDataSeries();
 		try {
 			sppPreDifferences = treeOnelnL.compareData(treeTwolnL);
 			sppPreDifferences.printBasic();
@@ -546,8 +560,146 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}		
+		
+
+		
+		
+		/*
+		 * DANGER
+		 * HIGH VOLTAGE
+		 * 
+		 * TRYING TO PLOT SOME MOFO CHART ACTION...
+		 * 
+		 * NB requires JFreeChart
+		 * 
+		 */
+
+		XY = new XYSeriesCollection();
+		XYSeries XYdata = new XYSeries("some joe data norm");
+
+
+		float[][] dCDF = treeOnelnL.getCountsPDFCDFDataDeprecateMeEfficient();
+
+		for(int i=0;i<dCDF.length;i++){
+			XYdata.add(dCDF[i][0],dCDF[i][1]);
+		}
+		
+		XY.addSeries(XYdata);
+		showGraph("norm");
+		
+		// normal data - freqs hist
+		XY = new XYSeriesCollection();
+		XYdata = new XYSeries("some joe data freq");
+		for(int i=0;i<dCDF.length;i++){
+			XYdata.add(dCDF[i][0],dCDF[i][2]);
+		}
+		XY.addSeries(XYdata);
+		showGraph("norm-freq");
+
+		// normal data - cumulative
+		XY = new XYSeriesCollection();
+		XYdata = new XYSeries("some joe data cumul. freq");
+		for(int i=0;i<dCDF.length;i++){
+			XYdata.add(dCDF[i][0],dCDF[i][3]);
+		}
+		XY.addSeries(XYdata);
+		showGraph("norm- cumul. freq");
+		
+		// normal data - point vals
+		XY = new XYSeriesCollection();
+		XYdata = new XYSeries("some joe data point");
+		for(int i=0;i<dCDF.length;i++){
+			XYdata.add(dCDF[i][0],dCDF[i][4]);
+		}
+		XY.addSeries(XYdata);
+		showGraph("norm-point");
+		
+		/*
+		 * SHIT THE BED!!! THIS WORKS!!!!
+		 * 
+		 * Now try it for the differences in empirical sets
+		 * If that works, try it on the differences in null sets
+		 * 
+		 * NB eventually will need to set explicit bin ranges etc.
+		 */
+				
+		dCDF = sppPreDifferences.getCountsPDFCDFDataDeprecateMeEfficient();
+
+		for(int i=0;i<dCDF.length;i++){
+			XYdata.add(dCDF[i][0],dCDF[i][1]);
+		}
+		
+		XY.addSeries(XYdata);
+		showGraph("norm");
+		
+		// normal data - freqs hist
+		XY = new XYSeriesCollection();
+		XYdata = new XYSeries("some joe data ÆSSLS freq");
+		for(int i=0;i<dCDF.length;i++){
+			XYdata.add(dCDF[i][0],dCDF[i][2]);
+		}
+		XY.addSeries(XYdata);
+		showGraph("norm-freq");
+
+		// normal data - cumulative
+		XY = new XYSeriesCollection();
+		XYdata = new XYSeries("some joe data cumul. freq ÆSSLS");
+		for(int i=0;i<dCDF.length;i++){
+			XYdata.add(dCDF[i][0],dCDF[i][3]);
+		}
+		XY.addSeries(XYdata);
+		showGraph("norm- cumul. freq ÆSSLS");
+		
+		// normal data - point vals
+		XY = new XYSeriesCollection();
+		XYdata = new XYSeries("some joe data point ÆSSLS");
+		for(int i=0;i<dCDF.length;i++){
+			XYdata.add(dCDF[i][0],dCDF[i][4]);
+		}
+		XY.addSeries(XYdata);
+		showGraph("norm-point ÆSSLS");
+		
+		/*
+		 * SHIT THE BED!!! THIS WORKS!!!!
+		 * 
+		 * Now try it on the differences in null sets' ÆSSLS
+		 * 
+		 * NB eventually will need to set explicit bin ranges etc.
+		 */
+	
+	
 	}
 
+	private void showGraph(String title) {
+		final JFreeChart chart = createChart(XY,title);
+		final ChartPanel chartPanel = new ChartPanel(chart);
+		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+	//	final ApplicationFrame frame = new ApplicationFrame("Joe Chart Title");
+		JFrame frame = new JFrame(title);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setContentPane(chartPanel);
+		frame.pack();
+		frame.setVisible(true);
+	}
+
+	private JFreeChart createChart(final XYDataset dataset,String title) {
+		final JFreeChart chart = ChartFactory.createScatterPlot(
+				title,                  // chart title
+				"X",                      // x axis label
+				"Y",                      // y axis label
+				dataset,                  // data
+				PlotOrientation.VERTICAL,
+				true,                     // include legend
+				true,                     // tooltips
+				false                     // urls
+		);
+		XYPlot plot = (XYPlot) chart.getPlot();
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+		renderer.setSeriesLinesVisible(0, true);
+		plot.setRenderer(renderer);
+		return chart;
+	}
+	
 	private NewickTreeRepresentation pruneTaxa(NewickTreeRepresentation unprunedTree, TreeSet<String> taxaToPrune){
 		Iterator itrTaxon = taxaToPrune.iterator();
 		while(itrTaxon.hasNext()){

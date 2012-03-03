@@ -12,7 +12,7 @@ public class CongruenceTestRunnerAAwithBinariesArgsPruningSimFiltersCDFs {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		assert(args.length==7);
+		assert(args.length==8);
 		File dataSet = new File(args[0]);
 		File treeFileOne = new File(args[1]);
 		File treeFileTwo = new File(args[2]);

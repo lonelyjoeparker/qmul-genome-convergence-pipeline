@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class CapitalisedFileReader {
 
 	private File file;
-	private ArrayList<String> rawInput = new ArrayList<String>();
+	private ArrayList<String> inputArrayListUnparsed = new ArrayList<String>();
 
 	public ArrayList<String> loadSequences(File inputFile){
 		file = inputFile;
@@ -33,8 +33,8 @@ public class CapitalisedFileReader {
 							readlength = line.length();
 						}
 						if(line.length() > 1){
-							System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
-							rawInput.add(line.toUpperCase());
+//							System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
+							inputArrayListUnparsed.add(line.toUpperCase());
 							lines++;
 						} // LINE SEPARATORS REMOVED, 30/09/2011
 					}
@@ -50,8 +50,8 @@ public class CapitalisedFileReader {
 		catch(Exception ex){
 			ex.printStackTrace();
 		}
-		System.out.println("BasicFileReader read "+lines+" lines.");
-		return rawInput;
+		System.out.println("CapitalisedFileReader read "+lines+" lines in input file.");
+		return inputArrayListUnparsed;
 	}
 
 	public ArrayList<String> loadSequences(File inputFile, boolean reportBufferStatus){
@@ -73,13 +73,13 @@ public class CapitalisedFileReader {
 								if(line =="\n"){assert(false);}
 								if(line =="\r"){assert(false);}
 							}
-							System.out.println("buffer reading:\t"+line.substring(0,readlength));
+//							System.out.println("buffer reading:\t"+line.substring(0,readlength));
 						}
 						if(line.length() > 1){
 							if(reportBufferStatus){
-								System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
+//								System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
 							}
-							rawInput.add(line.toUpperCase());
+							inputArrayListUnparsed.add(line.toUpperCase());
 					//		lines++;
 						} // LINE SEPARATORS REMOVED, 30/09/2011
 						lines++;
@@ -98,7 +98,7 @@ public class CapitalisedFileReader {
 		catch(Exception ex){
 			ex.printStackTrace();
 		}
-		System.out.println("BasicFileReader read "+lines+" lines.");
-		return rawInput;
+		System.out.println("CapitalisedFileReader read "+lines+" lines in input file.");
+		return inputArrayListUnparsed;
 	}
 }

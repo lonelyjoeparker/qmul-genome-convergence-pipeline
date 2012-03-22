@@ -623,6 +623,9 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFs {
 		 * NB eventually will need to set explicit bin ranges etc.
 		 */
 				
+		XY = new XYSeriesCollection();
+		XYdata = new XYSeries("some joe data norm");
+		
 		dCDF = sppPreDifferences.getCountsPDFCDFDataDeprecateMeEfficient();
 
 		for(int i=0;i<dCDF.length;i++){

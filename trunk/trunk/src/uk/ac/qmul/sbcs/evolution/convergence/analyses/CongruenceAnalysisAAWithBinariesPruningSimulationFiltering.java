@@ -332,7 +332,7 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 
 		File aaSimTreeTwoAnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSimTreeTwo.out");
 		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
-		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileOnePruned.getAbsolutePath());
+		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileTwoPruned.getAbsolutePath());
 		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSimTreeTwoAnalysisOutputFile.getAbsolutePath());
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
 		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
@@ -391,7 +391,7 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
 		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
 		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaRax);
-		treefiles[0] = this.treeFileTwoPruned;
+		treefiles[0] = this.treeFileRAxMLdeNovo;
 		datasets[0] = simulatedRax;
 		AamlAnalysisSGE treeDeNovoAamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeRaxSim.ctl");
 		treeDeNovoAamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());

@@ -5,7 +5,7 @@ import java.util.TreeSet;
 
 import uk.ac.qmul.sbcs.evolution.convergence.analyses.*;
 
-public class CongruenceTestRunnerAAwithBinariesArgsPruningSimFiltersCDFs {
+public class CopyOfCongruenceTestRunnerAAwithBinariesArgsPruningSimFiltersCDFs {
 
 	/**
 	 * @param args
@@ -50,7 +50,7 @@ public class CongruenceTestRunnerAAwithBinariesArgsPruningSimFiltersCDFs {
 		taxaList.add("OCHOTONA");
 		taxaList.add("ORYCTOLAGUS");
 		taxaList.add("SOREX");
-		CongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFsSandbox analysis = new CongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFsSandbox(dataSet, treeFileOne, treeFileTwo, workDir, binaries, runID, taxaList, replicatesForNull, thisFilter, doFactor);
+		CopyOfCongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFs analysis = new CopyOfCongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFs(dataSet, treeFileOne, treeFileTwo, workDir, binaries, runID, taxaList, replicatesForNull, thisFilter, doFactor);
 			analysis.go();
 	}
 

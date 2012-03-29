@@ -2,6 +2,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.util.stats;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 
 /**
  * 
@@ -18,21 +19,38 @@ public class ExperimentalDataSeries {
 	private float[] deviations;
 	private final String name;
 	private final int count;
+	private static float min;
+	private static float max;
+	private float[] binBounds;
+	private float[] counts;
+	private float[] freqs;
+	private float[] cumCountsProp;
+	private float[] pointVals;
 	
 	public ExperimentalDataSeries(){
 		this.data = null;
 		this.name = null;
 		this.count = 0;
 		this.listData = null;
+		this.max = 0;
+		this.min = 0;
 	}
 	
 	public ExperimentalDataSeries(float[] data, String name){
 		this.data = data;
 		this.name = name;
 		this.count = data.length;
+		this.max = 0;
+		this.min = 0;
 		listData = new ArrayList<Float>();
 		for(float val:data){
 			listData.add(val);
+			if(val < min){
+				min = val;
+			}
+			if(val > max){
+				max = val;
+			}
 		}
 	}
 	
@@ -40,8 +58,16 @@ public class ExperimentalDataSeries {
 		this.name = name;
 		this.count = listData.size();
 		this.data = new float[count];
+		this.max = 0;
+		this.min = 0;
 		for(int i = 0; i<count;i++){
 			this.data[i] = listData.get(i); 
+			if(this.data[i] < min){
+				min = this.data[i];
+			}
+			if(this.data[i] > max){
+				max = this.data[i];
+			}
 		}
 		this.listData = listData;
 	}
@@ -51,10 +77,34 @@ public class ExperimentalDataSeries {
 		this.name = aDataSeries.getName();
 		this.data = aDataSeries.getData();
 		this.count = aDataSeries.getCount();
+		this.max = 0;
+		this.min = 0;
 		listData = new ArrayList<Float>();
 		for(float val:data){
 			listData.add(val);
+			if(val < min){
+				min = val;
+			}
+			if(val > max){
+				max = val;
+			}
 		}
+	}
+
+	public float getMin() {
+		return min;
+	}
+
+	public float getMax() {
+		return max;
+	}
+
+	public static void setMin(float min) {
+		ExperimentalDataSeries.min = min;
+	}
+
+	public static void setMax(float max) {
+		ExperimentalDataSeries.max = max;
 	}
 
 	public float[] getData(){
@@ -309,7 +359,7 @@ public class ExperimentalDataSeries {
 
 	@Deprecated
 	public float[][] getCountsPDFCDFDataDeprecateMe(){
-		float[] binBounds = new float[100];
+		binBounds = new float[100];
 		Collections.sort(this.listData);
 		
 		/*
@@ -329,10 +379,10 @@ public class ExperimentalDataSeries {
 			binBounds[boundIndex] = min+(incr*boundIndex);
 		}
 		
-		float[] counts = new float[100]; // Length MUST == binBounds length, but hardcoded here for speed
-		float[] freqs = new float[100]; // see above
-		float[] cumCountsProp = new float[100]; // see above
-		float[] pointVals = new float[100]; // see above
+		counts = new float[100]; // Length MUST == binBounds length, but hardcoded here for speed
+		freqs = new float[100]; // see above
+		cumCountsProp = new float[100]; // see above
+		pointVals = new float[100]; // see above
 
 		
 		/*
@@ -409,8 +459,98 @@ public class ExperimentalDataSeries {
 	}
 
 	@Deprecated
+	public float[][] getCountsPDFCDFDataDeprecateMeEfficient(float explicitMin, float explicitMax){
+		binBounds = new float[100];
+		Collections.sort(this.listData);
+		
+		/*
+		 * Determine range etc
+		 */
+		float min = explicitMin;
+		float max = explicitMax;
+		float range = max-min;
+		float incr = range/100;
+		counts = new float[100]; // Length MUST == binBounds length, but hardcoded here for speed
+		freqs = new float[100]; // see above
+		cumCountsProp = new float[100]; // see above
+		pointVals = new float[100]; // see above
+	
+		
+		int dataIndex = 0;
+		float runningProportion = 0;
+		for(int boundIndex = 0; boundIndex<100;boundIndex++){
+			/*
+			 * Form bins
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+			binBounds[boundIndex] = min+(incr*boundIndex);
+			/*
+			 * Populate bins with counts
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+			try {
+				while(listData.get(dataIndex) <= binBounds[boundIndex]){
+					counts[boundIndex]++;
+					dataIndex++; // may need a try / catch here..
+				}
+			} catch (IndexOutOfBoundsException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			/*
+			 * Populate bins with freqs
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+			freqs[boundIndex] = counts[boundIndex]/count;
+			/*
+			 * Populate bins with cumulative proportions
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+			cumCountsProp[boundIndex] = freqs[boundIndex]+runningProportion;
+			runningProportion = cumCountsProp[boundIndex];
+			/*
+			 * Populate bins with point values
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+				try {
+					pointVals[boundIndex] = this.getValueAtPercentile(boundIndex);
+				} catch (PercentileOutOfRangeError e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+	
+		
+		/*
+		 * Finally, fill the whole retmatrix up
+		 * 
+		 * ret[i][0] - bin bounds
+		 * ret[i][1] - count data
+		 * ret[i][2] - freq data
+		 * ret[i][3] - cumulative counts
+		 * ret[i][4] - value at percentile
+		 */
+		float[][] ret = new float[100][5];
+		
+		for(int boundIndex = 0; boundIndex<100;boundIndex++){
+			ret[boundIndex][0] = binBounds[boundIndex];
+			ret[boundIndex][1] = counts[boundIndex];
+			ret[boundIndex][2] = freqs[boundIndex];
+			ret[boundIndex][3] = cumCountsProp[boundIndex];
+			ret[boundIndex][4] = pointVals[boundIndex];
+		}
+	
+		return ret;
+	}
+
+	@Deprecated
 	public float[][] getCountsPDFCDFDataDeprecateMeEfficient(){
-		float[] binBounds = new float[100];
+		binBounds = new float[100];
 		Collections.sort(this.listData);
 		
 		/*
@@ -420,10 +560,10 @@ public class ExperimentalDataSeries {
 		float max = this.listData.get(count-1);
 		float range = max-min;
 		float incr = range/100;
-		float[] counts = new float[100]; // Length MUST == binBounds length, but hardcoded here for speed
-		float[] freqs = new float[100]; // see above
-		float[] cumCountsProp = new float[100]; // see above
-		float[] pointVals = new float[100]; // see above
+		counts = new float[100]; // Length MUST == binBounds length, but hardcoded here for speed
+		freqs = new float[100]; // see above
+		cumCountsProp = new float[100]; // see above
+		pointVals = new float[100]; // see above
 	
 		
 		int dataIndex = 0;
@@ -491,5 +631,50 @@ public class ExperimentalDataSeries {
 		}
 	
 		return ret;
+	}
+	
+	private boolean binsInitialised(){
+		return !((binBounds == null)&&(counts==null)&&(freqs==null)&&(cumCountsProp==null)&&(pointVals==null));
+	}
+	
+	public float getThresholdValueAtCumulativeDensity(float density) throws PercentileOutOfRangeError{
+		if(density<0 || density>1){
+			throw new PercentileOutOfRangeError();
+		}
+		if(!this.binsInitialised()){
+			this.getCountsPDFCDFDataDeprecateMeEfficient();
+		}
+		float retval = pointVals[0];
+		
+		int binpos = 0;
+		while((binpos<100)&&(cumCountsProp[binpos] < density)){
+			retval = pointVals[binpos];
+			binpos ++;
+		}
+		return retval;
+	}
+	
+	public int getNumberLessThan(float lowerBound){
+		int count = 0;
+		Collections.sort(this.listData);
+		Iterator itr = listData.iterator();
+		while(itr.hasNext()){
+			if((Float)itr.next() < lowerBound){
+				count ++;
+			}
+		}
+		return count;
+	}
+
+	public int getNumberGreaterThan(float upperBound){
+		int count = 0;
+		Collections.sort(this.listData);
+		Iterator itr = listData.iterator();
+		while(itr.hasNext()){
+			if((Float)itr.next() > upperBound){
+				count ++;
+			}
+		}
+		return count;
 	}
 }

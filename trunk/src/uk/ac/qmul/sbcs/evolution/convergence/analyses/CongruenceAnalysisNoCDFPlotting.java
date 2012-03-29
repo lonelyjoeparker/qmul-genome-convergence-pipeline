@@ -4,18 +4,18 @@ import java.io.File;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import javax.swing.JFrame;
-
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
-import org.jfree.data.xy.XYDataset;
-import org.jfree.data.xy.XYSeries;
-import org.jfree.data.xy.XYSeriesCollection;
+//
+//import javax.swing.JFrame;
+//
+//import org.jfree.chart.ChartFactory;
+//import org.jfree.chart.ChartPanel;
+//import org.jfree.chart.JFreeChart;
+//import org.jfree.chart.plot.PlotOrientation;
+//import org.jfree.chart.plot.XYPlot;
+//import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+//import org.jfree.data.xy.XYDataset;
+//import org.jfree.data.xy.XYSeries;
+//import org.jfree.data.xy.XYSeriesCollection;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.FilterOutOfAllowableRangeException;
@@ -55,7 +55,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.UnequalDataSeriesLengthE
  * 
  * 		Also note that this means the PamlParameter cleandata should probably be set to cleandata=0 for most purposes.
  */
-public class CopyOfCongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFs {
+public class CongruenceAnalysisNoCDFPlotting {
 	// Initialise with data and two trees
 	// Aaml on tree 1
 	// Aaml on tree 2
@@ -94,13 +94,13 @@ public class CopyOfCongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDF
 	StringBuilder logfileData = new StringBuilder();
 	private int filter;
 	private boolean filterByFactor;
-	private XYSeriesCollection XY;
+//	private XYSeriesCollection XY;
 	private ExperimentalDataSeries sppPreDifferencesObs = new ExperimentalDataSeries();
 	private ExperimentalDataSeries sppRaxDifferencesObs = new ExperimentalDataSeries();
 	private ExperimentalDataSeries sppPreDifferencesExp = new ExperimentalDataSeries();
 	private ExperimentalDataSeries sppRaxDifferencesExp = new ExperimentalDataSeries();
 	
-	public CopyOfCongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDFs(File data, File one, File two, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
+	public CongruenceAnalysisNoCDFPlotting(File data, File one, File two, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
 		this.dataset = data;
 		this.treeFileOne = one;
 		this.treeFileTwo = two;
@@ -684,66 +684,66 @@ public class CopyOfCongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDF
 		 * @since - this version, n.b. TODO prune most of this out in any deployment..
 		 */
 
-		XY = new XYSeriesCollection();
-		XYSeries XYdata = new XYSeries("observed SSLS");
-		float[] sppPreDSSLSarray = this.sppPreDifferencesObs.getData();
-		for(int i=0;i<sppPreDSSLSarray.length;i++){
-			XYdata.add(i,sppPreDSSLSarray[i]);
-		}
-		XY.addSeries(XYdata);
-		showGraph("observed SSLS");
-
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("EXPECTED SSLS");
-		sppPreDSSLSarray = this.sppPreDifferencesExp.getData();
-		for(int i=0;i<sppPreDSSLSarray.length;i++){
-			XYdata.add(i,sppPreDSSLSarray[i]);
-		}
-		XY.addSeries(XYdata);
-		showGraph("EXPECTED SSLS");
-
-		float explicitMin = Math.min(sppPreDifferencesObs.getMin(), sppPreDifferencesExp.getMin());
-		float explicitMax = Math.max(sppPreDifferencesObs.getMax(), sppPreDifferencesExp.getMax());
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("some joe data norm");
+//		XY = new XYSeriesCollection();
+//		XYSeries XYdata = new XYSeries("observed SSLS");
+//		float[] sppPreDSSLSarray = this.sppPreDifferencesObs.getData();
+//		for(int i=0;i<sppPreDSSLSarray.length;i++){
+//			XYdata.add(i,sppPreDSSLSarray[i]);
+//		}
+//		XY.addSeries(XYdata);
+//		showGraph("observed SSLS");
+//
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("EXPECTED SSLS");
+//		sppPreDSSLSarray = this.sppPreDifferencesExp.getData();
+//		for(int i=0;i<sppPreDSSLSarray.length;i++){
+//			XYdata.add(i,sppPreDSSLSarray[i]);
+//		}
+//		XY.addSeries(XYdata);
+//		showGraph("EXPECTED SSLS");
+//
+//		float explicitMin = Math.min(sppPreDifferencesObs.getMin(), sppPreDifferencesExp.getMin());
+//		float explicitMax = Math.max(sppPreDifferencesObs.getMax(), sppPreDifferencesExp.getMax());
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("some joe data norm");
 
 
 //		float[][] dCDF = sppPreDifferencesObs.getCountsPDFCDFDataDeprecateMeEfficient(explicitMin, explicitMax);
-		float[][] dCDF = sppPreDifferencesObs.getCountsPDFCDFDataDeprecateMeEfficient(); //without explicitly coding the range
-
-		for(int i=0;i<dCDF.length;i++){
-			XYdata.add(dCDF[i][0],dCDF[i][1]);
-		}
-		
-		XY.addSeries(XYdata);
-		showGraph("norm");
+//		float[][] dCDF = sppPreDifferencesObs.getCountsPDFCDFDataDeprecateMeEfficient(); //without explicitly coding the range
+//
+//		for(int i=0;i<dCDF.length;i++){
+//			XYdata.add(dCDF[i][0],dCDF[i][1]);
+//		}
+//		
+//		XY.addSeries(XYdata);
+//		showGraph("norm");
 		
 		// normal data - freqs hist
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("some joe data freq");
-		for(int i=0;i<dCDF.length;i++){
-			XYdata.add(dCDF[i][0],dCDF[i][2]);
-		}
-		XY.addSeries(XYdata);
-		showGraph("norm-freq");
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("some joe data freq");
+//		for(int i=0;i<dCDF.length;i++){
+//			XYdata.add(dCDF[i][0],dCDF[i][2]);
+//		}
+//		XY.addSeries(XYdata);
+//		showGraph("norm-freq");
 
 		// normal data - cumulative
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("some joe data cumul. freq");
-		for(int i=0;i<dCDF.length;i++){
-			XYdata.add(dCDF[i][0],dCDF[i][3]);
-		}
-		XY.addSeries(XYdata);
-		showGraph("norm- cumul. freq");
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("some joe data cumul. freq");
+//		for(int i=0;i<dCDF.length;i++){
+//			XYdata.add(dCDF[i][0],dCDF[i][3]);
+//		}
+//		XY.addSeries(XYdata);
+//		showGraph("norm- cumul. freq");
 		
 		// normal data - point vals
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("some joe data point");
-		for(int i=0;i<dCDF.length;i++){
-			XYdata.add(dCDF[i][0],dCDF[i][4]);
-		}
-		XY.addSeries(XYdata);
-		showGraph("norm-point");
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("some joe data point");
+//		for(int i=0;i<dCDF.length;i++){
+//			XYdata.add(dCDF[i][0],dCDF[i][4]);
+//		}
+//		XY.addSeries(XYdata);
+//		showGraph("norm-point");
 		
 		/*
 		 * SHIT THE BED!!! THIS WORKS!!!!
@@ -754,45 +754,45 @@ public class CopyOfCongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDF
 		 * NB eventually will need to set explicit bin ranges etc.
 		 */
 				
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("some joe data norm - EXP");
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("some joe data norm - EXP");
 		
 //		dCDF = sppPreDifferencesExp.getCountsPDFCDFDataDeprecateMeEfficient(explicitMin, explicitMax);
-		dCDF = sppPreDifferencesExp.getCountsPDFCDFDataDeprecateMeEfficient(); // without explicitly coding the range
-
-		for(int i=0;i<dCDF.length;i++){
-			XYdata.add(dCDF[i][0],dCDF[i][1]);
-		}
-		
-		XY.addSeries(XYdata);
-		showGraph("norm exp");
+//		dCDF = sppPreDifferencesExp.getCountsPDFCDFDataDeprecateMeEfficient(); // without explicitly coding the range
+//
+//		for(int i=0;i<dCDF.length;i++){
+//			XYdata.add(dCDF[i][0],dCDF[i][1]);
+//		}
+//		
+//		XY.addSeries(XYdata);
+//		showGraph("norm exp");
 		
 		// normal data - freqs hist
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("some joe data ÆSSLS freq exp");
-		for(int i=0;i<dCDF.length;i++){
-			XYdata.add(dCDF[i][0],dCDF[i][2]);
-		}
-		XY.addSeries(XYdata);
-		showGraph("norm-freq exp");
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("some joe data ÆSSLS freq exp");
+//		for(int i=0;i<dCDF.length;i++){
+//			XYdata.add(dCDF[i][0],dCDF[i][2]);
+//		}
+//		XY.addSeries(XYdata);
+//		showGraph("norm-freq exp");
 
 		// normal data - cumulative
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("some joe data cumul. freq ÆSSLS exp");
-		for(int i=0;i<dCDF.length;i++){
-			XYdata.add(dCDF[i][0],dCDF[i][3]);
-		}
-		XY.addSeries(XYdata);
-		showGraph("norm- cumul. freq ÆSSLS exp");
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("some joe data cumul. freq ÆSSLS exp");
+//		for(int i=0;i<dCDF.length;i++){
+//			XYdata.add(dCDF[i][0],dCDF[i][3]);
+//		}
+//		XY.addSeries(XYdata);
+//		showGraph("norm- cumul. freq ÆSSLS exp");
 		
 		// normal data - point vals
-		XY = new XYSeriesCollection();
-		XYdata = new XYSeries("some joe data point ÆSSLS exp");
-		for(int i=0;i<dCDF.length;i++){
-			XYdata.add(dCDF[i][0],dCDF[i][4]);
-		}
-		XY.addSeries(XYdata);
-		showGraph("norm-point ÆSSLS exp");
+//		XY = new XYSeriesCollection();
+//		XYdata = new XYSeries("some joe data point ÆSSLS exp");
+//		for(int i=0;i<dCDF.length;i++){
+//			XYdata.add(dCDF[i][0],dCDF[i][4]);
+//		}
+//		XY.addSeries(XYdata);
+//		showGraph("norm-point ÆSSLS exp");
 		
 		/*
 		 * SHIT THE BED!!! THIS WORKS!!!!
@@ -842,35 +842,35 @@ public class CopyOfCongruenceAnalysisAAWithBinariesPruningSimulationFilteringCDF
 		BasicFileWriter writer = new BasicFileWriter(logfile, logfileData.toString());
 	}
 
-	private void showGraph(String title) {
-		final JFreeChart chart = createChart(XY,title);
-		final ChartPanel chartPanel = new ChartPanel(chart);
-		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-	//	final ApplicationFrame frame = new ApplicationFrame("Joe Chart Title");
-		JFrame frame = new JFrame(title);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setContentPane(chartPanel);
-		frame.pack();
-		frame.setVisible(true);
-	}
-
-	private JFreeChart createChart(final XYDataset dataset,String title) {
-		final JFreeChart chart = ChartFactory.createScatterPlot(
-				title,                  // chart title
-				"X",                      // x axis label
-				"Y",                      // y axis label
-				dataset,                  // data
-				PlotOrientation.VERTICAL,
-				true,                     // include legend
-				true,                     // tooltips
-				false                     // urls
-		);
-		XYPlot plot = (XYPlot) chart.getPlot();
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		renderer.setSeriesLinesVisible(0, true);
-		plot.setRenderer(renderer);
-		return chart;
-	}
+//	private void showGraph(String title) {
+//		final JFreeChart chart = createChart(XY,title);
+//		final ChartPanel chartPanel = new ChartPanel(chart);
+//		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+//	//	final ApplicationFrame frame = new ApplicationFrame("Joe Chart Title");
+//		JFrame frame = new JFrame(title);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		frame.setContentPane(chartPanel);
+//		frame.pack();
+//		frame.setVisible(true);
+//	}
+//
+//	private JFreeChart createChart(final XYDataset dataset,String title) {
+//		final JFreeChart chart = ChartFactory.createScatterPlot(
+//				title,                  // chart title
+//				"X",                      // x axis label
+//				"Y",                      // y axis label
+//				dataset,                  // data
+//				PlotOrientation.VERTICAL,
+//				true,                     // include legend
+//				true,                     // tooltips
+//				false                     // urls
+//		);
+//		XYPlot plot = (XYPlot) chart.getPlot();
+//		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+//		renderer.setSeriesLinesVisible(0, true);
+//		plot.setRenderer(renderer);
+//		return chart;
+//	}
 	
 	private NewickTreeRepresentation pruneTaxa(NewickTreeRepresentation unprunedTree, TreeSet<String> taxaToPrune){
 		Iterator itrTaxon = taxaToPrune.iterator();

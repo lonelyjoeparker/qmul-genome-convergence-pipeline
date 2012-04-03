@@ -2,6 +2,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.tests;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
 
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.ExperimentalDataSeries;
@@ -14,11 +15,12 @@ public class ExperimentalDataSeriesTest extends TestCase {
 	
 	public ExperimentalDataSeriesTest(String name) {
 		super(name);
-		BasicFileReader reader = new BasicFileReader();
-		ArrayList<String> data = reader.loadSequences(new File("/pamlTest/trialDataFromGeorgia/expLnLvals"));
-		float [] floatData = new float[data.size()];
-		for(int i=0; i<floatData.length; i++){
-			floatData[i] = (float) Float.parseFloat(data.get(i));
+		//BasicFileReader reader = new BasicFileReader();
+		//ArrayList<String> data = reader.loadSequences(new File("/pamlTest/trialDataFromGeorgia/expLnLvals"));
+		float [] floatData = new float[100000];
+		Random r = new Random();
+		for(int i=0; i<100000; i++){
+			floatData[i] = (float)r.nextGaussian();
 		}
 		eds = new ExperimentalDataSeries(floatData, "test data");
 	}
@@ -204,13 +206,13 @@ public class ExperimentalDataSeriesTest extends TestCase {
 		critical ++;
 	}
 	
-	public void testGetThresholdValueAtCumulativeDensityRanges(){
+	public void testGetThresholdValueAtCumulativeDensityRangesExplicitBinCount(){
 		float test = -0.1f;
 		float[] critical = new float[100];
 		for(int i=0;i<100;i++){
 			test = 0f + ((float)i/100f);
 			try {
-				critical[i] = eds.getThresholdValueAtCumulativeDensity(test);
+				critical[i] = eds.getThresholdValueAtCumulativeDensity(test,1000);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -237,5 +239,20 @@ public class ExperimentalDataSeriesTest extends TestCase {
 		num = eds.getNumberLessThan(-1f);
 		num = eds.getNumberLessThan(1f);
 		num++;
+	}
+
+	public void testGetThresholdValueAtCumulativeDensityRanges(){
+		float test = -0.1f;
+		float[] critical = new float[100];
+		for(int i=0;i<100;i++){
+			test = 0f + ((float)i/100f);
+			try {
+				critical[i] = eds.getThresholdValueAtCumulativeDensity(test);
+			} catch (PercentileOutOfRangeError e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		critical[0]++;
 	}
 }

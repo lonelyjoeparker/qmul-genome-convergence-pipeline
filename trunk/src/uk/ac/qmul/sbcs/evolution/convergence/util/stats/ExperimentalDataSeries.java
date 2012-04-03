@@ -632,9 +632,116 @@ public class ExperimentalDataSeries {
 	
 		return ret;
 	}
+
+	@Deprecated
+	public float[][] getCountsPDFCDFDataDeprecateMeEfficient(int nBins){
+		binBounds = new float[nBins];
+		Collections.sort(this.listData);
+		// what's going on here is we need to interpolate the point values when there are nBins ­ 100
+		float nBinsInterpolationFactor = 100f / (float)nBins;	// this is the factor we should interpolate by, e.g. ratio of percentiles:bins
+		
+		/*
+		 * Determine range etc
+		 */
+		float min = this.listData.get(0);
+		float max = this.listData.get(count-1);
+		float range = max-min;
+		float incr = range/nBins;
+		counts = new float[nBins]; // Length MUST == binBounds length, but hardcoded here for speed
+		freqs = new float[nBins]; // see above
+		cumCountsProp = new float[nBins]; // see above
+		pointVals = new float[nBins]; // see above
+	
+		
+		int dataIndex = 0;
+		float runningProportion = 0;
+		for(int boundIndex = 0; boundIndex<nBins;boundIndex++){
+			/*
+			 * Form bins
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+			binBounds[boundIndex] = min+(incr*boundIndex);
+			/*
+			 * Populate bins with counts
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+			while(listData.get(dataIndex) <= binBounds[boundIndex]){
+				counts[boundIndex]++;
+				dataIndex++;
+			}
+			/*
+			 * Populate bins with freqs
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+			freqs[boundIndex] = counts[boundIndex]/count;
+			/*
+			 * Populate bins with cumulative proportions
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+			cumCountsProp[boundIndex] = freqs[boundIndex]+runningProportion;
+			runningProportion = cumCountsProp[boundIndex];
+			/*
+			 * Populate bins with point values
+			 * 
+			 * (by the way, I think all of this can be done in a single pass through the loop....)
+			 */
+				try {
+				//													// what's going on here is we need to interpolate the point values when there are nBins ­ 100
+				//	float nBinsInterpolationFactor = 100f / (float)nBins;	// this is the factor we should interpolate by, e.g. ratio of percentiles:bins
+					int interpolatedBinIndex = Math.round(((float)boundIndex) * nBinsInterpolationFactor); // the factorised index
+					pointVals[boundIndex] = this.getValueAtPercentile(interpolatedBinIndex); 
+				} catch (PercentileOutOfRangeError e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		}
+	
+		
+		/*
+		 * Finally, fill the whole retmatrix up
+		 * 
+		 * ret[i][0] - bin bounds
+		 * ret[i][1] - count data
+		 * ret[i][2] - freq data
+		 * ret[i][3] - cumulative counts
+		 * ret[i][4] - value at percentile
+		 */
+		float[][] ret = new float[nBins][5];
+		
+		for(int boundIndex = 0; boundIndex<nBins;boundIndex++){
+			ret[boundIndex][0] = binBounds[boundIndex];
+			ret[boundIndex][1] = counts[boundIndex];
+			ret[boundIndex][2] = freqs[boundIndex];
+			ret[boundIndex][3] = cumCountsProp[boundIndex];
+			ret[boundIndex][4] = pointVals[boundIndex];
+		}
+	
+		return ret;
+	}
 	
 	private boolean binsInitialised(){
 		return !((binBounds == null)&&(counts==null)&&(freqs==null)&&(cumCountsProp==null)&&(pointVals==null));
+	}
+	
+	public float getThresholdValueAtCumulativeDensity(float density, int nBins) throws PercentileOutOfRangeError{
+		if(density<0 || density>1){
+			throw new PercentileOutOfRangeError();
+		}
+		if(!this.binsInitialised()){
+			this.getCountsPDFCDFDataDeprecateMeEfficient(nBins);
+		}
+		float retval = pointVals[0];
+		
+		int binpos = 0;
+		while((binpos<100)&&(cumCountsProp[binpos] < density)){
+			retval = pointVals[binpos];
+			binpos ++;
+		}
+		return retval;
 	}
 	
 	public float getThresholdValueAtCumulativeDensity(float density) throws PercentileOutOfRangeError{
@@ -677,4 +784,5 @@ public class ExperimentalDataSeries {
 		}
 		return count;
 	}
+
 }

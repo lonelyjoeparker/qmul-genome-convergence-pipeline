@@ -56,7 +56,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.UnequalDataSeriesLengthE
  * 
  * 		Also note that this means the PamlParameter cleandata should probably be set to cleandata=0 for most purposes.
  */
-public class MultiHnCongruenceAnalysisNoCDFPlotting {
+public class MultiHnCongruenceAnalysisTestVariance {
 	// Initialise with data and two trees
 	// Aaml on tree 1
 	// Aaml on tree 2
@@ -134,7 +134,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 	 * @param thisFilter - filter out sites with this many (or greater) taxa having gaps (missing data)
 	 * @param filterThisByFactor - whether to filter by % or absolute number.
 	 */
-	public MultiHnCongruenceAnalysisNoCDFPlotting(File data, File treefileH0, File treefileH1, File treefileH2, File treefileH3, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
+	public MultiHnCongruenceAnalysisTestVariance(File data, File treefileH0, File treefileH1, File treefileH2, File treefileH3, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
 		this.dataset = data;
 		this.treeFileH0 = treefileH0;
 		this.treeFileH1 = treefileH1;
@@ -171,6 +171,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		inputSequenceCodingType = sourceDataASR.determineInputSequenceType();
 		try {
 			sourceDataASR.translate(true);
+			sourceDataASR.removeStopCodons();
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -206,28 +207,28 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		treeH0Pruned = this.pruneTaxa(treeH0, this.excludedTaxaList(taxaList, sourceDataASR));
 		treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
 		treeH0Pruned.setTreeFile(treeFileH0Pruned);
-		treeH0Pruned.write(treeFileH0Pruned);
+		treeH0Pruned.writeMultipleReplicates(treeFileH0Pruned,30);
 
 		/* Ditto, Tree H1 needs pruning as it has the full taxon list */
 		
 		treeH1Pruned = this.pruneTaxa(treeH1, this.excludedTaxaList(taxaList, sourceDataASR));
 		treeFileH1Pruned = new File(treeFileH1.getAbsoluteFile()+".pruned.tre");
 		treeH1Pruned.setTreeFile(treeFileH1Pruned);
-		treeH1Pruned.write(treeFileH1Pruned);
+		treeH1Pruned.writeMultipleReplicates(treeFileH1Pruned,30);
 		
 		/* Ditto, Tree H2 needs pruning as it has the full taxon list */
 		
 		treeH2Pruned = this.pruneTaxa(treeH2, this.excludedTaxaList(taxaList, sourceDataASR));
 		treeFileH2Pruned = new File(treeFileH2.getAbsoluteFile()+".pruned.tre");
 		treeH2Pruned.setTreeFile(treeFileH2Pruned);
-		treeH2Pruned.write(treeFileH2Pruned);
+		treeH2Pruned.writeMultipleReplicates(treeFileH2Pruned,30);
 
 		/* Ditto, Tree H3 needs pruning as it has the full taxon list */
 		
 		treeH3Pruned = this.pruneTaxa(treeH3, this.excludedTaxaList(taxaList, sourceDataASR));
 		treeFileH3Pruned = new File(treeFileH3.getAbsoluteFile()+".pruned.tre");
 		treeH3Pruned.setTreeFile(treeFileH3Pruned);
-		treeH3Pruned.write(treeFileH3Pruned);
+		treeH3Pruned.writeMultipleReplicates(treeFileH3Pruned,30);
 
 		/*
 		 * Skip this
@@ -238,20 +239,20 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		
 		/* Get a de-novo RAxML tree */
 		
-		RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, treeH0.getTreeFile(), runID, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
-		ra.setTreeConstraint(false);
-		ra.setNoStartTree(true);
-		ra.setBinaryDir(new File(this.binariesLocation.getAbsoluteFile()+"/raxmlHPC"));
-	//	ra.setWorkingDir(this.workDir);
-		ra.RunAnalysis();
-		treeFileRAxMLdeNovo = ra.getOutputFile();
-		treeRAxML = new NewickTreeRepresentation(treeFileRAxMLdeNovo,taxaList);
+//		RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, treeH0.getTreeFile(), runID, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
+//		ra.setTreeConstraint(false);
+//		ra.setNoStartTree(true);
+//		ra.setBinaryDir(new File(this.binariesLocation.getAbsoluteFile()+"/raxmlHPC"));
+//	//	ra.setWorkingDir(this.workDir);
+//		ra.RunAnalysis();
+//		treeFileRAxMLdeNovo = ra.getOutputFile();
+//		treeRAxML = new NewickTreeRepresentation(treeFileRAxMLdeNovo,taxaList);
 
 		
 		/* Aaml runs */
 		
 		// Tree 1 (H0; null hypothesis)
-		this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeOne.out");
+		this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeH0.out");
 		TreeMap<AamlParameters, String> parameters = new TreeMap<AamlParameters, String>();
 		parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH0Pruned.getAbsolutePath());
@@ -263,7 +264,18 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		treeOneAaml.setBinaryDir(this.binariesLocation.getAbsoluteFile());
 		treeOneAaml.setExecutionBinary(new File(treeOneAaml.getBinaryDir(),"codeml"));
 		treeOneAaml.setWorkingDir(workDir);
+		/**
+		 * Run the analysis. This is currently dropping out to shell via runCommand.pl
+		 */
 		treeOneAaml.RunAnalysis();
+		/**
+		 * Now need to map the output; 
+		 * 		take the AamlAnalysis, 
+		 * 		getPatternSSLS() to get TreeMap<String,Float> of <i>sitewise</i> lnL,
+		 * 		use an Iterator to safely put all contents into a float[]
+		 * 
+		 * 		TODO: It would be better / more intuitive to just have AamlAnalysis return the lnL as a float[]
+		 */
 		TreeMap<String, Float> aaDataTreeOneSSLS = treeOneAaml.getPatternSSLS();
 		float[] aaDataSSLSlnL0 = new float[aaDataTreeOneSSLS.size()];
 		Iterator dataSSLSItr0 = aaDataTreeOneSSLS.keySet().iterator();
@@ -276,7 +288,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		treeOneObservedlnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS));
 
 		// Tree 2 (H1)
-		this.aaH1AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeTwo.out");
+		this.aaH1AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeH1.out");
 		parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH1Pruned.getAbsolutePath());
 		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaH1AnalysisOutputFile.getAbsolutePath());
@@ -392,158 +404,158 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 			e1.printStackTrace();
 		}
 
-		/* Do simulation on Species tree */
-
-		File f = new File(workDir+"/testSimulationsFromParamsNucleotides");
-		AamlResultReader speciesTreeAaml = new AamlResultReader(aaH0AnalysisOutputFile);
-		String tree = speciesTreeAaml.getOptimisedTree();
-		String treeLen = speciesTreeAaml.getTreeLength();
-		String alphaSpp = speciesTreeAaml.getAlpha();
-		String obsAAAvgFreqs = speciesTreeAaml.getObsAvgFreqs();
-		String optimisedTree = speciesTreeAaml.getOptimisedTree();
-		int numberOfTaxa = this.sourceDataASR.getNumberOfTaxa();
-		int numberOfSites = this.sitesInSimulations;
-		int numberOfReplicates = 1;
-		EvolverSimulationSGE es = new EvolverSimulationSGE(this.evolverBinary,workDir,f,tree,numberOfTaxa,numberOfSites,numberOfReplicates,SequenceCodingType.AA);
-		es.initialiseSimulation();
-		es.addParameterReadyToSet("PAMLFLAG", "0");
-		es.setParameter("ALPHA", alphaSpp);
-		es.setParameter("TREE_LENGTH", treeLen);
-		es.setParameter("AARATEFILE", this.binariesLocation+"/dat/mtmam.dat");
-		es.setParameter("AAFREQS", obsAAAvgFreqs);
-		es.printCurrentParams();
-		es.simulateNoArg();
-		AlignedSequenceRepresentation simulatedSpp = new AlignedSequenceRepresentation();
-		try {
-			simulatedSpp.loadSequences(new File(this.workDir.getAbsoluteFile()+"/mc.paml"),false);
-		} catch (TaxaLimitException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		/* Do Aaml on data simulated on spp tree */
-		File aaSppSimTreeOneAnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeOne.out");
-		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
-		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH0Pruned.getAbsolutePath());
-		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeOneAnalysisOutputFile.getAbsolutePath());
-		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
-		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
-		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
-		treefiles[0] = this.treeFileH0Pruned;
-		datasets[0] = simulatedSpp;
-		AamlAnalysisSGE treeOneAamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeOne.ctl");
-		treeOneAamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
-		treeOneAamlSim.setExecutionBinary(new File(treeOneAamlSim.getBinaryDir(),"codeml"));
-		treeOneAamlSim.setWorkingDir(workDir);
-		treeOneAamlSim.RunAnalysis();
-		TreeMap<String, Float> aaDataTreeOneSimSSLS = treeOneAamlSim.getPatternSSLS();
-		float[] aaDataSimSSLSlnL1 = new float[aaDataTreeOneSimSSLS.size()];
-		Iterator dataSimSSLSItr1 = aaDataTreeOneSimSSLS.keySet().iterator();
-		sIndex = 0;
-		while(dataSimSSLSItr1.hasNext()){
-			aaDataSimSSLSlnL1[sIndex] = aaDataTreeOneSimSSLS.get(dataSimSSLSItr1.next());
-			sIndex++;
-		}
-		treeOneSimlnLOnTreeOne = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeOneSimSSLS));
-
-		/* Aaml on data simulated under H0 (species tree) - fit to H1 (tree 2 / prestin)	*/ 
-		File aaSppSimTreeH1AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeH1.out");
-		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
-		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH1Pruned.getAbsolutePath());
-		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeH1AnalysisOutputFile.getAbsolutePath());
-		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
-		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
-		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
-		treefiles[0] = this.treeFileH1Pruned;
-		AamlAnalysisSGE treeH1AamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeH1.ctl");
-		treeH1AamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
-		treeH1AamlSim.setExecutionBinary(new File(treeH1AamlSim.getBinaryDir(),"codeml"));
-		treeH1AamlSim.setWorkingDir(workDir);
-		treeH1AamlSim.RunAnalysis();
-		TreeMap<String, Float> aaDataTreeH1SimSSLS = treeH1AamlSim.getPatternSSLS();
-		float[] aaDataSimSSLSlnLH1 = new float[aaDataTreeH1SimSSLS.size()];
-		Iterator dataSimSSLSItrH1 = aaDataTreeH1SimSSLS.keySet().iterator();
-		sIndex = 0;
-		while(dataSimSSLSItrH1.hasNext()){
-			aaDataSimSSLSlnLH1[sIndex] = aaDataTreeH1SimSSLS.get(dataSimSSLSItrH1.next());
-			sIndex++;
-		}
-		treeOneSimlnLOnTreeH1 = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeH1SimSSLS));
-
-		/* Aaml on data simulated under H0 (species tree) - fit to H2		*/ 
-		File aaSppSimTreeH2AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeH2.out");
-		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
-		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH2Pruned.getAbsolutePath());
-		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeH2AnalysisOutputFile.getAbsolutePath());
-		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
-		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
-		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
-		treefiles[0] = this.treeFileH2Pruned;
-		AamlAnalysisSGE treeH2AamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeH2.ctl");
-		treeH2AamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
-		treeH2AamlSim.setExecutionBinary(new File(treeH2AamlSim.getBinaryDir(),"codeml"));
-		treeH2AamlSim.setWorkingDir(workDir);
-		treeH2AamlSim.RunAnalysis();
-		TreeMap<String, Float> aaDataTreeH2SimSSLS = treeH2AamlSim.getPatternSSLS();
-		float[] aaDataSimSSLSlnLH2 = new float[aaDataTreeH2SimSSLS.size()];
-		Iterator dataSimSSLSItrH2 = aaDataTreeH2SimSSLS.keySet().iterator();
-		sIndex = 0;
-		while(dataSimSSLSItrH2.hasNext()){
-			aaDataSimSSLSlnLH2[sIndex] = aaDataTreeH2SimSSLS.get(dataSimSSLSItrH2.next());
-			sIndex++;
-		}
-		treeOneSimlnLOnTreeH2 = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeH2SimSSLS));
-
-		/* Aaml on data simulated under H0 (species tree) - fit to H3		*/ 
-		File aaSppSimTreeH3AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeH3.out");
-		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
-		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH3Pruned.getAbsolutePath());
-		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeH3AnalysisOutputFile.getAbsolutePath());
-		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
-		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
-		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
-		treefiles[0] = this.treeFileH3Pruned;
-		AamlAnalysisSGE treeH3AamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeH3.ctl");
-		treeH3AamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
-		treeH3AamlSim.setExecutionBinary(new File(treeH3AamlSim.getBinaryDir(),"codeml"));
-		treeH3AamlSim.setWorkingDir(workDir);
-		treeH3AamlSim.RunAnalysis();
-		TreeMap<String, Float> aaDataTreeH3SimSSLS = treeH3AamlSim.getPatternSSLS();
-		float[] aaDataSimSSLSlnLH3 = new float[aaDataTreeH3SimSSLS.size()];
-		Iterator dataSimSSLSItrH3 = aaDataTreeH3SimSSLS.keySet().iterator();
-		sIndex = 0;
-		while(dataSimSSLSItrH3.hasNext()){
-			aaDataSimSSLSlnLH3[sIndex] = aaDataTreeH3SimSSLS.get(dataSimSSLSItrH3.next());
-			sIndex++;
-		}
-		treeOneSimlnLOnTreeH3 = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeH3SimSSLS));
-
-		File aaSppSimTreeDeNovoAnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeDeNovo.out");
-		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
-		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileRAxMLdeNovo.getAbsolutePath());
-		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeDeNovoAnalysisOutputFile.getAbsolutePath());
-		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
-		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
-		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
-		treefiles[0] = this.treeFileRAxMLdeNovo;
-		AamlAnalysisSGE treeDeNovoAamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeDeNovo.ctl");
-		treeDeNovoAamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
-		treeDeNovoAamlSim.setExecutionBinary(new File(treeH1AamlSim.getBinaryDir(),"codeml"));
-		treeDeNovoAamlSim.setWorkingDir(workDir);
-		treeDeNovoAamlSim.RunAnalysis();
-		TreeMap<String, Float> aaDataTreeDeNovoSimSSLS = treeDeNovoAamlSim.getPatternSSLS();
-		float[] aaDataSimSSLSlnL3 = new float[aaDataTreeDeNovoSimSSLS.size()];
-		Iterator dataSimSSLSItr3 = aaDataTreeDeNovoSimSSLS.keySet().iterator();
-		sIndex = 0;
-		while(dataSimSSLSItr3.hasNext()){
-			aaDataSimSSLSlnL3[sIndex] = aaDataTreeDeNovoSimSSLS.get(dataSimSSLSItr3.next());
-			sIndex++;
-		}
-		treeOneSimlnLOnTreeDeNovo = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeDeNovoSimSSLS));
-
-		/* Do simulation on Prestin tree */
-		AamlResultReader prestinTreeAaml = new AamlResultReader(aaH1AnalysisOutputFile);
-		String alphaPre = prestinTreeAaml.getAlpha();
+//		/* Do simulation on Species tree */
+//
+//		File f = new File(workDir+"/testSimulationsFromParamsNucleotides");
+//		AamlResultReader speciesTreeAaml = new AamlResultReader(aaH0AnalysisOutputFile);
+//		String tree = speciesTreeAaml.getOptimisedTree();
+//		String treeLen = speciesTreeAaml.getTreeLength();
+//		String alphaSpp = speciesTreeAaml.getAlpha();
+//		String obsAAAvgFreqs = speciesTreeAaml.getObsAvgFreqs();
+//		String optimisedTree = speciesTreeAaml.getOptimisedTree();
+//		int numberOfTaxa = this.sourceDataASR.getNumberOfTaxa();
+//		int numberOfSites = this.sitesInSimulations;
+//		int numberOfReplicates = 1;
+//		EvolverSimulationSGE es = new EvolverSimulationSGE(this.evolverBinary,workDir,f,tree,numberOfTaxa,numberOfSites,numberOfReplicates,SequenceCodingType.AA);
+//		es.initialiseSimulation();
+//		es.addParameterReadyToSet("PAMLFLAG", "0");
+//		es.setParameter("ALPHA", alphaSpp);
+//		es.setParameter("TREE_LENGTH", treeLen);
+//		es.setParameter("AARATEFILE", this.binariesLocation+"/dat/mtmam.dat");
+//		es.setParameter("AAFREQS", obsAAAvgFreqs);
+//		es.printCurrentParams();
+//		es.simulateNoArg();
+//		AlignedSequenceRepresentation simulatedSpp = new AlignedSequenceRepresentation();
+//		try {
+//			simulatedSpp.loadSequences(new File(this.workDir.getAbsoluteFile()+"/mc.paml"),false);
+//		} catch (TaxaLimitException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//
+//		/* Do Aaml on data simulated on spp tree */
+//		File aaSppSimTreeOneAnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeOne.out");
+//		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
+//		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH0Pruned.getAbsolutePath());
+//		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeOneAnalysisOutputFile.getAbsolutePath());
+//		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+//		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
+//		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
+//		treefiles[0] = this.treeFileH0Pruned;
+//		datasets[0] = simulatedSpp;
+//		AamlAnalysisSGE treeOneAamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeOne.ctl");
+//		treeOneAamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+//		treeOneAamlSim.setExecutionBinary(new File(treeOneAamlSim.getBinaryDir(),"codeml"));
+//		treeOneAamlSim.setWorkingDir(workDir);
+//		treeOneAamlSim.RunAnalysis();
+//		TreeMap<String, Float> aaDataTreeOneSimSSLS = treeOneAamlSim.getPatternSSLS();
+//		float[] aaDataSimSSLSlnL1 = new float[aaDataTreeOneSimSSLS.size()];
+//		Iterator dataSimSSLSItr1 = aaDataTreeOneSimSSLS.keySet().iterator();
+//		sIndex = 0;
+//		while(dataSimSSLSItr1.hasNext()){
+//			aaDataSimSSLSlnL1[sIndex] = aaDataTreeOneSimSSLS.get(dataSimSSLSItr1.next());
+//			sIndex++;
+//		}
+//		treeOneSimlnLOnTreeOne = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeOneSimSSLS));
+//
+//		/* Aaml on data simulated under H0 (species tree) - fit to H1 (tree 2 / prestin)	*/ 
+//		File aaSppSimTreeH1AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeH1.out");
+//		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
+//		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH1Pruned.getAbsolutePath());
+//		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeH1AnalysisOutputFile.getAbsolutePath());
+//		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+//		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
+//		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
+//		treefiles[0] = this.treeFileH1Pruned;
+//		AamlAnalysisSGE treeH1AamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeH1.ctl");
+//		treeH1AamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+//		treeH1AamlSim.setExecutionBinary(new File(treeH1AamlSim.getBinaryDir(),"codeml"));
+//		treeH1AamlSim.setWorkingDir(workDir);
+//		treeH1AamlSim.RunAnalysis();
+//		TreeMap<String, Float> aaDataTreeH1SimSSLS = treeH1AamlSim.getPatternSSLS();
+//		float[] aaDataSimSSLSlnLH1 = new float[aaDataTreeH1SimSSLS.size()];
+//		Iterator dataSimSSLSItrH1 = aaDataTreeH1SimSSLS.keySet().iterator();
+//		sIndex = 0;
+//		while(dataSimSSLSItrH1.hasNext()){
+//			aaDataSimSSLSlnLH1[sIndex] = aaDataTreeH1SimSSLS.get(dataSimSSLSItrH1.next());
+//			sIndex++;
+//		}
+//		treeOneSimlnLOnTreeH1 = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeH1SimSSLS));
+//
+//		/* Aaml on data simulated under H0 (species tree) - fit to H2		*/ 
+//		File aaSppSimTreeH2AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeH2.out");
+//		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
+//		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH2Pruned.getAbsolutePath());
+//		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeH2AnalysisOutputFile.getAbsolutePath());
+//		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+//		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
+//		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
+//		treefiles[0] = this.treeFileH2Pruned;
+//		AamlAnalysisSGE treeH2AamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeH2.ctl");
+//		treeH2AamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+//		treeH2AamlSim.setExecutionBinary(new File(treeH2AamlSim.getBinaryDir(),"codeml"));
+//		treeH2AamlSim.setWorkingDir(workDir);
+//		treeH2AamlSim.RunAnalysis();
+//		TreeMap<String, Float> aaDataTreeH2SimSSLS = treeH2AamlSim.getPatternSSLS();
+//		float[] aaDataSimSSLSlnLH2 = new float[aaDataTreeH2SimSSLS.size()];
+//		Iterator dataSimSSLSItrH2 = aaDataTreeH2SimSSLS.keySet().iterator();
+//		sIndex = 0;
+//		while(dataSimSSLSItrH2.hasNext()){
+//			aaDataSimSSLSlnLH2[sIndex] = aaDataTreeH2SimSSLS.get(dataSimSSLSItrH2.next());
+//			sIndex++;
+//		}
+//		treeOneSimlnLOnTreeH2 = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeH2SimSSLS));
+//
+//		/* Aaml on data simulated under H0 (species tree) - fit to H3		*/ 
+//		File aaSppSimTreeH3AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeH3.out");
+//		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
+//		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH3Pruned.getAbsolutePath());
+//		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeH3AnalysisOutputFile.getAbsolutePath());
+//		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+//		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
+//		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
+//		treefiles[0] = this.treeFileH3Pruned;
+//		AamlAnalysisSGE treeH3AamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeH3.ctl");
+//		treeH3AamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+//		treeH3AamlSim.setExecutionBinary(new File(treeH3AamlSim.getBinaryDir(),"codeml"));
+//		treeH3AamlSim.setWorkingDir(workDir);
+//		treeH3AamlSim.RunAnalysis();
+//		TreeMap<String, Float> aaDataTreeH3SimSSLS = treeH3AamlSim.getPatternSSLS();
+//		float[] aaDataSimSSLSlnLH3 = new float[aaDataTreeH3SimSSLS.size()];
+//		Iterator dataSimSSLSItrH3 = aaDataTreeH3SimSSLS.keySet().iterator();
+//		sIndex = 0;
+//		while(dataSimSSLSItrH3.hasNext()){
+//			aaDataSimSSLSlnLH3[sIndex] = aaDataTreeH3SimSSLS.get(dataSimSSLSItrH3.next());
+//			sIndex++;
+//		}
+//		treeOneSimlnLOnTreeH3 = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeH3SimSSLS));
+//
+//		File aaSppSimTreeDeNovoAnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlSppSimFitTreeDeNovo.out");
+//		parameters.put(AamlParameters.SEQFILE, "seqfile = "+this.workDir.getAbsolutePath()+"/mc.paml");
+//		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileRAxMLdeNovo.getAbsolutePath());
+//		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaSppSimTreeDeNovoAnalysisOutputFile.getAbsolutePath());
+//		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/wag.dat");
+//		parameters.put(AamlParameters.FIX_ALPHA, "fix_alpha = 1");
+//		parameters.put(AamlParameters.ALPHA, "alpha = "+alphaSpp);
+//		treefiles[0] = this.treeFileRAxMLdeNovo;
+//		AamlAnalysisSGE treeDeNovoAamlSim = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlSppSimOnTreeDeNovo.ctl");
+//		treeDeNovoAamlSim.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+//		treeDeNovoAamlSim.setExecutionBinary(new File(treeH1AamlSim.getBinaryDir(),"codeml"));
+//		treeDeNovoAamlSim.setWorkingDir(workDir);
+//		treeDeNovoAamlSim.RunAnalysis();
+//		TreeMap<String, Float> aaDataTreeDeNovoSimSSLS = treeDeNovoAamlSim.getPatternSSLS();
+//		float[] aaDataSimSSLSlnL3 = new float[aaDataTreeDeNovoSimSSLS.size()];
+//		Iterator dataSimSSLSItr3 = aaDataTreeDeNovoSimSSLS.keySet().iterator();
+//		sIndex = 0;
+//		while(dataSimSSLSItr3.hasNext()){
+//			aaDataSimSSLSlnL3[sIndex] = aaDataTreeDeNovoSimSSLS.get(dataSimSSLSItr3.next());
+//			sIndex++;
+//		}
+//		treeOneSimlnLOnTreeDeNovo = new ExperimentalDataSeries(simulatedSpp.getFullSitesLnL(aaDataTreeDeNovoSimSSLS));
+//
+//		/* Do simulation on Prestin tree */
+//		AamlResultReader prestinTreeAaml = new AamlResultReader(aaH1AnalysisOutputFile);
+//		String alphaPre = prestinTreeAaml.getAlpha();
 
 		/**
 		 * Removed simulation on prestin tree
@@ -809,9 +821,9 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		}
 		logfileData.append("Null sites  "+sitesInSimulations+"\n");
 		logfileData.append("Site patterns in data: "+aaDataTreeOneSSLS.size()+"\n");
-		logfileData.append("Species tree estimated alpha\t"+alphaSpp+"\n");
-		logfileData.append("Prestin tree estimated alpha\t"+alphaPre+"\n");
-		logfileData.append("de novo tree estimated alpha\t"+alphaRax+"\n");
+//		logfileData.append("Species tree estimated alpha\t"+alphaSpp+"\n");
+//		logfileData.append("Prestin tree estimated alpha\t"+alphaPre+"\n");
+//		logfileData.append("de novo tree estimated alpha\t"+alphaRax+"\n");
 		logfileData.append("Sitewise dSSLS (obs) for:\tH0-H1\tH0-H2\tH0-H3\tH0-Rax\n");
 		float[] h0h1Df = H0H1DifferencesObs.getData();
 		float[] h0h2Df = H0H2DifferencesObs.getData();
@@ -992,7 +1004,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 
 		logfileData.append("Significant sites:\np\texp|H0\tobs(n<E) - H1\texp|H0\tobs(n<E) - H2\texp|H0\tobs(n<E) - H3\texp|H0\tobs(n<E) - RAxML\n");
 
-		float[] densities = {0.0f,0.01f,0.02f,0.03f,0.04f,0.05f,0.5f,0.95f,0.99f,1f};
+		float[] densities = {0.0f,0.001f,0.002f,0.003f,0.004f,0.005f,0.01f,0.05f,0.1f,0.5f};
 		float[] criticalValsH0H1 = new float[10];			
 		float[] criticalValsH0H2 = new float[10];			
 		float[] criticalValsH0H3 = new float[10];			
@@ -1005,7 +1017,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		for(int which=0;which<10;which++){
 			// First spp vs prestin (H0 - H1)
 			try {
-				criticalValsH0H1[which] = this.H0H1DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],100);
+				criticalValsH0H1[which] = this.H0H1DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],1000);
 				extremeCountsH0H1[which] = this.H0H1DifferencesObs.getNumberLessThan(criticalValsH0H1[which]);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
@@ -1015,7 +1027,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 			}
 			// H0 - H2
 			try {
-				criticalValsH0H2[which] = this.H0H2DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],100);
+				criticalValsH0H2[which] = this.H0H2DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],1000);
 				extremeCountsH0H2[which] = this.H0H2DifferencesObs.getNumberLessThan(criticalValsH0H2[which]);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
@@ -1025,7 +1037,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 			}
 			// H0 - H3
 			try {
-				criticalValsH0H3[which] = this.H0H3DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],100);
+				criticalValsH0H3[which] = this.H0H3DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],1000);
 				extremeCountsH0H3[which] = this.H0H3DifferencesObs.getNumberLessThan(criticalValsH0H3[which]);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
@@ -1035,8 +1047,8 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 			}
 			// Next spp vs raxml
 			try {
-				criticalValsH0Rax[which] = this.H0RaxDifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],100);
-				extremeCountsH0Rax[which] = this.H0H1DifferencesObs.getNumberLessThan(criticalValsH0Rax[which]);
+				criticalValsH0Rax[which] = this.H0RaxDifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],1000);
+				extremeCountsH0Rax[which] = this.H0RaxDifferencesObs.getNumberLessThan(criticalValsH0Rax[which]);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
 				criticalValsH0Rax[which] = Float.NaN;

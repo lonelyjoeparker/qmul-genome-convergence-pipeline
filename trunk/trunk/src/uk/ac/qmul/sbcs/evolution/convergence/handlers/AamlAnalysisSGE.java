@@ -181,6 +181,7 @@ public class AamlAnalysisSGE extends PamlAnalysis {
 		for(String site:transposedSites){
 			SSLS[position] = patternSSLS.get(site);
 			System.out.println(site+"\t"+SSLS[position]);
+			position++;
 		}
 	}
 
@@ -199,6 +200,7 @@ public class AamlAnalysisSGE extends PamlAnalysis {
 		int position = 0;
 		for(String site:transposedSites){
 			SSLS[position] = patternSSLS.get(site);
+			position++;
 		}
 	}
 }

@@ -225,4 +225,12 @@ public class NewickTreeRepresentation {
 			throw new TaxonNotFoundError();
 		}
 	}
+
+	public void writeMultipleReplicates(File outputTreeFile,int numberOfReplicates){
+		String out = "";
+		for(int i=0;i<numberOfReplicates;i++){
+			out += this.treeString;
+		}
+		new BasicFileWriter(outputTreeFile, out);
+	}
 }

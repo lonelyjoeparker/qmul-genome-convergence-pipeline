@@ -56,7 +56,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.UnequalDataSeriesLengthE
  * 
  * 		Also note that this means the PamlParameter cleandata should probably be set to cleandata=0 for most purposes.
  */
-public class MultiHnCongruenceAnalysisNoCDFPlotting {
+public class MultiHnCongruenceAnalysis1000BinCDFs {
 	// Initialise with data and two trees
 	// Aaml on tree 1
 	// Aaml on tree 2
@@ -134,7 +134,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 	 * @param thisFilter - filter out sites with this many (or greater) taxa having gaps (missing data)
 	 * @param filterThisByFactor - whether to filter by % or absolute number.
 	 */
-	public MultiHnCongruenceAnalysisNoCDFPlotting(File data, File treefileH0, File treefileH1, File treefileH2, File treefileH3, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
+	public MultiHnCongruenceAnalysis1000BinCDFs(File data, File treefileH0, File treefileH1, File treefileH2, File treefileH3, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
 		this.dataset = data;
 		this.treeFileH0 = treefileH0;
 		this.treeFileH1 = treefileH1;
@@ -251,7 +251,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		/* Aaml runs */
 		
 		// Tree 1 (H0; null hypothesis)
-		this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeOne.out");
+		this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeH0.out");
 		TreeMap<AamlParameters, String> parameters = new TreeMap<AamlParameters, String>();
 		parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH0Pruned.getAbsolutePath());
@@ -276,7 +276,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		treeOneObservedlnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS));
 
 		// Tree 2 (H1)
-		this.aaH1AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeTwo.out");
+		this.aaH1AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeH1.out");
 		parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
 		parameters.put(AamlParameters.TREEFILE, "treefile = "+this.treeFileH1Pruned.getAbsolutePath());
 		parameters.put(AamlParameters.OUTFILE, "outfile = "+aaH1AnalysisOutputFile.getAbsolutePath());
@@ -992,7 +992,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 
 		logfileData.append("Significant sites:\np\texp|H0\tobs(n<E) - H1\texp|H0\tobs(n<E) - H2\texp|H0\tobs(n<E) - H3\texp|H0\tobs(n<E) - RAxML\n");
 
-		float[] densities = {0.0f,0.01f,0.02f,0.03f,0.04f,0.05f,0.5f,0.95f,0.99f,1f};
+		float[] densities = {0.0f,0.001f,0.002f,0.003f,0.004f,0.005f,0.01f,0.05f,0.1f,0.5f};
 		float[] criticalValsH0H1 = new float[10];			
 		float[] criticalValsH0H2 = new float[10];			
 		float[] criticalValsH0H3 = new float[10];			
@@ -1005,7 +1005,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 		for(int which=0;which<10;which++){
 			// First spp vs prestin (H0 - H1)
 			try {
-				criticalValsH0H1[which] = this.H0H1DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],100);
+				criticalValsH0H1[which] = this.H0H1DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],1000);
 				extremeCountsH0H1[which] = this.H0H1DifferencesObs.getNumberLessThan(criticalValsH0H1[which]);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
@@ -1015,7 +1015,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 			}
 			// H0 - H2
 			try {
-				criticalValsH0H2[which] = this.H0H2DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],100);
+				criticalValsH0H2[which] = this.H0H2DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],1000);
 				extremeCountsH0H2[which] = this.H0H2DifferencesObs.getNumberLessThan(criticalValsH0H2[which]);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
@@ -1025,7 +1025,7 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 			}
 			// H0 - H3
 			try {
-				criticalValsH0H3[which] = this.H0H3DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],100);
+				criticalValsH0H3[which] = this.H0H3DifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],1000);
 				extremeCountsH0H3[which] = this.H0H3DifferencesObs.getNumberLessThan(criticalValsH0H3[which]);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
@@ -1035,8 +1035,8 @@ public class MultiHnCongruenceAnalysisNoCDFPlotting {
 			}
 			// Next spp vs raxml
 			try {
-				criticalValsH0Rax[which] = this.H0RaxDifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],100);
-				extremeCountsH0Rax[which] = this.H0H1DifferencesObs.getNumberLessThan(criticalValsH0Rax[which]);
+				criticalValsH0Rax[which] = this.H0RaxDifferencesExp.getThresholdValueAtCumulativeDensity(densities[which],1000);
+				extremeCountsH0Rax[which] = this.H0RaxDifferencesObs.getNumberLessThan(criticalValsH0Rax[which]);
 			} catch (PercentileOutOfRangeError e) {
 				// TODO Auto-generated catch block
 				criticalValsH0Rax[which] = Float.NaN;

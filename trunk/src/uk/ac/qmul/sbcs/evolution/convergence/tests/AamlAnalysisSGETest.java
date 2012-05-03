@@ -4,17 +4,17 @@ import java.io.File;
 import java.util.TreeMap;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
-import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysis;
+import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.AamlParameters;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 import junit.framework.TestCase;
 
-public class AamlAnalysisTest extends TestCase {
+public class AamlAnalysisSGETest extends TestCase {
 
-	AamlAnalysis a;
+	AamlAnalysisSGE a;
 	AlignedSequenceRepresentation[] PSR ={new AlignedSequenceRepresentation()};
 	
-	public AamlAnalysisTest(){
+	public AamlAnalysisSGETest(){
 		try {
 			PSR[0].loadSequences(new File("/pamlTest/stewart.aa.alternative.phy"),true);
 			PSR[0].writePhylipFile("/pamlTest/input.phy");
@@ -28,7 +28,7 @@ public class AamlAnalysisTest extends TestCase {
 		parameters.put(AamlParameters.TREEFILE, "treefile = /pamlTest/stewart.single.tre");
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = /Applications/Phylogenetics/PAML/paml44/dat/wag.dat");
 		parameters.put(AamlParameters.OUTFILE, "outfile = /pamlTest/lnf.out");
-		a = new AamlAnalysis(PSR, treefiles, parameters,"another.ctl");
+		a = new AamlAnalysisSGE(PSR, treefiles, parameters,"another.ctl");
 		a.setBinaryDir(new File("/Applications/Phylogenetics/PAML/paml44_myVersion/bin/").getAbsoluteFile());
 		a.setExecutionBinary(new File(a.getBinaryDir(),"codeml"));
 		a.setWorkingDir(new File("/pamlTest/"));
@@ -73,7 +73,15 @@ public class AamlAnalysisTest extends TestCase {
 		a.printSitewiseSSLS(PSR[0]);
 	}
 	
-	public void testGetFloatSitewiseLnL() {}
+	public void testGetFloatSitewiseLnL() {
+		a.getFloatSitewiseLnL();
+	}
 	
-	public void testGetFloatSitewiseMeanLnL() {}
+	public void testGetFloatSitewiseMeanLnL() {
+		a.getFloatSitewiseMeanLnL();
+	}
+	
+	public void testGetFloatSitewiseLnLVariance() {
+		a.getFloatSitewiseLnLVariance();
+	}
 }

@@ -110,6 +110,7 @@ public class CongruenceAnalysisAAWithBinariesPruningSimulationFiltering {
 		sourceDataASR.printNumberOfSites();
 		sourceDataASR.printNumberOfTaxa();
 		sourceDataASR.removeUnambiguousGaps();
+		sourceDataASR.removeStopCodons();
 		inputSequenceCodingType = sourceDataASR.determineInputSequenceType();
 		try {
 			sourceDataASR.translate(true);

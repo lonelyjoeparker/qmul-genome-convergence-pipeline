@@ -5,6 +5,7 @@ import java.util.TreeSet;
 
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.TaxonNotFoundError;
+import uk.ac.qmul.sbcs.evolution.convergence.handlers.NewickUtilitiesHandler;
 
 import junit.framework.TestCase;
 
@@ -160,4 +161,169 @@ public class NewickTreeRepresentationTest extends TestCase {
 			e.printStackTrace();
 		}
 	}
+	
+	public void testPrunePipeline(){
+		File treeFileH0 = new File("/pamlTest/topologies/20120330/Spp.tre");
+		TreeSet<String> taxaList = new TreeSet<String>();
+		TreeSet<String> pruneList = new TreeSet<String>();
+		taxaList.add("TURSIOPS");
+		taxaList.add("CANIS");
+		taxaList.add("FELIS");
+		taxaList.add("LOXODONTA");
+		taxaList.add("ERINACEUS");
+		taxaList.add("MUS");
+		taxaList.add("MONODELPHIS");
+		taxaList.add("PAN");
+		taxaList.add("HOMO");
+		taxaList.add("PTERONOTUS");
+		taxaList.add("RHINOLOPHUS");
+		taxaList.add("PTEROPUS");
+		taxaList.add("EIDOLON");
+		taxaList.add("DASYPUS");
+		taxaList.add("EQUUS");
+		taxaList.add("MEGADERMA");
+		taxaList.add("MYOTIS");
+		taxaList.add("BOS");
+		/* The extra 4 taxa in the 22 taxon tree */
+		taxaList.add("VICUGNA");
+		taxaList.add("OCHOTONA");
+		taxaList.add("ORYCTOLAGUS");
+		taxaList.add("SOREX");
+		pruneList.add("VICUGNA");
+		pruneList.add("OCHOTONA");
+		pruneList.add("ORYCTOLAGUS");
+		pruneList.add("SOREX");
+		NewickTreeRepresentation treeH0 = new NewickTreeRepresentation(treeFileH0, taxaList);
+		NewickTreeRepresentation treeH0Pruned = treeH0.pruneTaxa(pruneList);
+		File treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
+		treeH0Pruned.setTreeFile(treeFileH0Pruned);
+		treeH0Pruned.writeMultipleReplicates(treeFileH0Pruned,30);
+		treeH0Pruned.printSimply();
+	}
+
+	public void testPrunePipelineNWUtilsPrune(){
+		File treeFileH0 = new File("/pamlTest/topologies/20120330/Spp.UC.tre");
+		File binaries = new File("/usr/local/bin/");
+		TreeSet<String> taxaList = new TreeSet<String>();
+		TreeSet<String> pruneList = new TreeSet<String>();
+		taxaList.add("TURSIOPS");
+		taxaList.add("CANIS");
+		taxaList.add("FELIS");
+		taxaList.add("LOXODONTA");
+		taxaList.add("ERINACEUS");
+		taxaList.add("MUS");
+		taxaList.add("MONODELPHIS");
+		taxaList.add("PAN");
+		taxaList.add("HOMO");
+		taxaList.add("PTERONOTUS");
+		taxaList.add("RHINOLOPHUS");
+		taxaList.add("PTEROPUS");
+		taxaList.add("EIDOLON");
+		taxaList.add("DASYPUS");
+		taxaList.add("EQUUS");
+		taxaList.add("MEGADERMA");
+		taxaList.add("MYOTIS");
+		taxaList.add("BOS");
+		/* The extra 4 taxa in the 22 taxon tree */
+		taxaList.add("VICUGNA");
+		taxaList.add("OCHOTONA");
+		taxaList.add("ORYCTOLAGUS");
+		taxaList.add("SOREX");
+		pruneList.add("VICUGNA");
+		pruneList.add("OCHOTONA");
+		pruneList.add("ORYCTOLAGUS");
+		pruneList.add("SOREX");
+		NewickTreeRepresentation treeH0 = new NewickTreeRepresentation(treeFileH0, taxaList);
+//		NewickTreeRepresentation treeH0Pruned = treeH0.pruneTaxa(pruneList);
+		NewickTreeRepresentation treeH0Pruned = new NewickUtilitiesHandler(binaries,treeFileH0,taxaList).pruneTaxa(pruneList);
+		File treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
+		treeH0Pruned.setTreeFile(treeFileH0Pruned);
+		treeH0Pruned.writeMultipleReplicates(treeFileH0Pruned,30);
+		treeH0Pruned.printSimply();
+	}
+
+	public void testPrunePipelineNWUtilsPruneAndDeRoot(){
+		File treeFileH0 = new File("/pamlTest/topologies/20120330/Spp.UC.tre");
+		File binaries = new File("/usr/local/bin/");
+		TreeSet<String> taxaList = new TreeSet<String>();
+		TreeSet<String> pruneList = new TreeSet<String>();
+		taxaList.add("TURSIOPS");
+		taxaList.add("CANIS");
+		taxaList.add("FELIS");
+		taxaList.add("LOXODONTA");
+		taxaList.add("ERINACEUS");
+		taxaList.add("MUS");
+		taxaList.add("MONODELPHIS");
+		taxaList.add("PAN");
+		taxaList.add("HOMO");
+		taxaList.add("PTERONOTUS");
+		taxaList.add("RHINOLOPHUS");
+		taxaList.add("PTEROPUS");
+		taxaList.add("EIDOLON");
+		taxaList.add("DASYPUS");
+		taxaList.add("EQUUS");
+		taxaList.add("MEGADERMA");
+		taxaList.add("MYOTIS");
+		taxaList.add("BOS");
+		/* The extra 4 taxa in the 22 taxon tree */
+		taxaList.add("VICUGNA");
+		taxaList.add("OCHOTONA");
+		taxaList.add("ORYCTOLAGUS");
+		taxaList.add("SOREX");
+		pruneList.add("BOS");
+		pruneList.add("VICUGNA");
+		pruneList.add("OCHOTONA");
+		pruneList.add("ORYCTOLAGUS");
+		pruneList.add("SOREX");
+		NewickTreeRepresentation treeH0 = new NewickTreeRepresentation(treeFileH0, taxaList);
+//		NewickTreeRepresentation treeH0Pruned = treeH0.pruneTaxa(pruneList);
+		NewickTreeRepresentation treeH0Pruned = new NewickUtilitiesHandler(binaries,treeFileH0,taxaList).pruneAndDeRootTaxa(pruneList);
+		File treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".prunedDEROOTED.tre");
+		treeH0Pruned.setTreeFile(treeFileH0Pruned);
+		treeH0Pruned.writeMultipleReplicates(treeFileH0Pruned,30);
+		treeH0Pruned.printSimply();
+	}
+
+	public void testPrunePipelineNWUtilsPruneAndDeRootEmptyPruneList(){
+			File treeFileH0 = new File("/pamlTest/topologies/20120330/Spp.UC.tre");
+			File binaries = new File("/usr/local/bin/");
+			TreeSet<String> taxaList = new TreeSet<String>();
+			TreeSet<String> pruneList = new TreeSet<String>();
+			taxaList.add("TURSIOPS");
+			taxaList.add("CANIS");
+			taxaList.add("FELIS");
+			taxaList.add("LOXODONTA");
+			taxaList.add("ERINACEUS");
+			taxaList.add("MUS");
+			taxaList.add("MONODELPHIS");
+			taxaList.add("PAN");
+			taxaList.add("HOMO");
+			taxaList.add("PTERONOTUS");
+			taxaList.add("RHINOLOPHUS");
+			taxaList.add("PTEROPUS");
+			taxaList.add("EIDOLON");
+			taxaList.add("DASYPUS");
+			taxaList.add("EQUUS");
+			taxaList.add("MEGADERMA");
+			taxaList.add("MYOTIS");
+			taxaList.add("BOS");
+			/* The extra 4 taxa in the 22 taxon tree */
+			taxaList.add("VICUGNA");
+			taxaList.add("OCHOTONA");
+			taxaList.add("ORYCTOLAGUS");
+			taxaList.add("SOREX");
+			pruneList.add("BOS");
+			pruneList.add("VICUGNA");
+			pruneList.add("OCHOTONA");
+			pruneList.add("ORYCTOLAGUS");
+			pruneList.add("SOREX");
+			pruneList = new TreeSet<String>();
+			NewickTreeRepresentation treeH0 = new NewickTreeRepresentation(treeFileH0, taxaList);
+	//		NewickTreeRepresentation treeH0Pruned = treeH0.pruneTaxa(pruneList);
+			NewickTreeRepresentation treeH0Pruned = new NewickUtilitiesHandler(binaries, treeFileH0,taxaList).pruneAndDeRootTaxa(pruneList);
+			File treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".prunedDEROOTED.tre");
+			treeH0Pruned.setTreeFile(treeFileH0Pruned);
+			treeH0Pruned.writeMultipleReplicates(treeFileH0Pruned,30);
+			treeH0Pruned.printSimply();
+		}
 }

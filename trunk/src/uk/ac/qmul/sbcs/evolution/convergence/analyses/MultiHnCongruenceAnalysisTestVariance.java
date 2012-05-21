@@ -26,6 +26,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlResultReader;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.EvolverSimulationSGE;
+import uk.ac.qmul.sbcs.evolution.convergence.handlers.NewickUtilitiesHandler;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.AamlParameters;
@@ -203,33 +204,66 @@ public class MultiHnCongruenceAnalysisTestVariance {
 		treeH2 = new NewickTreeRepresentation(treeFileH2, taxaList);
 		treeH3 = new NewickTreeRepresentation(treeFileH3, taxaList);
 		
-		/* Tree H0 needs pruning as it has the full taxon list */
-		
-		treeH0Pruned = this.pruneTaxa(treeH0, this.excludedTaxaList(taxaList, sourceDataASR));
-		treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
-		treeH0Pruned.setTreeFile(treeFileH0Pruned);
-		treeH0Pruned.writeMultipleReplicates(treeFileH0Pruned,nTrees);
+		TreeSet<String> excludedTaxaList = this.excludedTaxaList(taxaList, sourceDataASR);
+		if(excludedTaxaList.size()>0){
+			// There are some taxa present in the taxa list that are absent from the data. 
+			// The trees must be pruned.
+			
+			/* Tree H0 needs pruning as it has the full taxon list */
+//			treeH0Pruned = this.pruneTaxa(treeH0, this.excludedTaxaList(taxaList, sourceDataASR));
+			treeH0Pruned = new NewickUtilitiesHandler(this.binariesLocation,this.treeFileH0, this.taxaList).pruneTaxa(excludedTaxaList);
+			treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
+			treeH0Pruned.setTreeFile(treeFileH0Pruned);
+			treeH0Pruned.writeMultipleReplicates(treeFileH0Pruned,nTrees);
 
-		/* Ditto, Tree H1 needs pruning as it has the full taxon list */
-		
-		treeH1Pruned = this.pruneTaxa(treeH1, this.excludedTaxaList(taxaList, sourceDataASR));
-		treeFileH1Pruned = new File(treeFileH1.getAbsoluteFile()+".pruned.tre");
-		treeH1Pruned.setTreeFile(treeFileH1Pruned);
-		treeH1Pruned.writeMultipleReplicates(treeFileH1Pruned,nTrees);
-		
-		/* Ditto, Tree H2 needs pruning as it has the full taxon list */
-		
-		treeH2Pruned = this.pruneTaxa(treeH2, this.excludedTaxaList(taxaList, sourceDataASR));
-		treeFileH2Pruned = new File(treeFileH2.getAbsoluteFile()+".pruned.tre");
-		treeH2Pruned.setTreeFile(treeFileH2Pruned);
-		treeH2Pruned.writeMultipleReplicates(treeFileH2Pruned,nTrees);
+			/* Ditto, Tree H1 needs pruning as it has the full taxon list */
+			
+//			treeH1Pruned = this.pruneTaxa(treeH1, this.excludedTaxaList(taxaList, sourceDataASR));
+			treeH1Pruned = new NewickUtilitiesHandler(this.binariesLocation,this.treeFileH1, this.taxaList).pruneTaxa(excludedTaxaList);
+			treeFileH1Pruned = new File(treeFileH1.getAbsoluteFile()+".pruned.tre");
+			treeH1Pruned.setTreeFile(treeFileH1Pruned);
+			treeH1Pruned.writeMultipleReplicates(treeFileH1Pruned,nTrees);
+			
+			/* Ditto, Tree H2 needs pruning as it has the full taxon list */
+			
+//			treeH2Pruned = this.pruneTaxa(treeH2, this.excludedTaxaList(taxaList, sourceDataASR));
+			treeH2Pruned = new NewickUtilitiesHandler(this.binariesLocation,this.treeFileH2, this.taxaList).pruneTaxa(excludedTaxaList);
+			treeFileH2Pruned = new File(treeFileH2.getAbsoluteFile()+".pruned.tre");
+			treeH2Pruned.setTreeFile(treeFileH2Pruned);
+			treeH2Pruned.writeMultipleReplicates(treeFileH2Pruned,nTrees);
 
-		/* Ditto, Tree H3 needs pruning as it has the full taxon list */
-		
-		treeH3Pruned = this.pruneTaxa(treeH3, this.excludedTaxaList(taxaList, sourceDataASR));
-		treeFileH3Pruned = new File(treeFileH3.getAbsoluteFile()+".pruned.tre");
-		treeH3Pruned.setTreeFile(treeFileH3Pruned);
-		treeH3Pruned.writeMultipleReplicates(treeFileH3Pruned,nTrees);
+			/* Ditto, Tree H3 needs pruning as it has the full taxon list */
+			
+//			treeH3Pruned = this.pruneTaxa(treeH3, this.excludedTaxaList(taxaList, sourceDataASR));
+			treeH3Pruned = new NewickUtilitiesHandler(this.binariesLocation,this.treeFileH3, this.taxaList).pruneTaxa(excludedTaxaList);
+			treeFileH3Pruned = new File(treeFileH3.getAbsoluteFile()+".pruned.tre");
+			treeH3Pruned.setTreeFile(treeFileH3Pruned);
+			treeH3Pruned.writeMultipleReplicates(treeFileH3Pruned,nTrees);
+		}else{
+			// The data contains all the taxa seen in the treefile.
+			// No need to prune, just write multiple.
+			
+//			treeH0Pruned = new NewickUtilitiesHandler(this.binariesLocation,this.treeFileH0, this.taxaList).pruneTaxa(excludedTaxaList);
+			treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
+			treeH0.setTreeFile(treeFileH0Pruned);
+			treeH0.writeMultipleReplicates(treeFileH0Pruned,nTrees);
+
+//			treeH1Pruned = new NewickUtilitiesHandler(this.binariesLocation,this.treeFileH1, this.taxaList).pruneTaxa(excludedTaxaList);
+			treeFileH1Pruned = new File(treeFileH1.getAbsoluteFile()+".pruned.tre");
+			treeH1.setTreeFile(treeFileH1Pruned);
+			treeH1.writeMultipleReplicates(treeFileH1Pruned,nTrees);
+			
+//			treeH2Pruned = new NewickUtilitiesHandler(this.binariesLocation,this.treeFileH2, this.taxaList).pruneTaxa(excludedTaxaList);
+			treeFileH2Pruned = new File(treeFileH2.getAbsoluteFile()+".pruned.tre");
+			treeH2.setTreeFile(treeFileH2Pruned);
+			treeH2.writeMultipleReplicates(treeFileH2Pruned,nTrees);
+
+//			treeH3Pruned = new NewickUtilitiesHandler(this.binariesLocation,this.treeFileH3, this.taxaList).pruneTaxa(excludedTaxaList);
+			treeFileH3Pruned = new File(treeFileH3.getAbsoluteFile()+".pruned.tre");
+			treeH3.setTreeFile(treeFileH3Pruned);
+			treeH3.writeMultipleReplicates(treeFileH3Pruned,nTrees);
+		}
+
 
 		/*
 		 * Skip this

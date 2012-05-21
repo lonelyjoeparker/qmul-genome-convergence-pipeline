@@ -55,7 +55,7 @@ public class CongruenceRunner1000BinCDFMultiHn {
 		taxaList.add("ORYCTOLAGUS");
 		taxaList.add("SOREX");
 		MultiHnCongruenceAnalysis1000BinCDFs analysis = new MultiHnCongruenceAnalysis1000BinCDFs(dataSet, treeFileOne, treeFileTwo, treeFileThree, treeFileFour, workDir, binaries, runID, taxaList, replicatesForNull, thisFilter, doFactor);
-			analysis.go();
+		analysis.go();
 	}
 
 }

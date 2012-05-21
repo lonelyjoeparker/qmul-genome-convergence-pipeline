@@ -25,7 +25,7 @@ public class AamlAnalysisSGETest extends TestCase {
 		File[] treefiles = null;
 		TreeMap<AamlParameters, String> parameters = new TreeMap<AamlParameters, String>();
 		parameters.put(AamlParameters.SEQFILE, "seqfile = /pamlTest/input.phy");
-		parameters.put(AamlParameters.TREEFILE, "treefile = /pamlTest/stewart.single.tre");
+		parameters.put(AamlParameters.TREEFILE, "treefile = /pamlTest/stewart.five.trees");
 		parameters.put(AamlParameters.AARATEFILE, "aaRatefile = /Applications/Phylogenetics/PAML/paml44/dat/wag.dat");
 		parameters.put(AamlParameters.OUTFILE, "outfile = /pamlTest/lnf.out");
 		a = new AamlAnalysisSGE(PSR, treefiles, parameters,"another.ctl");
@@ -35,6 +35,7 @@ public class AamlAnalysisSGETest extends TestCase {
 		System.out.println(a.getBinaryDir().getAbsolutePath());
 		System.out.println(a.getExecutionBinary().getAbsolutePath());
 		a.RunAnalysis();
+		a.setNumberOfTreesets(5);
 	}
 
 	protected void setUp() throws Exception {
@@ -73,8 +74,13 @@ public class AamlAnalysisSGETest extends TestCase {
 		a.printSitewiseSSLS(PSR[0]);
 	}
 	
+	public void testGetSitewiseSSLS(){
+		float[] lnL = a.getSitewiseSSLS();
+		assert(lnL[0]!=Float.NaN);
+	}
 	public void testGetFloatSitewiseLnL() {
-		a.getFloatSitewiseLnL();
+		float[][] res = a.getFloatSitewiseLnL();
+		assert(res[0][0]!=Float.NaN);
 	}
 	
 	public void testGetFloatSitewiseMeanLnL() {
@@ -83,5 +89,13 @@ public class AamlAnalysisSGETest extends TestCase {
 	
 	public void testGetFloatSitewiseLnLVariance() {
 		a.getFloatSitewiseLnLVariance();
+	}
+	
+	public void testMultipleTreeMeanAndVarianceProcessing(){
+		float[][] res = a.getFloatSitewiseLnL();
+		assert(res[0][0]!=Float.NaN);
+		float means[] = a.getFloatSitewiseMeanLnL();
+		float SE[] = a.getFloatSitewiseLnLVariance();
+		assert(SE[0]+means[0]>Float.NEGATIVE_INFINITY);
 	}
 }

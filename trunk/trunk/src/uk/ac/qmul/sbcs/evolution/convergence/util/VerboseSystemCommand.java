@@ -6,9 +6,11 @@ import java.io.InputStreamReader;
 
 public class VerboseSystemCommand {
 	public final String exeString;
+	public StringBuffer output;
 	
 	public VerboseSystemCommand(String exeString){
 		this.exeString = exeString;
+		this.output = new StringBuffer();
 		System.out.println("\n\nattempting command "+exeString);
 		try {
 			Process p = Runtime.getRuntime().exec(exeString);
@@ -17,6 +19,7 @@ public class VerboseSystemCommand {
 			int i = 0;
 			while(line != null){
 				System.out.println("o"+i+" "+line);
+				output.append(line);
 				line = iReader.readLine();
 				i++;
 			}
@@ -34,5 +37,9 @@ public class VerboseSystemCommand {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public StringBuffer getiReader() {
+		return output;
 	}
 }

@@ -17,21 +17,40 @@ public class DataSeries {
 	private float[] deviations;
 	private final String name;
 	private final int count;
+	private float variance = Float.NaN;
+	private float SS = Float.NaN;
+	private float SE = Float.NaN;
+	private float SD = Float.NaN;
+	private float mean = Float.NaN;
+	private float median = Float.NaN;
+	private float sum = Float.NaN;
+	
 	
 	public DataSeries(){
 		this.data = null;
 		this.name = null;
-		this.count = 0;
 		this.listData = null;
+		this.count = 0;
+		this.variance = 0.0f;
+		this.SS = 0.0f;
+//		this.SE = 0.0f;
+//		this.SD = 0.0f;
+//		this.mean = 0.0f;
+//		this.median = 0.0f;
+		this.sum = 0.0f;
 	}
 	
 	public DataSeries(float[] data, String name){
 		this.data = data;
 		this.name = name;
 		this.count = data.length;
-		listData = new ArrayList<Float>();
+		this.listData = new ArrayList<Float>();
+		this.SS = 0.0f;
+		this.sum = 0.0f;
 		for(float val:data){
 			listData.add(val);
+			sum+=val;
+			SS += (val*val);
 		}
 	}
 	
@@ -39,8 +58,13 @@ public class DataSeries {
 		this.name = name;
 		this.count = listData.size();
 		this.data = new float[count];
+		this.SS = 0.0f;
+		this.sum = 0.0f;
 		for(int i = 0; i<count;i++){
-			this.data[i] = listData.get(i); 
+			float val = listData.get(i);
+			this.data[i] = val;
+			sum+=val;
+			SS += (val*val);
 		}
 		this.listData = listData;
 	}
@@ -53,17 +77,26 @@ public class DataSeries {
 		// TODO
 	}
 	
+	public void calcMean(){
+		mean = this.sum / (float)count;
+	}
+
 	public float getMean(){
-		float mean = this.getSum() / (float)count;
+		if(new Float(mean).isNaN()){
+			this.calcMean();
+		}
 		return mean;
 	}
 	
+	/**
+	 * @TODO implement this
+	 * @return the mode
+	 */
 	public float getMode(){
 		return 0.0f;
 	}
 
-	public float getMedian(){
-		float median;
+	public void calcMedian(){
 		Collections.sort(this.listData);
 		if((Math.floor(count/2))*2<count){
 			// odd
@@ -74,11 +107,28 @@ public class DataSeries {
 			int index = count/2;
 			median = (listData.get(index)+listData.get(index-1))/2;
 		}
+	}
+
+	public float getMedian(){
+		if(new Float(median).isNaN()){
+			this.calcMedian();
+		}
 		return median;
 	}
 	
-	public float getSE(){
-		float SE = 0.0f;
+	public void calcSD(){
+		SD = (float)Math.sqrt(variance);
+	}
+	
+	public float getSD(){
+		if(new Float(SD).isNaN()){
+			this.calcSD();
+		}
+		return SD;
+	}
+	
+	public void calcSE(){
+		SE = 0.0f;
 		float mean = this.getMean();
 		deviations = new float[this.data.length];
 		for(int i=0; i<data.length; i++){
@@ -88,9 +138,31 @@ public class DataSeries {
 		assert(count == deviations.length);
 		assert(count == data.length);
 		SE = SE / (float)count;
+	}
+	
+	public float getSE(){
+		if(new Float(SE).isNaN()){
+			this.calcSE();
+		}
 		return SE;
 	}
 	
+	public void calcVariance(){
+		// TODO implement this
+		variance = (SS / (float)count) - (this.getMean()*this.getMean());
+	}
+	
+	public float getVariance(){
+		if(new Float(variance).isNaN()){
+			this.calcVariance();
+		}
+		return variance;
+	}
+	
+	
+	/**
+	 * @deprecated - sum should be calculated in constructor.
+	 */
 	public float getSum(){
 		float sum = 0.0f;
 		for(float num:data){
@@ -248,5 +320,18 @@ public class DataSeries {
 			}
 		}
 		return score;
+	}
+
+	public float getSSE() {
+		// TODO Auto-generated method stub
+		this.calcMean();
+		float SSE = 0.0f;
+		for(float val:data){
+			float dev = mean - val;
+			dev = dev*dev;
+			dev = (float) Math.pow(dev, 0.5);
+			SSE += dev;
+		}
+		return (SSE/count);
 	}
 }

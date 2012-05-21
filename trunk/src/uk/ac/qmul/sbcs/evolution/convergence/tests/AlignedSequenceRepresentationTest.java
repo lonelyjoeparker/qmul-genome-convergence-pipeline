@@ -3,6 +3,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.tests;
 import java.io.File;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.FilterOutOfAllowableRangeException;
 import uk.ac.qmul.sbcs.evolution.convergence.SequenceCodingType;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 import junit.framework.TestCase;
@@ -10,7 +11,7 @@ import junit.framework.TestCase;
 public class AlignedSequenceRepresentationTest extends TestCase {
 
 	private AlignedSequenceRepresentation sourceDataASR;
-	private File dataset = new File("/pamlTest/trialDataFromGeorgia/ENSG00000180011_ZADH2_000_22t.gb.fasta");
+	private File dataset = new File("/pamlTest/trialDataFromGeorgia/short.fa");
 	private SequenceCodingType inputSequenceCodingType;
 	
 	public AlignedSequenceRepresentationTest(String name) {
@@ -42,6 +43,14 @@ public class AlignedSequenceRepresentationTest extends TestCase {
 
 	public void testRemoveStopCodons(){
 		sourceDataASR.removeStopCodons();
+		sourceDataASR.printCompleteSequences();
+		try {
+			sourceDataASR.filterForMissingData(0, false);
+		} catch (FilterOutOfAllowableRangeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sourceDataASR.printCompleteSequences();
 		inputSequenceCodingType = sourceDataASR.determineInputSequenceType();
 		assert(inputSequenceCodingType != null);
 	}

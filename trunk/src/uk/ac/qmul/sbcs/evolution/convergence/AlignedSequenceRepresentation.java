@@ -199,9 +199,40 @@ public class AlignedSequenceRepresentation {
 			}
 			UIDroot++;
 		}
+		this.padSequences();
 		this.determineInvariantSites();
 	}
 	
+	/**
+	 * This is a method to pad any sequences that have fewer chars than required to full length.
+	 * <br/>The aim is to try and avoid ArrayIndexOutOfBoundsException()s...
+	 */
+	private void padSequences() {
+		Iterator seqItr = sequenceHash.keySet().iterator();
+		while(seqItr.hasNext()){
+			String seq = (String)seqItr.next();
+			int deficit;
+			if(sequenceHash.get(seq).length<this.numberOfSites){
+				char[] deficitSeq = sequenceHash.get(seq);		//Remove the short sequence
+				deficit = deficitSeq.length - this.numberOfSites;	//How far short is it?
+				int replacements = 0;
+				char[] paddedSeq = new char[this.numberOfSites];	//A new sequence the right length
+				for(int i=0;i<this.numberOfSites;i++){
+					if(i<deficitSeq.length){
+						//The deficit seq has a char here so populate the padded seq with that
+						paddedSeq[i] = deficitSeq[i];
+					}else{
+						//The deficit seq doesn't have a char here (e.g. it is short) so pad with a gap.
+						paddedSeq[i] = '-';
+						replacements++;
+					}
+				}
+				assert(deficit+replacements == 0);						//We should have replaced as many chars as we are short by
+				sequenceHash.put(seq,paddedSeq);					//Replace the padded sequence
+			}
+		}
+	}
+
 	public SequenceFileFormat determineInputFileDatatype(){
 		if (sequenceFileTypeSet != true){
 			System.out.println("determining input sequence format");
@@ -902,55 +933,66 @@ public class AlignedSequenceRepresentation {
 				char[] codonHolder = new char[3];
 				char AA;
 				for(int pos=0;pos < numberOfSites; pos += 3){
-					AA = '-';
-					codonHolder[0] = stringSequence[pos];
-					try {
-						codonHolder[1] = stringSequence[pos+1];
-					} catch (ArrayIndexOutOfBoundsException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-//						System.out.println("Run out of sequence for 2nd codon position. Gap character (-) entered. Sequence position: "+pos);
-						codonHolder[1] = '-';
-					}
-					try {
-						codonHolder[2] = stringSequence[pos+2];
-					} catch (ArrayIndexOutOfBoundsException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-//						System.out.println("Run out of sequence for 3rd codon positon. Gap character (-) entered. Sequence position: "+pos);
-						codonHolder[2] = '-';
-					}
-					codon = new String(codonHolder);
-//					System.out.println(codon.length()+" "+pos+" candidate codon: "+codon);
-//					System.out.println("printing the AA, "+codon);
-					if(!((codonHolder[0] == '-') && (codonHolder[1] == '-') && (codonHolder[2] == '-'))){	//Whole codon is empty
-						if((codonHolder[0] == '-')||(codonHolder[1] == '-')||(codonHolder[2] == '-')){		//Part of codon is empty
-							AA = '-';
-							numAmbiguousCodons++;
-						}else{
-							try {
-								AA = translationLookup.get(codon);
-							} catch (NullPointerException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+					if (((pos+2)-stringSequence.length)<1) {
+						AA = '-';
+						assert (pos + 2 < stringSequence.length);
+						assert (pos + 1 < stringSequence.length);
+						codonHolder[0] = stringSequence[pos];
+						try {
+							codonHolder[1] = stringSequence[pos + 1];
+						} catch (ArrayIndexOutOfBoundsException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							//						System.out.println("Run out of sequence for 2nd codon position. Gap character (-) entered. Sequence position: "+pos);
+							codonHolder[1] = '-';
+						}
+						try {
+							codonHolder[2] = stringSequence[pos + 2];
+						} catch (ArrayIndexOutOfBoundsException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							//						System.out.println("Run out of sequence for 3rd codon positon. Gap character (-) entered. Sequence position: "+pos);
+							codonHolder[2] = '-';
+						}
+						codon = new String(codonHolder);
+						//					System.out.println(codon.length()+" "+pos+" candidate codon: "+codon);
+						//					System.out.println("printing the AA, "+codon);
+						if (!((codonHolder[0] == '-')
+								&& (codonHolder[1] == '-') && (codonHolder[2] == '-'))) { //Whole codon is empty
+							if ((codonHolder[0] == '-')
+									|| (codonHolder[1] == '-')
+									|| (codonHolder[2] == '-')) { //Part of codon is empty
 								AA = '-';
 								numAmbiguousCodons++;
-								if(!suppressErrors){
-									System.out.println(taxon+": unable to translate this codon. Missing data / gap character entered instead. (sequence position "+pos);
+							} else {
+								try {
+									AA = translationLookup.get(codon);
+								} catch (NullPointerException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+									AA = '-';
+									numAmbiguousCodons++;
+									if (!suppressErrors) {
+										System.out
+												.println(taxon
+														+ ": unable to translate this codon. Missing data / gap character entered instead. (sequence position "
+														+ pos);
+									}
 								}
 							}
+						} else {
+							AA = '-';
+							numAmbiguousCodons++;
+							if (!suppressErrors) {
+								System.out.println(taxon + " ambiguous codon "
+										+ codon + "; position " + pos);
+							}
 						}
-					}else{
-						AA = '-';
-						numAmbiguousCodons++;
-						if(!suppressErrors){
-							System.out.println(taxon+" ambiguous codon "+codon+"; position "+pos);
+						if (AA == '*') {
+							numStopCodons++;
 						}
+						newAAseq.append(AA);
 					}
-					if(AA == '*'){
-						numStopCodons ++;
-					}
-					newAAseq.append(AA);
 				}
 				if(newAAseq.length() > newMaxNoSites){
 					newMaxNoSites = newAAseq.length();

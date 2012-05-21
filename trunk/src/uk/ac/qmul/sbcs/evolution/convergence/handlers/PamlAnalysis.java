@@ -2,6 +2,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.handlers;
 
 import java.io.*;
 import java.util.*;
+
 import javax.swing.JFileChooser;
 import uk.ac.qmul.sbcs.evolution.convergence.*;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.*;
@@ -10,7 +11,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.*;
 public abstract class PamlAnalysis {
 	private float[] sitewiseLikelihoods;
 	private int numberOfDatasets;
-	private int numberOfTreesets;
+	protected int numberOfTreesets = 1;
 	private int numberOfSitePatterns;
 	protected File executionBinary;
 	protected File binaryDir;
@@ -20,7 +21,7 @@ public abstract class PamlAnalysis {
 	protected TreeMap<String,String> parameters;
 	protected AlignedSequenceRepresentation[] datasets;
 	protected File[] treefiles;
-	private TreeMap<String, Float> patternSSLS;
+	private TreeMap<String, Float>[] patternSSLS;
 	private float[] SSLS;
 	private boolean hasRun = false;
 	
@@ -121,6 +122,10 @@ public abstract class PamlAnalysis {
 		this.binaryDir = binaryDir;
 	}
 	
+	/**
+	 * @since r99, 2012-05-04; incrementing position
+	 * @param PSR - the AlignedSequenceRepresentation holding the sites that are to be matched to site patterns.
+	 */
 	public void determineSitewiseSSLS(AlignedSequenceRepresentation PSR){
 		this.getPatternSSLS();
 		String[] transposedSites = PSR.getTransposedSites();
@@ -128,15 +133,26 @@ public abstract class PamlAnalysis {
 		SSLS = new float[transposedSites.length];
 		int position = 0;
 		for(String site:transposedSites){
-			SSLS[position] = patternSSLS.get(site);
+			SSLS[position] = patternSSLS[0].get(site);
+			position++; // @since r99, 2012-05-04; incrementing position
 		}
 	}
 
+	public TreeMap<String, Float> getPatternSSLS(int whichTree){
+		this.getAllPatternSSLS();
+		return patternSSLS[whichTree];
+	}
+
 	public TreeMap<String, Float> getPatternSSLS(){
+		this.getAllPatternSSLS();
+		return patternSSLS[0];
+	}
+	
+	public TreeMap<String, Float>[] getAllPatternSSLS(){
 		if((patternSSLS != null)&& hasRun){
 			return patternSSLS;									// Use the one in memory
 		}else{
-			patternSSLS = new TreeMap<String, Float>();		// Instantiate a new one. NB if !hasRun the object returned will be null...
+			patternSSLS[0] = new TreeMap<String, Float>();		// Instantiate a new one. NB if !hasRun the object returned will be null...
 			if(hasRun){
 				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
 				assert(lnfFile.canRead());
@@ -152,7 +168,7 @@ public abstract class PamlAnalysis {
 						if(line.length()>5){
 							String[] lineData = line.split(" {1,}");
 							assert(lineData.length>0);
-							patternSSLS.put(lineData[6], Float.parseFloat(lineData[3]));
+							patternSSLS[0].put(lineData[6], Float.parseFloat(lineData[3]));
 							System.out.println(lineData[6]+","+ Float.parseFloat(lineData[3]));
 						}
 					}
@@ -163,8 +179,8 @@ public abstract class PamlAnalysis {
 				for(String dat:firstlineData){
 					System.out.println(dat);
 				}
-				System.out.println(patternSSLS.size()+" "+firstlineData[3]);
-				assert(numPatterns == patternSSLS.size());
+				System.out.println(patternSSLS[0].size()+" "+firstlineData[3]);
+				assert(numPatterns == patternSSLS[0].size());
 			}
 			return patternSSLS;
 		}
@@ -184,5 +200,13 @@ public abstract class PamlAnalysis {
 	public void setWorkingDir(File workingDir) {
 		this.workingDir = workingDir;
 		System.out.println("working dir set to "+this.workingDir.getAbsolutePath());
+	}
+
+	public int getNumberOfTreesets() {
+		return numberOfTreesets;
+	}
+
+	public void setNumberOfTreesets(int numberOfTreesets) {
+		this.numberOfTreesets = numberOfTreesets;
 	}
 }

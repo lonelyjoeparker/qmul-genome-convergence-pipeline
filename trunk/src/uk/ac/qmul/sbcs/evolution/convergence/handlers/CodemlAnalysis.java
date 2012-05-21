@@ -15,7 +15,7 @@ public class CodemlAnalysis extends PamlAnalysis {
 	private File codemlOutput;
 	private TreeMap<CodemlParameters, String> typedCodemlParameters;
 	private boolean hasRun = false;
-	private TreeMap<String, Float> patternSSLS;
+	private TreeMap<String, Float> patternSSLS[];
 	private float[] SSLS;
 	
 
@@ -104,11 +104,12 @@ public class CodemlAnalysis extends PamlAnalysis {
 	}
 
 
-	public TreeMap<String, Float> getPatternSSLS(){
+	
+	public TreeMap<String, Float>[] getAllPatternSSLS(){
 		if((patternSSLS != null)&& hasRun){
 			return patternSSLS;									// Use the one in memory
 		}else{
-			patternSSLS = new TreeMap<String, Float>();		// Instantiate a new one. NB if !hasRun the object returned will be null...
+			patternSSLS[0] = new TreeMap<String, Float>();		// Instantiate a new one. NB if !hasRun the object returned will be null...
 			if(hasRun){
 				File lnfFile = new File(System.getProperty("user.dir")+"/lnf");
 				assert(lnfFile.canRead());
@@ -124,7 +125,7 @@ public class CodemlAnalysis extends PamlAnalysis {
 						if(line.length()>5){
 							String[] lineData = line.split(" {1,}");
 							assert(lineData.length>0);
-							patternSSLS.put(lineData[6], Float.parseFloat(lineData[3]));
+							patternSSLS[0].put(lineData[6], Float.parseFloat(lineData[3]));
 							System.out.println(lineData[6]+","+ Float.parseFloat(lineData[3]));
 						}
 					}
@@ -135,8 +136,8 @@ public class CodemlAnalysis extends PamlAnalysis {
 				for(String dat:firstlineData){
 					System.out.println(dat);
 				}
-				System.out.println(patternSSLS.size()+" "+firstlineData[3]);
-				assert(numPatterns == patternSSLS.size());
+				System.out.println(patternSSLS[0].size()+" "+firstlineData[3]);
+				assert(numPatterns == patternSSLS[0].size());
 			}
 			return patternSSLS;
 		}
@@ -151,6 +152,10 @@ public class CodemlAnalysis extends PamlAnalysis {
 	}
 
 
+	/**
+	 * @since r99, 2012-05-04; incrementing position
+	 * @param PSR - the AlignedSequenceRepresentation to match site patterns to.
+	 */
 	public void printSitewiseSSLS(AlignedSequenceRepresentation PSR){
 		this.getPatternSSLS();
 		String[] transposedSites = PSR.getTransposedSites();
@@ -158,8 +163,9 @@ public class CodemlAnalysis extends PamlAnalysis {
 		SSLS = new float[transposedSites.length];
 		int position = 0;
 		for(String site:transposedSites){
-			SSLS[position] = patternSSLS.get(site);
+			SSLS[position] = patternSSLS[0].get(site);
 			System.out.println(site+"\t"+SSLS[position]);
+			position++; //@since r99, 2012-05-04; incrementing position
 		}
 	}
 }

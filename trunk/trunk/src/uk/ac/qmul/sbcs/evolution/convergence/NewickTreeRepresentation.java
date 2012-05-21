@@ -25,6 +25,7 @@ public class NewickTreeRepresentation {
 	private int numberOfTaxa = 0;
 	private TreeSet<String> taxaNames = null;
 	
+	
 	@Deprecated
 	/**
 	 * WARNING this constructor should not be used at present, as it relies on the internal private obtainTaxaNames() method to get the taxaNames list that is needed for a safe pruneTaxon() call.
@@ -229,8 +230,32 @@ public class NewickTreeRepresentation {
 	public void writeMultipleReplicates(File outputTreeFile,int numberOfReplicates){
 		String out = "";
 		for(int i=0;i<numberOfReplicates;i++){
-			out += this.treeString;
+			out += this.treeString + "\n";
 		}
 		new BasicFileWriter(outputTreeFile, out);
+	}
+
+	public NewickTreeRepresentation pruneTaxa(TreeSet<String> taxaToPrune) {
+		NewickTreeRepresentation unprunedTree;
+		try {
+			unprunedTree = (NewickTreeRepresentation) this.clone();
+		} catch (CloneNotSupportedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			unprunedTree = this;
+		}
+		Iterator itrTaxon = taxaToPrune.iterator();
+		while(itrTaxon.hasNext()){
+			String taxonToPrune = (String)itrTaxon.next().toString().toUpperCase();
+			try {
+				unprunedTree.pruneTaxon(taxonToPrune);
+				System.out.println("Pruned taxon "+taxonToPrune+" from tree.");
+			} catch (TaxonNotFoundError e) {
+				// TODO Auto-generated catch block
+				System.out.println("Couldn't prune taxon "+taxonToPrune+" from tree.");
+				e.printStackTrace();
+			}
+		}
+		return unprunedTree;
 	}
 }

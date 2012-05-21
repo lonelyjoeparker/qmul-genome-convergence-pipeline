@@ -742,7 +742,9 @@ public class AlignedSequenceRepresentation {
 	 * 
 	 * @param suppressErrors - controls verbose stdout commentary (TRUE = less verbose)
 	 * @throws Exception
-	 * @since 05/10/2011
+	 * @since 21/05/2012
+	 * @TODO The translate() method basically relies on char[] arrays mapping to a static hash. This is actually quite a lot of functionality to shove onto a relatively minor method - would be better instead to create a Codon class..
+	 * 
 	 */
 	public void translate(boolean suppressErrors) throws Exception{
 		/*
@@ -921,16 +923,21 @@ public class AlignedSequenceRepresentation {
 					codon = new String(codonHolder);
 //					System.out.println(codon.length()+" "+pos+" candidate codon: "+codon);
 //					System.out.println("printing the AA, "+codon);
-					if(!((codonHolder[0] == '-') && (codonHolder[1] == '-') && (codonHolder[2] == '-'))){
-						try {
-							AA = translationLookup.get(codon);
-						} catch (NullPointerException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+					if(!((codonHolder[0] == '-') && (codonHolder[1] == '-') && (codonHolder[2] == '-'))){	//Whole codon is empty
+						if((codonHolder[0] == '-')||(codonHolder[1] == '-')||(codonHolder[2] == '-')){		//Part of codon is empty
 							AA = '-';
 							numAmbiguousCodons++;
-							if(!suppressErrors){
-								System.out.println(taxon+": unable to translate this codon. Missing data / gap character entered instead. (sequence position "+pos);
+						}else{
+							try {
+								AA = translationLookup.get(codon);
+							} catch (NullPointerException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+								AA = '-';
+								numAmbiguousCodons++;
+								if(!suppressErrors){
+									System.out.println(taxon+": unable to translate this codon. Missing data / gap character entered instead. (sequence position "+pos);
+								}
 							}
 						}
 					}else{

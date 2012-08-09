@@ -1365,7 +1365,7 @@ public class AlignedSequenceRepresentation {
 		int i = 0;
 		for(String pattern:transposedSites){
 			try {
-				sitePatterns[i] = SitePatternsSSLS.get(pattern);
+				sitePatterns[i] = SitePatternsSSLS.get(pattern); // 09/08/2012 - Still not successfully debugged all instances of this..
 			} catch (NullPointerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1491,5 +1491,27 @@ public class AlignedSequenceRepresentation {
 		numberOfSites = this.buildNumberOfSites();
 		this.determineInvariantSites();
 		etr = null;
+	}
+
+	/**
+	 * @since  - 09/08/2012
+	 * @param  - sequenceIndex - which sequence to get (not guaranteed sort order)
+	 * @return - a char array of sequence
+	 * @TODO   - should probably overload this for taxon names and/or input sort order..
+	 */
+	public char[] getSequenceChars(int sequenceIndex) {
+		// TODO Auto-generated method stub
+		char[] retSeq = (char[]) sequenceHash.get(this.taxaListArray[sequenceIndex]);
+		return retSeq;
+	}
+
+	/**
+	 * @since  - 09/08/2012
+	 * @param  - sequenceIndex - which taxon to get (not guaranteed sort order)
+	 * @return - the taxon name (String)
+	 * @TODO   - should probably overload this for taxon names and/or input sort order..
+	 */
+	public String getTaxon(int taxonIndex) {
+		return taxaListArray[taxonIndex];
 	}
 }

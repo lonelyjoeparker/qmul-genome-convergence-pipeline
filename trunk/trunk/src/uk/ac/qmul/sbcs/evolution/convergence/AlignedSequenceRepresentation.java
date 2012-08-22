@@ -847,70 +847,88 @@ public class AlignedSequenceRepresentation {
 		 */
 		if(translationLookup.size()<2){
 			translationLookup = new TreeMap<String,Character>();
+			/*
+			 * Ambiguity characters (ONLY SOME OF (4-fold 3rd position): TODO include all)
+			 */
+			translationLookup.put("NNN",'X');
+			translationLookup.put("UCN",'S');
+			translationLookup.put("CCN",'P');
+			translationLookup.put("CGN",'R');
+			translationLookup.put("CUN",'L');
+			translationLookup.put("ACN",'T');
+			translationLookup.put("GUN",'V');
+			translationLookup.put("GGN",'G');
+			translationLookup.put("GCN",'A');
+			/*
+			 * Orthodox / fully-specified characters
+			 */
 			translationLookup.put("UUU",'F');
-			translationLookup.put("UCU",'S');
-			translationLookup.put("UAU",'Y');
-			translationLookup.put("UGU",'C');
 			translationLookup.put("UUC",'F');
-			translationLookup.put("UCC",'S');
-			translationLookup.put("UAC",'Y');
-			translationLookup.put("UGC",'C');
 			translationLookup.put("UUA",'L');
+			translationLookup.put("UUG",'L');
+			translationLookup.put("UGU",'C');
+			translationLookup.put("UGC",'C');
+			translationLookup.put("UAU",'Y');
+			translationLookup.put("UAC",'Y');
+			translationLookup.put("UCU",'S');
+			translationLookup.put("UCC",'S');
 			translationLookup.put("UCA",'S');
+			translationLookup.put("UCG",'S');
 			translationLookup.put("UAA",'*');
 			translationLookup.put("UGA",'*');
-			translationLookup.put("UUG",'L');
-			translationLookup.put("UCG",'S');
 			translationLookup.put("UAG",'*');
 			translationLookup.put("UGG",'W');
+
 			translationLookup.put("CUU",'L');
-			translationLookup.put("CCU",'P');
-			translationLookup.put("CAU",'H');
-			translationLookup.put("CGU",'R');
 			translationLookup.put("CUC",'L');
-			translationLookup.put("CCC",'P');
-			translationLookup.put("CAC",'H');
-			translationLookup.put("CGC",'R');
 			translationLookup.put("CUA",'L');
-			translationLookup.put("CCA",'P');
-			translationLookup.put("CAA",'Q');
-			translationLookup.put("CGA",'R');
 			translationLookup.put("CUG",'L');
+			translationLookup.put("CCU",'P');
+			translationLookup.put("CCC",'P');
+			translationLookup.put("CCA",'P');
 			translationLookup.put("CCG",'P');
-			translationLookup.put("CAG",'Q');
+			translationLookup.put("CGU",'R');
+			translationLookup.put("CGC",'R');
+			translationLookup.put("CGA",'R');
 			translationLookup.put("CGG",'R');
+			translationLookup.put("CAA",'Q');
+			translationLookup.put("CAG",'Q');
+			translationLookup.put("CAU",'H');
+			translationLookup.put("CAC",'H');
+
 			translationLookup.put("AUU",'I');
-			translationLookup.put("ACU",'T');
-			translationLookup.put("AAU",'N');
-			translationLookup.put("AGU",'S');
 			translationLookup.put("AUC",'I');
-			translationLookup.put("ACC",'T');
-			translationLookup.put("AAC",'N');
-			translationLookup.put("AGC",'S');
 			translationLookup.put("AUA",'I');
-			translationLookup.put("ACA",'T');
-			translationLookup.put("AAA",'K');
-			translationLookup.put("AGA",'R');
 			translationLookup.put("AUG",'M');
+			translationLookup.put("ACU",'T');
+			translationLookup.put("ACC",'T');
+			translationLookup.put("ACA",'T');
 			translationLookup.put("ACG",'T');
+			translationLookup.put("AAU",'N');
+			translationLookup.put("AAC",'N');
+			translationLookup.put("AAA",'K');
 			translationLookup.put("AAG",'K');
+			translationLookup.put("AGA",'R');
 			translationLookup.put("AGG",'R');
+			translationLookup.put("AGC",'S');
+			translationLookup.put("AGU",'S');
+
 			translationLookup.put("GUU",'V');
-			translationLookup.put("GCU",'A');
-			translationLookup.put("GAU",'D');
-			translationLookup.put("GGU",'G');
 			translationLookup.put("GUC",'V');
-			translationLookup.put("GCC",'A');
-			translationLookup.put("GAC",'D');
-			translationLookup.put("GGC",'G');
 			translationLookup.put("GUA",'V');
-			translationLookup.put("GCA",'A');
-			translationLookup.put("GAA",'E');
-			translationLookup.put("GGA",'G');
 			translationLookup.put("GUG",'V');
-			translationLookup.put("GCG",'A');
-			translationLookup.put("GAG",'E');
+			translationLookup.put("GGU",'G');
+			translationLookup.put("GGC",'G');
+			translationLookup.put("GGA",'G');
 			translationLookup.put("GGG",'G');
+			translationLookup.put("GCU",'A');
+			translationLookup.put("GCC",'A');
+			translationLookup.put("GCA",'A');
+			translationLookup.put("GCG",'A');
+			translationLookup.put("GAC",'D');
+			translationLookup.put("GAU",'D');
+			translationLookup.put("GAA",'E');
+			translationLookup.put("GAG",'E');
 		}
 	}
 	

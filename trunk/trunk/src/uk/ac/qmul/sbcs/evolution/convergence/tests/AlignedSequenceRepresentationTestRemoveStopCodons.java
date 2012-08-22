@@ -21,7 +21,7 @@ public class AlignedSequenceRepresentationTestRemoveStopCodons extends TestCase 
 		multipleGapDNA = new AlignedSequenceRepresentation();
 		multipleStopDNA = new AlignedSequenceRepresentation();
 		try {
-			singleStopDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/singleStopDNA.phy"),true);
+			singleStopDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/trouble.phy"),true);
 			singleGapDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/singleGapDNA.phy"),true);
 			singleCodonGapDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/singleCodonGapDNA.phy"),true);
 			multipleGapDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/multipleGapDNA.phy"),true);
@@ -41,8 +41,10 @@ public class AlignedSequenceRepresentationTestRemoveStopCodons extends TestCase 
 	}
 
 	public final void testRemoveStopCodonsSingleStop() {
+		singleStopDNA.printCompleteSequences();
 		singleStopDNA.removeStopCodons();
-		if(singleStopDNA.getNumberOfSites() != 21){
+		singleStopDNA.printCompleteSequences();
+		if(singleStopDNA.getNumberOfSites() != 36){
 			fail("Wrong numberOfSites ("+singleStopDNA.getNumberOfSites()+")");
 		}
 	}

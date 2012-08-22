@@ -21,6 +21,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.FilterOutOfAllowableRangeException;
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.SequenceCodingType;
+import uk.ac.qmul.sbcs.evolution.convergence.SequenceTypeNotSupportedException;
 import uk.ac.qmul.sbcs.evolution.convergence.TaxonNotFoundError;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysisSGE;
@@ -55,6 +56,10 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.UnequalDataSeriesLengthE
  * 		useFactor = true is probably safer as there's no chance of setting filter < numTaxa (which would cause it to throw an exception). The only downside is that is harder to interpret (slightly)
  * 
  * 		Also note that this means the PamlParameter cleandata should probably be set to cleandata=0 for most purposes.
+ * 
+ * NEW for revision r119:
+ * 		Makes use of the new codon-trimming and stop-codon-removal routines in AlignedSequenceRepresentation (r116)
+ * 		Prints out a DNA phylip file with no invariant codons or stop codons. This should be the same as the AA one that is translated, and is indended for parallel/subsequent CODEML analyses.
  */
 public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 	// Initialise with data and two trees
@@ -82,6 +87,7 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 	private File aaH2AnalysisOutputFile;
 	private File aaH3AnalysisOutputFile;
 	private File aaTreeDeNovoAnalysisOutputFile;
+	private File pamlDataFileNT;
 	private File pamlDataFileAA;
 	private ExperimentalDataSeries treeH0ObservedlnL;
 	private ExperimentalDataSeries treeH1ObservedlnL;
@@ -170,15 +176,24 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 //		sourceDataASR.printShortSequences(30);
 //		sourceDataASR.printNumberOfSites();
 //		sourceDataASR.printNumberOfTaxa();
-		sourceDataASR.removeUnambiguousGaps();
+		/**
+		 * @since r119, 22/08/2012
+		 * The removeUnambiguousGaps call has now been placed by integer-codon trimming and stop-codon removal at the codon level
+		 * since it is anticipated that sequence data will be exons or CDS, therefore potential exists that single-nt removals, even where 
+		 * invariant (unambiguous) gaps, could cause frameshifts.
+		 * 
+		 * sourceDataASR.removeUnambiguousGaps(); //removed
+		 */
 		inputSequenceCodingType = sourceDataASR.determineInputSequenceType();
 		try {
-			sourceDataASR.translate(true);
+			sourceDataASR.trimToWholeNumberOfCodons();
+			sourceDataASR.removeStopCodons();
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		inputSequenceCodingType = sourceDataASR.determineInputSequenceType();
+		pamlDataFileNT = new File(dataset.getAbsoluteFile()+runID+"_pamlNT.phy");
 		pamlDataFileAA = new File(dataset.getAbsoluteFile()+runID+"_pamlAA.phy");
 		/*
 		 * NEW for this revision (0.0.1 r80):
@@ -193,9 +208,21 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 		 */
 		try {
 			sourceDataASR.filterForMissingData(filter, filterByFactor);
+			// TODO IMPORTANT
+			// At the moment the filterFor..() method DOES NOT respect codon boundaries
+			// As a result frameshift can occur.
+			// Using filterFactor 100 for now (22/08/2012) until such time as it is made codon-safe.
+			// Ultimately should throw a SequenceTypeNotSupportedException for Codon datatypes and direct a (codon-safe) method.
 		} catch (FilterOutOfAllowableRangeException e3) {
 			// TODO Auto-generated catch block
 			e3.printStackTrace();
+		}
+		sourceDataASR.writePhylipFile(pamlDataFileNT, true);
+		try {
+			sourceDataASR.translate(true);
+		} catch (SequenceTypeNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		sourceDataASR.writePhylipFile(pamlDataFileAA, true);
 		

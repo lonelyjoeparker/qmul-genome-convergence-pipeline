@@ -39,7 +39,7 @@ public class AlignedSequenceRepresentation {
 	private TreeMap<String, char[]> sequenceHash = new TreeMap<String, char[]>();
 	private HashMap<String, String> truncatedNamesHash = new HashMap<String, String>();
 	private boolean sequenceFileTypeSet = false;
-	private TreeMap<String,Character> translationLookup;
+	private TreeMap<String,Character> translationLookup = new TreeMap<String, Character>();
 	protected boolean[] invariantSitesIndices;
 	private String[] transposedSites;
 	
@@ -768,16 +768,12 @@ public class AlignedSequenceRepresentation {
 		}
 	}
 	
-	
 	/**
-	 * 
-	 * @param suppressErrors - controls verbose stdout commentary (TRUE = less verbose)
-	 * @throws Exception
-	 * @since 21/05/2012
-	 * @TODO The translate() method basically relies on char[] arrays mapping to a static hash. This is actually quite a lot of functionality to shove onto a relatively minor method - would be better instead to create a Codon class..
-	 * 
+	 * @since 21/08/2012
+	 * @see translate(), removeStopCodonsInDNA()
+	 * Initialise the translation hash (if it isn't instantiated already)
 	 */
-	public void translate(boolean suppressErrors) throws Exception{
+	public void initialiseTranslationHash(){
 		/*
 		 * 	
 		 * U
@@ -849,78 +845,93 @@ public class AlignedSequenceRepresentation {
 		 * GAG 	(Glu/E) Glutamic acid 
 		 * GGG 	(Gly/G) Glycine
 		 */
-		translationLookup = new TreeMap<String,Character>();
-		translationLookup.put("UUU",'F');
-		translationLookup.put("UCU",'S');
-		translationLookup.put("UAU",'Y');
-		translationLookup.put("UGU",'C');
-		translationLookup.put("UUC",'F');
-		translationLookup.put("UCC",'S');
-		translationLookup.put("UAC",'Y');
-		translationLookup.put("UGC",'C');
-		translationLookup.put("UUA",'L');
-		translationLookup.put("UCA",'S');
-		translationLookup.put("UAA",'*');
-		translationLookup.put("UGA",'*');
-		translationLookup.put("UUG",'L');
-		translationLookup.put("UCG",'S');
-		translationLookup.put("UAG",'*');
-		translationLookup.put("UGG",'W');
-		translationLookup.put("CUU",'L');
-		translationLookup.put("CCU",'P');
-		translationLookup.put("CAU",'H');
-		translationLookup.put("CGU",'R');
-		translationLookup.put("CUC",'L');
-		translationLookup.put("CCC",'P');
-		translationLookup.put("CAC",'H');
-		translationLookup.put("CGC",'R');
-		translationLookup.put("CUA",'L');
-		translationLookup.put("CCA",'P');
-		translationLookup.put("CAA",'Q');
-		translationLookup.put("CGA",'R');
-		translationLookup.put("CUG",'L');
-		translationLookup.put("CCG",'P');
-		translationLookup.put("CAG",'Q');
-		translationLookup.put("CGG",'R');
-		translationLookup.put("AUU",'I');
-		translationLookup.put("ACU",'T');
-		translationLookup.put("AAU",'N');
-		translationLookup.put("AGU",'S');
-		translationLookup.put("AUC",'I');
-		translationLookup.put("ACC",'T');
-		translationLookup.put("AAC",'N');
-		translationLookup.put("AGC",'S');
-		translationLookup.put("AUA",'I');
-		translationLookup.put("ACA",'T');
-		translationLookup.put("AAA",'K');
-		translationLookup.put("AGA",'R');
-		translationLookup.put("AUG",'M');
-		translationLookup.put("ACG",'T');
-		translationLookup.put("AAG",'K');
-		translationLookup.put("AGG",'R');
-		translationLookup.put("GUU",'V');
-		translationLookup.put("GCU",'A');
-		translationLookup.put("GAU",'D');
-		translationLookup.put("GGU",'G');
-		translationLookup.put("GUC",'V');
-		translationLookup.put("GCC",'A');
-		translationLookup.put("GAC",'D');
-		translationLookup.put("GGC",'G');
-		translationLookup.put("GUA",'V');
-		translationLookup.put("GCA",'A');
-		translationLookup.put("GAA",'E');
-		translationLookup.put("GGA",'G');
-		translationLookup.put("GUG",'V');
-		translationLookup.put("GCG",'A');
-		translationLookup.put("GAG",'E');
-		translationLookup.put("GGG",'G');
+		if(translationLookup.size()<2){
+			translationLookup = new TreeMap<String,Character>();
+			translationLookup.put("UUU",'F');
+			translationLookup.put("UCU",'S');
+			translationLookup.put("UAU",'Y');
+			translationLookup.put("UGU",'C');
+			translationLookup.put("UUC",'F');
+			translationLookup.put("UCC",'S');
+			translationLookup.put("UAC",'Y');
+			translationLookup.put("UGC",'C');
+			translationLookup.put("UUA",'L');
+			translationLookup.put("UCA",'S');
+			translationLookup.put("UAA",'*');
+			translationLookup.put("UGA",'*');
+			translationLookup.put("UUG",'L');
+			translationLookup.put("UCG",'S');
+			translationLookup.put("UAG",'*');
+			translationLookup.put("UGG",'W');
+			translationLookup.put("CUU",'L');
+			translationLookup.put("CCU",'P');
+			translationLookup.put("CAU",'H');
+			translationLookup.put("CGU",'R');
+			translationLookup.put("CUC",'L');
+			translationLookup.put("CCC",'P');
+			translationLookup.put("CAC",'H');
+			translationLookup.put("CGC",'R');
+			translationLookup.put("CUA",'L');
+			translationLookup.put("CCA",'P');
+			translationLookup.put("CAA",'Q');
+			translationLookup.put("CGA",'R');
+			translationLookup.put("CUG",'L');
+			translationLookup.put("CCG",'P');
+			translationLookup.put("CAG",'Q');
+			translationLookup.put("CGG",'R');
+			translationLookup.put("AUU",'I');
+			translationLookup.put("ACU",'T');
+			translationLookup.put("AAU",'N');
+			translationLookup.put("AGU",'S');
+			translationLookup.put("AUC",'I');
+			translationLookup.put("ACC",'T');
+			translationLookup.put("AAC",'N');
+			translationLookup.put("AGC",'S');
+			translationLookup.put("AUA",'I');
+			translationLookup.put("ACA",'T');
+			translationLookup.put("AAA",'K');
+			translationLookup.put("AGA",'R');
+			translationLookup.put("AUG",'M');
+			translationLookup.put("ACG",'T');
+			translationLookup.put("AAG",'K');
+			translationLookup.put("AGG",'R');
+			translationLookup.put("GUU",'V');
+			translationLookup.put("GCU",'A');
+			translationLookup.put("GAU",'D');
+			translationLookup.put("GGU",'G');
+			translationLookup.put("GUC",'V');
+			translationLookup.put("GCC",'A');
+			translationLookup.put("GAC",'D');
+			translationLookup.put("GGC",'G');
+			translationLookup.put("GUA",'V');
+			translationLookup.put("GCA",'A');
+			translationLookup.put("GAA",'E');
+			translationLookup.put("GGA",'G');
+			translationLookup.put("GUG",'V');
+			translationLookup.put("GCG",'A');
+			translationLookup.put("GAG",'E');
+			translationLookup.put("GGG",'G');
+		}
+	}
+	
+	/**
+	 * 
+	 * @param suppressErrors - controls verbose stdout commentary (TRUE = less verbose)
+	 * @throws Exception
+	 * @since 21/05/2012
+	 * @TODO The translate() method basically relies on char[] arrays mapping to a static hash. This is actually quite a lot of functionality to shove onto a relatively minor method - would be better instead to create a Codon class..
+	 * 
+	 */
+	public void translate(boolean suppressErrors) throws SequenceTypeNotSupportedException{
+
+		this.initialiseTranslationHash(); // make sure the translation hash is available
 		
 //		System.out.println(numberOfSites+" sites constructed translation hash (size "+translationLookup.size()+")");
 //		String testChar = "ACC";
 //		System.out.println(translationLookup.get(testChar));
 		
 		if(alignmentSequenceCodingType.equals(SequenceCodingType.AA)){
-			throw new Exception("This is already an AA sequence - cannot translate");
+			throw new SequenceTypeNotSupportedException(this.alignmentSequenceCodingType, SequenceCodingType.CODON);
 		}else{
 			int newMaxNoSites = 0;
 			for(String taxon:taxaListArray){
@@ -1103,6 +1114,11 @@ public class AlignedSequenceRepresentation {
 		this.determineInvariantSites();
 	}
 	
+	/**
+	 * @since 22/08/2012
+	 * @author joeparker
+	 * @return no return type. sequences will have stop codons replaced with gaps (if AA) or replaced with gaps and removed where invariant (if Codon)
+	 */
 	public void removeStopCodons(){
 		if(alignmentSequenceCodingType.equals(SequenceCodingType.AA)){
 			for(String taxon:taxaListArray){
@@ -1110,8 +1126,15 @@ public class AlignedSequenceRepresentation {
 				sequenceHash.put(taxon, nonStopSequence);
 			}
 		}else{
-			System.out.println("WARNING! This method is not implemented for DNA/RNA data. These codons have NOT been stripped.");
-			// TODO Consider parsing DNA / RNA for stop codons. Bear in mind that introducing gaps to e.g. 3rd position codons may bias downstream dN/dS etc
+			try {
+				// TODO Consider parsing DNA / RNA for stop codons. Bear in mind that introducing gaps to e.g. 3rd position codons may bias downstream dN/dS etc
+				this.engapStopCodonsInDNA();
+				this.stripGapsPreserveCodons();
+			} catch (SequenceTypeNotSupportedException e) {
+				// TODO Auto-generated catch block
+				System.out.println("WARNING! This method is not implemented for DNA/RNA data. These codons have NOT been stripped.");
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -1469,7 +1492,7 @@ public class AlignedSequenceRepresentation {
 		// Actually insert the required gaps and remove them.
 		// TODO consider the case of missing data...
 		Iterator etr = sequenceHash.keySet().iterator();
-			TreeMap<String,char[]> newHash = new TreeMap<String, char[]>();
+		TreeMap<String,char[]> newHash = new TreeMap<String, char[]>();
 		while(etr.hasNext()){
 			String oldTaxon = etr.next().toString();
 			char[] oldChars = sequenceHash.get(oldTaxon);
@@ -1506,12 +1529,204 @@ public class AlignedSequenceRepresentation {
 	}
 
 	/**
-	 * @since  - 09/08/2012
-	 * @param  - sequenceIndex - which taxon to get (not guaranteed sort order)
-	 * @return - the taxon name (String)
-	 * @TODO   - should probably overload this for taxon names and/or input sort order..
+	 * @since  	- 09/08/2012
+	 * @param 	- sequenceIndex - which taxon to get (not guaranteed sort order)
+	 * @return 	- the taxon name (String)
+	 * @TODO  	- should probably overload this for taxon names and/or input sort order..
 	 */
 	public String getTaxon(int taxonIndex) {
 		return taxaListArray[taxonIndex];
+	}
+	
+	/**
+	 * @since 	- 21/08/2012
+	 * @param 	- null
+	 * @return 	- void
+	 * This method strips gaps from an ASR where sequences are type 'RNA','DNA' or 'Codon'
+	 * @fails 	- where sequence length <2
+	 * @fails 	- if sequences are all gaps
+	 * @throws 	- SequenceTypeNotSupportedException
+	 */
+	public void stripGapsPreserveCodons() throws SequenceTypeNotSupportedException{
+		if((this.alignmentSequenceCodingType == SequenceCodingType.AA)||(this.alignmentSequenceCodingType == SequenceCodingType.UNDEFINED)){
+			throw new SequenceTypeNotSupportedException(SequenceCodingType.CODON,this.alignmentSequenceCodingType);
+		}else{
+			/** get on with it.
+			 * execution:
+			 *	initialise boolean[] gapsToStrip 
+			 *	first seq: fill boolean with true where gaps
+			 *	codonwise iterate (can be over first seq as well, shouldn't fail):
+			 *			set gapsToStrip[codon] = (gapsToStrip[codon]==true && seq.hasGap(codon))
+			 *			e.g., truth table:
+			 *
+			 *					gapsToStrip[T]	gapsToStrip[F]
+			 *		seq.gap(T)		T				F
+			 *		seq.gap(F)		F				F
+			 *	
+			 *	end iteration;
+			 *	
+			 *	where gapsToStrip; remove sites
+			 *	recount nChars
+			 */		
+			this.trimToWholeNumberOfCodons();
+			boolean[] gapsToStrip = new boolean[this.numberOfSites];
+			for(int i=0;i<gapsToStrip.length;i++){
+				gapsToStrip[i] = false;
+			}
+			Iterator etr = sequenceHash.keySet().iterator();
+			char[] firstSeq = sequenceHash.get(etr.next().toString());
+			for(int i=0;i<this.numberOfSites;i+=3){				
+				if((firstSeq[i+0]=='-')&&(firstSeq[i+1]=='-')&&(firstSeq[i+2]=='-')){
+					gapsToStrip[i+0] = true;
+					gapsToStrip[i+1] = true;
+					gapsToStrip[i+2] = true;
+				}
+			}
+			while(etr.hasNext()){
+				String taxon = etr.next().toString();
+				char[] seqChars = new StringWalker(sequenceHash.get(taxon),'T','U').finishedSequence.toCharArray();
+				for(int i=0;i<this.numberOfSites;i+=3){				
+					if(
+							(seqChars[i+0]=='-')&&
+							(seqChars[i+1]=='-')&&
+							(seqChars[i+2]=='-')&&
+							(gapsToStrip[i+0])&&
+							(gapsToStrip[i+1])&&
+							(gapsToStrip[i+2])
+					){
+						gapsToStrip[i+0] = true;
+						gapsToStrip[i+1] = true;
+						gapsToStrip[i+2] = true;
+					}else{
+						gapsToStrip[i+0] = false;
+						gapsToStrip[i+1] = false;
+						gapsToStrip[i+2] = false;
+					}
+				}
+			}
+			assert(gapsToStrip.length>0);
+			// TODO OK, the gapsToStrip array should now be initialised correctly. Now strip sites where indicated.
+			int newSitesLength = 0;
+			etr = sequenceHash.keySet().iterator();
+			while(etr.hasNext()){
+				String taxon = etr.next().toString();
+				char[] seqChars = sequenceHash.get(taxon);
+				StringBuilder newChars = new StringBuilder();
+				for(int i=0;i<seqChars.length;i++){
+					if(!gapsToStrip[i]){
+						newChars.append(seqChars[i]);
+					}
+				}
+				if(newChars.length()>newSitesLength){
+					newSitesLength = newChars.length();
+				}
+				sequenceHash.put(taxon, newChars.toString().toCharArray());
+			}
+			// TODO remember to call buildNumberOfSites after.
+			this.numberOfSites = newSitesLength;
+			assert(true);
+		}
+	}
+	
+	/**
+	 * @since 	21/08/2012
+	 * @return 	Boolean hasWholeNumberOfCodons - indicates whether no.codons/3 is an integer (whole codons) or not (partial codons)
+	 * @throws 	SequenceTypeNotSupportedException
+	 * A method that checks whether a whole number of codons are present, e.g. if (this.numberOfSites/3) has a remainder (% > 0)
+	 * This method should throw a SequenceTypeNotSupportedException if AA or UNDEFINED sequence types are used
+	 * @fails	Where numberOfChars == 0
+	 * @fails	Where numberOfChars < 3
+	 */
+	public boolean hasWholeNumberOfCodons() throws SequenceTypeNotSupportedException{
+		if((this.alignmentSequenceCodingType == SequenceCodingType.AA)||(this.alignmentSequenceCodingType == SequenceCodingType.UNDEFINED)){
+			throw new SequenceTypeNotSupportedException(SequenceCodingType.CODON,this.alignmentSequenceCodingType);
+		}else{
+			if((this.numberOfSites%3)==0){
+				// remainder of (no.sites / 3) should be 0 if whole codons present.
+				return true;
+			}else{
+				// some remainder is present; must be a non-integer codon count. 
+				return false;
+			}
+		}
+	}
+	
+	/**
+	 * @since 	21/08/2012
+	 * @return  void. The AlignedSequenceRepresentation should have the same, or fewer, chars.
+	 * @throws 	SequenceTypeNotSupportedException
+	 * @fails	Where numberOfChars == 0
+	 * @fails	Where numberOfChars < 3
+	 * A class to iteratively shrink (3' trim) an alignment until an integer number of codons is present only.
+	 * @see		hasWholeNumberOfCodons()
+	 */
+	public void trimToWholeNumberOfCodons() throws SequenceTypeNotSupportedException{
+		if((this.alignmentSequenceCodingType == SequenceCodingType.AA)||(this.alignmentSequenceCodingType == SequenceCodingType.UNDEFINED)){
+			throw new SequenceTypeNotSupportedException(SequenceCodingType.CODON,this.alignmentSequenceCodingType);
+		}else{
+			while(!this.hasWholeNumberOfCodons()){
+				/**
+				 * Trim a trailing site from all seqs
+				 * Recount numberOfSites
+				 */
+				Iterator etr = sequenceHash.keySet().iterator();
+				while(etr.hasNext()){
+					String taxon = etr.next().toString();
+					char[] oldChars = sequenceHash.get(taxon);
+					char[] newChars = new char[oldChars.length-1];
+					for(int i=0;i<newChars.length;i++){
+						newChars[i] = oldChars[i];
+					}
+					sequenceHash.put(taxon, newChars);
+				}
+				this.numberOfSites = this.buildNumberOfSites();
+			}
+		}
+	}
+	
+	/**
+	 * @since 	21/08/2012
+	 * @return  void. The AlignedSequenceRepresentation should have the same, or fewer, chars.
+	 * @throws 	SequenceTypeNotSupportedException
+	 * @fails	Where numberOfChars == 0
+	 * @fails	Where numberOfChars < 3
+	 * A class to REPLACE stop (TGA/UGA) codons from DNA,RNA or Codon data with gap '-' characters.
+	 * @see		hasWholeNumberOfCodons(), trimToWholeNumberOfCodons, stripGapsPreserveCodons.
+	 */
+	public void engapStopCodonsInDNA() throws SequenceTypeNotSupportedException{
+		this.initialiseTranslationHash(); // make sure the translation hash is available
+		if((this.alignmentSequenceCodingType == SequenceCodingType.AA)||(this.alignmentSequenceCodingType == SequenceCodingType.UNDEFINED)){
+			throw new SequenceTypeNotSupportedException(SequenceCodingType.CODON,this.alignmentSequenceCodingType);
+		}else{
+			this.trimToWholeNumberOfCodons();
+			Iterator etr = sequenceHash.keySet().iterator();
+			while(etr.hasNext()){
+				String taxon = etr.next().toString();
+				char[] oldChars = new StringWalker(sequenceHash.get(taxon),'T','U').finishedSequence.toCharArray();
+				char[] newChars = new char[oldChars.length];
+				for(int i=0;i<this.numberOfSites;i+=3){
+					if(!
+							(
+									(oldChars[i+0]=='-')||
+									(oldChars[i+1]=='-')||
+									(oldChars[i+2]=='-')
+							)
+					){
+						String codon = (""+oldChars[i]+oldChars[i+1]+oldChars[i+2]);
+						if(translationLookup.get(codon) =='*'){
+							newChars[i+0] = '-';	
+							newChars[i+1] = '-';	
+							newChars[i+2] = '-';
+						}
+					}else{
+						newChars[i+0] = oldChars[i+0];	
+						newChars[i+1] = oldChars[i+1];	
+						newChars[i+2] = oldChars[i+2];	
+					}
+				}
+				sequenceHash.put(taxon, newChars);
+			}
+			this.stripGapsPreserveCodons();
+		}
 	}
 }

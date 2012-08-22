@@ -968,8 +968,9 @@ public class AlignedSequenceRepresentation {
 						codon = new String(codonHolder);
 						//					System.out.println(codon.length()+" "+pos+" candidate codon: "+codon);
 						//					System.out.println("printing the AA, "+codon);
-						if (!((codonHolder[0] == '-')
-								&& (codonHolder[1] == '-') && (codonHolder[2] == '-'))) { //Whole codon is empty
+						if (!
+								((codonHolder[0] == '-') && (codonHolder[1] == '-') && (codonHolder[2] == '-'))
+						) { //Whole codon is empty
 							if ((codonHolder[0] == '-')
 									|| (codonHolder[1] == '-')
 									|| (codonHolder[2] == '-')) { //Part of codon is empty
@@ -1717,6 +1718,10 @@ public class AlignedSequenceRepresentation {
 							newChars[i+0] = '-';	
 							newChars[i+1] = '-';	
 							newChars[i+2] = '-';
+						}else{
+							newChars[i+0] = oldChars[i+0];	
+							newChars[i+1] = oldChars[i+1];	
+							newChars[i+2] = oldChars[i+2];	
 						}
 					}else{
 						newChars[i+0] = oldChars[i+0];	

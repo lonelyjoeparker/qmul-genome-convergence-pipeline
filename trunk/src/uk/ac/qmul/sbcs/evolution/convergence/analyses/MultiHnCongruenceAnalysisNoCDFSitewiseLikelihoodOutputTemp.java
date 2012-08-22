@@ -400,8 +400,32 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 		}
 		logfileData.append("Null sites  "+sitesInSimulations+"\n");
 		logfileData.append("Site patterns in data: "+aaDataTreeOneSSLS.size()+"\n");
-		logfileData.append("Site\tfirstSeq\tlnLH0\tlnLH1\tlnLH2\tlnLH3\tdH0-H1\tdH0-H2\tdH0-H3\tdH0-RAxML\n");
+		logfileData.append("Site\tfirstSeq\tlnLH0\tlnLH1\tlnLH2\tlnLH3\t∆H0-H1\t∆H0-H2\t∆H0-H3\t∆H0-RAxML\n");
 		char[] firstSeqAA = this.sourceDataASR.getSequenceChars(0);
+		logfileData.append(
+				"mean\t"+
+				"-\t"+
+				treeH0ObservedlnL.getMean()+"\t"+
+				treeH1ObservedlnL.getMean()+"\t"+
+				treeH2ObservedlnL.getMean()+"\t"+
+				treeH3ObservedlnL.getMean()+"\t"+
+				H0H1DifferencesObs.getMean()+"\t"+
+				H0H2DifferencesObs.getMean()+"\t"+
+				H0H3DifferencesObs.getMean()+"\t"+
+				H0RaxDifferencesObs.getMean()+"\n"
+		);
+		logfileData.append(
+				"SE\t"+
+				"-\t"+
+				treeH0ObservedlnL.getSE()+"\t"+
+				treeH1ObservedlnL.getSE()+"\t"+
+				treeH2ObservedlnL.getSE()+"\t"+
+				treeH3ObservedlnL.getSE()+"\t"+
+				H0H1DifferencesObs.getSE()+"\t"+
+				H0H2DifferencesObs.getSE()+"\t"+
+				H0H3DifferencesObs.getSE()+"\t"+
+				H0RaxDifferencesObs.getSE()+"\n"
+		);
 		float[] h0lnL = treeH0ObservedlnL.getData();
 		float[] h1lnL = treeH1ObservedlnL.getData();
 		float[] h2lnL = treeH2ObservedlnL.getData();
@@ -426,6 +450,18 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 		}
 		
 
+		System.out.println("Means\tlnLH0\tlnLH1\tlnLH2\tlnLH3\t∆H0-H1\t∆H0-H2\t∆H0-H3\t∆H0-RAxML");
+		System.out.println(
+				"<>\t"+
+				treeH0ObservedlnL.getMean()+"\t"+
+				treeH1ObservedlnL.getMean()+"\t"+
+				treeH2ObservedlnL.getMean()+"\t"+
+				treeH3ObservedlnL.getMean()+"\t"+
+				H0H1DifferencesObs.getMean()+"\t"+
+				H0H2DifferencesObs.getMean()+"\t"+
+				H0H3DifferencesObs.getMean()+"\t"+
+				H0RaxDifferencesObs.getMean()
+		);
 		
 	
 		long elapsed = (System.currentTimeMillis() - time)/1000;

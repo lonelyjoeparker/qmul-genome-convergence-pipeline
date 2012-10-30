@@ -1408,6 +1408,7 @@ public class AlignedSequenceRepresentation {
 		for(String pattern:transposedSites){
 			try {
 				sitePatterns[i] = SitePatternsSSLS.get(pattern); // 09/08/2012 - Still not successfully debugged all instances of this..
+				//TODO debug the above properly
 			} catch (NullPointerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1732,7 +1733,16 @@ public class AlignedSequenceRepresentation {
 							)
 					){
 						String codon = (""+oldChars[i]+oldChars[i+1]+oldChars[i+2]);
-						if(translationLookup.get(codon) =='*'){
+						char translated;
+						try {
+							translated = translationLookup.get(codon);
+						} catch (NullPointerException e) {
+							// There is a problem with this codon. It is probably an ambiguity combination not in the table, e.g. 'UNC' etc
+							// Instead, pass a 'any' ('X') character for now. In translation this really needs sorting out though - they should be fully ennumerated.
+							translated = 'X';
+							e.printStackTrace();
+						}
+						if(translated =='*'){
 							newChars[i+0] = '-';	
 							newChars[i+1] = '-';	
 							newChars[i+2] = '-';

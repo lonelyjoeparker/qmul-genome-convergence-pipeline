@@ -38,7 +38,7 @@ public class MAO_CongruenceRunnerNoCDFPlottingMultiHn {
 		taxaList.add("RHSISI");
 		taxaList.add("RHAF");
 		taxaList.add("RHFE");
-		MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp analysis = new MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp(dataSet, treeFileH0, treeFileH1, treeFileH2, treeFileH3, workDir, binaries, runID, taxaList, replicatesForNull, thisFilter, doFactor);
+		MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp analysis = new MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp(dataSet, treeFileH0, treeFileH1, treeFileH2, treeFileH3, null, null, null, workDir, binaries, runID, taxaList, replicatesForNull, thisFilter, doFactor);
 		analysis.go();
 	}
 

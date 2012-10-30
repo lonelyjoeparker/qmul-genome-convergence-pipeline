@@ -27,6 +27,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlResultReader;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.EvolverSimulationSGE;
+import uk.ac.qmul.sbcs.evolution.convergence.handlers.NewickUtilitiesHandler;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.AamlParameters;
@@ -71,11 +72,17 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 	private File treeFileH1;
 	private File treeFileH2;
 	private File treeFileH3;
+	private File treeFileH1CladeLabelled;
+	private File treeFileH2CladeLabelled;
+	private File treeFileH3CladeLabelled;
 	private File treeFileRAxMLdeNovo;
 	private File treeFileH0Pruned;
 	private File treeFileH1Pruned;
 	private File treeFileH2Pruned;
 	private File treeFileH3Pruned;
+	private File treeFileH1CladeLabelledPruned;
+	private File treeFileH2CladeLabelledPruned;
+	private File treeFileH3CladeLabelledPruned;
 	private File workDir;
 	private File binariesLocation;
 	private File evolverBinary;
@@ -102,6 +109,12 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 	private NewickTreeRepresentation treeH2Pruned;
 	private NewickTreeRepresentation treeH3;
 	private NewickTreeRepresentation treeH3Pruned;
+	private NewickTreeRepresentation treeCladeLabelledH1;
+	private NewickTreeRepresentation treeCladeLabelledH1Pruned;
+	private NewickTreeRepresentation treeCladeLabelledH2;
+	private NewickTreeRepresentation treeCladeLabelledH2Pruned;
+	private NewickTreeRepresentation treeCladeLabelledH3;
+	private NewickTreeRepresentation treeCladeLabelledH3Pruned;
 	private NewickTreeRepresentation treeRAxML;
 	private TreeSet<String> taxaList;
 	private int sitesInSimulations;
@@ -143,12 +156,15 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 	 * @param thisFilter - filter out sites with this many (or greater) taxa having gaps (missing data)
 	 * @param filterThisByFactor - whether to filter by % or absolute number.
 	 */
-	public MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp(File data, File treefileH0, File treefileH1, File treefileH2, File treefileH3, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
+	public MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp(File data, File treefileH0, File treefileH1, File treefileH2, File treefileH3, File treefileH1labelled, File treefileH2labelled, File treefileH3labelled, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
 		this.dataset = data;
 		this.treeFileH0 = treefileH0;
 		this.treeFileH1 = treefileH1;
 		this.treeFileH2 = treefileH2;
 		this.treeFileH3 = treefileH3;
+		this.treeFileH1CladeLabelled = treefileH1labelled;
+		this.treeFileH2CladeLabelled = treefileH2labelled;
+		this.treeFileH3CladeLabelled = treefileH3labelled;
 		this.workDir = work;
 		this.runID = ID;
 		this.taxaList = taxaList;
@@ -230,34 +246,112 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 		treeH1 = new NewickTreeRepresentation(treeFileH1, taxaList);
 		treeH2 = new NewickTreeRepresentation(treeFileH2, taxaList);
 		treeH3 = new NewickTreeRepresentation(treeFileH3, taxaList);
+		treeCladeLabelledH1 = new NewickTreeRepresentation(treeFileH1CladeLabelled, taxaList);
+		treeCladeLabelledH2 = new NewickTreeRepresentation(treeFileH2CladeLabelled, taxaList);
+		treeCladeLabelledH3 = new NewickTreeRepresentation(treeFileH3CladeLabelled, taxaList);
 		
-		/* Tree H0 needs pruning as it has the full taxon list */
-		
-		treeH0Pruned = this.pruneTaxa(treeH0, this.excludedTaxaList(taxaList, sourceDataASR));
-		treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
-		treeH0Pruned.setTreeFile(treeFileH0Pruned);
-		treeH0Pruned.write(treeFileH0Pruned);
+		TreeSet<String> excludedTaxa = this.excludedTaxaList(taxaList, sourceDataASR);
+		if(excludedTaxa.size()<1){
+			// pruning actions are redundant..
+			/* Tree H0 needs pruning as it has the full taxon list */
+			
+			treeH0Pruned = treeH0;
+			treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
+			treeH0Pruned.setTreeFile(treeFileH0Pruned);
+			treeH0Pruned.write(treeFileH0Pruned);
 
-		/* Ditto, Tree H1 needs pruning as it has the full taxon list */
-		
-		treeH1Pruned = this.pruneTaxa(treeH1, this.excludedTaxaList(taxaList, sourceDataASR));
-		treeFileH1Pruned = new File(treeFileH1.getAbsoluteFile()+".pruned.tre");
-		treeH1Pruned.setTreeFile(treeFileH1Pruned);
-		treeH1Pruned.write(treeFileH1Pruned);
-		
-		/* Ditto, Tree H2 needs pruning as it has the full taxon list */
-		
-		treeH2Pruned = this.pruneTaxa(treeH2, this.excludedTaxaList(taxaList, sourceDataASR));
-		treeFileH2Pruned = new File(treeFileH2.getAbsoluteFile()+".pruned.tre");
-		treeH2Pruned.setTreeFile(treeFileH2Pruned);
-		treeH2Pruned.write(treeFileH2Pruned);
+			/* Ditto, Tree H1 needs pruning as it has the full taxon list */
+			
+			treeH1Pruned = treeH1;
+			treeFileH1Pruned = new File(treeFileH1.getAbsoluteFile()+".pruned.tre");
+			treeH1Pruned.setTreeFile(treeFileH1Pruned);
+			treeH1Pruned.write(treeFileH1Pruned);
+			
+			/* Ditto, Tree H2 needs pruning as it has the full taxon list */
+			
+			treeH2Pruned = treeH2;
+			treeFileH2Pruned = new File(treeFileH2.getAbsoluteFile()+".pruned.tre");
+			treeH2Pruned.setTreeFile(treeFileH2Pruned);
+			treeH2Pruned.write(treeFileH2Pruned);
 
-		/* Ditto, Tree H3 needs pruning as it has the full taxon list */
-		
-		treeH3Pruned = this.pruneTaxa(treeH3, this.excludedTaxaList(taxaList, sourceDataASR));
-		treeFileH3Pruned = new File(treeFileH3.getAbsoluteFile()+".pruned.tre");
-		treeH3Pruned.setTreeFile(treeFileH3Pruned);
-		treeH3Pruned.write(treeFileH3Pruned);
+			/* Ditto, Tree H3 needs pruning as it has the full taxon list */
+			
+			treeH3Pruned = treeH3;
+			treeFileH3Pruned = new File(treeFileH3.getAbsoluteFile()+".pruned.tre");
+			treeH3Pruned.setTreeFile(treeFileH3Pruned);
+			treeH3Pruned.write(treeFileH3Pruned);
+
+			/* Ditto, LABELLED Tree H1 needs pruning as it has the full taxon list */
+			
+			treeCladeLabelledH1Pruned = treeCladeLabelledH1;
+			treeFileH1CladeLabelledPruned = new File(treeFileH1CladeLabelled.getAbsoluteFile()+".pruned.tre");
+			treeCladeLabelledH1Pruned.setTreeFile(treeFileH1CladeLabelledPruned);
+			treeCladeLabelledH1Pruned.write(treeFileH1CladeLabelledPruned);
+			
+			/* Ditto, LABELLED Tree H2 needs pruning as it has the full taxon list */
+			
+			treeCladeLabelledH2Pruned = treeCladeLabelledH2;
+			treeFileH2CladeLabelledPruned = new File(treeFileH2CladeLabelled.getAbsoluteFile()+".pruned.tre");
+			treeCladeLabelledH2Pruned.setTreeFile(treeFileH2CladeLabelledPruned);
+			treeCladeLabelledH2Pruned.write(treeFileH2CladeLabelledPruned);
+
+			/* Ditto, LABELLED Tree H3 needs pruning as it has the full taxon list */
+			
+			treeCladeLabelledH3Pruned = treeCladeLabelledH3;
+			treeFileH3CladeLabelledPruned = new File(treeFileH3CladeLabelled.getAbsoluteFile()+".pruned.tre");
+			treeCladeLabelledH3Pruned.setTreeFile(treeFileH3CladeLabelledPruned);
+			treeCladeLabelledH3Pruned.write(treeFileH3CladeLabelledPruned);
+		}else{
+			// there are ³1 taxa to prune...
+			/* Tree H0 needs pruning as it has the full taxon list */
+			
+			treeH0Pruned = this.pruneTaxa(treeH0, excludedTaxa);
+			treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
+			treeH0Pruned.setTreeFile(treeFileH0Pruned);
+			treeH0Pruned.write(treeFileH0Pruned);
+
+			/* Ditto, Tree H1 needs pruning as it has the full taxon list */
+			
+			treeH1Pruned = this.pruneTaxa(treeH1, excludedTaxa);
+			treeFileH1Pruned = new File(treeFileH1.getAbsoluteFile()+".pruned.tre");
+			treeH1Pruned.setTreeFile(treeFileH1Pruned);
+			treeH1Pruned.write(treeFileH1Pruned);
+			
+			/* Ditto, Tree H2 needs pruning as it has the full taxon list */
+			
+			treeH2Pruned = this.pruneTaxa(treeH2, excludedTaxa);
+			treeFileH2Pruned = new File(treeFileH2.getAbsoluteFile()+".pruned.tre");
+			treeH2Pruned.setTreeFile(treeFileH2Pruned);
+			treeH2Pruned.write(treeFileH2Pruned);
+
+			/* Ditto, Tree H3 needs pruning as it has the full taxon list */
+			
+			treeH3Pruned = this.pruneTaxa(treeH3, excludedTaxa);
+			treeFileH3Pruned = new File(treeFileH3.getAbsoluteFile()+".pruned.tre");
+			treeH3Pruned.setTreeFile(treeFileH3Pruned);
+			treeH3Pruned.write(treeFileH3Pruned);
+
+			/* Ditto, LABELLED Tree H1 needs pruning as it has the full taxon list */
+			
+			treeCladeLabelledH1Pruned = this.pruneTaxa(treeCladeLabelledH1, excludedTaxa);
+			treeFileH1CladeLabelledPruned = new File(treeFileH1CladeLabelled.getAbsoluteFile()+".pruned.tre");
+			treeCladeLabelledH1Pruned.setTreeFile(treeFileH1CladeLabelledPruned);
+			treeCladeLabelledH1Pruned.write(treeFileH1CladeLabelledPruned);
+			
+			/* Ditto, LABELLED Tree H2 needs pruning as it has the full taxon list */
+			
+			treeCladeLabelledH2Pruned = this.pruneTaxa(treeCladeLabelledH2, excludedTaxa);
+			treeFileH2CladeLabelledPruned = new File(treeFileH2CladeLabelled.getAbsoluteFile()+".pruned.tre");
+			treeCladeLabelledH2Pruned.setTreeFile(treeFileH2CladeLabelledPruned);
+			treeCladeLabelledH2Pruned.write(treeFileH2CladeLabelledPruned);
+
+			/* Ditto, LABELLED Tree H3 needs pruning as it has the full taxon list */
+			
+			treeCladeLabelledH3Pruned = this.pruneTaxa(treeCladeLabelledH3, excludedTaxa);
+			treeFileH3CladeLabelledPruned = new File(treeFileH3CladeLabelled.getAbsoluteFile()+".pruned.tre");
+			treeCladeLabelledH3Pruned.setTreeFile(treeFileH3CladeLabelledPruned);
+			treeCladeLabelledH3Pruned.write(treeFileH3CladeLabelledPruned);
+		}
 
 		
 		/* Get a de-novo RAxML tree */
@@ -499,16 +593,23 @@ public class MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp {
 
 	
 	private NewickTreeRepresentation pruneTaxa(NewickTreeRepresentation unprunedTree, TreeSet<String> taxaToPrune){
-		Iterator itrTaxon = taxaToPrune.iterator();
-		while(itrTaxon.hasNext()){
-			String taxonToPrune = (String)itrTaxon.next().toString().toUpperCase();
-			try {
-				unprunedTree.pruneTaxon(taxonToPrune);
-				System.out.println("Pruned taxon "+taxonToPrune+" from tree.");
-			} catch (TaxonNotFoundError e) {
-				// TODO Auto-generated catch block
-				System.out.println("Couldn't prune taxon "+taxonToPrune+" from tree.");
-				e.printStackTrace();
+		File nw_prune_exe = new File(this.binariesLocation.getAbsolutePath() + "/nw_prune");
+		if(nw_prune_exe.exists()){
+			//TODO implement NW_prune for pruning, not my lamo method
+			NewickTreeRepresentation prunedTree = new NewickUtilitiesHandler(this.binariesLocation, unprunedTree.getTreeFile(), this.taxaList).pruneTaxa(taxaToPrune);
+			unprunedTree = prunedTree;
+		}else{
+			Iterator itrTaxon = taxaToPrune.iterator();
+			while(itrTaxon.hasNext()){
+				String taxonToPrune = (String)itrTaxon.next().toString().toUpperCase();
+				try {
+					unprunedTree.pruneTaxon(taxonToPrune);
+					System.out.println("Pruned taxon "+taxonToPrune+" from tree.");
+				} catch (TaxonNotFoundError e) {
+					// TODO Auto-generated catch block
+					System.out.println("Couldn't prune taxon "+taxonToPrune+" from tree.");
+					e.printStackTrace();
+				}
 			}
 		}
 		return unprunedTree;

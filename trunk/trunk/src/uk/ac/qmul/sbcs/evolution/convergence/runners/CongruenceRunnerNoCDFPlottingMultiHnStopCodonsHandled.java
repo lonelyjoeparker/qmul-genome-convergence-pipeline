@@ -20,13 +20,16 @@ public class CongruenceRunnerNoCDFPlottingMultiHnStopCodonsHandled {
 		File treeFileH1 = new File(args[2]);
 		File treeFileH2 = new File(args[3]);
 		File treeFileH3 = new File(args[4]);
-		File workDir = new File(args[5]);
-		String runID = args[6];
-		File binaries = new File(args[7]);
-		Integer replicatesForNull = Integer.parseInt(args[8]);
-		int thisFilter = Integer.parseInt(args[9]);
+		File treeFileH1CladeLabelled = new File(args[5]);
+		File treeFileH2CladeLabelled = new File(args[6]);
+		File treeFileH3CladeLabelled = new File(args[7]);
+		File workDir = new File(args[8]);
+		String runID = args[9];
+		File binaries = new File(args[10]);
+		Integer replicatesForNull = Integer.parseInt(args[11]);
+		int thisFilter = Integer.parseInt(args[12]);
 		boolean doFactor = false;
-		switch(Integer.parseInt(args[10])){
+		switch(Integer.parseInt(args[13])){
 			case (1): doFactor = true; break;
 			case (0): doFactor = false; break;
 		}
@@ -53,7 +56,7 @@ public class CongruenceRunnerNoCDFPlottingMultiHnStopCodonsHandled {
 		taxaList.add("OCHOTONA");
 		taxaList.add("ORYCTOLAGUS");
 		taxaList.add("SOREX");
-		MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp analysis = new MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp(dataSet, treeFileH0, treeFileH1, treeFileH2, treeFileH3, workDir, binaries, runID, taxaList, replicatesForNull, thisFilter, doFactor);
+		MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp analysis = new MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp(dataSet, treeFileH0, treeFileH1, treeFileH2, treeFileH3, treeFileH1CladeLabelled, treeFileH2CladeLabelled, treeFileH3CladeLabelled, workDir, binaries, runID, taxaList, replicatesForNull, thisFilter, doFactor);
 		analysis.go();
 	}
 

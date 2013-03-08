@@ -23,6 +23,7 @@ public class NewickTreeRepresentation {
 	private String treeString = null;
 	private File treeFile = null;
 	private int numberOfTaxa = 0;
+	private int numberOfTrees = 0;
 	private TreeSet<String> taxaNames = null;
 	
 	
@@ -34,9 +35,25 @@ public class NewickTreeRepresentation {
 	 */
 	public NewickTreeRepresentation(){}
 	
+	/**
+	 * @since r126 - multiple trees in a single treefile
+	 * @param inputFile - can have any number of trees, but error checking limited to 'not null' on line.. 
+	 * @param names
+	 */
 	public NewickTreeRepresentation(File inputFile, TreeSet<String> names){
 		this.treeFile = inputFile;
-		this.treeString = new CapitalisedFileReader().loadSequences(treeFile,true).get(0);
+		ArrayList<String> trees = new CapitalisedFileReader().loadSequences(treeFile,true);
+		treeString = null;
+		for(String tree:trees){
+			if(!tree.isEmpty()){
+				if(treeString == null){
+					treeString = tree;
+				}else{
+					treeString = treeString + "\n"+ tree;
+				}
+				numberOfTrees++;
+			}
+		}
 		this.taxaNames = names;
 		this.numberOfTaxa = taxaNames.size();
 	}
@@ -57,6 +74,7 @@ public class NewickTreeRepresentation {
 	public NewickTreeRepresentation(String tree, TreeSet<String> names){
 		this.treeString = tree;
 		this.taxaNames = names;
+		this.numberOfTrees = treeString.split("\n").length;
 		this.numberOfTaxa = taxaNames.size();
 	}
 
@@ -70,6 +88,7 @@ public class NewickTreeRepresentation {
 		this.treeString = tree;
 		this.taxaNames = this.obtainTaxaNames(treeString);
 		this.numberOfTaxa = taxaNames.size();
+		this.numberOfTrees = treeString.split("\n").length;
 	}
 	
 	public String getTreeString() {

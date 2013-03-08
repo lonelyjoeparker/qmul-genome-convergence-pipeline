@@ -210,6 +210,8 @@ public class MultiHnCongruenceAnalysis {
 		this.evolverBinary = new File(binariesLocation+"/evolver");
 		this.filter = thisFilter;
 		this.filterByFactor = doFactor;
+		this.mainTreesFilePruned = new File(this.mainTreesFile.getAbsoluteFile()+".pruned.tre");
+		this.labelledTreesFilePruned = new File(this.labelledTreesFile.getAbsoluteFile()+".pruned.tre");
 	}
 
 	/**
@@ -229,47 +231,75 @@ public class MultiHnCongruenceAnalysis {
 		/* Basic input seq file operations */
 		
 		this.basicInputAlignmentOperations();
+		this.basicInputTreefileInitialisation();
 		this.excludedTaxa = this.excludedTaxaList(taxaList, sourceDataASR);		
 
-		/* Prune input trees */
-		
-		this.pruneInputTrees();
-		
-		
-		/* Prune labelled trees */
-		
-		this.pruneLabelledTrees();
-		
-		
-		/* Prune constraint.tre */
-		
-		this.pruneConstraintTree();
+		if(this.excludedTaxa.size()>0){
+			/* Not all the taxa given in the taxa list are there. Pruning of input trees required */
+
+			/* Prune input trees */
+			
+			this.pruneInputTrees();
+			
+			
+			/* Prune labelled trees */
+			
+			this.pruneLabelledTrees();
+			
+			
+			/* Prune constraint.tre */
+			
+			this.pruneConstraintTree();
+		}
 		
 		
 		/* Resolve old H2(3) topology by RAxML -g */
-		
-		// TODO DEBUG THIS
-		this.resolvedTree = this.resolveTopologyWithSubtreeConstraint(this.constraintTree);//This method will probably need to be given the H3 tree and constraint tree
-		// TODO DEBUG THIS
+		/* NB THIS ASSUMES A SINGLE TREE */
+		this.resolvedTree = this.resolveTopologyWithSubtreeConstraint(this.constraintTree);
 		
 		
 		/* Concatenate pruned, resolved RAxML topology with pruned a priori ones */
-		
 		try {
 			this.mainTrees = this.mainTrees.concatenate(resolvedTree);
 		} catch (TaxaListsMismatchException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
 		/* Write the pruned trees (labelled and main trees files; File vars are global) to disk for PAML */
-		
+		mainTrees.write(this.mainTreesFilePruned);
+		labelledTrees.write(this.labelledTreesFilePruned);
 		
 		/* For each model, get lnL site patterns, for all trees */
 		
 		for(int i=0;i<modelsList.length;i++){
 			String thisModel = modelsList[i];
 			/* Get the lnL for this */
+			/* Pasting in the Aaml H0 from old go() method.. lots of this could be abstracted */
+			/* we want to populate a SSLS object eventually... */
+			this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeOne.out");
+			TreeMap<AamlParameters, String> parameters = new TreeMap<AamlParameters, String>();
+			parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
+			parameters.put(AamlParameters.TREEFILE, "treefile = "+this.mainTreesFilePruned.getAbsolutePath());
+			parameters.put(AamlParameters.OUTFILE, "outfile = "+aaH0AnalysisOutputFile.getAbsolutePath());
+			parameters.put(AamlParameters.AARATEFILE, "aaRatefile = "+this.binariesLocation.getAbsolutePath()+"/dat/"+thisModel+".dat");
+			File[] treefiles = {this.mainTreesFilePruned};
+			AlignedSequenceRepresentation[] datasets = {new AlignedSequenceRepresentation()};
+			AamlAnalysisSGE treeOneAaml = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeOne.ctl");
+			treeOneAaml.setBinaryDir(this.binariesLocation.getAbsoluteFile());
+			treeOneAaml.setExecutionBinary(new File(treeOneAaml.getBinaryDir(),"codeml"));
+			treeOneAaml.setWorkingDir(workDir);
+			treeOneAaml.RunAnalysis();
+			TreeMap<String, Float> aaDataTreeOneSSLS = treeOneAaml.getPatternSSLS();
+			float[] aaDataSSLSlnL0 = new float[aaDataTreeOneSSLS.size()];
+			Iterator dataSSLSItr0 = aaDataTreeOneSSLS.keySet().iterator();
+			int sIndex = 0;
+			while(dataSSLSItr0.hasNext()){
+				aaDataSSLSlnL0[sIndex] = aaDataTreeOneSSLS.get(dataSSLSItr0.next());
+				sIndex++;
+			}
+//			treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
+			treeH0ObservedlnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS));
+			
 		}
 		
 		
@@ -281,6 +311,13 @@ public class MultiHnCongruenceAnalysis {
 		new BasicFileWriter(logfile, logfileData.toString());
 	}
 	
+	private void basicInputTreefileInitialisation() {
+		this.mainTrees 		= new NewickTreeRepresentation(this.mainTreesFile, 		this.taxaList);
+		this.labelledTrees 	= new NewickTreeRepresentation(this.labelledTreesFile, 	this.taxaList);
+		this.constraintTree = new NewickTreeRepresentation(this.constraintTreeFile, this.taxaList);
+		
+	}
+
 	private NewickTreeRepresentation resolveTopologyWithSubtreeConstraint(NewickTreeRepresentation constraintTree2) {
 		RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, this.constraintTreeFile, runID, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
 		ra.setTreeConstraint(true);

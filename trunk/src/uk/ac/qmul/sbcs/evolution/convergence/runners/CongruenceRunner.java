@@ -9,6 +9,17 @@ public class CongruenceRunner {
 
 	/**
 	 * @param args
+	 * 
+	 * 	1. dataset
+		2. maintrees
+		3. constraint
+		4. labelled trees
+		5. workdir
+		6. binaries
+		7. filter permissivity %
+		8. filter by factor (permissivity) or by number
+	 * 
+	 * 
 	 * @since r125: 06/03/2013
 	 * This convergence runner is designed to detect convergence using: 
 	 * 		a specified set of AA models in Aaml, 
@@ -41,11 +52,11 @@ public class CongruenceRunner {
 		File constraintTreeFile = new File(args[2]);
 		File labelledTreesFile = new File(args[3]);
 		File workDir = new File(args[4]);
-		String runID = args[5];
-		File binaries = new File(args[6]);
-		int thisFilter = Integer.parseInt(args[7]);
+		String runID = new String(dataSet.getName()+"conv"+System.currentTimeMillis());
+		File binaries = new File(args[5]);
+		int thisFilter = Integer.parseInt(args[6]);
 		boolean doFactor = false;
-		switch(Integer.parseInt(args[8])){
+		switch(Integer.parseInt(args[7])){
 			case (1): doFactor = true; break;
 			case (0): doFactor = false; break;
 		}
@@ -74,7 +85,7 @@ public class CongruenceRunner {
 		taxaList.add("SOREX");
 		String[] modelsList = {"dayhoff","wag","jones"};
 		MultiHnCongruenceAnalysis analysis = new MultiHnCongruenceAnalysis(dataSet, mainTreesFile, constraintTreeFile, labelledTreesFile, workDir, binaries, runID, taxaList, modelsList, thisFilter, doFactor);
-		analysis.go();
+		analysis.run();
 	}
 
 }

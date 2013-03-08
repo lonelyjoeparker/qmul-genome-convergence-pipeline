@@ -9,27 +9,43 @@ public class CongruenceRunner {
 
 	/**
 	 * @param args
-	 * @since r120: 22/8/2012
-	 * A multiple congruence analysis to compare the SSLS values of an AA dataset on FOUR input trees and a de novo RAxML tree.
+	 * @since r125: 06/03/2013
+	 * This convergence runner is designed to detect convergence using: 
+	 * 		a specified set of AA models in Aaml, 
+	 * 		and an unlimited number of topologies. 
+	 * It will additionally prune labelled trees for downstream codeml selection analyses.
+	 * 
+	 * Workflow for revised pipeline:
+	 *
+	 *	-    alignment parsing, taxon list building
+	 *	-    determine # of substitution models, build list of them
+	 *	-    prune input.trees
+	 *	-    prune labelled.trees
+	 *	-    prune constraint.tre
+	 *	-    RAxML -g on constraint.tre
+	 *	-    cat RAxML.tre with input.trees
+	 *	-    for each (model:models) {get sitewise lnL for all trees}
+	 *	
+     * 	@TODO generally reorganise args
+     *	@TODO RAxML -g method
+     *	@TODO produce some random trees
+     *	@TODO class to read multi-tree lnL files
+     *	@TODO taxa list as a file 
+     *	@TODO models list as a file
+     *	@TODO <b>BIG DEAL</b> - sitewise lnL class to be written
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		assert(args.length==11);
 		File dataSet = new File(args[0]);
-		File treeFileH0 = new File(args[1]);
-		File treeFileH1 = new File(args[2]);
-		File treeFileH2 = new File(args[3]);
-		File treeFileH3 = new File(args[4]);
-		File treeFileH1CladeLabelled = new File(args[5]);
-		File treeFileH2CladeLabelled = new File(args[6]);
-		File treeFileH3CladeLabelled = new File(args[7]);
-		File workDir = new File(args[8]);
-		String runID = args[9];
-		File binaries = new File(args[10]);
-		Integer replicatesForNull = Integer.parseInt(args[11]);
-		int thisFilter = Integer.parseInt(args[12]);
+		File mainTreesFile = new File(args[1]);
+		File constraintTreeFile = new File(args[2]);
+		File labelledTreesFile = new File(args[3]);
+		File workDir = new File(args[4]);
+		String runID = args[5];
+		File binaries = new File(args[6]);
+		int thisFilter = Integer.parseInt(args[7]);
 		boolean doFactor = false;
-		switch(Integer.parseInt(args[13])){
+		switch(Integer.parseInt(args[8])){
 			case (1): doFactor = true; break;
 			case (0): doFactor = false; break;
 		}
@@ -56,7 +72,8 @@ public class CongruenceRunner {
 		taxaList.add("OCHOTONA");
 		taxaList.add("ORYCTOLAGUS");
 		taxaList.add("SOREX");
-		MultiHnCongruenceAnalysis analysis = new MultiHnCongruenceAnalysis(dataSet, treeFileH0, treeFileH1, treeFileH2, treeFileH3, treeFileH1CladeLabelled, treeFileH2CladeLabelled, treeFileH3CladeLabelled, workDir, binaries, runID, taxaList, replicatesForNull, thisFilter, doFactor);
+		String[] modelsList = {"dayhoff","wag","jones"};
+		MultiHnCongruenceAnalysis analysis = new MultiHnCongruenceAnalysis(dataSet, mainTreesFile, constraintTreeFile, labelledTreesFile, workDir, binaries, runID, taxaList, modelsList, thisFilter, doFactor);
 		analysis.go();
 	}
 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.TreeSet;
 
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.TaxaListsMismatchException;
 import uk.ac.qmul.sbcs.evolution.convergence.TaxonNotFoundError;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.NewickUtilitiesHandler;
 
@@ -57,6 +58,28 @@ public class NewickTreeRepresentationTest extends TestCase {
 		r.printSimply();
 	}
 
+	public void testConcatenateTrees(){
+		String input = ("(((Human:0.1,Chimpanzee:0.2):0.8,Gorilla:0.3):0.7,Orangutan:0.4,Gibbon:0.5);");
+		String input2 = ("(((Gorilla:0.1,Chimpanzee:0.2):0.8,Human:0.3):0.7,Orangutan:0.4,Gibbon:0.5);");
+		TreeSet<String> names = new TreeSet<String>();
+		names.add("Human");
+		names.add("Chimpanzee");
+		names.add("Gorilla");
+		names.add("Orangutan");
+		names.add("Gibbon");
+		NewickTreeRepresentation r = new NewickTreeRepresentation(input,names);
+		NewickTreeRepresentation r2 = new NewickTreeRepresentation(input2,names);
+		System.out.println(r.getNumberOfTaxa()+" taxa read.");
+		NewickTreeRepresentation concatenated = null;
+		try {
+			concatenated = r.concatenate(r2);
+		} catch (TaxaListsMismatchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		concatenated.printSimply();
+	}
+	
 	public void testNewickTreeRepresentationString() {
 		fail("Not yet implemented"); // TODO
 	}
@@ -324,6 +347,45 @@ public class NewickTreeRepresentationTest extends TestCase {
 			File treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".prunedDEROOTED.tre");
 			treeH0Pruned.setTreeFile(treeFileH0Pruned);
 			treeH0Pruned.writeMultipleReplicates(treeFileH0Pruned,30);
+			treeH0Pruned.printSimply();
+		}
+
+	public void testPrunePipelineNWUtilsPruneMultipleTrees(){
+			File treeFileH0 = new File("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/f_100_ENSG00000070214_ng.fas/debug.tre");
+			File binaries = new File("/usr/local/bin/");
+			TreeSet<String> taxaList = new TreeSet<String>();
+			TreeSet<String> pruneList = new TreeSet<String>();
+			taxaList.add("TURSIOPS");
+			taxaList.add("CANIS");
+			taxaList.add("FELIS");
+			taxaList.add("LOXODONTA");
+			taxaList.add("ERINACEUS");
+			taxaList.add("MUS");
+			taxaList.add("MONODELPHIS");
+			taxaList.add("PAN");
+			taxaList.add("HOMO");
+			taxaList.add("PTERONOTUS");
+			taxaList.add("RHINOLOPHUS");
+			taxaList.add("PTEROPUS");
+			taxaList.add("EIDOLON");
+			taxaList.add("DASYPUS");
+			taxaList.add("EQUUS");
+			taxaList.add("MEGADERMA");
+			taxaList.add("MYOTIS");
+			taxaList.add("BOS");
+			/* The extra 4 taxa in the 22 taxon tree */
+			taxaList.add("VICUGNA");
+			taxaList.add("OCHOTONA");
+			taxaList.add("ORYCTOLAGUS");
+			taxaList.add("SOREX");
+			pruneList.add("VICUGNA");
+			pruneList.add("OCHOTONA");
+			pruneList.add("ORYCTOLAGUS");
+			pruneList.add("SOREX");
+			pruneList.add("BALLS");
+			NewickTreeRepresentation treeH0Pruned = new NewickUtilitiesHandler(binaries,treeFileH0,taxaList).pruneTaxa(pruneList);
+			File treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
+			treeH0Pruned.setTreeFile(treeFileH0Pruned);
 			treeH0Pruned.printSimply();
 		}
 }

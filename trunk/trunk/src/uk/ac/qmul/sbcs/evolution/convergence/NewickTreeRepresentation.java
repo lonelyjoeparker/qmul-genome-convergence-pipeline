@@ -258,4 +258,13 @@ public class NewickTreeRepresentation {
 		}
 		return unprunedTree;
 	}
+
+	public NewickTreeRepresentation concatenate(NewickTreeRepresentation r) throws TaxaListsMismatchException {
+		if(this.taxaNames == r.getTaxaNames()){
+			String concatenatedTreeString = this.treeString + "\n" + r.getTreeString();
+			return new NewickTreeRepresentation(concatenatedTreeString, this.taxaNames);
+		}else{
+			throw new TaxaListsMismatchException();
+		}
+	}
 }

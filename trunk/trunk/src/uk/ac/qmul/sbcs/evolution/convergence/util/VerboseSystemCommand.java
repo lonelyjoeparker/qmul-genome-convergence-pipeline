@@ -18,7 +18,8 @@ public class VerboseSystemCommand {
 			String line = iReader.readLine();
 			int i = 0;
 			while(line != null){
-				System.out.println("o"+i+" "+line);
+				line = line + "\n";
+				System.out.print("o"+i+" "+line);
 				output.append(line);
 				line = iReader.readLine();
 				i++;

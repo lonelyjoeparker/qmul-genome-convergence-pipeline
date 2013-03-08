@@ -28,6 +28,7 @@ public class RAxMLAnalysisSGE {
 	private NTmodelOptions NTmodel;
 	private algorithmOptions algorithm;
 	private boolean constrainTree = false;
+	private boolean constraintMultifuricating = false;
 	private boolean noStartingTree = false;
 
 	public enum AAmodelOptions{
@@ -162,6 +163,10 @@ public class RAxMLAnalysisSGE {
 		//return "/Applications/Phylogenetics/RAxML/RAxML-7.2.8-ALPHA/raxmlHPC -m PROTCATJTT -n hpc-constrained-test -s /pamlTest/stewart.aa.alternative.phy -r /pamlTest/stewart.constraint.tre";
 		if(this.constrainTree){
 			// Constrain the topology (-r option)
+			String constraintMode = " -r ";		// Constraint tree is fully biurificating
+			if(this.constraintMultifuricating){
+				constraintMode = " -g ";		// Allows multifuricating tree in constraint file
+			}
 			if(this.NTmodel == null){
 				// Assume a AA tree - note, this needs to be handled better... 
 				
@@ -169,9 +174,9 @@ public class RAxMLAnalysisSGE {
 				/* 
 				 * Issue with the SGE (perl runCmd.pl wrapper) implementation of this - workingDir in this context means the RAxML binary..
 				 */
-				return "/usr/bin/perl -w runCmd.pl "+ workingDir+" "+ binaryDir.getAbsolutePath() + " -m " + AAmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -r " + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
+				return "/usr/bin/perl -w runCmd.pl "+ workingDir+" "+ binaryDir.getAbsolutePath() + " -m " + AAmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + constraintMode + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
 			}else{
-				return "/usr/bin/perl -w runCmd.pl "+ workingDir+" "+ binaryDir.getAbsolutePath() + " -m " + NTmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + " -r " + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
+				return "/usr/bin/perl -w runCmd.pl "+ workingDir+" "+ binaryDir.getAbsolutePath() + " -m " + NTmodel + " -n "+ identifier + " -s "+ dataFile.getAbsolutePath() + constraintMode + treeConstraintFile.getAbsolutePath() + " -w " + workingDir.getAbsolutePath();
 			}
 		}else{
 			// Topology will not be constrained
@@ -220,5 +225,10 @@ public class RAxMLAnalysisSGE {
 	public void setWorkingDir(File newWD){
 		System.out.println("set wd variable to "+newWD.getAbsolutePath());
 		this.workingDir = newWD;
+	}
+
+	public void setMultifuricatingConstraint(boolean b) {
+		this.constraintMultifuricating = b;
+		
 	}
 }

@@ -22,6 +22,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.FilterOutOfAllowableRangeException;
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.SequenceCodingType;
 import uk.ac.qmul.sbcs.evolution.convergence.SequenceTypeNotSupportedException;
+import uk.ac.qmul.sbcs.evolution.convergence.TaxaListsMismatchException;
 import uk.ac.qmul.sbcs.evolution.convergence.TaxonNotFoundError;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.AamlAnalysisSGE;
@@ -32,6 +33,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.AamlParameters;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupport;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
 
@@ -141,6 +143,25 @@ public class MultiHnCongruenceAnalysis {
 	private ExperimentalDataSeries treeOneSimlnLOnTreeDeNovo;
 */
 	
+	/*
+	 * 	Global variables added for this refactoring (06/03/2013)
+	 */
+	private String[] modelsList;
+	private SitewiseSpecificLikelihoodSupport[] results;
+	private File mainTreesFile;
+	private File constraintTreeFile;
+	private File labelledTreesFile;
+	private File mainTreesFilePruned;
+	private File labelledTreesFilePruned;
+	private NewickTreeRepresentation mainTrees;
+	private NewickTreeRepresentation constraintTree;
+	private NewickTreeRepresentation labelledTrees;
+	private NewickTreeRepresentation resolvedTree;
+	private TreeSet<String> excludedTaxa;
+	private File prunedMainTreesFile;
+	private File prunedLabelledTreesFile;
+
+	
 	/**
 	 * 
 	 * @param data - absolute file location of sequence file in fasta / phylip / nexus format.
@@ -175,6 +196,182 @@ public class MultiHnCongruenceAnalysis {
 		this.filterByFactor = filterThisByFactor;
 	}
 	
+	public MultiHnCongruenceAnalysis(File dataSet2, File mainTreesFile, File constraintTreeFile, File labelledTreesFile, File workDir2, File binaries, String runID2, TreeSet<String> taxaList2, String[] modelsList2, int thisFilter, boolean doFactor) {
+		// TODO Auto-generated constructor stub
+		this.dataset = dataSet2;
+		this.mainTreesFile = mainTreesFile;
+		this.constraintTreeFile = constraintTreeFile;
+		this.labelledTreesFile = labelledTreesFile;
+		this.workDir = workDir2;
+		this.runID = runID2;
+		this.taxaList = taxaList2;
+		this.modelsList = modelsList2;
+		this.binariesLocation = binaries;
+		this.evolverBinary = new File(binariesLocation+"/evolver");
+		this.filter = thisFilter;
+		this.filterByFactor = doFactor;
+	}
+
+	/**
+	 * 	-    prune input.trees
+	 *	-    prune labelled.trees
+	 *	-    prune constraint.tre
+	 *	-    RAxML -g on constraint.tre
+	 *	-    cat RAxML.tre with input.trees
+	 *	-    for each (model:models) {get sitewise lnL for all trees}
+	 */
+	public void run(){
+		long time = System.currentTimeMillis();
+		System.out.println(dataset.getAbsolutePath().toString());
+		System.out.println(workDir.getAbsolutePath().toString());
+
+		
+		/* Basic input seq file operations */
+		
+		this.basicInputAlignmentOperations();
+		this.excludedTaxa = this.excludedTaxaList(taxaList, sourceDataASR);		
+
+		/* Prune input trees */
+		
+		this.pruneInputTrees();
+		
+		
+		/* Prune labelled trees */
+		
+		this.pruneLabelledTrees();
+		
+		
+		/* Prune constraint.tre */
+		
+		this.pruneConstraintTree();
+		
+		
+		/* Resolve old H2(3) topology by RAxML -g */
+		
+		// TODO DEBUG THIS
+		this.resolvedTree = this.resolveTopologyWithSubtreeConstraint(this.constraintTree);//This method will probably need to be given the H3 tree and constraint tree
+		// TODO DEBUG THIS
+		
+		
+		/* Concatenate pruned, resolved RAxML topology with pruned a priori ones */
+		
+		try {
+			this.mainTrees = this.mainTrees.concatenate(resolvedTree);
+		} catch (TaxaListsMismatchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/* Write the pruned trees (labelled and main trees files; File vars are global) to disk for PAML */
+		
+		
+		/* For each model, get lnL site patterns, for all trees */
+		
+		for(int i=0;i<modelsList.length;i++){
+			String thisModel = modelsList[i];
+			/* Get the lnL for this */
+		}
+		
+		
+		/* Collate info and print to buffer etc */
+		
+		long elapsed = (System.currentTimeMillis() - time)/1000;
+		logfileData.append("\nTotal time "+elapsed+"s.\n");
+		File logfile = new File(this.workDir.getAbsolutePath()+"/"+runID+".SSLS.out");
+		new BasicFileWriter(logfile, logfileData.toString());
+	}
+	
+	private NewickTreeRepresentation resolveTopologyWithSubtreeConstraint(NewickTreeRepresentation constraintTree2) {
+		RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, this.constraintTreeFile, runID, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
+		ra.setTreeConstraint(true);
+		ra.setMultifuricatingConstraint(true);
+		ra.setNoStartTree(true);
+		ra.setBinaryDir(new File(this.binariesLocation.getAbsoluteFile()+"/raxmlHPC"));
+	//	ra.setWorkingDir(this.workDir);
+		ra.RunAnalysis();
+		resolvedTree = new NewickTreeRepresentation(ra.getOutputFile(),taxaList);
+		return resolvedTree;
+	}
+
+	private void pruneConstraintTree() {
+		NewickTreeRepresentation unprunedConstraintTree = new NewickTreeRepresentation(this.constraintTreeFile, this.taxaList);
+		this.constraintTree = this.pruneTaxa(unprunedConstraintTree, excludedTaxa);
+	}
+
+	private void pruneLabelledTrees() {
+		NewickTreeRepresentation unprunedLabelledTrees = new NewickTreeRepresentation(this.labelledTreesFile, this.taxaList);
+		this.labelledTrees = this.pruneTaxa(unprunedLabelledTrees, excludedTaxa);
+		
+	}
+
+	private void pruneInputTrees() {
+		NewickTreeRepresentation unprunedMainTrees = new NewickTreeRepresentation(this.mainTreesFile, this.taxaList);
+		this.mainTrees = this.pruneTaxa(unprunedMainTrees, excludedTaxa);
+	}
+
+	private void basicInputAlignmentOperations() {
+		this.sourceDataASR = new AlignedSequenceRepresentation();
+		try {
+			sourceDataASR.loadSequences(dataset,false);
+		} catch (TaxaLimitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/**
+		 * @since r119, 22/08/2012
+		 * The removeUnambiguousGaps call has now been placed by integer-codon trimming and stop-codon removal at the codon level
+		 * since it is anticipated that sequence data will be exons or CDS, therefore potential exists that single-nt removals, even where 
+		 * invariant (unambiguous) gaps, could cause frameshifts.
+		 * 
+		 * sourceDataASR.removeUnambiguousGaps(); //removed
+		 */
+		inputSequenceCodingType = sourceDataASR.determineInputSequenceType();
+		try {
+			sourceDataASR.trimToWholeNumberOfCodons();
+			sourceDataASR.removeStopCodons();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		inputSequenceCodingType = sourceDataASR.determineInputSequenceType();
+		pamlDataFileNT = new File(dataset.getAbsoluteFile()+runID+"_pamlNT.phy");
+		pamlDataFileAA = new File(dataset.getAbsoluteFile()+runID+"_pamlAA.phy");
+		/*
+		 * NEW for this revision (0.0.1 r80):
+		 * 		Data is now EXPLICITLY filtered for missing taxa (gaps) using the AlignedSequenceRepresentation.filterForMissingData(int filter, boolean useFactor) method.
+		 * 		This method either removes:
+		 * 			[useFactor = true]: any sites with a proportion of gaps > (filter/100); or
+		 * 			[useFactor - false]: any sites with COUNT of gaps > filter
+		 * 
+		 * 		useFactor = true is probably safer as there's no chance of setting filter < numTaxa (which would cause it to throw an exception). The only downside is that is harder to interpret (slightly)
+		 * 
+		 * 		Also note that this means the PamlParameter cleandata should probably be set to cleandata=0 for most purposes.
+		 */
+		try {
+			sourceDataASR.filterForMissingData(filter, filterByFactor);
+			// TODO IMPORTANT
+			// At the moment the filterFor..() method DOES NOT respect codon boundaries
+			// As a result frameshift can occur.
+			// Using filterFactor 100 for now (22/08/2012) until such time as it is made codon-safe.
+			// Ultimately should throw a SequenceTypeNotSupportedException for Codon datatypes and direct a (codon-safe) method.
+		} catch (FilterOutOfAllowableRangeException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+		sourceDataASR.writePhylipFile(pamlDataFileNT, true);
+		try {
+			sourceDataASR.translate(true);
+		} catch (SequenceTypeNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		sourceDataASR.writePhylipFile(pamlDataFileAA, true);
+		
+	}
+
+	/**
+	 * @deprecated - this method should not normally be used by CongruenceRunner, but run() instead. 
+	 */
 	public void go(){
 		long time = System.currentTimeMillis();
 		// Read in the data and treefiles

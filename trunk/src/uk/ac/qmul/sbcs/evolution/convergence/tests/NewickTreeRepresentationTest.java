@@ -508,6 +508,11 @@ public class NewickTreeRepresentationTest extends TestCase {
 		}else{
 			fail();
 		}
+		if(!tree_10.equals("FAILMESUCKER(((((((PTERONOTUS,MYOTIS),((RHINOLOPHUS,MEGADERMA),TURSIOPS)),(PTEROPUS,EIDOLON)),((SOREX,ERINACEUS),(((MUS,(ORYCTOLAGUS,OCHOTONA)),(PAN,HOMO)),(MONODELPHIS,(LOXODONTA,DASYPUS))))),(CANIS,FELIS)),EQUUS),BOS,VICUGNA);")){
+			assert(true);
+		}else{
+			fail();
+		}
 		
 	}
 }

@@ -287,7 +287,8 @@ public class MultiHnCongruenceAnalysis {
 			AamlAnalysisSGE treeOneAaml = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeOne.ctl");
 			treeOneAaml.setBinaryDir(this.binariesLocation.getAbsoluteFile());
 			treeOneAaml.setExecutionBinary(new File(treeOneAaml.getBinaryDir(),"codeml"));
-			treeOneAaml.setWorkingDir(workDir);
+			treeOneAaml.setWorkingDir(new File("./"));
+			treeOneAaml.setNumberOfTreesets(this.mainTrees.getNumberOfTrees());
 			treeOneAaml.RunAnalysis();
 			TreeMap<String, Float> aaDataTreeOneSSLS = treeOneAaml.getPatternSSLS();
 			float[] aaDataSSLSlnL0 = new float[aaDataTreeOneSSLS.size()];
@@ -299,6 +300,12 @@ public class MultiHnCongruenceAnalysis {
 			}
 //			treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
 			treeH0ObservedlnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS));
+			
+			/**
+			 * At this point everything would be loaded into a SitewiseSpecificLikelihoodSupport object
+			 * then SSLS.stop() called (to get runtime)
+			 * and SSLS would be serialised (to be later inflated in client)
+			 */
 			
 		}
 		

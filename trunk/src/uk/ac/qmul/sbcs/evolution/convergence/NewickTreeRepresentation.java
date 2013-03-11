@@ -21,6 +21,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
  */
 public class NewickTreeRepresentation {
 	private String treeString = null;
+	private String[] separateTopologies;
 	private File treeFile = null;
 	private int numberOfTaxa = 0;
 	private int numberOfTrees = 0;
@@ -56,6 +57,12 @@ public class NewickTreeRepresentation {
 		}
 		this.taxaNames = names;
 		this.numberOfTaxa = taxaNames.size();
+		this.separateTopologies = new String[this.numberOfTrees];
+		if(this.numberOfTrees>0){
+			this.separateTopologies = this.treeString.split("\n");
+		}else{
+			this.separateTopologies[0] = this.treeString;
+		}
 	}
 	
 	@Deprecated
@@ -69,6 +76,12 @@ public class NewickTreeRepresentation {
 		this.treeString = new CapitalisedFileReader().loadSequences(treeFile,true).get(0);
 		this.taxaNames = this.obtainTaxaNames(treeString);
 		this.numberOfTaxa = taxaNames.size();
+		this.separateTopologies = new String[this.numberOfTrees];
+		if(this.numberOfTrees>0){
+			this.separateTopologies = this.treeString.split("\n");
+		}else{
+			this.separateTopologies[0] = this.treeString;
+		}
 	}
 	
 	public NewickTreeRepresentation(String tree, TreeSet<String> names){
@@ -76,6 +89,12 @@ public class NewickTreeRepresentation {
 		this.taxaNames = names;
 		this.numberOfTrees = treeString.split("\n").length;
 		this.numberOfTaxa = taxaNames.size();
+		this.separateTopologies = new String[this.numberOfTrees];
+		if(this.numberOfTrees>0){
+			this.separateTopologies = this.treeString.split("\n");
+		}else{
+			this.separateTopologies[0] = this.treeString;
+		}
 	}
 
 	@Deprecated
@@ -89,6 +108,12 @@ public class NewickTreeRepresentation {
 		this.taxaNames = this.obtainTaxaNames(treeString);
 		this.numberOfTaxa = taxaNames.size();
 		this.numberOfTrees = treeString.split("\n").length;
+		this.separateTopologies = new String[this.numberOfTrees];
+		if(this.numberOfTrees>0){
+			this.separateTopologies = this.treeString.split("\n");
+		}else{
+			this.separateTopologies[0] = this.treeString;
+		}
 	}
 	
 	public String getTreeString() {
@@ -285,5 +310,17 @@ public class NewickTreeRepresentation {
 		}else{
 			throw new TaxaListsMismatchException();
 		}
+	}
+
+	public int getNumberOfTrees() {
+		return this.numberOfTrees;
+	}
+
+	public String[] getIndividualTrees(){
+		return this.separateTopologies;
+	}
+	
+	public String getSpecificTree(int index) throws ArrayIndexOutOfBoundsException{
+		return this.separateTopologies[index];
 	}
 }

@@ -350,11 +350,9 @@ public class NewickTreeRepresentationTest extends TestCase {
 			treeH0Pruned.printSimply();
 		}
 
-	public void testPrunePipelineNWUtilsPruneMultipleTrees(){
-			File treeFileH0 = new File("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/f_100_ENSG00000070214_ng.fas/debug.tre");
-			File binaries = new File("/usr/local/bin/");
+	public void testReadMultipleTrees(){
+			File treeFile = new File("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/f_100_ENSG00000070214_ng.fas/debug.tre");
 			TreeSet<String> taxaList = new TreeSet<String>();
-			TreeSet<String> pruneList = new TreeSet<String>();
 			taxaList.add("TURSIOPS");
 			taxaList.add("CANIS");
 			taxaList.add("FELIS");
@@ -378,14 +376,138 @@ public class NewickTreeRepresentationTest extends TestCase {
 			taxaList.add("OCHOTONA");
 			taxaList.add("ORYCTOLAGUS");
 			taxaList.add("SOREX");
-			pruneList.add("VICUGNA");
-			pruneList.add("OCHOTONA");
-			pruneList.add("ORYCTOLAGUS");
-			pruneList.add("SOREX");
-			pruneList.add("BALLS");
-			NewickTreeRepresentation treeH0Pruned = new NewickUtilitiesHandler(binaries,treeFileH0,taxaList).pruneTaxa(pruneList);
-			File treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
-			treeH0Pruned.setTreeFile(treeFileH0Pruned);
-			treeH0Pruned.printSimply();
+			NewickTreeRepresentation tree = new NewickTreeRepresentation(treeFile,taxaList);
+			if(tree.getNumberOfTrees() == 11){
+				assert(true);
+			}else{
+				fail();
+			}
 		}
+
+	public void testPrunePipelineNWUtilsPruneMultipleTrees(){
+		File treeFileH0 = new File("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/f_100_ENSG00000070214_ng.fas/debug.tre");
+		File binaries = new File("/usr/local/bin/");
+		TreeSet<String> taxaList = new TreeSet<String>();
+		TreeSet<String> pruneList = new TreeSet<String>();
+		taxaList.add("TURSIOPS");
+		taxaList.add("CANIS");
+		taxaList.add("FELIS");
+		taxaList.add("LOXODONTA");
+		taxaList.add("ERINACEUS");
+		taxaList.add("MUS");
+		taxaList.add("MONODELPHIS");
+		taxaList.add("PAN");
+		taxaList.add("HOMO");
+		taxaList.add("PTERONOTUS");
+		taxaList.add("RHINOLOPHUS");
+		taxaList.add("PTEROPUS");
+		taxaList.add("EIDOLON");
+		taxaList.add("DASYPUS");
+		taxaList.add("EQUUS");
+		taxaList.add("MEGADERMA");
+		taxaList.add("MYOTIS");
+		taxaList.add("BOS");
+		/* The extra 4 taxa in the 22 taxon tree */
+		taxaList.add("VICUGNA");
+		taxaList.add("OCHOTONA");
+		taxaList.add("ORYCTOLAGUS");
+		taxaList.add("SOREX");
+		pruneList.add("VICUGNA");
+		pruneList.add("OCHOTONA");
+		pruneList.add("ORYCTOLAGUS");
+		pruneList.add("SOREX");
+		pruneList.add("BALLS");
+		NewickTreeRepresentation treeH0Pruned = new NewickUtilitiesHandler(binaries,treeFileH0,taxaList).pruneTaxa(pruneList);
+		File treeFileH0Pruned = new File(treeFileH0.getAbsoluteFile()+".pruned.tre");
+		treeH0Pruned.setTreeFile(treeFileH0Pruned);
+		treeH0Pruned.printSimply();
+	}
+
+	public void testReadMultipleTreesGetArray(){
+		File treeFile = new File("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/f_100_ENSG00000070214_ng.fas/debug.tre");
+		TreeSet<String> taxaList = new TreeSet<String>();
+		taxaList.add("TURSIOPS");
+		taxaList.add("CANIS");
+		taxaList.add("FELIS");
+		taxaList.add("LOXODONTA");
+		taxaList.add("ERINACEUS");
+		taxaList.add("MUS");
+		taxaList.add("MONODELPHIS");
+		taxaList.add("PAN");
+		taxaList.add("HOMO");
+		taxaList.add("PTERONOTUS");
+		taxaList.add("RHINOLOPHUS");
+		taxaList.add("PTEROPUS");
+		taxaList.add("EIDOLON");
+		taxaList.add("DASYPUS");
+		taxaList.add("EQUUS");
+		taxaList.add("MEGADERMA");
+		taxaList.add("MYOTIS");
+		taxaList.add("BOS");
+		/* The extra 4 taxa in the 22 taxon tree */
+		taxaList.add("VICUGNA");
+		taxaList.add("OCHOTONA");
+		taxaList.add("ORYCTOLAGUS");
+		taxaList.add("SOREX");
+		NewickTreeRepresentation tree = new NewickTreeRepresentation(treeFile,taxaList);
+		if(tree.getNumberOfTrees() == 11){
+			assert(true);
+		}else{
+			fail();
+		}
+		String[] separateTopologies = tree.getIndividualTrees();
+		if(separateTopologies.length == 11){
+			assert(true);
+		}else{
+			fail();
+		}
+		
+	}
+
+	public void testReadMultipleTreesGetArrayReadSpecific(){
+		File treeFile = new File("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/f_100_ENSG00000070214_ng.fas/debug.tre");
+		TreeSet<String> taxaList = new TreeSet<String>();
+		taxaList.add("TURSIOPS");
+		taxaList.add("CANIS");
+		taxaList.add("FELIS");
+		taxaList.add("LOXODONTA");
+		taxaList.add("ERINACEUS");
+		taxaList.add("MUS");
+		taxaList.add("MONODELPHIS");
+		taxaList.add("PAN");
+		taxaList.add("HOMO");
+		taxaList.add("PTERONOTUS");
+		taxaList.add("RHINOLOPHUS");
+		taxaList.add("PTEROPUS");
+		taxaList.add("EIDOLON");
+		taxaList.add("DASYPUS");
+		taxaList.add("EQUUS");
+		taxaList.add("MEGADERMA");
+		taxaList.add("MYOTIS");
+		taxaList.add("BOS");
+		/* The extra 4 taxa in the 22 taxon tree */
+		taxaList.add("VICUGNA");
+		taxaList.add("OCHOTONA");
+		taxaList.add("ORYCTOLAGUS");
+		taxaList.add("SOREX");
+		NewickTreeRepresentation tree = new NewickTreeRepresentation(treeFile,taxaList);
+		if(tree.getNumberOfTrees() == 11){
+			assert(true);
+		}else{
+			fail();
+		}
+		String tree_0 = tree.getSpecificTree(0);
+		if(tree_0.equals("(((LOXODONTA,DASYPUS),(((((CANIS,FELIS),(EQUUS,((TURSIOPS,BOS),VICUGNA))),((PTERONOTUS,MYOTIS),((RHINOLOPHUS,MEGADERMA),(PTEROPUS,EIDOLON)))),(SOREX,ERINACEUS)),((MUS,(ORYCTOLAGUS,OCHOTONA)),(PAN,HOMO)))),MONODELPHIS);")){
+			assert(true);
+		}else{
+			fail();
+		}
+		String tree_10 = tree.getSpecificTree(10);
+		if(tree_10.equals("(((((((PTERONOTUS,MYOTIS),((RHINOLOPHUS,MEGADERMA),TURSIOPS)),(PTEROPUS,EIDOLON)),((SOREX,ERINACEUS),(((MUS,(ORYCTOLAGUS,OCHOTONA)),(PAN,HOMO)),(MONODELPHIS,(LOXODONTA,DASYPUS))))),(CANIS,FELIS)),EQUUS),BOS,VICUGNA);")){
+			assert(true);
+		}else{
+			fail();
+		}
+		
+	}
 }

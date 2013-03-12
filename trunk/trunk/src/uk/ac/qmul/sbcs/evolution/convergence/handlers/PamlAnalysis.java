@@ -8,7 +8,11 @@ import uk.ac.qmul.sbcs.evolution.convergence.*;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.*;
 import uk.ac.qmul.sbcs.evolution.convergence.util.*;
 
-public abstract class PamlAnalysis {
+public abstract class PamlAnalysis implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4973289454191152243L;
 	private float[] sitewiseLikelihoods;
 	private int numberOfDatasets;
 	protected int numberOfTreesets = 1;

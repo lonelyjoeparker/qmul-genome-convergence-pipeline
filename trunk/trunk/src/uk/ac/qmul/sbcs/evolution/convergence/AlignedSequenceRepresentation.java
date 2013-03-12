@@ -25,8 +25,12 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
  * @param truncatedNamesHash		:	A HashMap<String fullTaxonName, String truncatedTaxonName> of the truncated taxon names. These are max 10 chars, with unique taxon IDs ²999. Padded with underscores.
  */
 		
-public class AlignedSequenceRepresentation {
+public class AlignedSequenceRepresentation implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9134007401329133617L;
 	private File file;
 	private SequenceCodingType alignmentSequenceCodingType = SequenceCodingType.UNDEFINED;
 	private ArrayList<String> rawInput;

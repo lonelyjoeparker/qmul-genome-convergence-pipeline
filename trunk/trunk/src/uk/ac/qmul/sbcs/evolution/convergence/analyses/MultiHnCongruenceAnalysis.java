@@ -1,6 +1,9 @@
 package uk.ac.qmul.sbcs.evolution.convergence.analyses;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -271,11 +274,14 @@ public class MultiHnCongruenceAnalysis {
 		
 		/* For each model, get lnL site patterns, for all trees */
 		
+		SitewiseSpecificLikelihoodSupport SSLS;
+		
 		for(int i=0;i<modelsList.length;i++){
 			String thisModel = modelsList[i];
 			/* Get the lnL for this */
 			/* Pasting in the Aaml H0 from old go() method.. lots of this could be abstracted */
 			/* we want to populate a SSLS object eventually... */
+			SSLS = new SitewiseSpecificLikelihoodSupport(sourceDataASR);
 			this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeOne.out");
 			TreeMap<AamlParameters, String> parameters = new TreeMap<AamlParameters, String>();
 			parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
@@ -289,6 +295,7 @@ public class MultiHnCongruenceAnalysis {
 			treeOneAaml.setExecutionBinary(new File(treeOneAaml.getBinaryDir(),"codeml"));
 			treeOneAaml.setWorkingDir(new File("./"));
 			treeOneAaml.setNumberOfTreesets(this.mainTrees.getNumberOfTrees());
+			SSLS.setParameters((TreeMap<AamlParameters, String>) parameters.clone());
 			treeOneAaml.RunAnalysis();
 			TreeMap<String, Float> aaDataTreeOneSSLS = treeOneAaml.getPatternSSLS();
 			float[] aaDataSSLSlnL0 = new float[aaDataTreeOneSSLS.size()];
@@ -306,6 +313,29 @@ public class MultiHnCongruenceAnalysis {
 			 * then SSLS.stop() called (to get runtime)
 			 * and SSLS would be serialised (to be later inflated in client)
 			 */
+			
+			SSLS.setInputFileName(this.dataset.getName());
+			SSLS.setInputFile(this.dataset);
+			SSLS.setNumberOfModels(1);
+			SSLS.setNumberOfTopologies(mainTrees.getNumberOfTrees());
+			SSLS.setNumberOfTaxa(mainTrees.getNumberOfTaxa());
+			SSLS.setModel(thisModel);
+			SSLS.parseAamlOutput(aaH0AnalysisOutputFile);
+			SSLS.setTaxaList(taxaList);
+			SSLS.setPatternLikelihoods(treeOneAaml.getAllPatternSSLS());
+			SSLS.fillOutAndVerify();
+			
+			try {
+				FileOutputStream fileOutOne = new FileOutputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS."+thisModel+".ser");
+				ObjectOutputStream outOne;
+				outOne = new ObjectOutputStream(fileOutOne);
+				outOne.writeObject(SSLS);
+				outOne.close();
+				fileOutOne.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 		}
 		

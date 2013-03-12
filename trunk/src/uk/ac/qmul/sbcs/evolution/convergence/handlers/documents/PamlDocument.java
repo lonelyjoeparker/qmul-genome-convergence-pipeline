@@ -3,8 +3,9 @@ package uk.ac.qmul.sbcs.evolution.convergence.handlers.documents;
 import java.io.File;
 import java.util.*;
 import uk.ac.qmul.sbcs.evolution.convergence.util.*;
+import java.io.*;
 
-public class PamlDocument {
+public class PamlDocument implements Serializable {
 	protected HashMap<String, String> parameterSet = new HashMap<String, String>();
 	public boolean hasBeenWritten;
 	public String absolutePath;
@@ -142,15 +143,15 @@ public class PamlDocument {
 		"						* 10: blepharisma nu.\n" +
 		"						* These codes correspond to transl_table 1 to 11 of GENEBANK.\n";
 	
-	public enum AamlParameters{
+	public enum AamlParameters implements Serializable{
 		SEQFILE, TREEFILE, OUTFILE, NOISY, VERBOSE, RUNMODE, SEQTYPE, AARATEFILE, MODEL, MGENE, FIX_ALPHA, ALPHA, MALPHA, NCATG, CLOCK, GETSE, RATEANCESTOR, SMALL_DIFF, CLEANDATA, METHOD;
 	}
 	
-	public enum BasemlParameters{
+	public enum BasemlParameters implements Serializable{
 		SEQFILE, TREEFILE, OUTFILE, NOISY, VERBOSE, RUNMODE, MODEL, MGENE, NDATA, CLOCK, FIX_KAPPA, KAPPA, FIX_ALPHA, ALPHA, MALPHA, NCATG, NPARK, NHOMO, GETSE, RATEANCESTOR, SMALL_DIFF, CLEANDATA, ICODE, FIX_BLENGTH, METHOD;
 	}
 	
-	public enum CodemlParameters{
+	public enum CodemlParameters implements Serializable{
 		SEQFILE, TREEFILE, OUTFILE, NOISY, VERBOSE, RUNMODE, SEQTYPE, CODONFREQ, NDATA, CLOCK, AADIST, AARATEFILE, MODEL, NSSITES, ICODE, MGENE, FIX_KAPPA, KAPPA, FIX_OMEGA, OMEGA, FIX_ALPHA, ALPHA, MALPHA, NCATG, GETSE, RATEANCESTOR, SMALL_DIFF, CLEANDATA, FIX_BLENGTH, METHOD
 	}
 	

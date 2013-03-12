@@ -8,6 +8,7 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 
 	SitewiseSpecificLikelihoodSupport SSLS1;
 	SitewiseSpecificLikelihoodSupport SSLS2;
+	SitewiseSpecificLikelihoodSupport SSLS3;
 
 	
 	public SitewiseSpecificLikelihoodSupportSerializationTest() {
@@ -27,16 +28,17 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 
 	public void testSerialization(){
 		SSLS1 = new SitewiseSpecificLikelihoodSupport();
-		SSLS1.alpha = new float[2];
-		SSLS1.alpha[0] = 0.04f;
-		SSLS1.alpha[1] = 0.02f;
-		SSLS1.inputFileName = "ssls one";
+		float[] SSLS1a = new float[2];
+		SSLS1a[0] = 0.04f;
+		SSLS1a[1] = 0.02f;
+		SSLS1.setAlpha(SSLS1a);
+		SSLS1.setInputFileName("ssls one");
 		SSLS2 = new SitewiseSpecificLikelihoodSupport();
-		SSLS2.alpha = new float[2];
-		SSLS2.alpha[0] = 10.04f;
-		SSLS2.alpha[1] = 30.02f;
-		SSLS2.inputFileName = "ssls two";
-		SSLS2.numberOfModels = 1;
+		SSLS1a[0] = 10.04f;
+		SSLS1a[1] = 40.02f;
+		SSLS2.setAlpha(SSLS1a);
+		SSLS2.setInputFileName("ssls two");
+		SSLS2.setNumberOfModels(1);
 		try {
 			FileOutputStream fileOutOne = new FileOutputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.1.ser");
 			ObjectOutputStream outOne;
@@ -98,8 +100,63 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(SSLS1.inputFileName);
-		System.out.println(SSLS2.inputFileName);
+		System.out.println(SSLS1.getInputFileName());
+		System.out.println(SSLS2.getInputFileName());
+		assert(true);
+	}
+
+	public void testInflationMultipleActualSSLS(){
+		try {
+			FileInputStream fileInOne = new FileInputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.wag.ser");
+			ObjectInputStream inOne = new ObjectInputStream(fileInOne);
+			SSLS1 = (SitewiseSpecificLikelihoodSupport) inOne.readObject();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			FileInputStream fileInTwo = new FileInputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.jones.ser");
+			ObjectInputStream inTwo = new ObjectInputStream(fileInTwo);
+			SSLS2 = (SitewiseSpecificLikelihoodSupport) inTwo.readObject();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			FileInputStream fileInTwo = new FileInputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.dayhoff.ser");
+			ObjectInputStream inTwo = new ObjectInputStream(fileInTwo);
+			SSLS3 = (SitewiseSpecificLikelihoodSupport) inTwo.readObject();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		System.out.println(SSLS1.getInputFileName());
+		System.out.println(SSLS2.getInputFileName());
+		long ssls1_elapsed = SSLS1.elapsed();
+		long ssls2_elapsed = SSLS2.elapsed();
+		long ssls3_elapsed = SSLS3.elapsed();
+		System.out.println(ssls1_elapsed +"\n"+ ssls2_elapsed +"\n"+ ssls3_elapsed);
 		assert(true);
 	}
 }

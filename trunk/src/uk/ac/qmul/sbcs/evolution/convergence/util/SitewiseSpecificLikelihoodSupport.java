@@ -29,41 +29,45 @@ public class SitewiseSpecificLikelihoodSupport implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1827398426573836001L;
-	public String inputFileName;
-	public int numberOfTaxa;
-	public int numberOfSites;
-	public int numberOfSitePatterns;
-	public int numberOfTopologies;
-	public int numberOfModels;
-	public int numberOfSeries;
-	public Date started;
-	public Date finished;
-	public TreeMap<AamlParameters, String> parameters;
-	public String model;
-	public HashMap<String,Integer> patternMapping;
-	public TreeSet<String> taxaList;
-	public TreeMap<String,Float>[] patternLikelihoods;
-	public float[] treeLengths;
-	public float[] li;
-	public float[] pKH;
-	public float[] pRELL;
-	public float[] pSH;
-	public boolean[] preferred;
-	public float[] meanlnL;
-	public float[] alpha;
-	public float[][] SSLSseriesSitewise;
-	public float[][] SSLSseriesPatternwise;
-	public float[][] dSSLSseriesSitewise;
-	public float[][] dSSLSseriesPatternwise;
-	public String[] patterns;
-	public float[] patternEntropies;
-	public String[] sites;
-	public float[] siteEntropies;
-	public char[][] datasetAsCharMatrix; 
-	public AlignedSequenceRepresentation dataset;
+	private String inputFileName;
+	private File inputFile;
+	private int numberOfTaxa;
+	private int numberOfSites;
+	private int numberOfSitePatterns;
+	private int numberOfTopologies;
+	private int numberOfModels;
+	private int numberOfSeries;
+	private Date started;
+	private Date finished;
+	private TreeMap<AamlParameters, String> parameters;
+	private String model;
+	private HashMap<String,Integer> patternMapping;
+	private TreeSet<String> taxaList;
+	private TreeMap<String,Float>[] patternLikelihoods;
+	private float[] treeLengths;
+	private float[] li;
+	private float[] pKH;
+	private float[] pRELL;
+	private float[] pSH;
+	private boolean[] preferred;
+	private float[] meanlnL;
+	private float[] alpha;
+	private float[][] SSLSseriesSitewise;
+	private float[][] SSLSseriesPatternwise;
+	private float[][] dSSLSseriesSitewise;
+	private float[][] dSSLSseriesPatternwise;
+	private String[] patterns;
+	private float[] patternEntropies;
+	private String[] sites;
+	private float[] siteEntropies;
+	private char[][] datasetAsCharMatrix; 
+	private AlignedSequenceRepresentation dataset;
 	
 	public SitewiseSpecificLikelihoodSupport(){}
-	public SitewiseSpecificLikelihoodSupport(AlignedSequenceRepresentation asr){}
+	public SitewiseSpecificLikelihoodSupport(AlignedSequenceRepresentation asr){
+		this.dataset = asr;
+		this.started = new Date(System.currentTimeMillis());
+	}
 	public SitewiseSpecificLikelihoodSupport(AlignedSequenceRepresentation asr, int taxa, int trees, int sites, int patterns, TreeMap<String,Float>[] lnLpatterns){}
 	public SitewiseSpecificLikelihoodSupport(AlignedSequenceRepresentation asr, int taxa, int trees, int sites, int patterns, TreeMap<String,Float>[] lnLpatterns, String datasetID, String[] models){}
 
@@ -72,6 +76,54 @@ public class SitewiseSpecificLikelihoodSupport implements Serializable{
 	 */
 	public String getInputFileName() {
 		return inputFileName;
+	}
+	/**
+	 * @return the inputFile
+	 */
+	public File getInputFile() {
+		return inputFile;
+	}
+	/**
+	 * @return the model
+	 */
+	public String getModel() {
+		return model;
+	}
+	/**
+	 * @return the patternEntropies
+	 */
+	public float[] getPatternEntropies() {
+		return patternEntropies;
+	}
+	/**
+	 * @return the siteEntropies
+	 */
+	public float[] getSiteEntropies() {
+		return siteEntropies;
+	}
+	/**
+	 * @param inputFile the inputFile to set
+	 */
+	public void setInputFile(File inputFile) {
+		this.inputFile = inputFile;
+	}
+	/**
+	 * @param model the model to set
+	 */
+	public void setModel(String model) {
+		this.model = model;
+	}
+	/**
+	 * @param patternEntropies the patternEntropies to set
+	 */
+	public void setPatternEntropies(float[] patternEntropies) {
+		this.patternEntropies = patternEntropies;
+	}
+	/**
+	 * @param siteEntropies the siteEntropies to set
+	 */
+	public void setSiteEntropies(float[] siteEntropies) {
+		this.siteEntropies = siteEntropies;
 	}
 	/**
 	 * @return the numberOfTaxa
@@ -234,6 +286,18 @@ public class SitewiseSpecificLikelihoodSupport implements Serializable{
 	 */
 	public AlignedSequenceRepresentation getDataset() {
 		return dataset;
+	}
+	/**
+	 * @return the parameters
+	 */
+	public TreeMap<AamlParameters, String> getParameters() {
+		return parameters;
+	}
+	/**
+	 * @param parameters the parameters to set
+	 */
+	public void setParameters(TreeMap<AamlParameters, String> parameters) {
+		this.parameters = parameters;
 	}
 	/**
 	 * @param inputFileName the inputFileName to set
@@ -415,6 +479,10 @@ public class SitewiseSpecificLikelihoodSupport implements Serializable{
 	}
 	public void fillOutAndVerify() {
 		// TODO Auto-generated method stub
-		
+		this.finished = new Date(System.currentTimeMillis());
+	}
+	
+	public long elapsed(){
+		return started.compareTo(finished);
 	}
 }

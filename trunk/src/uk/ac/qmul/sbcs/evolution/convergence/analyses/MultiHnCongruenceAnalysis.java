@@ -282,7 +282,7 @@ public class MultiHnCongruenceAnalysis {
 			/* Pasting in the Aaml H0 from old go() method.. lots of this could be abstracted */
 			/* we want to populate a SSLS object eventually... */
 			SSLS = new SitewiseSpecificLikelihoodSupport(sourceDataASR);
-			this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aamlTreeOne.out");
+			this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aaml.out");
 			TreeMap<AamlParameters, String> parameters = new TreeMap<AamlParameters, String>();
 			parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
 			parameters.put(AamlParameters.TREEFILE, "treefile = "+this.mainTreesFilePruned.getAbsolutePath());
@@ -293,7 +293,7 @@ public class MultiHnCongruenceAnalysis {
 			AamlAnalysisSGE treeOneAaml = new AamlAnalysisSGE(datasets, treefiles, parameters,"aamlOnTreeOne.ctl");
 			treeOneAaml.setBinaryDir(this.binariesLocation.getAbsoluteFile());
 			treeOneAaml.setExecutionBinary(new File(treeOneAaml.getBinaryDir(),"codeml"));
-			treeOneAaml.setWorkingDir(new File("./"));
+			treeOneAaml.setWorkingDir(new File("./")); // BIG - will this work on the cluster?
 			treeOneAaml.setNumberOfTreesets(this.mainTrees.getNumberOfTrees());
 			SSLS.setParameters((TreeMap<AamlParameters, String>) parameters.clone());
 			treeOneAaml.RunAnalysis();
@@ -314,15 +314,20 @@ public class MultiHnCongruenceAnalysis {
 			 * and SSLS would be serialised (to be later inflated in client)
 			 */
 			
+			SSLS.setDoFilter(filterByFactor);
+			SSLS.setFilterFactor(filter);
 			SSLS.setInputFileName(this.dataset.getName());
 			SSLS.setInputFile(this.dataset);
 			SSLS.setNumberOfModels(1);
+			SSLS.setNumberOfSites(this.sourceDataASR.getNumberOfSites());
+			SSLS.setNumberOfSitePatterns(treeOneAaml.getPatternSSLS().size());
 			SSLS.setNumberOfTopologies(mainTrees.getNumberOfTrees());
 			SSLS.setNumberOfTaxa(mainTrees.getNumberOfTaxa());
 			SSLS.setModel(thisModel);
-			SSLS.parseAamlOutput(aaH0AnalysisOutputFile);
 			SSLS.setTaxaList(taxaList);
+			SSLS.setNumberOfSeries(SSLS.getNumberOfModels() * SSLS.getNumberOfTopologies());
 			SSLS.setPatternLikelihoods(treeOneAaml.getAllPatternSSLS());
+			SSLS.parseAamlOutput(aaH0AnalysisOutputFile);
 			SSLS.fillOutAndVerify();
 			
 			try {

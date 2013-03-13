@@ -156,7 +156,11 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 		long ssls1_elapsed = SSLS1.elapsed();
 		long ssls2_elapsed = SSLS2.elapsed();
 		long ssls3_elapsed = SSLS3.elapsed();
+		long ssls_1_elapsedMillis = SSLS1.getFinished().getTime() - SSLS1.getStarted().getTime();
+		long ssls_2_elapsedMillis = SSLS2.getFinished().getTime() - SSLS2.getStarted().getTime();
+		long ssls_3_elapsedMillis = SSLS3.getFinished().getTime() - SSLS3.getStarted().getTime();
 		System.out.println(ssls1_elapsed +"\n"+ ssls2_elapsed +"\n"+ ssls3_elapsed);
+		System.out.println(ssls_1_elapsedMillis +"\n"+ ssls_2_elapsedMillis +"\n"+ ssls_3_elapsedMillis);
 		assert(true);
 	}
 }

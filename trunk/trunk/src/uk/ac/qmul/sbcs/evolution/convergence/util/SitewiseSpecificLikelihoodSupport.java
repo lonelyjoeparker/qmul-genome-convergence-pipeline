@@ -2,6 +2,8 @@ package uk.ac.qmul.sbcs.evolution.convergence.util;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TreeMap;
@@ -41,28 +43,101 @@ public class SitewiseSpecificLikelihoodSupport implements Serializable{
 	private Date finished;
 	private TreeMap<AamlParameters, String> parameters;
 	private String model;
-	private HashMap<String,Integer> patternMapping;
+	private HashMap<String,Integer> patternMapping;	
 	private TreeSet<String> taxaList;
 	private TreeMap<String,Float>[] patternLikelihoods;
+	private float homogeneityChiSq;
+	private float[][] frequenciesMatrix;
 	private float[] treeLengths;
+	private String[] fittedTrees;
+	private float[] meanlnL;
+	private float[] alpha;
 	private float[] li;
 	private float[] pKH;
 	private float[] pRELL;
 	private float[] pSH;
 	private boolean[] preferred;
-	private float[] meanlnL;
-	private float[] alpha;
 	private float[][] SSLSseriesSitewise;
 	private float[][] SSLSseriesPatternwise;
 	private float[][] dSSLSseriesSitewise;
 	private float[][] dSSLSseriesPatternwise;
-	private String[] patterns;
-	private float[] patternEntropies;
-	private String[] sites;
-	private float[] siteEntropies;
-	private char[][] datasetAsCharMatrix; 
+	private String[] patterns;						// patterns, in order of lnf file, as String[]
+	private float[] patternEntropies;				// entropy of each pattern
+	private String[] sites;							// TRANSPOSED sites (eqivalent to patterns), in alignment order, as String[]
+	private float[] siteEntropies;					// entropy of each transposed site (equivalent to patterns)
+	private char[][] datasetAsCharMatrix; 			// dataset (alignment) as char[][]
+	private char[][] transposedDatasetAsCharMatrix; // TRANSPOSED dataset (alignment) as char[][]
 	private AlignedSequenceRepresentation dataset;
+	private boolean doFilter;
+	private int filterFactor;
 	
+	/**
+	 * @return the serialversionuid
+	 */
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+	/**
+	 * @return the homogeneityChiSq
+	 */
+	public float getHomogeneityChiSq() {
+		return homogeneityChiSq;
+	}
+	/**
+	 * @param homogeneityChiSq the homogeneityChiSq to set
+	 */
+	public void setHomogeneityChiSq(float homogeneityChiSq) {
+		this.homogeneityChiSq = homogeneityChiSq;
+	}
+
+	/**
+	 * @return the frequenciesMatrix
+	 */
+	public float[][] getFrequenciesMatrix() {
+		return frequenciesMatrix;
+	}
+	/**
+	 * @return the fittedTrees
+	 */
+	public String[] getFittedTrees() {
+		return fittedTrees;
+	}
+	/**
+	 * @return the doFilter
+	 */
+	public boolean isDoFilter() {
+		return doFilter;
+	}
+	/**
+	 * @return the filterFactor
+	 */
+	public int getFilterFactor() {
+		return filterFactor;
+	}
+	/**
+	 * @param frequenciesMatrix the frequenciesMatrix to set
+	 */
+	public void setFrequenciesMatrix(float[][] frequenciesMatrix) {
+		this.frequenciesMatrix = frequenciesMatrix;
+	}
+	/**
+	 * @param fittedTrees the fittedTrees to set
+	 */
+	public void setFittedTrees(String[] fittedTrees) {
+		this.fittedTrees = fittedTrees;
+	}
+	/**
+	 * @param doFilter the doFilter to set
+	 */
+	public void setDoFilter(boolean doFilter) {
+		this.doFilter = doFilter;
+	}
+	/**
+	 * @param filterFactor the filterFactor to set
+	 */
+	public void setFilterFactor(int filterFactor) {
+		this.filterFactor = filterFactor;
+	}
 	public SitewiseSpecificLikelihoodSupport(){}
 	public SitewiseSpecificLikelihoodSupport(AlignedSequenceRepresentation asr){
 		this.dataset = asr;
@@ -473,16 +548,280 @@ public class SitewiseSpecificLikelihoodSupport implements Serializable{
 	 * @param aaH0AnalysisOutputFile - an Aaml output file
 	 * Should parse the Aaml output to get parameters like pSH, alpha, fitted trees etc
 	 */
-	public void parseAamlOutput(File aaH0AnalysisOutputFile) {
-		// TODO Auto-generated method stub
+	public void parseAamlOutput(File aamlAnalysisOutputFile) {
+		ArrayList<String> aamlData = new CapitalisedFileReader().loadSequences(aamlAnalysisOutputFile, false);
 		
+		// SSLS object variables we're hoping to parse
+		this.alpha 			= new float[this.numberOfTopologies];
+		this.treeLengths 	= new float[this.numberOfTopologies];
+		this.meanlnL 		= new float[this.numberOfTopologies];
+		this.fittedTrees	= new String[this.numberOfTopologies];
+		this.li				= new float[this.numberOfTopologies];
+		this.pKH			= new float[this.numberOfTopologies];
+		this.pRELL			= new float[this.numberOfTopologies];
+		this.pSH			= new float[this.numberOfTopologies];
+		this.frequenciesMatrix = new float[this.numberOfTaxa][20];
+		this.preferred		= new boolean[this.numberOfTopologies];		// this to be calculated at the end
+
+		// Variables for parsing flags etc
+		int whichTreeTreeComparison; 	// an int var that describes which topology in the aaml file we're parsing - within the TREE COMPARISON; *not* initialised here
+		int whichTree = -1; 			// an int var that describes which topology in the aaml file we're parsing
+		int freqMatRow = 0;					// an int var for row of freq. matrix
+		boolean inFreqMatrix = false;
+		boolean inTreeComparison = false;
+		
+		for(String line:aamlData){
+			if(line != null){
+				String[] tokens = line.split(" ");
+				String[] nonEmptyTokens0 = this.getSubsetOfEntriesLongerThan(0, tokens);
+				String[] nonEmptyTokens1 = this.getSubsetOfEntriesLongerThan(1, tokens);
+
+				// flag for freq mat OFF
+				if(line.startsWith("HOMOGENEITY STATISTIC: X2")){
+					inFreqMatrix = false;
+					try {
+						this.homogeneityChiSq = Float.parseFloat(nonEmptyTokens1[3]);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						this.homogeneityChiSq = Float.NaN;
+						e.printStackTrace();
+					}
+					freqMatRow = 0;
+				}
+				
+				// check for frequencies matrix (set flag if so etc)
+				if(inFreqMatrix){
+					// freq mat stuff	
+					if(nonEmptyTokens1.length>0){
+						for(int i=1;i<nonEmptyTokens0.length;i++){
+							try {
+								this.frequenciesMatrix[freqMatRow][i-1] = Float.parseFloat(nonEmptyTokens0[i]);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								this.frequenciesMatrix[freqMatRow][i-1] = Float.NaN;
+								e.printStackTrace();
+							}
+						}
+						freqMatRow++;
+					}else{
+						freqMatRow = 0;
+					}
+				}
+
+				// flag for freq mat ON
+				if(line.startsWith("FREQUENCIES..")){
+					inFreqMatrix = true;
+				}
+				
+				// check for lnL
+				if(line.startsWith("LNL(NTIME:")){
+					float lnl;
+					try {
+						lnl = Float.parseFloat(nonEmptyTokens1[4]);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						lnl = Float.NaN;
+						e.printStackTrace();
+					}
+					this.meanlnL[whichTree] = lnl;
+				}
+
+				// check for alpha
+				if(tokens[0].equals("JOE_PARAM_ALPHA")){
+					float alpha;
+					try {
+						alpha = Float.parseFloat(nonEmptyTokens1[nonEmptyTokens1.length]);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						alpha = Float.NaN;
+						e.printStackTrace();
+					}
+					this.alpha[whichTree] = alpha;
+				}
+
+				// check for tree length
+				if(tokens[0].equals("JOE_PARAM_TREELENGTHTREE")){
+					float length;
+					try {
+						length = Float.parseFloat(nonEmptyTokens1[3]);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						length = Float.NaN;
+						e.printStackTrace();
+					}
+					this.treeLengths[whichTree] = length;
+				}
+
+				// check for fitted tree
+				if(tokens[0].startsWith("JOE_PARAM_TREEZXCV")){
+					String fittedTree = line.substring(18);
+					this.fittedTrees[whichTree] = fittedTree;
+				}
+
+				// tree comparison flag OFF
+				if(line.startsWith("PKH: P VALUE FOR KH")){
+					inTreeComparison = false;
+				}
+
+				// check for {li,pKH,pRELL,pSH} etc (tree comparison table; set flag if so etc)
+				if(inTreeComparison){
+					try{
+						String potentialTree = nonEmptyTokens0[0];
+						if(potentialTree.endsWith("*")){
+							potentialTree = potentialTree.substring(0, potentialTree.length()-1);
+							this.preferred[Integer.parseInt(potentialTree) - 1] = true;
+						}
+						whichTreeTreeComparison = Integer.parseInt(potentialTree) - 1;
+						try{
+							this.li[whichTreeTreeComparison] = Float.parseFloat(nonEmptyTokens0[1]);
+						}catch(Exception ex){
+							this.li[whichTreeTreeComparison] = Float.NaN;
+							ex.printStackTrace();
+						}
+						try{
+							this.pKH[whichTreeTreeComparison] = Float.parseFloat(nonEmptyTokens0[4]);
+						}catch(Exception ex){
+							this.pKH[whichTreeTreeComparison] = Float.NaN;
+							ex.printStackTrace();
+						}
+						try{
+							this.pRELL[whichTreeTreeComparison] = Float.parseFloat(nonEmptyTokens0[5]);
+						}catch(Exception ex){
+							this.pRELL[whichTreeTreeComparison] = Float.NaN;
+							ex.printStackTrace();
+						}
+						try{
+							this.pSH[whichTreeTreeComparison] = Float.parseFloat(nonEmptyTokens0[6]);
+						}catch(Exception ex){
+							this.pSH[whichTreeTreeComparison] = Float.NaN;
+							ex.printStackTrace();
+						}
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+
+
+				// tree comparison flag ON
+				if(line.startsWith("  TREE           LI       DLI")){
+					inTreeComparison = true;
+				}
+
+				// check for flag to increment whichTree
+				if(tokens[0].equals("TREE") && tokens[1].equals("#")){
+					whichTree++;
+				}
+			}
+		}
+		
+		//TODO calculate preferred 
 	}
+
+	public void parseBasemlOutput(File basemlAnalysisOutputFile) {}
+	
+	public void parseCodemlOutput(File codemlAnalysisOutputFile) {}
+	
+	public void parsePamlOutput(File pamlAnalysisOutputFile) {}
+	
+	/**
+	 * Method to expand out site patterns, transposed sites into correct arrays.
+	 * 
+	 * patternLikelihoods --> 
+	 * 		float[#patterns][#trees]  SSLSseriesPatternwise <b>and</b> String[] patterns
+	 * 
+	 * sites --> 
+	 * 		char [#taxa][#sites] dataSetAsCharMatrix
+	 * 
+	 * sitesMatrix --> 
+	 * 		char[][] transposedDatasetAsCharMatrix <b>and</b> sitePatterns
+	 * 
+	 * transposedSites <b>and</b> patternLikelihoods --> 
+	 * 		float[#sites][#trees] SSLS seriesSitewise
+	 *
+	 */
 	public void fillOutAndVerify() {
-		// TODO Auto-generated method stub
+		// try and do some rudimentary assertions
+		assert(this.patternLikelihoods != null);
+		assert(this.dataset != null);
+		
+		// initialise 
+		this.SSLSseriesPatternwise = new float[this.numberOfSitePatterns][this.numberOfTopologies];
+		this.patterns = new String[this.numberOfSitePatterns];
+		this.datasetAsCharMatrix = new char[this.numberOfTaxa][this.numberOfSites];
+		this.transposedDatasetAsCharMatrix = new char[this.numberOfSites][this.numberOfTaxa];
+		this.sites = new String[this.numberOfSites];
+		this.SSLSseriesSitewise = new float[this.numberOfSites][this.numberOfTopologies];
+		
+		/*
+		 * patternLikelihoods --> 
+		 * 		float[#patterns][#trees]  SSLSseriesPatternwise <b>and</b> String[] patterns
+		 */
+		patterns = (String[]) this.patternLikelihoods[0].keySet().toArray(new String[0]);
+		for(int whichTree = 0;whichTree<this.numberOfTopologies;whichTree++){
+			for(int i=0;i<this.numberOfSitePatterns;i++){
+				this.SSLSseriesPatternwise[i][whichTree] = this.patternLikelihoods[whichTree].get(patterns[i]);
+			}
+		}
+
+		/*
+		 * sitesMatrix --> 
+		 * 		char[][] transposedDatasetAsCharMatrix <b>and</b> sitePatterns
+		 */
+		this.sites = this.dataset.getTransposedSites();
+		for(int i=0; i<this.numberOfSites;i++){
+			this.transposedDatasetAsCharMatrix[i] = this.sites[i].toCharArray();
+		}		
+		
+		/*
+		 * sites --> 
+		 * 		char [#taxa][#sites] dataSetAsCharMatrix
+		 */
+		String[] taxaListArray = (String[]) this.dataset.getTaxaList().toArray(new String[0]);
+		for(int i=0;i<taxaListArray.length;i++){
+			for(int j=0;j<this.numberOfSites;j++){
+				this.datasetAsCharMatrix[i][j] = this.transposedDatasetAsCharMatrix[j][i];
+			}
+		}
+		
+
+		/*
+		 * transposedSites <b>and</b> patternLikelihoods --> 
+		 * 		float[#sites][#trees] SSLS seriesSitewise
+		 */
+		for(int whichTree = 0;whichTree<this.numberOfTopologies;whichTree++){
+			for(int i=0; i<this.numberOfSites;i++){
+				String thisObservedPattern = this.sites[i];
+				this.SSLSseriesSitewise[i][whichTree] = this.patternLikelihoods[whichTree].get(thisObservedPattern);
+			}		
+		}
+		
 		this.finished = new Date(System.currentTimeMillis());
 	}
 	
 	public long elapsed(){
-		return started.compareTo(finished);
+		return finished.compareTo(started);
+	}
+	
+	private String[] getSubsetOfEntriesLongerThan(int limit,String[] someParsedStringArray){
+		int matchingEntries = 0;
+		for(String entry:someParsedStringArray){
+			if(entry.length()>limit){
+				matchingEntries++;
+			}
+		}
+		if(matchingEntries>0){
+			String[] nonEmptyRetArray = new String[matchingEntries];
+			int entriesAdded = 0;
+			for(String entry:someParsedStringArray){
+				if(entry.length()>limit){
+					nonEmptyRetArray[entriesAdded] = entry;
+					entriesAdded++;
+				}
+			}
+			
+			return nonEmptyRetArray;
+		}else{
+			return new String[0];
+		}
 	}
 }

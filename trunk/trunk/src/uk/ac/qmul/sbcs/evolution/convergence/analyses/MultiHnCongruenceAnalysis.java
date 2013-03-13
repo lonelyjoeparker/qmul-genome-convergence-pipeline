@@ -36,7 +36,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.RAxMLAnalysisSGE;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.AamlParameters;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
-import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupport;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
 
@@ -150,19 +150,18 @@ public class MultiHnCongruenceAnalysis {
 	 * 	Global variables added for this refactoring (06/03/2013)
 	 */
 	private String[] modelsList;
-	private SitewiseSpecificLikelihoodSupport[] results;
+	private SitewiseSpecificLikelihoodSupportAaml[] results;
 	private File mainTreesFile;
 	private File constraintTreeFile;
 	private File labelledTreesFile;
 	private File mainTreesFilePruned;
 	private File labelledTreesFilePruned;
+	private File constraintTreeFilePruned;
 	private NewickTreeRepresentation mainTrees;
 	private NewickTreeRepresentation constraintTree;
 	private NewickTreeRepresentation labelledTrees;
 	private NewickTreeRepresentation resolvedTree;
 	private TreeSet<String> excludedTaxa;
-	private File prunedMainTreesFile;
-	private File prunedLabelledTreesFile;
 
 	
 	/**
@@ -215,6 +214,7 @@ public class MultiHnCongruenceAnalysis {
 		this.filterByFactor = doFactor;
 		this.mainTreesFilePruned = new File(this.mainTreesFile.getAbsoluteFile()+".pruned.tre");
 		this.labelledTreesFilePruned = new File(this.labelledTreesFile.getAbsoluteFile()+".pruned.tre");
+		this.constraintTreeFilePruned = new File(this.constraintTreeFile.getAbsoluteFile()+".pruned.tre");
 	}
 
 	/**
@@ -258,6 +258,7 @@ public class MultiHnCongruenceAnalysis {
 		
 		/* Resolve old H2(3) topology by RAxML -g */
 		/* NB THIS ASSUMES A SINGLE TREE */
+		this.constraintTree.write(this.constraintTreeFilePruned);
 		this.resolvedTree = this.resolveTopologyWithSubtreeConstraint(this.constraintTree);
 		
 		
@@ -274,14 +275,14 @@ public class MultiHnCongruenceAnalysis {
 		
 		/* For each model, get lnL site patterns, for all trees */
 		
-		SitewiseSpecificLikelihoodSupport SSLS;
+		SitewiseSpecificLikelihoodSupportAaml SSLS;
 		
 		for(int i=0;i<modelsList.length;i++){
 			String thisModel = modelsList[i];
 			/* Get the lnL for this */
 			/* Pasting in the Aaml H0 from old go() method.. lots of this could be abstracted */
 			/* we want to populate a SSLS object eventually... */
-			SSLS = new SitewiseSpecificLikelihoodSupport(sourceDataASR);
+			SSLS = new SitewiseSpecificLikelihoodSupportAaml(sourceDataASR);
 			this.aaH0AnalysisOutputFile = new File(workDir.getAbsolutePath()+"/aaml.out");
 			TreeMap<AamlParameters, String> parameters = new TreeMap<AamlParameters, String>();
 			parameters.put(AamlParameters.SEQFILE, "seqfile = "+pamlDataFileAA.getAbsolutePath());
@@ -297,6 +298,8 @@ public class MultiHnCongruenceAnalysis {
 			treeOneAaml.setNumberOfTreesets(this.mainTrees.getNumberOfTrees());
 			SSLS.setParameters((TreeMap<AamlParameters, String>) parameters.clone());
 			treeOneAaml.RunAnalysis();
+
+			/*
 			TreeMap<String, Float> aaDataTreeOneSSLS = treeOneAaml.getPatternSSLS();
 			float[] aaDataSSLSlnL0 = new float[aaDataTreeOneSSLS.size()];
 			Iterator dataSSLSItr0 = aaDataTreeOneSSLS.keySet().iterator();
@@ -305,8 +308,9 @@ public class MultiHnCongruenceAnalysis {
 				aaDataSSLSlnL0[sIndex] = aaDataTreeOneSSLS.get(dataSSLSItr0.next());
 				sIndex++;
 			}
+			*/
 //			treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
-			treeH0ObservedlnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS));
+//			treeH0ObservedlnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS));
 			
 			/**
 			 * At this point everything would be loaded into a SitewiseSpecificLikelihoodSupport object
@@ -331,7 +335,7 @@ public class MultiHnCongruenceAnalysis {
 			SSLS.fillOutAndVerify();
 			
 			try {
-				FileOutputStream fileOutOne = new FileOutputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS."+thisModel+".ser");
+				FileOutputStream fileOutOne = new FileOutputStream(this.workDir.getAbsolutePath()+"/"+this.workDir.getName()+this.runID+thisModel+".ser");
 				ObjectOutputStream outOne;
 				outOne = new ObjectOutputStream(fileOutOne);
 				outOne.writeObject(SSLS);
@@ -361,7 +365,7 @@ public class MultiHnCongruenceAnalysis {
 	}
 
 	private NewickTreeRepresentation resolveTopologyWithSubtreeConstraint(NewickTreeRepresentation constraintTree2) {
-		RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, this.constraintTreeFile, runID, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
+		RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, this.constraintTreeFilePruned, runID, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
 		ra.setTreeConstraint(true);
 		ra.setMultifuricatingConstraint(true);
 		ra.setNoStartTree(true);

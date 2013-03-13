@@ -1,14 +1,14 @@
 package uk.ac.qmul.sbcs.evolution.convergence.tests;
 
-import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupport;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 import junit.framework.TestCase;
 import java.io.*;
 
 public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase {
 
-	SitewiseSpecificLikelihoodSupport SSLS1;
-	SitewiseSpecificLikelihoodSupport SSLS2;
-	SitewiseSpecificLikelihoodSupport SSLS3;
+	SitewiseSpecificLikelihoodSupportAaml SSLS1;
+	SitewiseSpecificLikelihoodSupportAaml SSLS2;
+	SitewiseSpecificLikelihoodSupportAaml SSLS3;
 
 	
 	public SitewiseSpecificLikelihoodSupportSerializationTest() {
@@ -27,13 +27,13 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 	}
 
 	public void testSerialization(){
-		SSLS1 = new SitewiseSpecificLikelihoodSupport();
+		SSLS1 = new SitewiseSpecificLikelihoodSupportAaml();
 		float[] SSLS1a = new float[2];
 		SSLS1a[0] = 0.04f;
 		SSLS1a[1] = 0.02f;
 		SSLS1.setAlpha(SSLS1a);
 		SSLS1.setInputFileName("ssls one");
-		SSLS2 = new SitewiseSpecificLikelihoodSupport();
+		SSLS2 = new SitewiseSpecificLikelihoodSupportAaml();
 		SSLS1a[0] = 10.04f;
 		SSLS1a[1] = 40.02f;
 		SSLS2.setAlpha(SSLS1a);
@@ -74,7 +74,7 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 		try {
 			FileInputStream fileInOne = new FileInputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.1.ser");
 			ObjectInputStream inOne = new ObjectInputStream(fileInOne);
-			SSLS1 = (SitewiseSpecificLikelihoodSupport) inOne.readObject();
+			SSLS1 = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -89,7 +89,7 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 		try {
 			FileInputStream fileInTwo = new FileInputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.2.ser");
 			ObjectInputStream inTwo = new ObjectInputStream(fileInTwo);
-			SSLS2 = (SitewiseSpecificLikelihoodSupport) inTwo.readObject();
+			SSLS2 = (SitewiseSpecificLikelihoodSupportAaml) inTwo.readObject();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -109,7 +109,7 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 		try {
 			FileInputStream fileInOne = new FileInputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.wag.ser");
 			ObjectInputStream inOne = new ObjectInputStream(fileInOne);
-			SSLS1 = (SitewiseSpecificLikelihoodSupport) inOne.readObject();
+			SSLS1 = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -124,7 +124,7 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 		try {
 			FileInputStream fileInTwo = new FileInputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.jones.ser");
 			ObjectInputStream inTwo = new ObjectInputStream(fileInTwo);
-			SSLS2 = (SitewiseSpecificLikelihoodSupport) inTwo.readObject();
+			SSLS2 = (SitewiseSpecificLikelihoodSupportAaml) inTwo.readObject();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -139,7 +139,7 @@ public class SitewiseSpecificLikelihoodSupportSerializationTest extends TestCase
 		try {
 			FileInputStream fileInTwo = new FileInputStream("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/SSLS.dayhoff.ser");
 			ObjectInputStream inTwo = new ObjectInputStream(fileInTwo);
-			SSLS3 = (SitewiseSpecificLikelihoodSupport) inTwo.readObject();
+			SSLS3 = (SitewiseSpecificLikelihoodSupportAaml) inTwo.readObject();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

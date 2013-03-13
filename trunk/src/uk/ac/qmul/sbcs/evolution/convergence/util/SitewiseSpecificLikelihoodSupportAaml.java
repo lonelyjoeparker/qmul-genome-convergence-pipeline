@@ -26,7 +26,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.Aam
  * 
  */
 
-public class SitewiseSpecificLikelihoodSupport implements Serializable{
+public class SitewiseSpecificLikelihoodSupportAaml implements Serializable{
 	/**
 	 * 
 	 */
@@ -138,13 +138,13 @@ public class SitewiseSpecificLikelihoodSupport implements Serializable{
 	public void setFilterFactor(int filterFactor) {
 		this.filterFactor = filterFactor;
 	}
-	public SitewiseSpecificLikelihoodSupport(){}
-	public SitewiseSpecificLikelihoodSupport(AlignedSequenceRepresentation asr){
+	public SitewiseSpecificLikelihoodSupportAaml(){}
+	public SitewiseSpecificLikelihoodSupportAaml(AlignedSequenceRepresentation asr){
 		this.dataset = asr;
 		this.started = new Date(System.currentTimeMillis());
 	}
-	public SitewiseSpecificLikelihoodSupport(AlignedSequenceRepresentation asr, int taxa, int trees, int sites, int patterns, TreeMap<String,Float>[] lnLpatterns){}
-	public SitewiseSpecificLikelihoodSupport(AlignedSequenceRepresentation asr, int taxa, int trees, int sites, int patterns, TreeMap<String,Float>[] lnLpatterns, String datasetID, String[] models){}
+	public SitewiseSpecificLikelihoodSupportAaml(AlignedSequenceRepresentation asr, int taxa, int trees, int sites, int patterns, TreeMap<String,Float>[] lnLpatterns){}
+	public SitewiseSpecificLikelihoodSupportAaml(AlignedSequenceRepresentation asr, int taxa, int trees, int sites, int patterns, TreeMap<String,Float>[] lnLpatterns, String datasetID, String[] models){}
 
 	/**
 	 * @return the inputFileName
@@ -630,7 +630,7 @@ public class SitewiseSpecificLikelihoodSupport implements Serializable{
 				if(tokens[0].equals("JOE_PARAM_ALPHA")){
 					float alpha;
 					try {
-						alpha = Float.parseFloat(nonEmptyTokens1[nonEmptyTokens1.length]);
+						alpha = Float.parseFloat(nonEmptyTokens1[nonEmptyTokens1.length-1]);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						alpha = Float.NaN;

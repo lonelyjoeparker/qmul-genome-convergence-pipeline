@@ -59,7 +59,7 @@ public class NewickTreeRepresentation {
 		this.numberOfTaxa = taxaNames.size();
 		this.separateTopologies = new String[this.numberOfTrees];
 		if(this.numberOfTrees>0){
-			this.separateTopologies = this.treeString.split("\n");
+			this.separateTopologies = this.treeString.split(";");
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}
@@ -78,7 +78,7 @@ public class NewickTreeRepresentation {
 		this.numberOfTaxa = taxaNames.size();
 		this.separateTopologies = new String[this.numberOfTrees];
 		if(this.numberOfTrees>0){
-			this.separateTopologies = this.treeString.split("\n");
+			this.separateTopologies = this.treeString.split(";");
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}
@@ -87,7 +87,7 @@ public class NewickTreeRepresentation {
 	public NewickTreeRepresentation(String tree, TreeSet<String> names){
 		this.treeString = tree;
 		this.taxaNames = names;
-		this.numberOfTrees = treeString.split("\n").length;
+		this.numberOfTrees = treeString.split(";").length;
 		this.numberOfTaxa = taxaNames.size();
 		this.separateTopologies = new String[this.numberOfTrees];
 		if(this.numberOfTrees>0){
@@ -305,7 +305,12 @@ public class NewickTreeRepresentation {
 
 	public NewickTreeRepresentation concatenate(NewickTreeRepresentation r) throws TaxaListsMismatchException {
 		if(this.taxaNames == r.getTaxaNames()){
-			String concatenatedTreeString = this.treeString + "\n" + r.getTreeString();
+			String concatenatedTreeString;
+			if(this.treeString.endsWith("\n")){
+				concatenatedTreeString = this.treeString  + r.getTreeString();
+			}else{
+				concatenatedTreeString = this.treeString + "\n" + r.getTreeString();
+			}
 			return new NewickTreeRepresentation(concatenatedTreeString, this.taxaNames);
 		}else{
 			throw new TaxaListsMismatchException();

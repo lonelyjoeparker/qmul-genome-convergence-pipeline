@@ -239,7 +239,7 @@ public class MultiHnCongruenceAnalysis {
 
 		if(this.excludedTaxa.size()>0){
 			/* Not all the taxa given in the taxa list are there. Pruning of input trees required */
-
+		
 			/* Prune input trees */
 			
 			this.pruneInputTrees();

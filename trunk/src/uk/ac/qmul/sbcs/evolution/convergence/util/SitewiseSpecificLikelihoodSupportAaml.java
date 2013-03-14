@@ -759,7 +759,13 @@ public class SitewiseSpecificLikelihoodSupportAaml implements Serializable{
 		patterns = (String[]) this.patternLikelihoods[0].keySet().toArray(new String[0]);
 		for(int whichTree = 0;whichTree<this.numberOfTopologies;whichTree++){
 			for(int i=0;i<this.numberOfSitePatterns;i++){
-				this.SSLSseriesPatternwise[i][whichTree] = this.patternLikelihoods[whichTree].get(patterns[i]);
+				try {
+					this.SSLSseriesPatternwise[i][whichTree] = this.patternLikelihoods[whichTree].get(patterns[i]);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					System.err.println("Failed to transpose patterns matrix on pattern ["+i+"] and tree ["+whichTree+"]");
+					e.printStackTrace();
+				}
 			}
 		}
 

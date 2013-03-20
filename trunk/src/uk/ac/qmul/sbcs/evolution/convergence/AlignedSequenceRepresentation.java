@@ -378,7 +378,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 		int maxNoOfSites = 0;
 		System.out.println("Processing a phylip file");
 		String firstline = rawInput.remove(0);
-		String[] firstlineData = firstline.split(" {1,}");
+		String[] firstlineData = firstline.split(" {1,}|\t");
 		assert(firstlineData.length>1);
 //		System.out.println(firstlineData[0]+" taxa, "+firstlineData[1]+" characters");
 		for(String aline:rawInput){

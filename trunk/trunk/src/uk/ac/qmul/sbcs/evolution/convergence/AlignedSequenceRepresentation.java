@@ -1766,4 +1766,8 @@ public class AlignedSequenceRepresentation implements Serializable {
 			this.stripGapsPreserveCodons();
 		}
 	}
+	
+	public HashMap<Integer, Integer> getInputIndices(){
+		return null;
+	}
 }

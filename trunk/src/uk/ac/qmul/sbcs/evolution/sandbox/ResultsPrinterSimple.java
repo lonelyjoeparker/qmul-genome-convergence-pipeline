@@ -22,9 +22,10 @@ public class ResultsPrinterSimple{
 
 	static String arg1;
 	boolean printSites = false;
+	int maxTrees;
 	File dir;
 
-	public ResultsPrinterSimple(String arg12, String arg2) {
+	public ResultsPrinterSimple(String arg12, String arg2, String maxtreesInt) {
 		// TODO Auto-generated constructor stub
 		this.arg1 = arg12;
 		this.dir = new File(arg1);
@@ -34,12 +35,16 @@ public class ResultsPrinterSimple{
 				this.printSites = true;
 			}
 		}
+		if(maxtreesInt != null){
+			this.maxTrees = Integer.parseInt(maxtreesInt);
+		}
 	}
 
 	public ResultsPrinterSimple(String arg12) {
 		// TODO Auto-generated constructor stub
 		this.arg1 = arg12;
 		this.dir = new File(arg1);
+		this.maxTrees = 0;
 		this.printSites = false;
 	}
 	public ResultsPrinterSimple() {
@@ -52,7 +57,7 @@ public class ResultsPrinterSimple{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			new ResultsPrinterSimple(args[0], args[1]).go();
+			new ResultsPrinterSimple(args[0], args[1], args[2]).go();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			new ResultsPrinterSimple(args[0]).go();
@@ -65,7 +70,26 @@ public class ResultsPrinterSimple{
 		StringBuffer bufMain = new StringBuffer();
 		StringBuffer bufTree = new StringBuffer();
 
-		bufMain.append("locus\tensembl_URL\tshortcode\tdescription\thomog\tmodel\tmissingData\tlnl (species tree)\tlength (species tree)\tmodel alpha\tnumberOfTaxa\tnumberOfSites\tpreferredTopology\td_lnL_H1\td_lnL_H2 (old H2, not in paper, HARD bat-bat polytomy)\td_lnL_H3 (old H3, 'H2' in the paper, HARD polytomy)\td_lnL_H4 (H2a)\td_lnL_H5 (H2b)\td_lnL_H6 (H2c)\td_lnL_H7 (H2d)\td_lnL_H8 (H2e)\td_lnL_H9 (H2f)\td_lnL_H10 (H2g)\td_lnL_H12_random\td_lnL_H12_random\td_lnL_H13_random\td_lnL_H14_random\td_lnL_H15_random\td_lnL_H16_random\td_lnL_H17_random\td_lnL_H18_random\td_lnL_H19_random\td_lnL_H20_random\td_lnL_H21 (H2 resolved by ML)\tdSSLS_H1\tdSSLS_H2 (old H2, not in paper, HARD bat-bat polytomy)\tdSSLS_H3 (old H3, 'H2' in the paper, HARD polytomy)\tdSSLS_H4 (H2a)\tdSSLS_H5 (H2b)\tdSSLS_H6 (H2c)\tdSSLS_H7 (H2d)\tdSSLS_H8 (H2e)\tdSSLS_H9 (H2f)\tdSSLS_H10 (H2g)\tdSSLS_H12_random\tdSSLS_H12_random\tdSSLS_H13_random\tdSSLS_H14_random\tdSSLS_H15_random\tdSSLS_H16_random\tdSSLS_H17_random\tdSSLS_H18_random\tdSSLS_H19_random\tdSSLS_H20_random\tdSSLS_H21 (H2 resolved by ML)\tnumSitesBigDiff_H1\tnumSitesBigDiff_H2 (old H2, not in paper, HARD bat-bat polytomy)\tnumSitesBigDiff_H3 (old H3, 'H2' in the paper, HARD polytomy)\tnumSitesBigDiff_H4 (H2a)\tnumSitesBigDiff_H5 (H2b)\tnumSitesBigDiff_H6 (H2c)\tnumSitesBigDiff_H7 (H2d)\tnumSitesBigDiff_H8 (H2e)\tnumSitesBigDiff_H9 (H2f)\tnumSitesBigDiff_H10 (H2g)\tnumSitesBigDiff_H11_random\tnumSitesBigDiff_H12_random\tnumSitesBigDiff_H13_random\tnumSitesBigDiff_H14_random\tnumSitesBigDiff_H15_random\tnumSitesBigDiff_H16_random\tnumSitesBigDiff_H17_random\tnumSitesBigDiff_H18_random\tnumSitesBigDiff_H19_random\tnumSitesBigDiff_H20_random\tnumSitesBigDiff_H21 (H2 resolved by ML)\n");
+//		bufMain.append("locus\tensembl_URL\tshortcode\tdescription\thomog\tmodel\tmissingData\tlnl (species tree)\tlength (species tree)\tmodel alpha\tnumberOfTaxa\tnumberOfSites\tpreferredTopology\td_lnL_H1\td_lnL_H2 (old H2, not in paper, HARD bat-bat polytomy)\td_lnL_H3 (old H3, 'H2' in the paper, HARD polytomy)\td_lnL_H4 (H2a)\td_lnL_H5 (H2b)\td_lnL_H6 (H2c)\td_lnL_H7 (H2d)\td_lnL_H8 (H2e)\td_lnL_H9 (H2f)\td_lnL_H10 (H2g)\td_lnL_H12_random\td_lnL_H12_random\td_lnL_H13_random\td_lnL_H14_random\td_lnL_H15_random\td_lnL_H16_random\td_lnL_H17_random\td_lnL_H18_random\td_lnL_H19_random\td_lnL_H20_random\td_lnL_H21 (H2 resolved by ML)\tdSSLS_H1\tdSSLS_H2 (old H2, not in paper, HARD bat-bat polytomy)\tdSSLS_H3 (old H3, 'H2' in the paper, HARD polytomy)\tdSSLS_H4 (H2a)\tdSSLS_H5 (H2b)\tdSSLS_H6 (H2c)\tdSSLS_H7 (H2d)\tdSSLS_H8 (H2e)\tdSSLS_H9 (H2f)\tdSSLS_H10 (H2g)\tdSSLS_H12_random\tdSSLS_H12_random\tdSSLS_H13_random\tdSSLS_H14_random\tdSSLS_H15_random\tdSSLS_H16_random\tdSSLS_H17_random\tdSSLS_H18_random\tdSSLS_H19_random\tdSSLS_H20_random\tdSSLS_H21 (H2 resolved by ML)\tt∆SSLS_H1\tt∆SSLS_H2\tt∆SSLS_H3\tt∆SSLS_H4\tt∆SSLS_H5\tt∆SSLS_H6\tt∆SSLS_H7\tt∆SSLS_H8\tt∆SSLS_H9\tt∆SSLS_H10\tt∆SSLS_H12_random\tt∆SSLS_H12_random\tt∆SSLS_H13_random\tt∆SSLS_H14_random\tt∆SSLS_H15_random\tt∆SSLS_H16_random\tt∆SSLS_H17_random\tt∆SSLS_H18_random\tt∆SSLS_H19_random\tt∆SSLS_H20_random\tt∆SSLS_H21 (H2 resolved by ML)\tnumSitesBigDiff_H1\tnumSitesBigDiff_H2 (old H2, not in paper, HARD bat-bat polytomy)\tnumSitesBigDiff_H3 (old H3, 'H2' in the paper, HARD polytomy)\tnumSitesBigDiff_H4 (H2a)\tnumSitesBigDiff_H5 (H2b)\tnumSitesBigDiff_H6 (H2c)\tnumSitesBigDiff_H7 (H2d)\tnumSitesBigDiff_H8 (H2e)\tnumSitesBigDiff_H9 (H2f)\tnumSitesBigDiff_H10 (H2g)\tnumSitesBigDiff_H11_random\tnumSitesBigDiff_H12_random\tnumSitesBigDiff_H13_random\tnumSitesBigDiff_H14_random\tnumSitesBigDiff_H15_random\tnumSitesBigDiff_H16_random\tnumSitesBigDiff_H17_random\tnumSitesBigDiff_H18_random\tnumSitesBigDiff_H19_random\tnumSitesBigDiff_H20_random\tnumSitesBigDiff_H21 (H2 resolved by ML)\n");
+		bufMain.append("locus\tensembl_URL\tshortcode\tdescription\thomog\tmodel\tmissingData\tlnl (species tree)\tlength (species tree)\tmodel alpha\tnumberOfTaxa\tnumberOfSites\tpreferredTopology");
+//		"d_lnL_H1\td_lnL_H2 (old H2, not in paper, HARD bat-bat polytomy)\td_lnL_H3 (old H3, 'H2' in the paper, HARD polytomy)\td_lnL_H4 (H2a)\td_lnL_H5 (H2b)\td_lnL_H6 (H2c)\td_lnL_H7 (H2d)\td_lnL_H8 (H2e)\td_lnL_H9 (H2f)\td_lnL_H10 (H2g)\td_lnL_H12_random\td_lnL_H12_random\td_lnL_H13_random\td_lnL_H14_random\td_lnL_H15_random\td_lnL_H16_random\td_lnL_H17_random\td_lnL_H18_random\td_lnL_H19_random\td_lnL_H20_random\td_lnL_H21 (H2 resolved by ML)
+//		"\tdSSLS_H1\tdSSLS_H2 (old H2, not in paper, HARD bat-bat polytomy)\tdSSLS_H3 (old H3, 'H2' in the paper, HARD polytomy)\tdSSLS_H4 (H2a)\tdSSLS_H5 (H2b)\tdSSLS_H6 (H2c)\tdSSLS_H7 (H2d)\tdSSLS_H8 (H2e)\tdSSLS_H9 (H2f)\tdSSLS_H10 (H2g)\tdSSLS_H12_random\tdSSLS_H12_random\tdSSLS_H13_random\tdSSLS_H14_random\tdSSLS_H15_random\tdSSLS_H16_random\tdSSLS_H17_random\tdSSLS_H18_random\tdSSLS_H19_random\tdSSLS_H20_random\tdSSLS_H21 (H2 resolved by ML)
+//		\tt∆SSLS_H1\tt∆SSLS_H2\tt∆SSLS_H3\tt∆SSLS_H4\tt∆SSLS_H5\tt∆SSLS_H6\tt∆SSLS_H7\tt∆SSLS_H8\tt∆SSLS_H9\tt∆SSLS_H10\tt∆SSLS_H12_random\tt∆SSLS_H12_random\tt∆SSLS_H13_random\tt∆SSLS_H14_random\tt∆SSLS_H15_random\tt∆SSLS_H16_random\tt∆SSLS_H17_random\tt∆SSLS_H18_random\tt∆SSLS_H19_random\tt∆SSLS_H20_random\tt∆SSLS_H21 (H2 resolved by ML)
+//		\tnumSitesBigDiff_H1\tnumSitesBigDiff_H2 (old H2, not in paper, HARD bat-bat polytomy)\tnumSitesBigDiff_H3 (old H3, 'H2' in the paper, HARD polytomy)\tnumSitesBigDiff_H4 (H2a)\tnumSitesBigDiff_H5 (H2b)\tnumSitesBigDiff_H6 (H2c)\tnumSitesBigDiff_H7 (H2d)\tnumSitesBigDiff_H8 (H2e)\tnumSitesBigDiff_H9 (H2f)\tnumSitesBigDiff_H10 (H2g)\tnumSitesBigDiff_H11_random\tnumSitesBigDiff_H12_random\tnumSitesBigDiff_H13_random\tnumSitesBigDiff_H14_random\tnumSitesBigDiff_H15_random\tnumSitesBigDiff_H16_random\tnumSitesBigDiff_H17_random\tnumSitesBigDiff_H18_random\tnumSitesBigDiff_H19_random\tnumSitesBigDiff_H20_random\tnumSitesBigDiff_H21 (H2 resolved by ML)\n");
+		
+		for(int i=1;i<this.maxTrees;i++){
+			bufMain.append("\td_lnL_H"+i);
+		}
+		for(int i=1;i<this.maxTrees;i++){
+			bufMain.append("\tdSSLS_H"+i);
+		}
+		for(int i=1;i<this.maxTrees;i++){
+			bufMain.append("\ttSSLS_H"+i);
+		}
+		for(int i=1;i<this.maxTrees;i++){
+			bufMain.append("\tnumThresh_H"+i);
+		}
+		bufMain.append("\n");
 		bufTree.append("#NEXUS\nbegin trees;\n");
 
 		HashMap<String, String> lociData = this.initMetadata();
@@ -106,8 +130,8 @@ public class ResultsPrinterSimple{
 									buf.append(nameSplit[5]+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}
 
-								if((fittedTrees.length == 22)&&(someRun.getNumberOfTaxa()==22)){
-									bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+nameSplit[5]+" = [&R] "+fittedTrees[21]+"\n");
+								if((fittedTrees.length == this.maxTrees)&&(someRun.getNumberOfTaxa()==22)){
+									bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+nameSplit[5]+" = [&R] "+fittedTrees[(this.maxTrees-1)]+"\n");	// this is a bit of a fudge, we're looking for the random tree really, if one's not been specified it won't be there...
 								}
 								//							System.out.println("Fitted topologies: ");
 								//							System.out.println("\ttree\talpha\tpSH\tlnL\tlengths\ttopology");
@@ -127,7 +151,7 @@ public class ResultsPrinterSimple{
 									System.out.print("\t"+prefTree);
 									buf.append("\t"+prefTree);
 								}
-								for(int k=1;k<22;k++){
+								for(int k=1;k<this.maxTrees;k++){
 									float dlnL;
 									try {
 										dlnL = (sli[0]-sli[k]);
@@ -141,28 +165,34 @@ public class ResultsPrinterSimple{
 								}
 								//							AlignedSequenceRepresentation asr = someRun.getDataset();
 								//						asr.printShortSequences(30);
-								int[] largeDeltas = new int[21];
+								int[] largeDeltas = new int[(this.maxTrees-1)];
 								float[][] SSLS = someRun.getSSLSseriesSitewise();
 								float[] lnLsums = new float[someRun.getNumberOfTopologies()];
-								BigDecimal[] diffsSummed = new BigDecimal[21];
-								for(int i=0;i<21;i++){
+								BigDecimal[] diffsSummed = new BigDecimal[(this.maxTrees-1)];
+								BigDecimal[] diffsSummedThresh = new BigDecimal[(this.maxTrees-1)];
+								for(int i=0;i<(this.maxTrees-1);i++){
 									diffsSummed[i] = new BigDecimal(0);
+									diffsSummedThresh[i] = new BigDecimal(0);
 								}
 								for(int j=0;j<someRun.getNumberOfSites();j++){
 									lnLsums[0] = lnLsums[0] + SSLS[j][0];
-									lnLsums[21] = lnLsums[21] + SSLS[j][21];
+									lnLsums[(this.maxTrees-1)] = lnLsums[(this.maxTrees-1)] + SSLS[j][(this.maxTrees-1)];
 								}
 								if(this.printSites){
 									System.out.println();
 								}
 								for(int j=0;j<nSites;j++){
 									//								System.out.print(someRun.getSites()[j]);
-									for(int k=1;k<22;k++){
+									for(int k=1;k<this.maxTrees;k++){
 										float dSSLS;
 										try {
 											lnLsums[k] = lnLsums[k] + SSLS[j][k];
 											dSSLS = SSLS[j][0] - SSLS[j][k];
-											diffsSummed[(k-1)] = diffsSummed[(k-1)].add(new BigDecimal(SSLS[j][0] - SSLS[j][k]));
+											BigDecimal thisDiffBD = new BigDecimal(SSLS[j][0] - SSLS[j][k]);
+											diffsSummed[(k-1)] = diffsSummed[(k-1)].add(thisDiffBD);
+											if(Math.abs(thisDiffBD.doubleValue())>0.1){
+												diffsSummedThresh[(k-1)] = diffsSummedThresh[(k-1)].add(thisDiffBD);
+											}
 										} catch (Exception e) {
 											// TODO Auto-generated catch block
 											dSSLS = Float.NaN;
@@ -179,11 +209,19 @@ public class ResultsPrinterSimple{
 										System.out.println();
 									}
 								}
-								float[] lnLsumDiffs = new float[21];
-								float[] lnLsumAvg = new float[21];
-								float[] lnLsumDiffAvgs = new float[21];
-								for(int k=0;k<21;k++){
+								float[] lnLsumDiffs 	= new float[(this.maxTrees-1)];
+								float[] lnLsumAvg 		= new float[(this.maxTrees-1)];
+								float[] lnLsumDiffAvgs 	= new float[(this.maxTrees-1)];
+								for(int k=0;k<(this.maxTrees-1);k++){
+									// Average the ∆SSLS
 									BigDecimal avgOfSummedDiffs = diffsSummed[k].divide(new BigDecimal(nSites),RoundingMode.HALF_EVEN);
+									String AOSD = String.format("%.16f",avgOfSummedDiffs);
+									System.out.print("\t"+AOSD);
+									buf.append("\t"+AOSD);
+								}
+								for(int k=0;k<(this.maxTrees-1);k++){
+									// Average the ∆SSLS (threshold-corrected values)
+									BigDecimal avgOfSummedDiffs = diffsSummedThresh[k].divide(new BigDecimal(nSites),RoundingMode.HALF_EVEN);
 									String AOSD = String.format("%.16f",avgOfSummedDiffs);
 									System.out.print("\t"+AOSD);
 									buf.append("\t"+AOSD);

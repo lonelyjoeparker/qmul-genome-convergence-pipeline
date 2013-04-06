@@ -204,6 +204,7 @@ public class SitewiseSpecificLikelihoodSupportAaml implements Serializable{
 	 * @return the numberOfTaxa
 	 */
 	public int getNumberOfTaxa() {
+		this.numberOfTaxa = this.dataset.getNumberOfTaxa();
 		return numberOfTaxa;
 	}
 	/**

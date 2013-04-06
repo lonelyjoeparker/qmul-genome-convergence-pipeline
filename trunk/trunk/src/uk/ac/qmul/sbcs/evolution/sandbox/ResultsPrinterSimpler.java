@@ -18,14 +18,14 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 
-public class ResultsPrinterCDF{
+public class ResultsPrinterSimpler{
 
 	static String arg1;
 	boolean printSites = false;
 	int maxTrees;
 	File dir;
 
-	public ResultsPrinterCDF(String arg12, String arg2, String maxtreesInt) {
+	public ResultsPrinterSimpler(String arg12, String arg2, String maxtreesInt) {
 		// TODO Auto-generated constructor stub
 		this.arg1 = arg12;
 		this.dir = new File(arg1);
@@ -40,14 +40,14 @@ public class ResultsPrinterCDF{
 		}
 	}
 
-	public ResultsPrinterCDF(String arg12) {
+	public ResultsPrinterSimpler(String arg12) {
 		// TODO Auto-generated constructor stub
 		this.arg1 = arg12;
 		this.dir = new File(arg1);
 		this.maxTrees = 0;
 		this.printSites = false;
 	}
-	public ResultsPrinterCDF() {
+	public ResultsPrinterSimpler() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -57,10 +57,10 @@ public class ResultsPrinterCDF{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			new ResultsPrinterCDF(args[0], args[1], args[2]).go();
+			new ResultsPrinterSimpler(args[0], args[1], args[2]).go();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			new ResultsPrinterCDF(args[0]).go();
+			new ResultsPrinterSimpler(args[0]).go();
 			e.printStackTrace();
 		}
 	}

@@ -18,8 +18,6 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 
-import jsc.goodnessfit.KolmogorovTest;
-
 public class ResultsPrinterSimple{
 
 	static String arg1;
@@ -118,18 +116,6 @@ public class ResultsPrinterSimple{
 								float[] pSH = someRun.getpSH();
 								float[] sli = someRun.getLi();
 								float[] lengths = someRun.getTreeLengths();
-
-								/*
-								 * Hacky quick thing Sat night to check this works 
-								 * *really* ought to do in a proper testbed for production code..
-								 */
-								double[] testDouble = new double[alphas.length];
-								for(int counter=0;counter<testDouble.length; counter++){
-									testDouble[counter] = alphas[counter];
-								}
-								KolmogorovTest ks = new KolmogorovTest(testDouble, new jsc.distributions.Discrete());
-								double kD = ks.getTestStatistic();	
-								double pD = ks.getSP();
 								boolean[] preferred = someRun.getPreferred();
 								String[] fittedTrees = someRun.getFittedTrees();
 								int nTax = someRun.getNumberOfTaxa();

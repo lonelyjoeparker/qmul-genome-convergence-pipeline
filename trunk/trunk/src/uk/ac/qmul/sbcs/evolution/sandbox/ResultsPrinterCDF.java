@@ -127,7 +127,7 @@ public class ResultsPrinterCDF{
 								for(int counter=0;counter<testDouble.length; counter++){
 									testDouble[counter] = alphas[counter];
 								}
-								KolmogorovTest ks = new KolmogorovTest(testDouble, new jsc.distributions.Discrete());
+								KolmogorovTest ks = new KolmogorovTest(testDouble, new jsc.distributions.Normal(1.0f, 0.25f));
 								double kD = ks.getTestStatistic();	
 								double pD = ks.getSP();
 								boolean[] preferred = someRun.getPreferred();

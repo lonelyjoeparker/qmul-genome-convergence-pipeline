@@ -26,6 +26,9 @@ public class EmpiricalDistributionTest extends TestCase {
 	double[] norm_10 = {5.7633638667616f,6.39802453645112f,4.75428644078549f,5.68351492957594f,6.1875414048615f,5.54739491703022f,5.78275240047244f,4.81502628423033f,4.93636421207665f,3.96353158612114f,5.21219941981893f,5.4310849397964f,2.91225993150518f,4.01424944417459f,4.18085534127271f,5.49409098352079f,4.86387738765962f,4.92171254794222f,6.54323395876331f,6.00583230420153f,4.69602008483443f};
 	double[] norm5 = {4.12044236252056f,3.50979062375186f,6.62513059005838f,4.31996468214842f,6.41398749422907f,4.68360388453782f,5.49941207522795f,4.50533450337568f,6.52952016087318f,4.47154240056864f,5.07314166432082f,6.52378491714482f,4.66536650455161f,6.70806582828734f,7.07819172092462f,4.44320164272203f,3.61840779373539f,4.77155875391304f,6.03317841423138f,4.43413813122948f,5.26195237787355f};
 	double[] norm_5 = {-3.80748223856822f,-5.75077164896431f,-3.3267984143375f,-4.07695338688592f,-4.92837429453196f,-5.83751845517887f,-4.98852233485545f,-4.78730748167994f,-6.5122338538245f,-4.77525803582946f,-3.85880205303318f,-4.75541150502231f,-4.84580506880202f,-7.32034278508732f,-3.05172271444051f,-5.48393140018985f,-5.05252061174948f,-4.81640785318711f,-4.02223193637001f,-4.12751611259949f,-3.94840819380712};
+	// ks stuff for distributions on (0:1]
+	double[] order1 = {0,0.0344827586206897,0.0689655172413793,0.103448275862069,0.137931034482759,0.172413793103448,0.206896551724138,0.241379310344828,0.275862068965517,0.310344827586207,0.344827586206897,0.379310344827586,0.413793103448276,0.448275862068966,0.482758620689655,0.517241379310345,0.551724137931034,0.586206896551724,0.620689655172414,0.655172413793103,0.689655172413793,0.724137931034483,0.758620689655172,0.793103448275862,0.827586206896552,0.862068965517241,0.896551724137931,0.931034482758621,0.96551724137931,1};
+	double[] unif1 = {0.526772355660796,0.398782416479662,0.901285741012543,0.455820410279557,0.642212885431945,0.861228563589975,0.215375886065885,0.184008366661146,0.778669717721641,0.534172367071733,0.882508781040087,0.356307946611196,0.936016893479973,0.245627876371145,0.538643065374345,0.638791358564049,0.158813018817455,0.155748213874176,0.0135723217390478,0.529211234068498,0.24575675977394,0.971221415093169,0.384230916155502,0.874618443660438,0.549820814514533,0.781037411885336,0.618207290768623,0.699134208029136,0.487841309746727,0.0582582557108253};
 	BigDecimal interval = new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(100));
 	double[] functionRange = {-20.0d,20.0d};
 	
@@ -91,8 +94,11 @@ public class EmpiricalDistributionTest extends TestCase {
 	public void testKSBasic(){
 		ProbabilityDensityFunction pdf = new ProbabilityDensityFunction(ordered,functionRange,new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(10)));
 		ProbabilityDensityFunction pdf2 = new ProbabilityDensityFunction(uniff,functionRange,new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(10)));
+		ProbabilityDensityFunction pdf_order1 = new ProbabilityDensityFunction(order1,functionRange,new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(10)));
+		ProbabilityDensityFunction pdf_unif1 = new ProbabilityDensityFunction(unif1,functionRange,new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(10)));
 		EmpiricalDistribution ed = new EmpiricalDistribution(pdf.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
 		EmpiricalDistribution ed2 = new EmpiricalDistribution(pdf2.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
+		EmpiricalDistribution edunif1 = new EmpiricalDistribution(pdf_unif1.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
 		KolmogorovTest ks = new KolmogorovTest(ed2.getWholeCDF(), ed);
 		double kD = ks.getTestStatistic();	
 		double pD = ks.getSP();
@@ -102,6 +108,26 @@ public class EmpiricalDistributionTest extends TestCase {
 		pD = ks.getSP();
 		System.out.println(kD + "\t" + pD);
 		ks = new KolmogorovTest(uniff, ed);
+		kD = ks.getTestStatistic();	
+		pD = ks.getSP();
+		System.out.println(kD + "\t" + pD);
+		ks = new KolmogorovTest(pdf_order1.getFunction(), edunif1);
+		kD = ks.getTestStatistic();	
+		pD = ks.getSP();
+		System.out.println(kD + "\t" + pD);
+		ks = new KolmogorovTest(order1, edunif1);
+		kD = ks.getTestStatistic();	
+		pD = ks.getSP();
+		System.out.println(kD + "\t" + pD);
+		ks = new KolmogorovTest(order1, new jsc.distributions.Uniform());
+		kD = ks.getTestStatistic();	
+		pD = ks.getSP();
+		System.out.println(kD + "\t" + pD);
+		ks = new KolmogorovTest(pdf_order1.getFunction(), new jsc.distributions.Uniform());
+		kD = ks.getTestStatistic();	
+		pD = ks.getSP();
+		System.out.println(kD + "\t" + pD);
+		ks = new KolmogorovTest(unif1, new jsc.distributions.Uniform());
 		kD = ks.getTestStatistic();	
 		pD = ks.getSP();
 		System.out.println(kD + "\t" + pD);

@@ -24,8 +24,24 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 		// TODO Auto-generated constructor stub
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see jsc.distributions.Distribution#cdf(double)
+	 */
+	/**
+	 * <p>This method implemented according to jsc.distributions.Distribution, although a <i>similar</i> method occurs in cern.jet.random.Empirical
+	 * <br>In that case <pre>Empirical.cdf(int i)</pre> simply returns the ith bin from the CDF. 
+	 * <p>This is clearly not compatible with jsc.distributions.Distribution.cdf(double val) which would seem to expect a value of the CDF on (0:1] for a given value.
+	 * <br>This implies that the PDF may have been similarly transformed to a unit distribution. If so, a similar transformation should apply here, and the call to cdf(double val) would need to be mapped to the correct CDF bin.
+	 * <br>On the other hand, if the untransformed distribution is used then some way of retained the bins is needed. 
+	 * <p>It might be worth overloading the constructor to accept a ProbabilityDensityFunction so that the ProbabilityDensityFunction.binIntervals can be retained.
+	 * 
+	 * @see jsc.distributions.Distribution#cdf(double)
+	 * @param val - TODO: Not sure yet. <i>Either</i> the proportion of observations on (0:1], <i>or</i> a real-valued variate from the observed data.
+	 * 
+	 */
 	@Override
-	public double cdf(double arg0) {
+	public double cdf(double val) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

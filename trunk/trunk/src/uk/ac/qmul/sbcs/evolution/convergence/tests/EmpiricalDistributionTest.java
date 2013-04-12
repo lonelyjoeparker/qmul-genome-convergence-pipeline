@@ -19,6 +19,7 @@ import junit.framework.TestCase;
  */
 public class EmpiricalDistributionTest extends TestCase {
 
+	// a bunch of distributions on (-10:10)
 	double[] ordered = {-10.0f,-9.0f,-8.0f,-7.0f,-6.0f,-5.0f,-4.0f,-3.0f,-2.0f,-1.0f,0.0f,1.0f,2.0f,3.0f,4.0f,5.0f,6.0f,7.0f,8.0f,9.0f,10f};
 	double[] uniff = {-6.35918084997684f,-3.93759851809591f,-2.21174590289593f,-1.24442126601934f, 3.04381834808737f,-8.2444783160463f,-5.95814447849989f,0.0671290513128042f,1.97554216720164f,0.875178603455424f,4.69742903951555f,-6.42660288605839f,9.176234616898f,-9.40432901959866f,-0.732000516727567f,-5.7827518042177f,-4.51565932482481f,6.52691628783941f,7.89572019129992f,1.31803135387599f,-1.22617395594716f};
 	double[] unif10 = {1.02738475659862f,1.50811678031459f,3.19657302228734f,4.21244767261669f,8.40045061893761f,5.29490644112229f,5.59071297058836f,2.08167154341936f,9.11403979640454f,9.07950394088402f,1.92111485404894f,1.08860559063032f,2.02587054576725f,8.21685578208417f,7.37943846033886f,6.59235533326864f,4.41377065842971f,4.75730574922636f,5.40445396210998f,3.02306494442746f,4.83131889021024f};
@@ -29,8 +30,9 @@ public class EmpiricalDistributionTest extends TestCase {
 	// ks stuff for distributions on (0:1]
 	double[] order1 = {0,0.0344827586206897,0.0689655172413793,0.103448275862069,0.137931034482759,0.172413793103448,0.206896551724138,0.241379310344828,0.275862068965517,0.310344827586207,0.344827586206897,0.379310344827586,0.413793103448276,0.448275862068966,0.482758620689655,0.517241379310345,0.551724137931034,0.586206896551724,0.620689655172414,0.655172413793103,0.689655172413793,0.724137931034483,0.758620689655172,0.793103448275862,0.827586206896552,0.862068965517241,0.896551724137931,0.931034482758621,0.96551724137931,1};
 	double[] unif1 = {0.526772355660796,0.398782416479662,0.901285741012543,0.455820410279557,0.642212885431945,0.861228563589975,0.215375886065885,0.184008366661146,0.778669717721641,0.534172367071733,0.882508781040087,0.356307946611196,0.936016893479973,0.245627876371145,0.538643065374345,0.638791358564049,0.158813018817455,0.155748213874176,0.0135723217390478,0.529211234068498,0.24575675977394,0.971221415093169,0.384230916155502,0.874618443660438,0.549820814514533,0.781037411885336,0.618207290768623,0.699134208029136,0.487841309746727,0.0582582557108253};
-	BigDecimal interval = new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(100));
+	BigDecimal interval = new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(32));
 	double[] functionRange = {-20.0d,20.0d};
+	double[] functionRangeUnit = {-0d,1.0d};
 	
 	
 	/*
@@ -91,11 +93,80 @@ public class EmpiricalDistributionTest extends TestCase {
 		super.tearDown();
 	}
 
+	public void testKS_config01(){
+		/*
+		 * ordered and unif 
+		 * D = 0.1905, p-value = 0.8531
+		 * 
+		 */
+		KolmogorovTest ks;
+		ProbabilityDensityFunction pdf_ordered = new ProbabilityDensityFunction(ordered,functionRange,interval);
+		ProbabilityDensityFunction pdf_uniform = new ProbabilityDensityFunction(uniff,  functionRange,interval);
+		EmpiricalDistribution ed_ordered = new EmpiricalDistribution(pdf_ordered.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
+		EmpiricalDistribution ed_uniform = new EmpiricalDistribution(pdf_uniform.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
+		
+		// use CDF of ED
+		ks = new KolmogorovTest(ed_uniform.getWholeCDF(), ed_ordered);
+		System.out.println("using CDF\t"+ks.getD() + "\t" + ks.getSP());
+
+		// use PDF (of PDF class)
+		ks = new KolmogorovTest(pdf_uniform.getFunction(), ed_ordered);
+		System.out.println("using PDF\t"+ks.getD() + "\t" + ks.getSP());
+		
+		// use raw vals
+//		ks = new KolmogorovTest(uniff, ed_ordered);
+//		System.out.println("using val\t"+ks.getD() + "\t" + ks.getSP());
+		
+		// think. hard.
+	}
+
+	public void testKS_config02_unitDist(){
+		/*
+		 * ordered and unif 
+		 * D = 0.1, p-value = 0.9988
+		 * 
+		 */
+		KolmogorovTest ks;
+		ProbabilityDensityFunction pdf_ordered = new ProbabilityDensityFunction(order1,functionRangeUnit,interval);
+		ProbabilityDensityFunction pdf_uniform = new ProbabilityDensityFunction(unif1,  functionRangeUnit,interval);
+		EmpiricalDistribution ed_ordered = new EmpiricalDistribution(pdf_ordered.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
+		EmpiricalDistribution ed_uniform = new EmpiricalDistribution(pdf_uniform.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
+		System.out.println("estimated D^\t" + ed_ordered.estimateD(ed_uniform));
+		System.out.println("estimated D^\t" + ed_ordered.estimateD(ed_ordered));
+		System.out.println("estimated D^\t" + ed_uniform.estimateD(ed_ordered));
+		System.out.println("estimated D^\t" + ed_uniform.estimateD(ed_uniform));
+		
+		BigDecimal[] binLimits_unif = pdf_uniform.getBinLimits();
+		double[] pdf_vals_unif = pdf_uniform.getFunction();
+		double[] cdf_vals_unif = ed_uniform.getWholeCDF();
+		BigDecimal[] binLimits_ord = pdf_ordered.getBinLimits();
+		double[] pdf_vals_ord = pdf_ordered.getFunction();
+		double[] cdf_vals_ord = ed_ordered.getWholeCDF();
+		
+		for(int i=0;i<binLimits_unif.length;i++){
+			System.out.println(i+"\t"+binLimits_unif[i].floatValue()+"\t"+pdf_vals_unif[i]+"\t"+cdf_vals_unif[i]+"\t"+binLimits_ord[i].floatValue()+"\t"+pdf_vals_ord[i]+"\t"+cdf_vals_ord[i]);
+		}
+		
+		// use CDF of ED
+		ks = new KolmogorovTest(ed_uniform.getWholeCDF(), ed_ordered);
+		System.out.println("unit: using CDF\t"+ks.getD() + "\t" + ks.getSP());
+
+		// use PDF (of PDF class)
+		ks = new KolmogorovTest(pdf_uniform.getFunction(), ed_ordered);
+		System.out.println("unit: using PDF\t"+ks.getD() + "\t" + ks.getSP());
+		
+		// use raw vals
+		ks = new KolmogorovTest(unif1, ed_ordered);
+		System.out.println("unit: using val\t"+ks.getD() + "\t" + ks.getSP());
+		
+		// think. hard.
+	}
+	
 	public void testKSBasic(){
-		ProbabilityDensityFunction pdf = new ProbabilityDensityFunction(ordered,functionRange,new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(10)));
-		ProbabilityDensityFunction pdf2 = new ProbabilityDensityFunction(uniff,functionRange,new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(10)));
-		ProbabilityDensityFunction pdf_order1 = new ProbabilityDensityFunction(order1,functionRange,new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(10)));
-		ProbabilityDensityFunction pdf_unif1 = new ProbabilityDensityFunction(unif1,functionRange,new BigDecimal(1,MathContext.DECIMAL128).divide(new BigDecimal(10)));
+		ProbabilityDensityFunction pdf = new ProbabilityDensityFunction(ordered,functionRange,interval);
+		ProbabilityDensityFunction pdf2 = new ProbabilityDensityFunction(uniff,functionRange,interval);
+		ProbabilityDensityFunction pdf_order1 = new ProbabilityDensityFunction(order1,functionRange,interval);
+		ProbabilityDensityFunction pdf_unif1 = new ProbabilityDensityFunction(unif1,functionRange,interval);
 		EmpiricalDistribution ed = new EmpiricalDistribution(pdf.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
 		EmpiricalDistribution ed2 = new EmpiricalDistribution(pdf2.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
 		EmpiricalDistribution edunif1 = new EmpiricalDistribution(pdf_unif1.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
@@ -107,10 +178,13 @@ public class EmpiricalDistributionTest extends TestCase {
 		kD = ks.getTestStatistic();	
 		pD = ks.getSP();
 		System.out.println(kD + "\t" + pD);
+/*
 		ks = new KolmogorovTest(uniff, ed);
 		kD = ks.getTestStatistic();	
 		pD = ks.getSP();
 		System.out.println(kD + "\t" + pD);
+ *	illegal range
+ */
 		ks = new KolmogorovTest(pdf_order1.getFunction(), edunif1);
 		kD = ks.getTestStatistic();	
 		pD = ks.getSP();
@@ -130,6 +204,6 @@ public class EmpiricalDistributionTest extends TestCase {
 		ks = new KolmogorovTest(unif1, new jsc.distributions.Uniform());
 		kD = ks.getTestStatistic();	
 		pD = ks.getSP();
-		System.out.println(kD + "\t" + pD);
+		System.out.println("LOOK - unif vals\t"+kD + "\t" + pD);
 	}
 }

@@ -40,9 +40,12 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 	 * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution#EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator)
 	 */
 	public EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator, ProbabilityDensityFunction originalPDF) {
-		this.untransformedData = originalPDF;
 		super(pdf, interpolationType, randomGenerator);
+		this.untransformedData = originalPDF;
 		// TODO cannot invoke super(), will have to nick the constructor from Empirical. 
+		// TODO this is a massive fix, need a call to transformToUniform - not 
+		double[] transformedPDF = this.transformToUnit(untransformedData);
+		super.setState(transformedPDF, interpolationType);
 	}
 
 	/**
@@ -62,10 +65,16 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 		// TODO Auto-generated constructor stub
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see jsc.distributions.Distribution#cdf(double)
+	/**
+	 * 
+	 * @param pdf - a probability density function
+	 * @return a pdf on (0:1]
 	 */
+	private double[] transformToUnit(ProbabilityDensityFunction untransformed) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * <p>This method implemented according to jsc.distributions.Distribution, although a <i>similar</i> method occurs in cern.jet.random.Empirical
 	 * <br>In that case <pre>Empirical.cdf(int i)</pre> simply returns the ith bin from the CDF. 

@@ -218,4 +218,9 @@ public class ProbabilityDensityFunction {
 			this.sum += someDensity;
 		}
 	}
+
+	public BigDecimal[] getBinLimits() {
+		// TODO Auto-generated method stub
+		return this.binLimits;
+	}
 }

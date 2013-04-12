@@ -53,12 +53,12 @@ public class EmpiricalDistributionsSandbox {
 			// other implementations
 			Uniform uniformCERN = new Uniform(RandomEngine.makeDefault());
 			jsc.distributions.Uniform uniformJSC = new jsc.distributions.Uniform();
-			Empirical eded = new Empirical(pdf_unif1.getFunction(),Empirical.LINEAR_INTERPOLATION,RandomEngine.makeDefault());
+			Empirical empiricalCERN = new Empirical(pdf_unif1.getFunction(),Empirical.LINEAR_INTERPOLATION,RandomEngine.makeDefault());
 			
 			// compare
 			for(int i=0;i<10;i++){
 				double val = i/10.0f;
-				System.out.println("val: "+val+"\t"+i+"\t"+uniformCERN.cdf(val)+"\t"+uniformJSC.cdf(val)+"\t"+ed_uniff.cdf(val)+"\t"+ed_unif10.cdf(val)+"\t"+ed_unif1.cdf(val)+"\t"+eded.cdf(i));
+				System.out.println("val: "+val+"\t"+i+"\t"+uniformCERN.cdf(val)+"\t"+uniformJSC.cdf(val)+"\t"+ed_uniff.cdf(val)+"\t"+ed_unif10.cdf(val)+"\t"+ed_unif1.cdf(val)+"\t"+empiricalCERN.cdf(i));
 			}
 			
 	//	}

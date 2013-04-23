@@ -52,43 +52,79 @@ public class PairedEmpiricalTest extends TestCase {
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#PairedEmpirical(double[], double[])}.
 	 */
 	public void testPairedEmpirical() {
-		fail("Not yet implemented"); // TODO
 		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
-		p.getKS();
+		double D_direct = p.getKS();
+		double D_estimated = p.getApproxD();
+		if(Math.abs((D_direct - D_estimated)) > 0.01){
+			fail("D estimates do not match:\t"+D_direct+"\t"+D_estimated);
+		}else{
+			System.out.println("D estimates:\t"+D_direct+"\t"+D_estimated);
+			
+		}
 	}
 
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#getKS()}.
 	 */
 	public void testGetKS() {
-		fail("Not yet implemented"); // TODO
+		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
+		double D_direct = p.getKS();
+		double D_estimated = p.getApproxD();
+		if(Math.abs((D_direct - D_estimated)) > 0.01){
+			fail("D estimates do not match:\t"+D_direct+"\t"+D_estimated);
+		}else{
+			System.out.println("D estimates:\t"+D_direct+"\t"+D_estimated);
+		}
 	}
 
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#getKS_sp()}.
 	 */
 	public void testGetKS_sp() {
-		fail("Not yet implemented"); // TODO
+		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
+		double SP = p.getKS_sp();
+		if(!((SP >= 0)&&(SP <= 1))){
+			fail("P-value is bobbins");
+		}else{
+			System.out.println("P estimates:\t"+SP);			
+		}
 	}
 
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#getDensity_A(double)}.
 	 */
 	public void testGetDensity_A() {
-		fail("Not yet implemented"); // TODO
+		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
+		for(int i=0;i<uniff.length;i++){
+			double density = p.getDensity_A(uniff[i]);
+			if(!((density >= 0)&&(density <= 1))){
+				fail("density "+density+" is bobbins");
+			}else{
+				System.out.println("density estimate:\t"+uniff[i]+"\t"+density);			
+			}
+		}
 	}
 
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#getDensity_B(double)}.
 	 */
 	public void testGetDensity_B() {
-		fail("Not yet implemented"); // TODO
+		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
+		for(int i=0;i<ordered.length;i++){
+			double density = p.getDensity_B(ordered[i]);
+			if(!((density >= 0)&&(density <= 1))){
+				fail("density "+density+" is bobbins");
+			}else{
+				System.out.println("density estimate:\t"+uniff[i]+"\t"+density);			
+			}
+		}
 	}
 
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#getDensityOverlapAt(double)}.
 	 */
 	public void testGetDensityOverlapAt() {
+		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
 		fail("Not yet implemented"); // TODO
 	}
 
@@ -96,6 +132,7 @@ public class PairedEmpiricalTest extends TestCase {
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#getDensity_A_at_percentile_B(double)}.
 	 */
 	public void testGetDensity_A_at_percentile_B() {
+		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
 		fail("Not yet implemented"); // TODO
 	}
 

@@ -12,10 +12,12 @@ import cern.jet.random.engine.RandomEngine;
  * @version 0.1
  * @since r145 2013/04/07
  * 
- * A class extending cern.jet.random.Emprirical and implementing jsc.distributions.Distribution; to allow for a jsc.goodnessfit.KolmolgorovTest
- * This still requires input data to be represented as a probability density function; use ProbabilityDensityFunction for this.
+ * A class extending cern.jet.random.Emprirical and implementing {@link jsc.distributions.Distribution}; to allow for a {@link jsc.goodnessfit.KolmogorovTest}
+ * This still requires input data to be represented as a probability density function; use {@link ProbabilityDensityFunction} for this.
  * 
  * @see ProbabilityDensityFunction
+ * @see jsc.distributions.Distribution
+ * @see jsc.goodnessfit.KolmogorovTest
  */
 public class EmpiricalDistribution extends Empirical implements Distribution {
 
@@ -27,6 +29,45 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 	private ProbabilityDensityFunction untransformedData;
 	private double[] untransformedCDF;
 	
+	/**
+	 * Overloaded constructor, <i>specifically</i> intended to allow input probability density functions that <b>do not</b> satisfy 0 ² F(x) ² 1 to be transformed to 0 ² F(x) ² 1, <i>so that</i> they can give meaningful K-S test D^ values when used with jsc.goodnessfit.KolmolgorovTest.
+	 * <p>The inherited constructor uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution.EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator) should be used <b>only</b> where it is known in advance that the input pdf comes from a unit distribution.
+	 * @param interpolationType
+	 * @param randomGenerator
+	 * @param originalPDF - the input data, untransformed. Should contain a BigDecimal[] binLimits and double[] function (the pdf), among other useful things.
+	 * @param transformRange - explicitly sets the range the data should be transformed to.
+	 * 
+	 * @see cern.jet.random.Empirical
+	 * @see jsc.goodnessfit.KolmolgorovTest
+	 * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.ProbabilityDensityFunction
+	 * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution#EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator)
+	 */
+	public EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator, ProbabilityDensityFunction originalPDF, double[] transformRange) {
+		super(pdf, interpolationType, randomGenerator);
+		this.untransformedData = originalPDF;
+		// TODO cannot invoke super(), will have to nick the constructor from Empirical. 
+		// TODO this is a massive fix, need a call to transformToUniform - not 
+		double[] transformedPDF = this.transformToUnitWithRange(untransformedData, transformRange);
+		super.setState(transformedPDF, interpolationType);
+	}
+
+	/**
+	 * This is the inherited constructor from cern.jet.random.Empirical. It <b>will not</b> give meaningful K-S test D^ values (let alone <i>p</i>-values unless the input probability density function data happens to satisfy 0 ² F(x) ² 1.
+	 * <p>To use other types of empirical data the overloaded constructor uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution.EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator, ProbabilityDensityFunction originalPDF) should be used.
+	 * @param pdf - real-valued probability density function (assumed to be binned uniformly from 0:1)
+	 * @param interpolationType
+	 * @param randomGenerator
+	 * 
+	 * @see cern.jet.random.Empirical
+	 * @see jsc.goodnessfit.KolmolgorovTest
+	 * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.ProbabilityDensityFunction
+	 * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution#EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator, ProbabilityDensityFunction originalPDF)
+	 */
+	public EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator) {
+		super(pdf, interpolationType, randomGenerator);
+		// TODO Auto-generated constructor stub
+	}
+
 	/**
 	 * Overloaded constructor, <i>specifically</i> intended to allow input probability density functions that <b>do not</b> satisfy 0 ² F(x) ² 1 to be transformed to 0 ² F(x) ² 1, <i>so that</i> they can give meaningful K-S test D^ values when used with jsc.goodnessfitKolmolgorovTest.
 	 * <p>The inherited constructor uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution.EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator) should be used <b>only</b> where it is known in advance that the input pdf comes from a unit distribution.
@@ -49,29 +90,39 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 	}
 
 	/**
-	 * This is the inherited constructor from cern.jet.random.Empirical. It <b>will not</b> give meaningful K-S test D^ values (let alone <i>p</i>-values unless the input probability density function data happens to satisfy 0 ² F(x) ² 1.
-	 * <p>To use other types of empirical data the overloaded constructor uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution.EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator, ProbabilityDensityFunction originalPDF) should be used.
-	 * @param pdf - real-valued probability density function (assumed to be binned uniformly from 0:1)
-	 * @param interpolationType
-	 * @param randomGenerator
 	 * 
-	 * @see cern.jet.random.Empirical
-	 * @see jsc.goodnessfit.KolmolgorovTest
-	 * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.ProbabilityDensityFunction
-	 * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution#EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator, ProbabilityDensityFunction originalPDF)
+	 * @param pdf - a probability density function
+	 * @return a pdf on [0:1]
 	 */
-	public EmpiricalDistribution(double[] pdf, int interpolationType, RandomEngine randomGenerator) {
-		super(pdf, interpolationType, randomGenerator);
-		// TODO Auto-generated constructor stub
+	private double[] transformToUnit(ProbabilityDensityFunction untransformed) {
+		// TODO Auto-generated method stub
+		/*
+		 * Approximate method:
+		 * 	-find limits
+		 *  -establish location and scale
+		 *  -subtract location
+		 *  -divide by scale
+		 *  -need to check what assumptions etc are needed for this....
+		 */
+		return null;
 	}
 
 	/**
 	 * 
 	 * @param pdf - a probability density function
-	 * @return a pdf on (0:1]
+	 * @param transformRange - a double[2] containing the upper and lower limits of the transformed range.
+	 * @return a pdf on [0:1]
 	 */
-	private double[] transformToUnit(ProbabilityDensityFunction untransformed) {
+	private double[] transformToUnitWithRange(ProbabilityDensityFunction untransformed, double[] transformRange) {
 		// TODO Auto-generated method stub
+		/*
+		 * Approximate method:
+		 * 	-find limits
+		 *  -establish location and scale
+		 *  -subtract location
+		 *  -divide by scale
+		 *  -need to check what assumptions etc are needed for this....
+		 */
 		return null;
 	}
 

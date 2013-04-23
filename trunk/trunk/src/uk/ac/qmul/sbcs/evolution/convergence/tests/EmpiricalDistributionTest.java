@@ -5,6 +5,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.tests;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Arrays;
 
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.ProbabilityDensityFunction;
@@ -162,6 +163,54 @@ public class EmpiricalDistributionTest extends TestCase {
 		// think. hard.
 	}
 	
+
+	/* ordered and norm 
+	 * D = 0.4762, p-value = 0.01591
+	 */ 
+	public void testKS_config03_withExplicitRangeTransform(){
+		System.out.println("ks03");
+		double[] sortedOrdered = (ordered.clone());
+		double[] sortedNorm    = (uniff.clone());
+		Arrays.sort(sortedOrdered);
+		Arrays.sort(sortedNorm);
+		double theMin = Math.min(sortedOrdered[0], sortedNorm[0]);
+		double theMax = Math.max(sortedOrdered[sortedOrdered.length-1], sortedNorm[sortedNorm.length-1]);
+		double scale = theMax - theMin;
+		double location = theMin;
+		// transform
+		for(int i=0;i<sortedOrdered.length;i++){
+			sortedOrdered[i] = (sortedOrdered[i] / scale) - (location/scale);
+		}
+		for(int i=0;i<sortedNorm.length;i++){
+			sortedNorm[i] = (sortedNorm[i] / scale) - (location/scale);
+		}
+		float denom = (float) (2.0f) * (Math.max(sortedOrdered.length, sortedNorm.length));
+		float floatInterval = (float)1.0f / denom;
+		BigDecimal biggerInterval = new BigDecimal(floatInterval);
+		// set up distributions
+		ProbabilityDensityFunction pdf_ordered = new ProbabilityDensityFunction(sortedOrdered,functionRangeUnit,biggerInterval);
+		ProbabilityDensityFunction pdf_norm = new ProbabilityDensityFunction(sortedNorm,  functionRangeUnit,biggerInterval);
+		EmpiricalDistribution ed_ordered = new EmpiricalDistribution(pdf_ordered.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
+		EmpiricalDistribution ed_norm = new EmpiricalDistribution(pdf_norm.getFunction(), EmpiricalDistribution.LINEAR_INTERPOLATION, RandomEngine.makeDefault());
+		System.out.println("estimated D^\t" + ed_ordered.estimateD(ed_norm));
+		System.out.println("estimated D^\t" + ed_ordered.estimateD(ed_ordered));
+		System.out.println("estimated D^\t" + ed_norm.estimateD(ed_ordered));
+		System.out.println("estimated D^\t" + ed_norm.estimateD(ed_norm));
+		
+		KolmogorovTest ks;
+		// use CDF of ED
+		ks = new KolmogorovTest(ed_norm.getWholeCDF(), ed_ordered);
+		System.out.println("unit: using CDF\t"+ks.getD() + "\t" + ks.getSP());
+
+		// use PDF (of PDF class)
+		ks = new KolmogorovTest(pdf_norm.getFunction(), ed_ordered);
+		System.out.println("unit: using PDF\t"+ks.getD() + "\t" + ks.getSP());
+		
+		// use raw vals
+		ks = new KolmogorovTest(sortedNorm, ed_ordered);
+		System.out.println("unit: using val\t"+ks.getD() + "\t" + ks.getSP());
+		
+	}
 	public void testKSBasic(){
 		ProbabilityDensityFunction pdf = new ProbabilityDensityFunction(ordered,functionRange,interval);
 		ProbabilityDensityFunction pdf2 = new ProbabilityDensityFunction(uniff,functionRange,interval);

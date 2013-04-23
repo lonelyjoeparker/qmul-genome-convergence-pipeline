@@ -10,11 +10,12 @@ import java.util.Arrays;
  * @version 0.1
  * @since r145 2013/04/07
  * 
- * <p>A class to allow for a jsc.goodnessfit.KolmolgorovTest, which requires an EmpriricalDistribution
+ * <p>A class to allow for a {@link jsc.goodnessfit.KolmogorovTest}, which requires an {@link EmpriricalDistribution}
  *
  * <p>This represents unsorted real-valued input data as a probability density function.
  * 
  * @see EmpiricalDistribution
+ * @see jsc.goodnessfit.KolmogorovTest
  */
 public class ProbabilityDensityFunction {
 
@@ -77,7 +78,9 @@ public class ProbabilityDensityFunction {
 		this.functionRange[0] = new BigDecimal(specifiedRange[0]);
 		this.functionRange[1] = new BigDecimal(specifiedRange[1]);
 		this.increment = specifiedIncrement;
-		this.binCount = this.functionRange[1].subtract(this.functionRange[0]).divide(this.increment).intValue();
+		BigDecimal BDrange = this.functionRange[1].subtract(this.functionRange[0]);
+		BigDecimal BDapproximateNumberOfBins = BDrange.divide(this.increment,MathContext.DECIMAL128);
+		this.binCount = BDapproximateNumberOfBins.intValue();
 		this.binLimits = new BigDecimal[this.binCount];
 		this.function  = new double[this.binCount];
 		try {
@@ -222,5 +225,37 @@ public class ProbabilityDensityFunction {
 	public BigDecimal[] getBinLimits() {
 		// TODO Auto-generated method stub
 		return this.binLimits;
+	}
+	
+	/**
+	 * A void method to re-bin the existing function onto new limits. 
+	 * <p>The intention is that this will ensure two sets of data can produce EmpiricalDistributions with equivalent bins, so that they can be directly compared in a jsc.goodnessfit.KolmolgorovTest, <i>as if</i> they were a unit distribution (bounded on [0:1]).
+	 * <p>In usage the call for this would probably go something like:
+	 * <pre>
+	 * 	(Given two distributions a and b)
+	 * 	ProbabilityDensityFuncition A = new ProbabilityDensityFuncition(a)
+	 * 	ProbabilityDensityFuncition B = new ProbabilityDensityFuncition(b)
+	 *  BigDecimal[] jointRange
+	 *  jointRange[0] = min(A,B)
+	 *  jointRange[1] = max(A,B)
+	 *  EmpiricalDistribution ed_A = new EmpiricalDistribution(A.rebinOnNewInterval(jointRange).getFunction())
+	 *  EmpiricalDistribution ed_B = new EmpiricalDistribution(B.rebinOnNewInterval(jointRange).getFunction())
+	 *  KS.test(ed_A, ed_B)
+	 *  </pre>
+	 *  Though of course actually the main PDF constructor could just be called with specified limits.. that <b>ought</b> to work, will need to inspect the test harness to work out why it's not. <br/>Ah yes, because the ED is still making reference to the bin limits so it only gets the density over [0:1]? <br/>Etc. see also:</p>
+	 * @see EmpiricalDistribution
+	 * @see jsc.goodnessfit.KolmolgorovTest 
+	 * @param newBinLimits - the new bin limits.
+	 */
+	public void rebinOnNewInterval(BigDecimal[] newBinLimits){
+		/*
+		 * Execution:
+		 * 	newBins[], newFunction[]
+		 * 	determine number of bins to fill newBinLimits as per constructor
+		 *  get original data
+		 *  populate bins to fill newFunction
+		 *  binLimits = newBins
+		 *  function = newFunction 
+		 */
 	}
 }

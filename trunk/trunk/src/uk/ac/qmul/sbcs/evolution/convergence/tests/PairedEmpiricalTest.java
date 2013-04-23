@@ -5,6 +5,8 @@ package uk.ac.qmul.sbcs.evolution.convergence.tests;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Arrays;
+import java.util.Random;
 
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical;
 
@@ -26,7 +28,8 @@ public class PairedEmpiricalTest extends TestCase {
 	// ks stuff for distributions on (0:1]
 	double[] order1 = {0,0.0344827586206897,0.0689655172413793,0.103448275862069,0.137931034482759,0.172413793103448,0.206896551724138,0.241379310344828,0.275862068965517,0.310344827586207,0.344827586206897,0.379310344827586,0.413793103448276,0.448275862068966,0.482758620689655,0.517241379310345,0.551724137931034,0.586206896551724,0.620689655172414,0.655172413793103,0.689655172413793,0.724137931034483,0.758620689655172,0.793103448275862,0.827586206896552,0.862068965517241,0.896551724137931,0.931034482758621,0.96551724137931,1};
 	double[] unif1 = {0.526772355660796,0.398782416479662,0.901285741012543,0.455820410279557,0.642212885431945,0.861228563589975,0.215375886065885,0.184008366661146,0.778669717721641,0.534172367071733,0.882508781040087,0.356307946611196,0.936016893479973,0.245627876371145,0.538643065374345,0.638791358564049,0.158813018817455,0.155748213874176,0.0135723217390478,0.529211234068498,0.24575675977394,0.971221415093169,0.384230916155502,0.874618443660438,0.549820814514533,0.781037411885336,0.618207290768623,0.699134208029136,0.487841309746727,0.0582582557108253};
-
+	double[] bigUnif;
+	double[] bigNorm;
 	/**
 	 * @param name
 	 */
@@ -39,6 +42,13 @@ public class PairedEmpiricalTest extends TestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
+		bigUnif = new double[10000];
+		bigNorm = new double[10000];
+		Random r = new Random(System.currentTimeMillis());
+		for(int i=0;i<10000;i++){
+			bigUnif[i] = (r.nextDouble() - 0.5d) * 20.0d;
+			bigNorm[i] = r.nextGaussian() * 5.0d;
+		}
 	}
 
 	/* (non-Javadoc)
@@ -122,18 +132,67 @@ public class PairedEmpiricalTest extends TestCase {
 
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#getDensityOverlapAt(double)}.
+	 * 
+	 * <br/>e.g. 
+	 * 
+	 * <pre>> for(i in -10:10){
+	 * 	print(c(i,order_e(i),uniff_e(i),(order_e(i)-uniff_e(i))))
+	 * }</pre>
+	 * <TABLE>
+	 *	<TR><TD>[1]</TD>	<TD>-10.00000000</TD>	<TD>0.04761905</TD>	<TD>0.00000000</TD>	<TD>0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-9.00000000</TD>	<TD>0.09523810</TD>	<TD>0.04761905</TD>	<TD>0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-8.00000000</TD>	<TD>0.14285714</TD>	<TD>0.09523810</TD>	<TD>0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-7.0000000</TD>	<TD>0.1904762</TD>	<TD>0.0952381</TD>	<TD>0.0952381<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-6.00000000</TD>	<TD>0.23809524</TD>	<TD>0.19047619</TD>	<TD>0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-5.0000000</TD>	<TD>0.2857143</TD>	<TD>0.2857143</TD>	<TD>0.0000000<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-4.0000000</TD>	<TD>0.3333333</TD>	<TD>0.3333333</TD>	<TD>0.0000000<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-3.0000000</TD>	<TD>0.3809524</TD>	<TD>0.3809524</TD>	<TD>0.0000000<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-2.0000000</TD>	<TD>0.4285714</TD>	<TD>0.4285714</TD>	<TD>0.0000000<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>-1.00000000</TD>	<TD>0.47619048</TD>	<TD>0.52380952</TD>	<TD>-0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>0.00000000</TD>	<TD>0.52380952</TD>	<TD>0.57142857</TD>	<TD>-0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>1.0000000</TD>	<TD>0.5714286</TD>	<TD>0.6666667</TD>	<TD>-0.0952381<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>2.0000000</TD>	<TD>0.6190476</TD>	<TD>0.7619048</TD>	<TD>-0.1428571<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>3.0000000</TD>	<TD>0.6666667</TD>	<TD>0.7619048</TD>	<TD>-0.0952381<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>4.0000000</TD>	<TD>0.7142857</TD>	<TD>0.8095238</TD>	<TD>-0.0952381<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>5.0000000</TD>	<TD>0.7619048</TD>	<TD>0.8571429</TD>	<TD>-0.0952381<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>6.00000000</TD>	<TD>0.80952381</TD>	<TD>0.85714286</TD>	<TD>-0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>7.00000000</TD>	<TD>0.85714286</TD>	<TD>0.90476190</TD>	<TD>-0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>8.00000000</TD>	<TD>0.90476190</TD>	<TD>0.95238095</TD>	<TD>-0.04761905<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>9.000000</TD>	<TD>0.952381</TD>	<TD>0.952381</TD>	<TD>0.000000<TD></TR>
+	 *	<TR><TD>[1]</TD>	<TD>10</TD>	<TD>1</TD>	<TD>1</TD>	<TD>0<TD></TR>
+	 *</TABLE>
+	 *
+	 * <p>Repeated this in r using:
+	 * <pre>
+	 * > plot(ecdf(rnorm(1000)))
+	 * > lines(ecdf(runif(1000,min=-2,max=2)),col="red")</pre>
+	 * to verify the inflection points etc.
 	 */
 	public void testGetDensityOverlapAt() {
-		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
-		fail("Not yet implemented"); // TODO
+		Arrays.sort(bigUnif);
+		Arrays.sort(bigNorm);
+		PairedEmpirical p = new PairedEmpirical(bigUnif,bigNorm);
+		for(double val=Math.min(bigUnif[0], bigNorm[0]);val<Math.max(bigUnif[9999],bigNorm[9999]);val++){
+			System.out.println(val+"\t"+p.getDensityOverlapAt(val));
+		}
 	}
 
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical#getDensity_A_at_percentile_B(double)}.
 	 */
 	public void testGetDensity_A_at_percentile_B() {
-		PairedEmpirical p = new PairedEmpirical(uniff,ordered);
-		fail("Not yet implemented"); // TODO
+		PairedEmpirical p = new PairedEmpirical(bigNorm,bigUnif);
+		for(double pc=0.0d;pc<1;pc+=0.05d){
+			double density = p.getDensity_A_at_percentile_B(pc);
+			System.out.println(pc+"\t"+density);
+		}
 	}
 
+	public void testGetValuesAtPercentile(){
+		PairedEmpirical p = new PairedEmpirical(bigNorm,bigUnif);
+		for(double pc=0.0d;pc<1;pc+=0.05d){
+			double[] values = p.getValuesAtPercentile(pc);
+			System.out.println(pc+"\t"+values[0]+"\t"+values[1]);
+		}
+	}
 }

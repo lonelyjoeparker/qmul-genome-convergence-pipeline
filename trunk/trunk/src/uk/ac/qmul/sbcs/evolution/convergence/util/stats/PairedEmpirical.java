@@ -184,25 +184,31 @@ public class PairedEmpirical {
 	}
 	
 	/**
-	 * Returns the (CDF density of the second variable series) - (CDF density of the first variable series)
+	 * Returns the (CDF density of the <b>second</b> variable series) - (CDF density of the <b>first</b> variable series)
 	 * @param value - untransformed variate
-	 * @return - overlap.
+	 * @return overlap of f(B) - f(A) at value
 	 */
 	public double getDensityOverlapAt(double value){
-		// TODO not tested
 		double transformedValue = (value/scale) - location;
 		return this.ed_B.cdf(transformedValue) - this.ed_A.cdf(transformedValue);
 	}
 	
 	/**
-	 * Finds the cumulative density of the first variable series at a given percentile density of the second variable series over their shared range.
+	 * Finds the cumulative density of the first variable series at variate-value corresponding to a given percentile density of the second variable series over their shared range.
+	 * <p>First find value in ed_B corresponding to f(B) = percentile
+	 * <br/>Return f(A) = value
+	 * 
 	 * @param percentile - cumulative % of second variate
 	 * @return density of first variate
 	 */
 	public double getDensity_A_at_percentile_B(double percentile){
-		// TODO not implemented
-		
-		return 0.0d;
+		/*
+		 * First find value in ed_B corresponding to f(B) = percentile
+		 * Return f(A) = value
+		 */
+		double value = this.ed_B.inverseCdf(percentile);
+		double a_pc  = this.ed_A.cdf(value);
+		return a_pc;
 	}
 	
 	/**
@@ -210,7 +216,18 @@ public class PairedEmpirical {
 	 * @return  Dmax, the maximum difference between two computed cumulative density functions.
 	 */
 	public double getApproxD(){
-		// TODO not implemented
 		return this.ed_A.estimateD(ed_B);
+	}
+	
+	/**
+	 * Returns the inverse CDF (value) of both distributions at a given density
+	 * @param percentile - percentile of 
+	 * @return valuesAB - transformed values of distribution at percentile (invCDF)
+	 */
+	public double[] getValuesAtPercentile(double percentile){
+		double value_A = (this.ed_A.inverseCdf(percentile) + location) * scale;
+		double value_B = (this.ed_B.inverseCdf(percentile) + location) * scale;
+		double[] valuesAB = {value_A,value_B};
+		return valuesAB;
 	}
 }

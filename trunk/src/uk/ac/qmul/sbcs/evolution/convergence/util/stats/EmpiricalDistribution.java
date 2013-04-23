@@ -135,7 +135,7 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 	 * <p>It might be worth overloading the constructor to accept a ProbabilityDensityFunction so that the ProbabilityDensityFunction.binIntervals can be retained.
 	 * 
 	 * @see jsc.distributions.Distribution#cdf(double)
-	 * @param val - TODO: Not sure yet. <i>Either</i> the proportion of observations on (0:1], <i>or</i> a real-valued variate from the observed data.
+	 * @param val - The proportion of observations on [0:1], <i>not</i> a real-valued variate from the observed data.
 	 * 
 	 */
 	@Override
@@ -143,7 +143,6 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 		// TODO Auto-generated method stub
 		int binLocation = 0;
 		if((val<0)||(val>1)){
-			
 			throw new IllegalArgumentException();
 		}else{
 			binLocation = (int)Math.round(val * (double)cdf.length);
@@ -151,10 +150,34 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 		return this.cdf(binLocation);
 	}
 
+	/**
+	 * Implementation of abstract method inherited from {@link cern.jet.random.Empirical}.
+	 * 
+	 * <p>Finds the bin position where f(x) nearest percentile
+	 * 
+	 */
 	@Override
-	public double inverseCdf(double arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+	public double inverseCdf(double percentile) {
+		double inverse = Double.NaN;
+		double difference = 1;
+		int bin = 0;
+		/*
+		 * Iterate through the bins
+		 * 	comparing f(x) to percentile
+		 *  if difference this[i] < difference
+		 *  	bin=i
+		 *  	difference = this[i]
+		 *  return i/nBins
+		 */
+		for(int i=0;i<this.cdf.length;i++){
+			double functionDiff = Math.abs(this.cdf[i]-percentile);
+			if(functionDiff < difference){
+				bin = i;
+				difference = functionDiff;
+			}
+		}
+		inverse = ((double) bin) / ((double) this.cdf.length);
+		return inverse;
 	}
 
 	@Override

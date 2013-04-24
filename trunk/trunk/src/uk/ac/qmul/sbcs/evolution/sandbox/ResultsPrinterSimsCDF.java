@@ -7,8 +7,11 @@ import java.io.ObjectInputStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -17,6 +20,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.CustomFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
+import uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical;
 
 import jsc.goodnessfit.KolmogorovTest;
 
@@ -91,24 +95,96 @@ public class ResultsPrinterSimsCDF{
 		for(int i=1;i<this.maxTrees;i++){
 			bufMain.append("\tnumThresh_H"+i);
 		}
+		for(int i=1;i<this.maxTrees;i++){
+			bufMain.append("\tKS_tests_"+i+"\tks_D\tks_P_est\tCDF_empirical_at_5pc_simulated\tCDF_overlap_0\tCDF_overlap_-1\tCDF_overlap_-2\tCDF_empirical_pc01\tCDF_simulations_pc01\tCDF_empirical_pc05\tCDF_empirical_05");
+		}
 		bufMain.append("\n");
 		bufTree.append("#NEXUS\nbegin trees;\n");
+
+		Pattern simPattern = Pattern.compile("s_");
+		Pattern dayPattern = Pattern.compile("dayhoff");
+		Pattern jonPattern = Pattern.compile("jones");
+		Pattern wagPattern = Pattern.compile("wag");
 
 		HashMap<String, String> lociData = this.initMetadata();
 		if(dir.isDirectory()){
 			String[] serFilesList = dir.list(serFileFilter);
-			SitewiseSpecificLikelihoodSupportAaml[] results = new SitewiseSpecificLikelihoodSupportAaml[serFilesList.length];
-			for(int i=0; i<results.length;i++){
+			int simfiles = 0;
+			int runfiles = 0;
+			for(String someFile:serFilesList){
+				Matcher simMatch = simPattern.matcher(someFile);
+				if(simMatch.find()){
+					simfiles++;
+				}else{
+					runfiles++;
+				}
+			}
+			SitewiseSpecificLikelihoodSupportAaml[] results 	= new SitewiseSpecificLikelihoodSupportAaml[runfiles];
+			SitewiseSpecificLikelihoodSupportAaml[] simulations = new SitewiseSpecificLikelihoodSupportAaml[simfiles];
+			int simfilesIndex = 0;
+			int runfilesIndex = 0;
+			System.err.println("reading .ser files:");
+			for(int i=0; i<serFilesList.length;i++){
+				System.err.print(".");
+				if(Math.round((double)i/10.0d) == (double)i/10.0d){
+					System.err.print(i);
+					System.err.println();
+				}
 				try {
 					FileInputStream fileInOne = new FileInputStream(dir.getAbsolutePath()+"/"+serFilesList[i]);
 					ObjectInputStream inOne = new ObjectInputStream(fileInOne);
-					results[i] = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+					SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+					Matcher simMatch = simPattern.matcher(serFilesList[i]);
+					if(simMatch.find()){
+						simulations[simfilesIndex] = candidate;
+						simfilesIndex++;
+					}else{
+						results[runfilesIndex] = candidate;
+						runfilesIndex++;
+					}
 				}catch(Exception ex){
 					ex.printStackTrace();
 				}
 			}
 			String[] models = {"wag","jones","dayhoff"};
+			String[] twoModels = this.concat(models, models);
+			String[] manyModels = this.concatAll(models, models,models,models,serFilesList);
 			for(String model:models){
+				/*
+				 * Analyse SIMULATIONS
+				 * Just H1 ÆSSLS for now
+				 */
+				double [][] simulatedDeltas = new double[this.maxTrees-1][0];
+				for(SitewiseSpecificLikelihoodSupportAaml someRun:simulations){
+					try {
+						if(someRun.getModel().equals(model)){
+							int nTax = someRun.getNumberOfTaxa();
+							int nSites = someRun.getNumberOfSites();
+							float[][] SSLS = someRun.getSSLSseriesSitewise();
+							double[][] dSSLS = new double[this.maxTrees-1][nSites];
+							for(int j=0;j<nSites;j++){
+								for(int k=1;k<this.maxTrees;k++){
+									try {
+										dSSLS[k-1][j] = SSLS[j][0] - SSLS[j][k];
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										dSSLS[k-1][j] = Float.NaN;
+										e.printStackTrace();
+									}
+								}
+							}
+							for (int k = 0; k < this.maxTrees-1; k++) {
+								simulatedDeltas[k] = this.concat(simulatedDeltas[k], dSSLS[k]);
+							}
+						}
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+				
+				/*
+				 * Analysed OBSERVED sites
+				 */
 				for(SitewiseSpecificLikelihoodSupportAaml someRun:results){
 					try {
 						if(someRun.getModel().equals(model)){
@@ -127,9 +203,9 @@ public class ResultsPrinterSimsCDF{
 								for(int counter=0;counter<testDouble.length; counter++){
 									testDouble[counter] = alphas[counter];
 								}
-								KolmogorovTest ks = new KolmogorovTest(testDouble, new jsc.distributions.Normal(1.0f, 0.25f));
-								double kD = ks.getTestStatistic();	
-								double pD = ks.getSP();
+//								KolmogorovTest ks = new KolmogorovTest(testDouble, new jsc.distributions.Normal(1.0f, 0.25f));
+//								double kD = ks.getTestStatistic();	
+//								double pD = ks.getSP();
 								boolean[] preferred = someRun.getPreferred();
 								String[] fittedTrees = someRun.getFittedTrees();
 								int nTax = someRun.getNumberOfTaxa();
@@ -145,7 +221,7 @@ public class ResultsPrinterSimsCDF{
 								}
 
 								if((fittedTrees.length == this.maxTrees)&&(someRun.getNumberOfTaxa()==22)){
-									bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+nameSplit[5]+" = [&R] "+fittedTrees[(this.maxTrees-1)]+"\n");	// this is a bit of a fudge, we're looking for the random tree really, if one's not been specified it won't be there...
+							//		bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+nameSplit[5]+" = [&R] "+fittedTrees[(this.maxTrees-1)]+"\n");	// this is a bit of a fudge, we're looking for the random tree really, if one's not been specified it won't be there...
 								}
 								//							System.out.println("Fitted topologies: ");
 								//							System.out.println("\ttree\talpha\tpSH\tlnL\tlengths\ttopology");
@@ -195,13 +271,13 @@ public class ResultsPrinterSimsCDF{
 								if(this.printSites){
 									System.out.println();
 								}
+								double[][] dSSLS = new double[this.maxTrees-1][nSites];
 								for(int j=0;j<nSites;j++){
 									//								System.out.print(someRun.getSites()[j]);
 									for(int k=1;k<this.maxTrees;k++){
-										float dSSLS;
 										try {
 											lnLsums[k] = lnLsums[k] + SSLS[j][k];
-											dSSLS = SSLS[j][0] - SSLS[j][k];
+											dSSLS[k-1][j] = SSLS[j][0] - SSLS[j][k];
 											BigDecimal thisDiffBD = new BigDecimal(SSLS[j][0] - SSLS[j][k]);
 											diffsSummed[(k-1)] = diffsSummed[(k-1)].add(thisDiffBD);
 											if(Math.abs(thisDiffBD.doubleValue())>0.1){
@@ -209,14 +285,14 @@ public class ResultsPrinterSimsCDF{
 											}
 										} catch (Exception e) {
 											// TODO Auto-generated catch block
-											dSSLS = Float.NaN;
+											dSSLS[k-1][j] = Float.NaN;
 											e.printStackTrace();
 										}
-										if(dSSLS < -0.1f){
+										if(dSSLS[k-1][j] < -0.1f){
 											largeDeltas[k-1]++;
 										}
 										if(this.printSites){
-											System.out.print("\t"+dSSLS);
+											System.out.print("\t"+dSSLS[j][k-1]);
 										}
 									}
 									if(this.printSites){
@@ -246,6 +322,41 @@ public class ResultsPrinterSimsCDF{
 									lnLsumDiffAvgs[k] = (lnLsumDiffs[k]/nSites);
 									System.out.print("\t"+largeDeltas[k]);
 									buf.append("\t"+largeDeltas[k]);
+								}
+								for(int k=0;k<(this.maxTrees-1);k++){
+									// Do the KS etc
+									PairedEmpirical significance = new PairedEmpirical(dSSLS[k],simulatedDeltas[k]);
+									double K  = significance.getKS();
+									double p  = significance.getKS_sp();
+									double d = significance.getDensity_A_at_percentile_B(0.05d);
+									double overlap_0;
+									try {
+										overlap_0 = significance.getDensityOverlapAt(-0.0d);
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										overlap_0 = Double.NaN;
+										e.printStackTrace();
+									}
+									double overlap_1;
+									try {
+										overlap_1 = significance.getDensityOverlapAt(-1.0d);
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										overlap_1 = Double.NaN;
+										e.printStackTrace();
+									}
+									double overlap_2;
+									try {
+										overlap_2 = significance.getDensityOverlapAt(-2.0d);
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										overlap_2 = Double.NaN;
+										e.printStackTrace();
+									}
+									double[] pc_01 = significance.getValuesAtPercentile(0.01d);
+									double[] pc_05 = significance.getValuesAtPercentile(0.05d);
+									System.out.print("\tt"+k+"\t"+K+"\t"+p+"\t"+d+"\t"+overlap_0+"\t"+overlap_1+"\t"+overlap_2+"\t"+pc_01[0]+"\t"+pc_01[01]+"\t"+pc_05[0]+"\t"+pc_05[1]);
+									buf.append("\tt"+k+"\t"+K+"\t"+p+"\t"+d+"\t"+overlap_0+"\t"+overlap_1+"\t"+overlap_2+"\t"+pc_01[0]+"\t"+pc_01[01]+"\t"+pc_05[0]+"\t"+pc_05[1]);
 								}
 								System.out.println("");
 								buf.append("\r");
@@ -2598,5 +2709,30 @@ public class ResultsPrinterSimsCDF{
 			metadata.put(locus.split("\t")[0], locus);
 		}
 		return metadata;
+	}
+	
+	protected static double [] concat(double[] first, double[] second){
+		double[] result = Arrays.copyOf(first, first.length + second.length);
+		System.arraycopy(second, 0, result, first.length, second.length);
+		return result;
+	}
+
+	protected static <T> T[] concat(T[] first, T[] second){
+		T[] result = Arrays.copyOf(first, first.length + second.length);
+		System.arraycopy(second, 0, result, first.length, second.length);
+		return result;
+	}
+	
+	protected static <T> T[] concatAll(T[] first, T[]... rest){
+		int totalLength = first.length;
+		for(T[] array : rest){
+			totalLength += array.length;
+		}
+		T[] result = Arrays.copyOf(first, totalLength);
+		int offset = first.length;
+		for(T[] array : rest){
+			System.arraycopy(array, 0, result, offset, array.length);
+		}
+		return result;
 	}
 }

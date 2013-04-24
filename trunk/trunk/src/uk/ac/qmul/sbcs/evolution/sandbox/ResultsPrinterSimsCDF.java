@@ -151,8 +151,15 @@ public class ResultsPrinterSimsCDF{
 				/*
 				 * Analyse SIMULATIONS
 				 */
+				System.err.println("Analyse simulated ÆSSLS");
 				double [][] simulatedDeltas = new double[this.maxTrees-1][0];
-				for(SitewiseSpecificLikelihoodSupportAaml someRun:simulations){
+				for(int i=0;i<simulations.length;i++){
+					System.err.print('o');
+					if(Math.round((double)i/10.0d) == (double)i/10.0d){
+						System.err.print(i);
+						System.err.println();
+					}
+					SitewiseSpecificLikelihoodSupportAaml someRun = simulations[i];
 					try {
 						if(someRun.getModel().equals(model)){
 							int nTax = someRun.getNumberOfTaxa();
@@ -185,9 +192,16 @@ public class ResultsPrinterSimsCDF{
 				 */
 				int totalReps = 0;
 				double[] expectedD = new double[this.maxTrees-1];
-				for(SitewiseSpecificLikelihoodSupportAaml someRun:simulations){
+				System.err.println("Analyse expected KS");
+				for(int i=0;i<simulations.length;i++){
+					System.err.print('x');
+					if(Math.round((double)i/10.0d) == (double)i/10.0d){
+						System.err.print(i);
+						System.err.println();
+					}
+					SitewiseSpecificLikelihoodSupportAaml someRun = simulations[i];
 					try {
-						if(someRun.getModel().equals(model)&&(Math.random()>0.75d)){
+						if(someRun.getModel().equals(model)&&(Math.random()>0.75d)&&(totalReps<31)){
 							int nSites = someRun.getNumberOfSites();
 							float[][] SSLS = someRun.getSSLSseriesSitewise();
 							double[][] dSSLS = new double[this.maxTrees-1][nSites];

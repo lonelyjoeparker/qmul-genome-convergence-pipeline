@@ -96,7 +96,7 @@ public class ResultsPrinterSimsCDF{
 			bufMain.append("\tnumThresh_H"+i);
 		}
 		for(int i=1;i<this.maxTrees;i++){
-			bufMain.append("\tKS_tests_"+i+"\tks_D\tks_P_est\tCDF_empirical_at_5pc_simulated\tCDF_overlap_0\tCDF_overlap_-1\tCDF_overlap_-2\tCDF_empirical_pc01\tCDF_simulations_pc01\tCDF_empirical_pc05\tCDF_empirical_05");
+			bufMain.append("\tKS_tests_"+i+"\tks_D\tks_P_est\t(expected_D;nReps_in_expect)\tCDF_empirical_at_5pc_simulated\tCDF_overlap_0\tCDF_overlap_-1\tCDF_overlap_-2\tCDF_empirical_pc01\tCDF_simulations_pc01\tCDF_empirical_pc05\tCDF_empirical_05");
 		}
 		bufMain.append("\n");
 		bufTree.append("#NEXUS\nbegin trees;\n");
@@ -147,12 +147,9 @@ public class ResultsPrinterSimsCDF{
 				}
 			}
 			String[] models = {"wag","jones","dayhoff"};
-			String[] twoModels = this.concat(models, models);
-			String[] manyModels = this.concatAll(models, models,models,models,serFilesList);
 			for(String model:models){
 				/*
 				 * Analyse SIMULATIONS
-				 * Just H1 ÆSSLS for now
 				 */
 				double [][] simulatedDeltas = new double[this.maxTrees-1][0];
 				for(SitewiseSpecificLikelihoodSupportAaml someRun:simulations){
@@ -182,6 +179,42 @@ public class ResultsPrinterSimsCDF{
 					}
 				}
 				
+				/*
+				 * Analyse SUBSAMLE of SIMULATIONS
+				 * Just H1 ÆSSLS for now
+				 */
+				int totalReps = 0;
+				double[] expectedD = new double[this.maxTrees-1];
+				for(SitewiseSpecificLikelihoodSupportAaml someRun:simulations){
+					try {
+						if(someRun.getModel().equals(model)&&(Math.random()>0.75d)){
+							int nSites = someRun.getNumberOfSites();
+							float[][] SSLS = someRun.getSSLSseriesSitewise();
+							double[][] dSSLS = new double[this.maxTrees-1][nSites];
+							for(int j=0;j<nSites;j++){
+								for(int k=1;k<this.maxTrees;k++){
+									try {
+										dSSLS[k-1][j] = SSLS[j][0] - SSLS[j][k];
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										dSSLS[k-1][j] = Float.NaN;
+										e.printStackTrace();
+									}
+								}
+							}
+							for (int k = 0; k < this.maxTrees-1; k++) {
+								expectedD[k] += new PairedEmpirical(dSSLS[k],simulatedDeltas[k]).getKS();
+							}
+							totalReps++;
+						}
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+				}
+				for (int k = 0; k < this.maxTrees-1; k++) {
+					expectedD[k] = expectedD[k]/(double)totalReps;
+				}
+
 				/*
 				 * Analysed OBSERVED sites
 				 */
@@ -355,8 +388,8 @@ public class ResultsPrinterSimsCDF{
 									}
 									double[] pc_01 = significance.getValuesAtPercentile(0.01d);
 									double[] pc_05 = significance.getValuesAtPercentile(0.05d);
-									System.out.print("\tt"+k+"\t"+K+"\t"+p+"\t"+d+"\t"+overlap_0+"\t"+overlap_1+"\t"+overlap_2+"\t"+pc_01[0]+"\t"+pc_01[01]+"\t"+pc_05[0]+"\t"+pc_05[1]);
-									buf.append("\tt"+k+"\t"+K+"\t"+p+"\t"+d+"\t"+overlap_0+"\t"+overlap_1+"\t"+overlap_2+"\t"+pc_01[0]+"\t"+pc_01[01]+"\t"+pc_05[0]+"\t"+pc_05[1]);
+									System.out.print("\tt"+k+"\t"+K+"\t"+p+"\t("+expectedD[k]+";"+totalReps+")\t"+d+"\t"+overlap_0+"\t"+overlap_1+"\t"+overlap_2+"\t"+pc_01[0]+"\t"+pc_01[01]+"\t"+pc_05[0]+"\t"+pc_05[1]);
+									      buf.append("\tt"+k+"\t"+K+"\t"+p+"\t("+expectedD[k]+";"+totalReps+")\t"+d+"\t"+overlap_0+"\t"+overlap_1+"\t"+overlap_2+"\t"+pc_01[0]+"\t"+pc_01[01]+"\t"+pc_05[0]+"\t"+pc_05[1]);
 								}
 								System.out.println("");
 								buf.append("\r");

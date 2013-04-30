@@ -71,6 +71,26 @@ public class ResultsPrinterSimsCDF{
 		}
 	}
 
+	private void go2(){
+		/*
+		 * Same stuff as go() in terms of method, except treating things a little differently..
+		 * 
+		 * get 
+		 * 			SitewiseSpecificLikelihoodSupportAaml[] results 	= new SitewiseSpecificLikelihoodSupportAaml[runfiles];
+		 *			SitewiseSpecificLikelihoodSupportAaml[] simulations = new SitewiseSpecificLikelihoodSupportAaml[simfiles];
+		 * 
+		 * then buid 
+		 * 
+		 * double [][] simulatedDeltas = new double[this.maxTrees-1][0]; (will be built up by array concatenation)
+		 * double[][] dSSLS = new double[this.maxTrees-1][nSites]; 
+		 * 
+		 * this time we're interested in..
+		 * 
+		 * 			dSSLS	[0:10,maxTrees-1] vs dSSLS[11: maxTrees-2]  <--- this is the weirdness of the observed ÆSSLS for our Ha of interest as opposed to the random Ha (check maths etc)
+		 * simulatedDeltas	[0:10,maxTrees-1] vs dSSLS[11: maxTrees-2]  <--- this is the weirdness of the observed ÆSSLS for our Ha of interest as opposed to the random Ha.. IF. THE. NULL. HYPOTHESIS (H0). WAS. TRUE.
+		 * 
+		 */
+	}
 	private void go(){
 		FilenameFilter serFileFilter = new serFilter();
 		StringBuffer bufMain = new StringBuffer();

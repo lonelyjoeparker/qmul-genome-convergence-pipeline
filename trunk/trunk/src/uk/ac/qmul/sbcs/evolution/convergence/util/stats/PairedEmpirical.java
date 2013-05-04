@@ -74,6 +74,55 @@ public class PairedEmpirical {
 		this.ks = new KolmogorovTest(A_unitTransformed,ed_B);
 	}
 	
+	public PairedEmpirical(double[] data_a, double[] data_b, boolean limitBinCount) throws NumberFormatException{
+		Arrays.sort(data_a);
+		Arrays.sort(data_b);
+		this.N_A = data_a.length;
+		this.N_B = data_b.length;
+		this.A = data_a.clone();
+		this.B = data_b.clone();
+		this.range[0] = Math.min(A[0], B[0]);
+		this.range[1] = Math.max(A[N_A-1], B[N_B-1]);
+		this.scale = range[1] - range[0];
+		this.location = range[0] / scale;
+		
+		// quick NaN check; CANNOT HAVE NaN range or location
+		if(new Double(scale).isNaN()||new Double(location).isNaN()){
+			throw new NumberFormatException();
+		}
+		
+		// transform the data by (X' = X/scale - location)
+		// create interval checking it can terminate etc..
+		// create pdfs, EDs
+		// create test stat.
+	
+		// transform the data by (X' = X/scale - location)
+		this.A_unitTransformed = new double [this.N_A];
+		this.B_unitTransformed = new double [this.N_B];
+		for (int i = 0; i < N_A; i++) {
+			this.A_unitTransformed[i] = (this.A[i] / scale) - location;
+		}
+		for (int i = 0; i < N_B; i++) {
+			this.B_unitTransformed[i] = (this.B[i] / scale) - location;
+		}
+		
+		// create interval - not actually testing it will terminate now, as the {@link ProbabilityDensityFunction} constructor should be handling this with explicit MathContext
+		if(limitBinCount && (Math.max(N_A, N_B)>2500)){
+			this.interval = new BigDecimal(1.0d / (double) (5000.0d),MathContext.DECIMAL128);
+		}else{
+			this.interval = new BigDecimal(1.0d / (double) (Math.max(N_A, N_B)*2.0d),MathContext.DECIMAL128);
+		}
+		
+		// create pdfs, EDs
+		this.pdf_A = new ProbabilityDensityFunction(A_unitTransformed,unitRange,interval);
+		this.pdf_B = new ProbabilityDensityFunction(B_unitTransformed,unitRange,interval);
+		this.ed_A = new EmpiricalDistribution(pdf_A.getFunction(),EmpiricalDistribution.LINEAR_INTERPOLATION,RandomEngine.makeDefault());
+		this.ed_B = new EmpiricalDistribution(pdf_B.getFunction(),EmpiricalDistribution.LINEAR_INTERPOLATION,RandomEngine.makeDefault());
+	
+		// create test stat.
+		this.ks = new KolmogorovTest(A_unitTransformed,ed_B);
+	}
+
 	/**
 	 * The behaviour this class needs to replicate
 	 */

@@ -279,4 +279,43 @@ public class PairedEmpirical {
 		double[] valuesAB = {value_A,value_B};
 		return valuesAB;
 	}
+	
+	/**
+	 * Returns the untransformed arithmetic means of variates A and B
+	 * @return - double[]  of mean(A), mean(B)
+	 */
+	public double[] getMeans(){
+		double meanA = this.getMeanOfInternalSeries(A);
+		double meanB = this.getMeanOfInternalSeries(B);
+		double[] retArr = {meanA,meanB};
+		return retArr;
+	}
+	/**
+	 * Returns the untransformed arithmetic mean of variate A
+	 * @return - double of mean(A)
+	 */
+	public double getMean_A(){
+		return this.getMeanOfInternalSeries(A);
+	}
+
+	/**
+	 * Returns the untransformed arithmetic mean of variate B
+	 * @return - double of mean(B)
+	 */
+	public double getMean_B(){
+		return this.getMeanOfInternalSeries(B);
+	}
+	
+	/**
+	 * Returns an arithmetic mean.
+	 * @param series - double observations
+	 * @return - the mean
+	 */
+	private double getMeanOfInternalSeries(double[] series){
+		double sum = 0.0d;
+		for(double obs:series){
+			sum = sum + obs;
+		}
+		return (sum/new Double(series.length));
+	}
 }

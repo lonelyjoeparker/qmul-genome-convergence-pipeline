@@ -143,6 +143,7 @@ public class EmpiricalDistribution extends Empirical implements Distribution {
 		// TODO Auto-generated method stub
 		int binLocation = 0;
 		if((val<0)||(val>1)){
+			System.err.println("Bin location must be in range [0,1], not "+val);
 			throw new IllegalArgumentException();
 		}else{
 			binLocation = (int)Math.round(val * (double)cdf.length);

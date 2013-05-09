@@ -106,12 +106,21 @@ public class PairedEmpirical {
 			this.B_unitTransformed[i] = (this.B[i] / scale) - location;
 		}
 		
+		// handle the INTENSELY annoying tendency to sometimes (due to rounding errors) produce densities > 1 in the last datapoint
+		if((this.A_unitTransformed[this.N_A-1]>1.0d)&&(this.A_unitTransformed[this.N_A-1]<1.00001d)&&(this.A_unitTransformed[this.N_A-2]<=1.0d)){
+			this.A_unitTransformed[this.N_A-1] = 1.0d;	// Somehow been given 1.0<density<1.00001
+		}
+		if((this.B_unitTransformed[this.N_B-1]>1.0d)&&(this.B_unitTransformed[this.N_B-1]<1.00001d)&&(this.B_unitTransformed[this.N_B-2]<=1.0d)){
+			this.B_unitTransformed[this.N_B-1] = 1.0d;	// Somehow been given 1.0<density<1.00001
+		}
+		
 		// create interval - not actually testing it will terminate now, as the {@link ProbabilityDensityFunction} constructor should be handling this with explicit MathContext
 		if(limitBinCount && (Math.max(N_A, N_B)>2500)){
 			this.interval = new BigDecimal(1.0d / (double) (5000.0d),MathContext.DECIMAL128);
 		}else{
 			this.interval = new BigDecimal(1.0d / (double) (Math.max(N_A, N_B)*2.0d),MathContext.DECIMAL128);
 		}
+		
 		
 		// create pdfs, EDs
 		this.pdf_A = new ProbabilityDensityFunction(A_unitTransformed,unitRange,interval);

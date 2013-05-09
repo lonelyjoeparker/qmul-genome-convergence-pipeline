@@ -242,6 +242,7 @@ public class ResultsPrinterSimsCDF{
 				double [][] simulatedDeltas = new double[this.maxTrees-1][0];
 				// METHOD 1.5 initialise double[][] extremePercentilesExpected
 				double[][] extremePercentilesExpected = new double[this.testTrees.length-1][0];
+				double[][] dSSLScorrectedExpectedForRandomTrees = new double[this.testTrees.length-1][0];
 				for(int i=0;i<simulations.length;i++){
 					System.err.print('o');
 					if(Math.round((double)i/10.0d) == (double)i/10.0d){
@@ -254,7 +255,8 @@ public class ResultsPrinterSimsCDF{
 							int nSites = someRun.getNumberOfSites();
 							float[][] SSLS = someRun.getSSLSseriesSitewise();
 							double[][] dSSLS = new double[this.maxTrees-1][nSites];
-							double[][] dSSLS_e = new double[this.testTrees.length-1][nSites];
+							double[][] dSSLS_e = new double[this.testTrees.length-1][nSites]; // dSSLS percentiles, this run, concatenated later
+							double[][] dSSLS_ec = new double[this.testTrees.length-1][nSites]; // dSSLS (corrected by random trees), this un, corrected later
 							for(int j=0;j<nSites;j++){
 								double [] randomTreesDSSLS = new double[nullTrees.length];
 								int random_t_i = 0;
@@ -302,7 +304,8 @@ public class ResultsPrinterSimsCDF{
 												}
 											}
 										}
-										dSSLS_e[c-1][j] = dSSLS_expect;
+										dSSLS_e[c-1][j]  = dSSLS_expect;
+										dSSLS_ec[c-1][j] = dSSLS[testTrees[c]-1][j] + randoms.getMean_A();
 									}
 									randoms = null;
 								}
@@ -313,6 +316,7 @@ public class ResultsPrinterSimsCDF{
 							}
 							for(int c=1;c<(this.testTrees.length);c++){
 								extremePercentilesExpected[c-1] = this.concat(extremePercentilesExpected[c-1],dSSLS_e[c-1]);
+								dSSLScorrectedExpectedForRandomTrees[c-1] = this.concat(dSSLScorrectedExpectedForRandomTrees[c-1],dSSLS_ec[c-1]);
 							}
 						}
 					}catch(Exception e){
@@ -388,12 +392,12 @@ public class ResultsPrinterSimsCDF{
 								int nSites = someRun.getNumberOfSites();
 
 								String[] nameSplit = someRun.getInputFile().getPath().split("_");
-								if(lociData.containsKey(nameSplit[5])){
-									System.out.print(lociData.get(nameSplit[5])+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
-									buf.append(lociData.get(nameSplit[5])+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+								if(lociData.containsKey(nameSplit[5].toUpperCase())){
+									System.out.print(lociData.get(nameSplit[5].toUpperCase())+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									buf.append(lociData.get(nameSplit[5].toUpperCase())+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}else{
-									System.out.print(nameSplit[5]+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
-									buf.append(nameSplit[5]+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									System.out.print(nameSplit[5].toUpperCase()+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									buf.append(nameSplit[5].toUpperCase()+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}
 
 								Integer prefTree = null;
@@ -437,6 +441,7 @@ public class ResultsPrinterSimsCDF{
 								double[][] dSSLS = new double[this.maxTrees-1][nSites];
 								// METHOD 1.5 initialise double[][] extremePercentilesObserved
 								double[][] extremePercentilesObserved = new double[this.testTrees.length-1][nSites];
+								double[][] dSSLScorrectedForRandomTrees = new double[this.testTrees.length-1][nSites];
 								for(int j=0;j<nSites;j++){
 									double [] randomTreesDSSLS = new double[nullTrees.length];
 									int random_t_i = 0;
@@ -466,10 +471,20 @@ public class ResultsPrinterSimsCDF{
 									// METHOD 1.5 first init random trees double[] for this site (dSSLS,{random_0:random_nRandom})
 									Arrays.sort(randomTreesDSSLS);
 									double[] nullThing = {randomTreesDSSLS[0],randomTreesDSSLS[randomTreesDSSLS.length-1]};
-									if(!(nullThing[0]==0.0)&&(nullThing[1]==0.0)){
+									if(!((nullThing[0]==0.0)&&(nullThing[1]==0.0))){												// This is a test for the start AND the end of the randomTreesDSSLS being == 0.0d
 										PairedEmpirical randoms = new PairedEmpirical(randomTreesDSSLS,nullThing,true);
 										// METHOD 1.5 then get invCDF of observed vals from Ha trees
 										// METHOD 1.5 then put those p vals to extremePercentilesObserved
+										
+										// METHOD 1.6 ***** 
+										// Could compare the ÆSSLS in the observed sites for H0Ha with the expected (simulated) sites in H0Hrandom, or indeed Ha
+										// This would tell us unexpectedness of each site for Hr or Ha
+										// So do unexpectedness for H0Ha, and H0Hr; where 
+										// "Unexpectedness" == percentile of observed site ÆSSLS vs. simulated distribution for *that* topology.
+										// This means:
+										// Unexpectedness for H0Ha is the statistic for convergence, but
+										// Unexpectedness for H0Hr is the correction for that stat. First time out report uncorrected vals, corrected ones, and mean correction factor (plus SD) to check.
+										
 										for(int c=1;c<(this.testTrees.length);c++){
 											double someDelta = dSSLS[testTrees[c]-1][j];
 											double dSSLS_expect;
@@ -491,7 +506,8 @@ public class ResultsPrinterSimsCDF{
 													}
 												}
 											}
-											extremePercentilesObserved[c-1][j] = dSSLS_expect;
+											extremePercentilesObserved[c-1][j] = dSSLS_expect;									
+											dSSLScorrectedForRandomTrees[c-1][j] = dSSLS[testTrees[c]-1][j] + randoms.getMean_A();
 										}
 										randoms = null;
 									}
@@ -524,6 +540,66 @@ public class ResultsPrinterSimsCDF{
 //									buf.append("\t"+largeDeltas[k]);
 //								}
 								
+								
+								// METHOD 1.6 Unexpectedness matrix initialise
+								double[][] unexpectedness = new double[this.maxTrees-1][dSSLS[0].length];
+								double[] sumUnexpectedness = new double[this.maxTrees-1];
+								double[] sumUnexpectednessCorrected = new double[this.maxTrees-1];
+								// METHOD 1.6 populate unexpectedness matrix
+								for(int a=0;a<this.maxTrees-1;a++){
+									// extract the expected values for H(a) from the ÆSSLS matrix for simulations
+									int numSimulatedSites = simulatedDeltas[a].length;
+									double[] expected_a = new double[numSimulatedSites];
+									for(int j=0;j<numSimulatedSites;j++){
+										expected_a[j] = simulatedDeltas[a][j];
+									}
+
+									// Set up the eCDF for expected sites (simulated ÆSSLS for H0-Ha)
+									Arrays.sort(expected_a);
+									double[] nullThing = {expected_a[0],expected_a[numSimulatedSites-1]};
+									PairedEmpirical randoms = null;
+									if(!((nullThing[0]==0.0)&&(nullThing[1]==0.0))){												// This is a test for the start AND the end of the randomTreesDSSLS being == 0.0d
+										randoms = new PairedEmpirical(expected_a,nullThing,true);
+									}
+									
+									// Get sitewise U(a) as CDF(dSSLS[a][j]) where CDF from expected H(a)
+									// NB null values will be given Double.NaN - TAKE CARE when processing this...
+									for(int j=0;j<unexpectedness[0].length;j++){
+										double observedSiteDSSLS = dSSLS[a][j];
+										if(randoms==null){
+											// Failed to set up the eCDF for expected ÆSSLS
+											unexpectedness[a][j] = Double.NaN;
+										}else{
+											if(observedSiteDSSLS < expected_a[0]){
+												unexpectedness[a][j] = 1.0d; 	// Maximal unexpectedness (observed ÆSSLS more extreme, left tail, than all expected values)
+											}else if(observedSiteDSSLS > expected_a[numSimulatedSites-1]){
+												unexpectedness[a][j] = 0.0d; 	// Minimal unexpectedness (observed ÆSSLS less extreme, right tail, than all expected values)
+											}else{
+												unexpectedness[a][j] = (1.0d - randoms.getDensity_A(observedSiteDSSLS));
+											}
+										}
+									}
+									randoms=null;
+								}
+								// METHOD 1.6 calculate sitewise Ua correction (by -mean(Ur))
+								double[] unexpectednessRandomTreesCorrection = new double[unexpectedness[0].length];
+								for(int j=0;j<unexpectedness[0].length;j++){
+									// really irritatingly, it looks like we have to iterate through again, since the unexpectedness values weren't known in advance last time..
+									double[] nullUnexpectedness = new double[nullTrees.length];
+									for(int r=0;r<nullUnexpectedness.length;r++){
+										nullUnexpectedness[r] = unexpectedness[nullTrees[r]-1][j];
+									}
+									unexpectednessRandomTreesCorrection[j] = this.meanSafeForNaN(nullUnexpectedness);
+								}
+								
+								// METHOD 1.6: now sum the unexpectednesses over sites
+								for(int j=0;j<unexpectedness[0].length;j++){
+									for(int a=0;a<this.maxTrees-1;a++){
+										sumUnexpectedness[a] += unexpectedness[a][j];
+										sumUnexpectednessCorrected[a] += (unexpectedness[a][j] - unexpectednessRandomTreesCorrection[j]);
+									}
+								}
+								
 								// METHOD 1: Aggregate the sites from the random trees; *separately* for both simulations (simulatedDeltas) and empirical sites (dSSLS)
 								// METHOD 1: KS test Ha sites vs Hr sites
 								// METHOD 1: need a call to get double[] randomTreesDeltaSSLS from this void collapseMatrixColumns(double[][] matrix; int[] indices) (not written)
@@ -531,6 +607,29 @@ public class ResultsPrinterSimsCDF{
 								double[] dSSLSrandomTreesSims = this.collapseMatrixColumns(simulatedDeltas,nullTrees);
 								// METHOD 1.5: KS test (for i in 0:testHa) extremePercentilesObserved vs extremePercentilesExpected
 								
+								// METHOD 1.6 quickly coding the unexpectedness in the null trees for testing purposes
+								double[] nullTreesUnexpectedness			 = new double[nullTrees.length];
+								double[] nullTreesUnexpectednessCorrected	 = new double[nullTrees.length];
+								for(int r=0;r<nullTrees.length-1;r++){
+									nullTreesUnexpectedness[r] = sumUnexpectedness[nullTrees[r]-1];
+									nullTreesUnexpectednessCorrected[r] = sumUnexpectednessCorrected[nullTrees[r]-1];
+								}
+								double averagedNullTreesUnexpectedness			 = (this.meanSafeForNaN(nullTreesUnexpectedness) / (double) dSSLS[0].length);
+								double averagedNullTreesUnexpectednessCorrected	 = this.meanSafeForNaN(nullTreesUnexpectednessCorrected);
+								double averagedUnexpectednessForAllSites = this.meanSafeForNaN(unexpectednessRandomTreesCorrection);
+
+								System.out.println(
+									averagedNullTreesUnexpectedness+"\t"
+									+averagedNullTreesUnexpectednessCorrected+"\t"
+									+averagedUnexpectednessForAllSites+"\t"
+								);
+								buf.append(
+										averagedNullTreesUnexpectedness+"\t"
+										+averagedNullTreesUnexpectednessCorrected+"\t"
+										+averagedUnexpectednessForAllSites+"\t"
+									);
+
+								// Final results printing shindig
 								for(int c=1;c<(this.testTrees.length);c++){
 									// IMPORTANT 
 									// IMPORTANT
@@ -557,6 +656,8 @@ public class ResultsPrinterSimsCDF{
 									PairedEmpirical significanceRTCE 	= new PairedEmpirical(dSSLS[t]			,dSSLSrandomTrees		,true);		// The KS test of the test trees[t] vs. random trees; EMPIRICAL (observed) amino acids
 									PairedEmpirical significanceRTCS 	= new PairedEmpirical(simulatedDeltas[t],dSSLSrandomTreesSims	,true);		// The KS test of the test trees[t] vs. random trees; SIMULATED  amino acids
 									PairedEmpirical significanceSITES	= new PairedEmpirical(extremePercentilesObserved[c-1],extremePercentilesExpected[c-1],true);	// The KS test of the distribution of CDF positions of the observed and simulated AAs under [t] compared to random.
+									PairedEmpirical significanceCORRECT	= new PairedEmpirical(dSSLScorrectedForRandomTrees[c-1],dSSLScorrectedExpectedForRandomTrees[c-1],true);	// The KS test of the distribution of corrected dSSLS of the observed and simulated AAs under [t] compared to random.
+									PairedEmpirical significanceCORRECT2	= new PairedEmpirical(dSSLS[t],dSSLSrandomTreesSims,true);	// The KS test of the distribution of corrected dSSLS of the observed and simulated AAs under [t] compared to random.
 									double K  = significance.getKS();
 									double p  = significance.getKS_sp();
 									double d = significance.getDensity_A_at_percentile_B(0.05d);
@@ -589,6 +690,8 @@ public class ResultsPrinterSimsCDF{
 									System.out.print(
 											"\ttH0-H"+testTrees[c]+"\t"
 											+AOSD+"\t"
+											+significanceCORRECT.getMean_A()+"\t"
+											+significanceCORRECT.getMean_B()+"\t"
 											+K+"\t"
 											+p+"\t"
 											+d+"\t"
@@ -608,10 +711,17 @@ public class ResultsPrinterSimsCDF{
 											+significanceSITES.getKS()+"\t"
 											+significanceSITES.getKS_sp()+"\t"
 											+significanceSITES.getDensity_A_at_percentile_B(0.05d)+"\t"
+											+significanceCORRECT.getKS()+"\t"
+											+significanceCORRECT.getKS_sp()+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.05d)+"\t"
+											+(sumUnexpectedness[t]/((double)unexpectedness[0].length))+"\t"
+											+(sumUnexpectednessCorrected[t]/((double)unexpectedness[0].length))+"\t"
 											+"\n");
 									buf.append(
 											"\ttH0-H"+testTrees[c]+"\t"
 											+AOSD+"\t"
+											+significanceCORRECT.getMean_A()+"\t"
+											+significanceCORRECT.getMean_B()+"\t"
 											+K+"\t"
 											+p+"\t"
 											+d+"\t"
@@ -632,8 +742,41 @@ public class ResultsPrinterSimsCDF{
 											+significanceRTCS.getDensity_A_at_percentile_B(0.05d)+"\t"
 											+significanceSITES.getKS()+"\t"
 											+significanceSITES.getKS_sp()+"\t"
-											+significanceSITES.getDensity_A_at_percentile_B(0.95d)+"\t"
+											+significanceSITES.getDensity_A_at_percentile_B(0.01d)+"\t"
 											+significanceSITES.getDensity_A_at_percentile_B(0.05d)+"\t"
+											+significanceSITES.getDensity_A_at_percentile_B(0.10d)+"\t"
+											+significanceSITES.getDensity_A_at_percentile_B(0.25d)+"\t"
+											+significanceSITES.getDensity_A_at_percentile_B(0.50d)+"\t"
+											+significanceSITES.getDensity_A_at_percentile_B(0.75d)+"\t"
+											+significanceSITES.getDensity_A_at_percentile_B(0.90d)+"\t"
+											+significanceSITES.getDensity_A_at_percentile_B(0.95d)+"\t"
+											+significanceSITES.getDensity_A_at_percentile_B(0.99d)+"\t"
+											+significanceCORRECT.getKS()+"\t"
+											+significanceCORRECT.getKS_sp()+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.01d)+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.05d)+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.10d)+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.25d)+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.50d)+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.75d)+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.90d)+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.95d)+"\t"
+											+significanceCORRECT.getDensity_A_at_percentile_B(0.99d)+"\t"
+											+significanceCORRECT2.getKS()+"\t"
+											+significanceCORRECT2.getKS_sp()+"\t"
+											+significanceCORRECT2.getMean_A()+"\t"
+											+significanceCORRECT2.getMean_B()+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.01d)+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.05d)+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.10d)+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.25d)+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.50d)+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.75d)+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.90d)+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.95d)+"\t"
+											+significanceCORRECT2.getDensity_A_at_percentile_B(0.99d)+"\t"
+											+(sumUnexpectedness[t]/((double)unexpectedness[0].length))+"\t"
+											+(sumUnexpectednessCorrected[t]/((double)unexpectedness[0].length))+"\t"
 									);
 								}
 								System.out.println("");
@@ -867,12 +1010,12 @@ public class ResultsPrinterSimsCDF{
 								int nSites = someRun.getNumberOfSites();
 
 								String[] nameSplit = someRun.getInputFile().getPath().split("_");
-								if(lociData.containsKey(nameSplit[5])){
-									System.out.print(lociData.get(nameSplit[5])+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
-									buf.append(lociData.get(nameSplit[5])+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+								if(lociData.containsKey(nameSplit[5].toUpperCase())){
+									System.out.print(lociData.get(nameSplit[5].toUpperCase())+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									buf.append(lociData.get(nameSplit[5].toUpperCase())+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}else{
-									System.out.print(nameSplit[5]+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
-									buf.append(nameSplit[5]+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									System.out.print(nameSplit[5].toUpperCase()+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									buf.append(nameSplit[5].toUpperCase()+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}
 
 								if((fittedTrees.length == this.maxTrees)&&(someRun.getNumberOfTaxa()==22)){
@@ -3361,9 +3504,28 @@ public class ResultsPrinterSimsCDF{
 				"ENSG00000101266	http://www.ensembl.org/Homo_sapiens/Gene/Summary?g=ENSG00000101266	CSNK2A1	casein kinase 2, alpha 1 polypeptide [Source:HGNC Symbol;Acc:2457]"
 		};
 		for(String locus:unparsedData){
-			metadata.put(locus.split("\t")[0], locus);
+			metadata.put(locus.split("\t")[0].toUpperCase(), locus);
 		}
 		return metadata;
+	}
+	
+	/**
+	 * Private utility class to calculate the mean of a variable safely (NaNs ignored/don't screw it up)
+	 * <p>NB <i>N</i>, the count of items in the array, will <b>not</b> include NaNs.
+	 * @param values - a double[] with some values including Double.NaNs
+	 * @return arithmetic mean of values
+	 */
+	private double meanSafeForNaN(double[] values){
+		double mean = 0.0d;
+		int count = 0;
+		for(int i=0;i<values.length;i++){
+			if(!(new Double(values[i]).isNaN())){
+				mean += values[i];
+				count ++;
+			}
+		}
+		mean = mean / (new Double(count));
+		return mean;
 	}
 	
 	protected static double [] concat(double[] first, double[] second){

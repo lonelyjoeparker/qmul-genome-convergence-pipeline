@@ -233,7 +233,7 @@ public class ResultsPrinterSimsCDF{
 					ex.printStackTrace();
 				}
 			}
-			String[] models = {"wag"};
+			String[] models = {"wag","jones","dayhoff"};
 			for(String model:models){
 				/*
 				 * Analyse SIMULATIONS

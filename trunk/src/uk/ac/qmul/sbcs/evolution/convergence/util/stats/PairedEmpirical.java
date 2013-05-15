@@ -107,11 +107,31 @@ public class PairedEmpirical {
 		}
 		
 		// handle the INTENSELY annoying tendency to sometimes (due to rounding errors) produce densities > 1 in the last datapoint
-		if((this.A_unitTransformed[this.N_A-1]>1.0d)&&(this.A_unitTransformed[this.N_A-1]<1.00001d)&&(this.A_unitTransformed[this.N_A-2]<=1.0d)){
-			this.A_unitTransformed[this.N_A-1] = 1.0d;	// Somehow been given 1.0<density<1.00001
+		if((this.A_unitTransformed[this.N_A-1]>1.0d)&&(this.A_unitTransformed[this.N_A-1]<1.00001d)){
+			if(this.A_unitTransformed[this.N_A-2]<=1.0d){
+				this.A_unitTransformed[this.N_A-1] = 1.0d;	// Somehow the last bin (only) been given 1.0<density<1.00001
+			}else{
+				// Uh-oh: Two or more bins look like d>1.0 
+				// Trim them all to be sure:
+				for(int bin=0;bin<this.N_A;bin++){
+					if((this.A_unitTransformed[bin]>1.0d)&&(this.A_unitTransformed[bin]<1.00001d)){
+						this.A_unitTransformed[bin] = 1.0d;
+					}
+				}
+			}
 		}
-		if((this.B_unitTransformed[this.N_B-1]>1.0d)&&(this.B_unitTransformed[this.N_B-1]<1.00001d)&&(this.B_unitTransformed[this.N_B-2]<=1.0d)){
-			this.B_unitTransformed[this.N_B-1] = 1.0d;	// Somehow been given 1.0<density<1.00001
+		if((this.B_unitTransformed[this.N_B-1]>1.0d)&&(this.B_unitTransformed[this.N_B-1]<1.00001d)){
+			if(this.B_unitTransformed[this.N_B-2]<=1.0d){
+				this.B_unitTransformed[this.N_B-1] = 1.0d;	// Somehow the last bin (only) been given 1.0<density<1.00001
+			}else{
+				// Uh-oh: Two or more bins look like d>1.0 
+				// Trim them all to be sure:
+				for(int bin=0;bin<this.N_B;bin++){
+					if((this.B_unitTransformed[bin]>1.0d)&&(this.B_unitTransformed[bin]<1.00001d)){
+						this.B_unitTransformed[bin] = 1.0d;
+					}
+				}
+			}
 		}
 		
 		// create interval - not actually testing it will terminate now, as the {@link ProbabilityDensityFunction} constructor should be handling this with explicit MathContext

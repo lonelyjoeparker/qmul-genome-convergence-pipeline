@@ -10,6 +10,7 @@ import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import uk.ac.qmul.sbcs.evolution.convergence.ParsimonyReconstruction;
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 import junit.framework.TestCase;
@@ -83,7 +84,25 @@ public class TreeNodeTest extends TestCase {
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
-		species.getEndPos();
 		HashMap<String, HashSet<String>[]> states = candidate.getDataset().getAminoAcidsAsFitchStates();
+		HashSet<String>[] baseStates = species.getFitchStates(states).clone();
+		int ambiguousAtRoot = 0;
+		for(HashSet<String> statesSet:baseStates){
+			if(statesSet.size()>1){
+				ambiguousAtRoot++;
+			}
+		}
+		species.resolveFitchStatesTopnode();
+		species.resolveFitchStates(species.states);
+		ParsimonyReconstruction pr = new ParsimonyReconstruction(states, species);
+		pr.printAncestralComparison();
+		String[] echolocators = {"MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
+		int pll_H1 = pr.findParallelSubtitutionsFromAncestral(echolocators);
+		int pll_H1c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocators,baseStates);
+		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
+		int pll_H2 = pr.findParallelSubtitutionsFromAncestral(echolocatorsH2);
+		int pll_H2c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocatorsH2,baseStates);
+		System.out.println("\nParallel H1\t\t"+pll_H1+"\nParallel H1c\t\t"+pll_H1c+"\nParallel H2\t\t"+pll_H2+"\nParallel H2c\t\t"+pll_H2c+"\n(Ambiguous at root:\t"+ambiguousAtRoot+")\n");
+		species.getEndPos();
 	}
 }

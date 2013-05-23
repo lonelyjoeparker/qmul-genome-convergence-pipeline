@@ -285,4 +285,11 @@ public class TreeNode {
 	public void setContent(String content) {
 		this.content = content;
 	}
+
+	/**
+	 * @return the states
+	 */
+	public HashSet<String>[] getStates() {
+		return states;
+	}
 }

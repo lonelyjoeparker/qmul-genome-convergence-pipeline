@@ -1,6 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.convergence;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.nio.CharBuffer;
 import java.util.*;
 import java.util.Map.Entry;
@@ -1772,12 +1773,24 @@ public class AlignedSequenceRepresentation implements Serializable {
 	}
 
 	/**
-	 * A method to return a HashMap<String,HashSet<String>[]> of taxon names and sequences as states for a Fitch parsimony reconstruction by @link
+	 * A method to return a HashMap<String,HashSet<String>[]> of taxon names and sequences as states for a Fitch parsimony reconstruction by uk.ac.qmul.sbcs.evolution.convergence.TreeNode
 	 * @return Taxon names and sequences as HashSet<String>[] 
 	 * @since 2013/05/23
+	 * @see TreeNode
 	 */
 	public HashMap<String, HashSet<String>[]> getAminoAcidsAsFitchStates() {
-		// TODO Auto-generated method stub
-		return null;
+		HashMap<String, HashSet<String>[]> states = new HashMap<String,HashSet<String>[]>();
+		Iterator<String> taxonIter = sequenceHash.keySet().iterator();
+		while(taxonIter.hasNext()){
+			String taxon = taxonIter.next();
+			char[] charsArray = sequenceHash.get(taxon);
+			HashSet<String>[] sequenceStates = (HashSet<String>[]) Array.newInstance(HashSet.class, charsArray.length);
+			for(int i=0;i<charsArray.length;i++){
+				sequenceStates[i] = new HashSet<String>();
+				sequenceStates[i].add(Character.toString(charsArray[i]));
+			}
+			states.put(taxon, sequenceStates);
+		}
+ 		return states;
 	}
 }

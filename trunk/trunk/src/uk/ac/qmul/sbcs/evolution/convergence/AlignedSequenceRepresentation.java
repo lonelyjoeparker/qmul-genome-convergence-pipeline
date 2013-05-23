@@ -1770,4 +1770,14 @@ public class AlignedSequenceRepresentation implements Serializable {
 	public HashMap<Integer, Integer> getInputIndices(){
 		return null;
 	}
+
+	/**
+	 * A method to return a HashMap<String,HashSet<String>[]> of taxon names and sequences as states for a Fitch parsimony reconstruction by @link
+	 * @return Taxon names and sequences as HashSet<String>[] 
+	 * @since 2013/05/23
+	 */
+	public HashMap<String, HashSet<String>[]> getAminoAcidsAsFitchStates() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

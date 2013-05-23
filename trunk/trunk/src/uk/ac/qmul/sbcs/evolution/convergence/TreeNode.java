@@ -1,4 +1,4 @@
-package uk.ac.qmul.sbcs.evolution.sandbox;
+package uk.ac.qmul.sbcs.evolution.convergence;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
@@ -51,6 +51,7 @@ public class TreeNode {
 					someDist = null;
 					
 				}
+				this.content = "internal("+daughters[0].getContent()+","+daughters[1].getContent()+")";
 				endPos++;
 				return;
 			case ':': //condition distance for previous node;
@@ -269,5 +270,19 @@ public class TreeNode {
 				daughter.printStates();
 			}
 		}
+	}
+
+	/**
+	 * @return the content
+	 */
+	public String getContent() {
+		return content;
+	}
+
+	/**
+	 * @param content the content to set
+	 */
+	public void setContent(String content) {
+		this.content = content;
 	}
 }

@@ -29,7 +29,7 @@ public class ParallelSubstitutionDetector {
 	}
 
 	private void go(String[] args){
-		System.out.println("input\tInputFileName\tmodel\tParallel H1\tParallel H1c\tParallel H2\tParallel H2c\t(Ambiguous at root)");
+		System.out.println("input\tInputFileName\tmodel\tParallel H1\tParallel H1c\tParallel H1o\tParallel H2\tParallel H2c\tParallel H1c\t(Ambiguous at root)");
 		File dir = new File(args[0]);
 		FilenameFilter serFileFilter = new serFilter();
 		StringBuffer bufMain = new StringBuffer();				// no treefile buffer for this one.
@@ -64,13 +64,16 @@ public class ParallelSubstitutionDetector {
 						species.resolveFitchStates(species.states);
 						ParsimonyReconstruction pr = new ParsimonyReconstruction(states, species);
 						//pr.printAncestralComparison();
+						String[] controls = {"EIDOLON","PTEROPUS"};
 						String[] echolocators = {"MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
-						int pll_H1 = pr.findParallelSubtitutionsFromAncestral(echolocators);
-						int pll_H1c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocators,baseStates);
 						String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
-						int pll_H2 = pr.findParallelSubtitutionsFromAncestral(echolocatorsH2);
-						int pll_H2c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocatorsH2,baseStates);
-						System.out.println(input.getName()+"\t"+candidate.getInputFileName()+"\t"+candidate.getModel()+"\t"+pll_H1+"\t"+pll_H1c+"\t"+pll_H2+"\t"+pll_H2c+"\t"+ambiguousAtRoot);
+						int pll_H1  = pr.findParallelSubtitutionsFromAncestral(echolocators, false);
+						int pll_H1c = pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocators,baseStates, false);
+						int pll_H1o = pr.findParallelSubtitutionsFromAncestralRejectingAmbiguitiesControllingOutgroups(echolocators,baseStates, false, controls);
+						int pll_H2  = pr.findParallelSubtitutionsFromAncestral(echolocatorsH2, false);
+						int pll_H2c = pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocatorsH2,baseStates,false);
+						int pll_H2o = pr.findParallelSubtitutionsFromAncestralRejectingAmbiguitiesControllingOutgroups(echolocatorsH2,baseStates, false, controls);
+						System.out.println(input.getName()+"\t"+candidate.getInputFileName()+"\t"+candidate.getModel()+"\t"+pll_H1+"\t"+pll_H1c+"\t"+pll_H1o+"\t"+pll_H2+"\t"+pll_H2c+"\t"+pll_H2o+"\t"+ambiguousAtRoot);
 						species.getEndPos();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block

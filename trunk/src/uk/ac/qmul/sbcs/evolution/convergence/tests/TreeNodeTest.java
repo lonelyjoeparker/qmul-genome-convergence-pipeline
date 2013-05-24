@@ -97,12 +97,14 @@ public class TreeNodeTest extends TestCase {
 		ParsimonyReconstruction pr = new ParsimonyReconstruction(states, species);
 		pr.printAncestralComparison();
 		String[] echolocators = {"MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
-		int pll_H1 = pr.findParallelSubtitutionsFromAncestral(echolocators);
-		int pll_H1c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocators,baseStates);
 		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
-		int pll_H2 = pr.findParallelSubtitutionsFromAncestral(echolocatorsH2);
-		int pll_H2c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocatorsH2,baseStates);
-		System.out.println("\nParallel H1\t\t"+pll_H1+"\nParallel H1c\t\t"+pll_H1c+"\nParallel H2\t\t"+pll_H2+"\nParallel H2c\t\t"+pll_H2c+"\n(Ambiguous at root:\t"+ambiguousAtRoot+")\n");
+		String[] controls = {"EIDOLON","PTEROPUS"};
+		int pll_H1 = pr.findParallelSubtitutionsFromAncestral(echolocators, true);
+		int pll_H1c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocators,baseStates, true);
+		int pll_H2 = pr.findParallelSubtitutionsFromAncestral(echolocatorsH2, true);
+		int pll_H2c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocatorsH2,baseStates,true);
+		int pll_H2o= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguitiesControllingOutgroups(echolocatorsH2,baseStates,true,controls);
+		System.out.println("\nParallel H1\t\t"+pll_H1+"\nParallel H1c\t\t"+pll_H1c+"\nParallel H2\t\t"+pll_H2+"\nParallel H2c\t\t"+pll_H2c+"\nParallel H2o\t\t"+pll_H2o+"\n(Ambiguous at root:\t"+ambiguousAtRoot+")\n");
 		species.getEndPos();
 	}
 }

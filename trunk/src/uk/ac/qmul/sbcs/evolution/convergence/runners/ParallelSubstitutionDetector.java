@@ -29,7 +29,7 @@ public class ParallelSubstitutionDetector {
 	}
 
 	private void go(String[] args){
-		System.out.println("input\tInputFileName\tmodel\tParallel H1\tParallel H1c\tParallel H1o\tParallel H2\tParallel H2c\tParallel H1c\t(Ambiguous at root)");
+		System.out.println("input\tInputFileName\tmodel\tParallel H1\tParallel H1c\tParallel H1o\tParallel H2\tParallel H2c\tParallel H2o\t(Ambiguous at root)");
 		File dir = new File(args[0]);
 		FilenameFilter serFileFilter = new serFilter();
 		StringBuffer bufMain = new StringBuffer();				// no treefile buffer for this one.

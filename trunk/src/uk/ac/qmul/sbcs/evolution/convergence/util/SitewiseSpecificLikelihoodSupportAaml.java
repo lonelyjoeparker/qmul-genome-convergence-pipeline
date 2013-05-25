@@ -17,12 +17,13 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.Aam
  * @since r130 12/3/2013
  * Class to contain basically all the SSLS features required.
  * 
- * Designed to be initialised with ASR; 
- * SSLS patterns loaded; 
- * other aaml run parameters (model; overall lnL, alpha, fitted tree, li etc) loaded from parsed aaml.out file;
- * ÆSSLS calculated from patterns; 
- * serialised and reinflated as object afterwards (UNTESTED) (e.g. downloaded...)
- * <b>IMPORTANT</b>: <i>One</i> model (Aaml run) per object.......
+ * <p>Designed to be initialised with ASR; 
+ * <br/>SSLS patterns loaded; 
+ * <br/>other aaml run parameters (model; overall lnL, alpha, fitted tree, li etc) loaded from parsed aaml.out file;
+ * <br/>ÆSSLS calculated from patterns; 
+ * <br/>serialised and reinflated as object afterwards (UNTESTED) (e.g. downloaded...)
+ * 
+ * <p><b>IMPORTANT</b>: <i>One</i> model (Aaml run) per object.......
  * 
  */
 

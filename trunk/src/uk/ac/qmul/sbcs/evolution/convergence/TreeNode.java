@@ -1,13 +1,14 @@
 package uk.ac.qmul.sbcs.evolution.convergence;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import jebl.math.Random;
 
 public class TreeNode {
-	TreeNode[] daughters;
+	ArrayList<TreeNode> daughters;
 	TreeNode parent;
 	boolean isTerminal;
 	String content;
@@ -27,6 +28,7 @@ public class TreeNode {
 		this.startPos = startAt;
 		this.endPos = startPos;
 		this.isTerminal = false;
+		this.daughters  = new ArrayList<TreeNode>();
 		TreeNode somenode = null;
 		String someName = null;
 		String someDist = null;
@@ -40,18 +42,22 @@ public class TreeNode {
 				break;
 			case ')': //condition end node;
 				if(someName != null){
-					daughters[1] = new TreeNode(someName, someDist);
+					daughters.add(new TreeNode(someName, someDist));
 					someName = null;
 					someDist = null;
 				}else{
 					somenode.setDistance(someDist);
-					daughters[1] = somenode;
+					daughters.add(somenode);
 					somenode = null;
 					someName = null;
 					someDist = null;
 					
 				}
-				this.content = "internal("+daughters[0].getContent()+","+daughters[1].getContent()+")";
+				this.content = "(";
+				for(TreeNode daughter:daughters){
+					content = content + daughter.getContent() + ",";
+				}
+				content = content.substring(0, content.length()-1)+")";
 				endPos++;
 				return;
 			case ':': //condition distance for previous node;
@@ -59,14 +65,13 @@ public class TreeNode {
 				endPos++;
 				break;
 			case ',': //condition second node;
-				daughters  = new TreeNode[2];
 				if(someName != null){
-					daughters[0] = new TreeNode(someName,someDist);
+					daughters.add(new TreeNode(someName,someDist));
 					someName = null;
 					someDist = null;
 				}else{
 					somenode.setDistance(someDist);
-					daughters[0] = somenode;
+					daughters.add(somenode);
 					somenode = null;
 					someDist = null;
 				}
@@ -159,10 +164,10 @@ public class TreeNode {
 			this.states = inputStates.get(content);
 			return states;
 		}else{
-			HashSet<String>[]  leftStates = this.daughters[0].getFitchStates(inputStates);
-			HashSet<String>[] rightStates = this.daughters[1].getFitchStates(inputStates);
-			this.fitchStateChanges += this.daughters[0].getFitchStateChanges();
-			this.fitchStateChanges += this.daughters[1].getFitchStateChanges();
+			HashSet<String>[]  leftStates = this.daughters.get(0).getFitchStates(inputStates);
+			HashSet<String>[] rightStates = this.daughters.get(1).getFitchStates(inputStates);
+			this.fitchStateChanges += this.daughters.get(0).getFitchStateChanges();
+			this.fitchStateChanges += this.daughters.get(1).getFitchStateChanges();
 			if(leftStates.length != rightStates.length){
 				throw new IllegalArgumentException("Fitch reconstruction: lengths of daughters' state arrays don't match!");
 			}else{
@@ -291,5 +296,71 @@ public class TreeNode {
 	 */
 	public HashSet<String>[] getStates() {
 		return states;
+	}
+
+	public void printTree() {
+		// TODO Auto-generated method stub
+		System.out.println(this.content);
+	}
+	
+	public String printRecursively(){
+		if(this.isTerminal){
+			return content;
+		}else{
+			String retString = "(";
+			for(TreeNode daughter:daughters){
+				retString = retString + daughter.printRecursively() + ",";
+			}
+			retString = retString.substring(0, retString.length()-1) + ")";
+			return retString;
+		}
+	}
+
+	public String printRecursivelyLabelling(String[] someTaxa){
+		if(this.isTerminal){
+			if(this.subtreeContains(someTaxa)){
+				return content+"#1";
+			}else{
+				return content;
+			}
+		}else{
+			if(this.subtreeContains(someTaxa)){
+				String retString = "(";
+				for(TreeNode daughter:daughters){
+					retString = retString + daughter.printRecursivelyLabelling(someTaxa) + ",";
+				}
+				retString = retString.substring(0, retString.length()-1) + ")#1";
+				return retString;
+			}else{
+				String retString = "(";
+				for(TreeNode daughter:daughters){
+					retString = retString + daughter.printRecursivelyLabelling(someTaxa) + ",";
+				}
+				retString = retString.substring(0, retString.length()-1) + ")";
+				return retString;
+			}
+		}
+	}
+	
+	public boolean subtreeContains(String[] someTaxa){
+		boolean thisContains = false;
+		if(this.isTerminal){
+			for(String taxon:someTaxa){
+				if(taxon.equals(content)){
+					thisContains = true;
+				}
+			}
+		}else{
+			boolean allContain = true;
+			ArrayList<Boolean> daughtersContain = new ArrayList<Boolean>();
+			for(TreeNode daughter:daughters){
+				daughtersContain.add(daughter.subtreeContains(someTaxa));
+			}
+			if(daughtersContain.contains(false)){
+				allContain = false;
+			}
+			thisContains = allContain;
+		}
+		return thisContains;	
 	}
 }

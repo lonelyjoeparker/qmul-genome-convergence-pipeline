@@ -107,4 +107,52 @@ public class TreeNodeTest extends TestCase {
 		System.out.println("\nParallel H1\t\t"+pll_H1+"\nParallel H1c\t\t"+pll_H1c+"\nParallel H2\t\t"+pll_H2+"\nParallel H2c\t\t"+pll_H2c+"\nParallel H2o\t\t"+pll_H2o+"\n(Ambiguous at root:\t"+ambiguousAtRoot+")\n");
 		species.getEndPos();
 	}
+
+	public void testPrint() throws IOException, ClassNotFoundException{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		species.printTree();
+		System.out.println(species.printRecursively()+";");
+		System.out.println(species.printRecursivelyLabelling(echolocatorsH2)+";");
+		species.getEndPos();
+	}
+
+	public void testSubtreeContains() throws IOException, ClassNotFoundException{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		if(species.subtreeContains(echolocatorsH2)){
+			fail();
+		}
+	}
+
+	public void testSubtreeContainsAll() throws IOException, ClassNotFoundException{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		String[] allTaxa = {"LOXODONTA","DASYPUS","CANIS","FELIS","EQUUS","TURSIOPS","BOS","VICUGNA","MYOTIS","RHINOLOPHUS","MEGADERMA","PTEROPUS","SOREX","ERINACEUS","MUS","ORYCTOLAGUS","OCHOTONA","PAN","HOMO","MONODELPHIS"};
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		if(!species.subtreeContains(allTaxa)){
+			fail();
+		}
+	}
+
+	public void testPrintPaml() throws IOException, ClassNotFoundException{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		String[] trees = candidate.getFittedTrees();
+		for(int i=0;i<trees.length;i++){
+			TreeNode tree = new TreeNode(trees[i].replaceAll("\\s", ""),1);
+			System.out.println("tree_"+i+" = "+tree.printRecursivelyLabelling(echolocatorsH2)+";");
+		}
+		candidate.getDataset().writePhylipFile("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/quick.phy");
+	
+	}
 }

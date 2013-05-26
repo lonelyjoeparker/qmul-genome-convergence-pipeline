@@ -93,7 +93,9 @@ public class BasicFileReader {
 		catch(Exception ex){
 			ex.printStackTrace();
 		}
-		System.out.println("BasicFileReader read "+lines+" lines.");
+		if(reportBufferStatus){
+			System.out.println("BasicFileReader read "+lines+" lines.");
+		}
 		return rawInput;
 	}
 }

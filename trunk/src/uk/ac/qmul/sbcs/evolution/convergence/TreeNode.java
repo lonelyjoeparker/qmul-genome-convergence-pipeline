@@ -159,6 +159,13 @@ public class TreeNode {
 	 * @param states; a HashMap of all of the states for terminal taxa
 	 * @return post-order traversal will give sets of possible states for this node, pass up.
 	 */
+	@Deprecated
+	/**
+	 * WARNING WARNING WARNING WARNING WARNING
+	 * Recently (r177; 25/05/2013) refactored daughters to ArrayList<TreeNode> from TreeNode[]
+	 * THE CURRENT IMPLEMENTATION OF THIS METHOD DOES NOT ACCOUNT FOR daughters>2
+	 * @TODO
+	 */
 	public HashSet<String>[] getFitchStates(HashMap<String, HashSet<String>[]> inputStates) {
 		if(isTerminal){
 			this.states = inputStates.get(content);

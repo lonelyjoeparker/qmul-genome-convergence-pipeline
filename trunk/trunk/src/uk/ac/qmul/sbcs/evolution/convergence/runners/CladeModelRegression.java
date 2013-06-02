@@ -54,17 +54,19 @@ public class CladeModelRegression {
 				y[i] = w;
 			}
 		}
-		double mean_dSSLS = (dSSLS_sum / (float)numSites);
-		LinearRegression linear = new LinearRegression(x,y);
-		System.out.print(candidate.getInputFileName()+"\t");
-		System.out.print(parent+"\t");
-		System.out.print(mean_dSSLS+"\t");
-		System.out.print(linear.getRsq()+"\t");
-		System.out.print(linear.getBeta0_lo()+"\t");
-		System.out.print(linear.getBeta0()+"\t");
-		System.out.print(linear.getBeta0_hi()+"\t");
-		System.out.print(linear.getBeta1_lo()+"\t");
-		System.out.print(linear.getBeta1()+"\t");
-		System.out.print(linear.getBeta1_hi()+"\n");
+		if(!printSites){
+			double mean_dSSLS = (dSSLS_sum / (float)numSites);
+			LinearRegression linear = new LinearRegression(y,x);
+			System.out.print(candidate.getInputFileName()+"\t");
+			System.out.print(parent+"\t");
+			System.out.print(mean_dSSLS+"\t");
+			System.out.print(linear.getRsq()+"\t");
+			System.out.print(linear.getBeta0_lo()+"\t");
+			System.out.print(linear.getBeta0()+"\t");
+			System.out.print(linear.getBeta0_hi()+"\t");
+			System.out.print(linear.getBeta1_lo()+"\t");
+			System.out.print(linear.getBeta1()+"\t");
+			System.out.print(linear.getBeta1_hi()+"\n");
+		}
 	}
 }

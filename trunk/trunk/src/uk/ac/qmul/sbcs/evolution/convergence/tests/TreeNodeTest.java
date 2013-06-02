@@ -7,10 +7,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import uk.ac.qmul.sbcs.evolution.convergence.ParsimonyReconstruction;
+import uk.ac.qmul.sbcs.evolution.convergence.StateComparison;
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 import junit.framework.TestCase;
@@ -153,6 +155,114 @@ public class TreeNodeTest extends TestCase {
 			System.out.println("tree_"+i+" = "+tree.printRecursivelyLabelling(echolocatorsH2)+";");
 		}
 		candidate.getDataset().writePhylipFile("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/quick.phy");
+	}
 	
+	public void testAreTipsPresentNonePresent() throws Exception{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		HashMap<String, HashSet<String>[]> states = candidate.getDataset().getAminoAcidsAsFitchStates();
+		HashSet<String>[] baseStates = species.getFitchStates(states).clone();
+		int ambiguousAtRoot = 0;
+		for(HashSet<String> statesSet:baseStates){
+			if(statesSet.size()>1){
+				ambiguousAtRoot++;
+			}
+		}
+		species.resolveFitchStatesTopnode();
+		species.resolveFitchStates(species.states);
+		ParsimonyReconstruction pr = new ParsimonyReconstruction(states, species);
+		pr.printAncestralComparison();
+		String[] echolocators = {"LOXO","MYO","TUR","HOM"};
+		HashSet<String> echoMap = new HashSet<String>(Arrays.asList(echolocators));
+		echoMap = species.areTipsPresent(echoMap);
+		if(echoMap.size() != 0){
+			fail();
+		}
+	}
+
+	public void testAreTipsPresentAllPresent() throws Exception{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		HashMap<String, HashSet<String>[]> states = candidate.getDataset().getAminoAcidsAsFitchStates();
+		HashSet<String>[] baseStates = species.getFitchStates(states).clone();
+		int ambiguousAtRoot = 0;
+		for(HashSet<String> statesSet:baseStates){
+			if(statesSet.size()>1){
+				ambiguousAtRoot++;
+			}
+		}
+		species.resolveFitchStatesTopnode();
+		species.resolveFitchStates(species.states);
+		ParsimonyReconstruction pr = new ParsimonyReconstruction(states, species);
+		pr.printAncestralComparison();
+		String[] echolocators = {"MEGADERMA","RHINOLOPHUS","MYOTIS"};
+		HashSet<String> echoMap = new HashSet<String>(Arrays.asList(echolocators));
+		echoMap = species.areTipsPresent(echoMap);
+		if(echoMap.size() != 3){
+			fail();
+		}
+	}
+
+	public void testAreTipsPresent() throws Exception{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		HashMap<String, HashSet<String>[]> states = candidate.getDataset().getAminoAcidsAsFitchStates();
+		HashSet<String>[] baseStates = species.getFitchStates(states).clone();
+		int ambiguousAtRoot = 0;
+		for(HashSet<String> statesSet:baseStates){
+			if(statesSet.size()>1){
+				ambiguousAtRoot++;
+			}
+		}
+		species.resolveFitchStatesTopnode();
+		species.resolveFitchStates(species.states);
+		ParsimonyReconstruction pr = new ParsimonyReconstruction(states, species);
+		pr.printAncestralComparison();
+		String[] echolocators = {"MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
+		HashSet<String> echoMap = new HashSet<String>(Arrays.asList(echolocators));
+		echoMap = species.areTipsPresent(echoMap);
+		if(echoMap.size() != 3){
+			fail();
+		}
+	}
+	
+	public void testGetTipAndMCRAStatesOf() throws Exception{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		HashMap<String, HashSet<String>[]> states = candidate.getDataset().getAminoAcidsAsFitchStates();
+		HashSet<String>[] baseStates = species.getFitchStates(states).clone();
+		int ambiguousAtRoot = 0;
+		for(HashSet<String> statesSet:baseStates){
+			if(statesSet.size()>1){
+				ambiguousAtRoot++;
+			}
+		}
+		species.resolveFitchStatesTopnode();
+		species.resolveFitchStates(species.states);
+		ParsimonyReconstruction pr = new ParsimonyReconstruction(states, species);
+		pr.printAncestralComparison();
+		String[] echolocators = {"MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
+		HashSet<String> echoMap = new HashSet<String>(Arrays.asList(echolocators));
+		echoMap = species.areTipsPresent(echoMap);
+		HashMap<String,HashSet<String>[]> ancAndOthers = species.getTipAndMRCAStatesOf(echoMap);
+		HashSet<String>[] MRCAstates = ancAndOthers.remove("MRCA");
+		int numParallel = new StateComparison(MRCAstates,ancAndOthers).countParallelChanges();
+		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
+		String[] controls = {"EIDOLON","PTEROPUS"};
+		int pll_H1 = pr.findParallelSubtitutionsFromAncestral(echolocators, true);
+		int pll_H1c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocators,baseStates, true);
+		int pll_H2 = pr.findParallelSubtitutionsFromAncestral(echolocatorsH2, true);
+		int pll_H2c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocatorsH2,baseStates,true);
+		int pll_H2o= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguitiesControllingOutgroups(echolocatorsH2,baseStates,true,controls);
+		System.out.println("\nParallel H1\t\t"+pll_H1+"\nParallel H1c\t\t"+pll_H1c+"\nParallel H2\t\t"+pll_H2+"\nParallel H2c\t\t"+pll_H2c+"\nParallel H2o\t\t"+pll_H2o+"\n(Ambiguous at root:\t"+ambiguousAtRoot+")\n");
+		species.getEndPos();
 	}
 }

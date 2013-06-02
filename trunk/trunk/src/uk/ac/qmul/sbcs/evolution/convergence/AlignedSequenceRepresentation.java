@@ -688,12 +688,14 @@ public class AlignedSequenceRepresentation implements Serializable {
 
 	/**
 	 *	
-	 * 	purpose:	constrain a subset of taxa to have the same AA
-	 *	execution:	for i in num sites
-	 *					random indices
-	 *					get target master taxon as char array /// NB: codon triplets
-	 *					read array[indices]
-	 *					replace 
+	 * 	Purpose:	constrain a subset of taxa to have the same AA
+	 *	<p>execution:	
+	 * <pre>for i in num sites{
+	 *	random indices
+	 *	get target master taxon as char array /// NB: codon triplets
+	 *	read array[indices]
+	 *	replace
+	 *}</pre> 
 	 * 
 	 * @param masterTaxon - The taxon that is being treated as the master. Sites will be converged to this taxon's sequence randomly
 	 * @param taxaToForce - The taxa that in which convergence is to be simulated.

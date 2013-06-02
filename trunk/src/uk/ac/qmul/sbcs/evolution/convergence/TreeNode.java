@@ -370,4 +370,56 @@ public class TreeNode {
 		}
 		return thisContains;	
 	}
+
+	/**
+	 * Intended to return the tip states and MRCA of all said tips.
+	 * <p>Currently relies on simply stopping and passing ret hashmap when it has size of tipsTotrace.length (+1 for the MRCA)
+	 * <p>Therefore the desired tip list <b>MUST</b> have been pruned by {@link TreeNode}.areTipsPresent(HashSet<String> echoMap)} first..
+	 * <p>NB also - 'MRCA' is used as a key for the MRCA states, so there <b>Must Not Be Any Tips Labelled 'MRCA'. At. All.</b> (ideally catch or failsafe this)
+	 * @param tipsToTrace - the terminal taxon tips that we want the states + MRCA of.
+	 * @return {@link HashMap<String,HashSet<String>[]>}
+	 */
+	public HashMap<String, HashSet<String>[]> getTipAndMRCAStatesOf(HashSet<String> tipsToTrace) {
+		HashMap<String,HashSet<String>[]> retMap = new HashMap<String,HashSet<String>[]>();
+		if(isTerminal){
+			// Just check if this is one of the desired tips
+			if(tipsToTrace.contains(content)){
+				retMap.put(this.content, this.states);
+			}
+		}else{
+			// An internal node - iterate through daughters
+			for(TreeNode daughter:daughters){
+				HashMap<String,HashSet<String>[]> daughterContents = daughter.getTipAndMRCAStatesOf(tipsToTrace);
+				if(daughterContents != null){
+					retMap.putAll(daughterContents);
+				}
+			}
+			// Check to see if we have all the daughters
+			if(retMap.size() == tipsToTrace.size()){
+				retMap.put("MRCA", this.states);
+			}
+		}
+		return retMap;
+	}
+
+	/**
+	 * Which of the tips in the supplied list are below this node?
+	 * @param echoMap
+	 * @return
+	 */
+	public HashSet<String> areTipsPresent(HashSet<String> echoMap) {
+		HashSet<String> retMap = new HashSet<String>();
+		if(echoMap.contains(content)){
+			retMap.add(content);
+		}
+		if(!isTerminal){
+			for(TreeNode daughter:daughters){
+				HashSet<String> daughterContents = daughter.areTipsPresent(echoMap);
+				if(daughterContents != null){
+					retMap.addAll(daughterContents);
+				}
+			}
+		}
+		return retMap; 
+	}
 }

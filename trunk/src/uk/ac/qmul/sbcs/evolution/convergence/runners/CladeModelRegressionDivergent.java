@@ -43,7 +43,9 @@ public class CladeModelRegressionDivergent {
 				float dSSLS = SSLS[i][0] - SSLS[i][numTrees-1];
 				dSSLS_sum += dSSLS;
 				double w = siteOmegasAll.get(i);
-				System.out.println(parent+"\t"+i+"\t"+dSSLS+"\t"+w);
+				if(siteOmegasDivergent.containsKey(i)){
+					System.out.println(parent+"\t"+i+"\t"+dSSLS+"\t"+w);	
+				}
 //				x[i] = dSSLS;
 //				y[i] = w;
 			}
@@ -67,7 +69,7 @@ public class CladeModelRegressionDivergent {
 		}
 		if(!printSites){
 			double mean_dSSLS = (dSSLS_sum / (float)numSites);
-			LinearRegression linear = new LinearRegression(x,y);
+			LinearRegression linear = new LinearRegression(y,x);
 			System.out.print(candidate.getInputFileName()+"\t");
 			System.out.print(parent+"\t");
 			System.out.print(mean_dSSLS+"\t");

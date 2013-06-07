@@ -263,6 +263,7 @@ public class TreeNodeTest extends TestCase {
 		int pll_H2c= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocatorsH2,baseStates,true);
 		int pll_H2o= pr.findParallelSubtitutionsFromAncestralRejectingAmbiguitiesControllingOutgroups(echolocatorsH2,baseStates,true,controls);
 		System.out.println("\nParallel H1\t\t"+pll_H1+"\nParallel H1c\t\t"+pll_H1c+"\nParallel H2\t\t"+pll_H2+"\nParallel H2c\t\t"+pll_H2c+"\nParallel H2o\t\t"+pll_H2o+"\n(Ambiguous at root:\t"+ambiguousAtRoot+")\n");
+		
 		species.getEndPos();
 	}
 }

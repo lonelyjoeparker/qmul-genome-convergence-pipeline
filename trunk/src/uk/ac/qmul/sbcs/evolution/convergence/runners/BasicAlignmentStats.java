@@ -34,6 +34,7 @@ public class BasicAlignmentStats {
 				data = new AlignedSequenceRepresentation();
 				try {
 					data.loadSequences(child, false);
+					data.calculateAlignmentStats();
 				} catch (TaxaLimitException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -42,7 +43,9 @@ public class BasicAlignmentStats {
 						child.getName()+"\t"+
 						data.getNumberOfSites()+"\t"+
 						data.getNumberOfTaxa()+"\t"+
-						data.getNumberOfInvariantSites()
+						data.getNumberOfInvariantSites()+"\t"+
+						data.getMeanSitewiseEntropy()+"\t"+
+						data.getMeanTaxonwiseLongestUngappedSequence()
 						);
 				
 			}
@@ -50,6 +53,7 @@ public class BasicAlignmentStats {
 			data = new AlignedSequenceRepresentation();
 			try {
 				data.loadSequences(inputFile, false);
+				data.calculateAlignmentStats();
 			} catch (TaxaLimitException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -58,7 +62,9 @@ public class BasicAlignmentStats {
 					inputFile.getName()+"\t"+
 					data.getNumberOfSites()+"\t"+
 					data.getNumberOfTaxa()+"\t"+
-					data.getNumberOfInvariantSites()
+					data.getNumberOfInvariantSites()+"\t"+
+					data.getMeanSitewiseEntropy()+"\t"+
+					data.getMeanTaxonwiseLongestUngappedSequence()
 					);
 		}
 	}

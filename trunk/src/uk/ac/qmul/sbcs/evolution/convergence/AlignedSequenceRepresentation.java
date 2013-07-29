@@ -1270,6 +1270,13 @@ public class AlignedSequenceRepresentation implements Serializable {
 		}
 	}
 
+	/**
+	 * @return the numberOfInvariantSites
+	 */
+	public int getNumberOfInvariantSites() {
+		return numberOfInvariantSites;
+	}
+
 	public void printNumberOfSites() {
 		// TODO Auto-generated method stub
 		System.out.println(this.numberOfSites+" sites.");

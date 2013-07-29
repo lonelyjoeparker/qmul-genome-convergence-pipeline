@@ -34,7 +34,7 @@ public class BasicAlignmentStats {
 				data = new AlignedSequenceRepresentation();
 				try {
 					data.loadSequences(child, false);
-					data.calculateAlignmentStats();
+					data.calculateAlignmentStats(false);
 				} catch (TaxaLimitException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -53,7 +53,7 @@ public class BasicAlignmentStats {
 			data = new AlignedSequenceRepresentation();
 			try {
 				data.loadSequences(inputFile, false);
-				data.calculateAlignmentStats();
+				data.calculateAlignmentStats(false);
 			} catch (TaxaLimitException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

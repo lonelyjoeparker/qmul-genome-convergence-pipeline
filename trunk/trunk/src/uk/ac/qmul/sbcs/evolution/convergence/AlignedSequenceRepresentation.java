@@ -15,7 +15,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
 /**
  * @author Joe Parker, <a href="http://code.google.com/a/eclipselabs.org/u/joeparkerandthemegahairymen/">Kitson Consulting Ltd / Queen Mary, University of London.</a>
  * @version 0.1
- * @mailto: joe@kitson-consulting.co.uk
+ * @mailto joe@kitson-consulting.co.uk
  * @since 09/19/2011
  * @param sequenceHash				:	The main data structure; String taxon name, char[] sequence data
  * @param numberOfSites				:	The MAXIMUM number of sites in the alignment; NOTE not implicitly safe for IndexOutOfBoundsExceptions
@@ -51,6 +51,13 @@ public class AlignedSequenceRepresentation implements Serializable {
 	private String[] transposedSites;
 	private float meanSitewiseEntropy = Float.NaN;
 	private float meanTaxonwiseLongestUngappedSequence = Float.NaN;
+	private char[] basisCharsNucleotide 	= {'A','C','G','T','R','Y','S','W','K','M','B','D','H','V','N'};
+	private char[] basisCharsNucleotideGap 	= {'A','C','G','T','R','Y','S','W','K','M','B','D','H','V','N','-'};
+	private char[] basisCharsRNA		 	= {'A','C','G','U','R','Y','S','W','K','M','B','D','H','V','N'};
+	private char[] basisCharsRNAGap		 	= {'A','C','G','U','R','Y','S','W','K','M','B','D','H','V','N','-'};
+	private char[] basisCharsAminoAcid	 	= {'A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y','*'};
+	private char[] basisCharsAminoAcidGap 	= {'A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y','*','-'};
+
 	
 	/**
 	 * This is the default, and currently preferred constructor for an AlignedSequenceRepresentation from a file.
@@ -1267,7 +1274,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 				i++;
 			}
 			for(int k=0;k<numberOfSites;k++){
-				System.out.println(sb[k].toString());
+			//	System.out.println(sb[k].toString());
 				transposedSites[k] = sb[k].toString();
 			}
 			return transposedSites;
@@ -1825,9 +1832,111 @@ public class AlignedSequenceRepresentation implements Serializable {
 	 * A utility method to populate basic stats (mean sitewise entropy; mean taxonwise longest ungapped sequence) for reporting.
 	 * @author Joe Parker
 	 * @since r188, 2013/07/29
+	 * @param evaluateGaps	: are gaps to be evaluated in the entropy calculations?
 	 */
-	public void calculateAlignmentStats() {
-		// TODO Auto-generated method stub
+	public void calculateAlignmentStats(boolean evaluateGaps) {
+		// do longest contiguous sequence
+		this.meanTaxonwiseLongestUngappedSequence = 0;
+		for(char[] inputSequence:this.sequenceHash.values()){
+			String seq = new String(inputSequence);
+			String[] nonGapData = seq.split("-");
+			int longest = 0;
+			for(String nonGap:nonGapData){
+				if(nonGap.length()>longest){
+					longest = nonGap.length();
+				}
+			}
+			this.meanTaxonwiseLongestUngappedSequence += longest;
+		}
+		this.meanTaxonwiseLongestUngappedSequence /= (float)this.numberOfTaxa;
 		
+		// do entropies
+		this.meanSitewiseEntropy = 0;
+		float[] entropies = this.calculateSitewiseEntropies(evaluateGaps);
+		for(float siteEntropy:entropies){
+			this.meanSitewiseEntropy += siteEntropy;
+		}
+		this.meanSitewiseEntropy /= (float)this.numberOfSites;
+	}
+
+	/**
+	 * Private internal method to calculate sitewise entropies and return them as a float[]
+	 * 
+	 * <br>Log-base for alphabet will be assumed to be nucleotide/RNA/codon unless this ASR object has datatype=='AA'
+	 * 
+	 * 
+	 * <p><table>
+	 * <tr><td><b>IUPAC nucleotide code</b></td><td><b>Base</b></td></tr>
+	 * <tr><td>A</td><td>Adenine</td></tr>
+	 * <tr><td>C</td><td>Cytosine</td></tr>
+	 * <tr><td>G</td><td>Guanine</td></tr>
+	 * <tr><td>T (or U)</td><td>Thymine (or Uracil)</td></tr>
+	 * <tr><td>R</td><td>A or G</td></tr>
+	 * <tr><td>Y</td><td>C or T</td></tr>
+	 * <tr><td>S</td><td>G or C</td></tr>
+	 * <tr><td>W</td><td>A or T</td></tr>
+	 * <tr><td>K</td><td>G or T</td></tr>
+	 * <tr><td>M</td><td>A or C</td></tr>
+	 * <tr><td>B</td><td>C or G or T</td></tr>
+	 * <tr><td>D</td><td>A or G or T</td></tr>
+	 * <tr><td>H</td><td>A or C or T</td></tr>
+	 * <tr><td>V</td><td>A or C or G</td></tr>
+	 * <tr><td>N</td><td>any base</td></tr>
+	 * <tr><td>. or -</td><td>gap</td></tr></table>
+	 * 
+	 * @param evaluateGaps	: are gaps to be evaluated in the calculation?
+	 */
+	private float[] calculateSitewiseEntropies(boolean evaluateGaps) {
+		if(this.transposedSites == null){
+			this.getTransposedSites();
+		}
+		float[] siteEntropies = new float[this.transposedSites.length];
+		char[] basisChars = null;
+		if((this.alignmentSequenceCodingType == SequenceCodingType.AA) && evaluateGaps){
+			basisChars = this.basisCharsAminoAcidGap;			// the full AA alphabet, including stop ('*') character AND gaps
+		}else{
+			if(this.alignmentSequenceCodingType == SequenceCodingType.AA){
+				basisChars = this.basisCharsAminoAcid;		// the full AA alphabet, including stop ('*') character
+			}else{
+				if((this.alignmentSequenceCodingType == SequenceCodingType.RNA) && evaluateGaps){
+					basisChars = this.basisCharsRNAGap;	// RNA alphabet, count gaps as a character, e.g. larger alphabet
+				}else{
+					if(this.alignmentSequenceCodingType == SequenceCodingType.RNA){
+						basisChars = this.basisCharsRNA;	// RNA alphabet, no gaps
+					}else{
+						if(evaluateGaps){
+							basisChars = this.basisCharsNucleotideGap;	// nuclotide alphabet, count gaps as a character, e.g. larger alphabet
+						}else{
+							basisChars = this.basisCharsNucleotide;	// nuclotide alphabet, DON'T count gaps as a character
+						}
+					}
+				}
+			}
+		}
+		int logBase = basisChars.length;			// size of the alphabet
+		float[] frequencies = new float[logBase];	// this will hold the counts, then be divided to get frequencies
+		for(int i=0;i<this.numberOfSites;i++){
+			// get the counts and convert to frequencies
+			char[] seqChars = this.transposedSites[i].toCharArray();
+			for(int j=0;j<logBase;j++){
+				char binTarget = basisChars[j];
+				frequencies[j] = 0;
+				for(char observed:seqChars){
+					if(observed == binTarget){
+						frequencies[j]++;
+					}
+				}
+				frequencies[j] /= (float)this.numberOfTaxa;
+			}
+			// increment the site entropies by each pi log pi
+			for(int e=0;e<logBase;e++){
+				Double eventEntropy = -(frequencies[e] * (Math.log(frequencies[e]) / Math.log(logBase)));
+				if (!eventEntropy.isNaN()) {
+					siteEntropies[i] += eventEntropy;
+				}					
+				
+			}
+		}
+		return siteEntropies;
 	}
 }

@@ -24,6 +24,8 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
  * @param taxaList					:	An TreeSet<String> holding the taxon names. NB it would usually be better to use an Iterator to iterate through sequenceHash.
  * @param taxaListArray				:	A String[] of taxon names.
  * @param truncatedNamesHash		:	A HashMap<String fullTaxonName, String truncatedTaxonName> of the truncated taxon names. These are max 10 chars, with unique taxon IDs ²999. Padded with underscores.
+ * @param meanSitewiseEntropy		:	The average (mean) Shannon entropy over all sites in the alignment, using base-4 or base-21 logs for NT/codon or AA datatypes, respectively.
+ * @param meanTaxonwiseLongestUngappedSequence	:	The average (mean) longest contiguous data sequence without gaps, over all taxa in the alignment.
  */
 		
 public class AlignedSequenceRepresentation implements Serializable {
@@ -47,6 +49,8 @@ public class AlignedSequenceRepresentation implements Serializable {
 	private TreeMap<String,Character> translationLookup = new TreeMap<String, Character>();
 	protected boolean[] invariantSitesIndices;
 	private String[] transposedSites;
+	private float meanSitewiseEntropy = Float.NaN;
+	private float meanTaxonwiseLongestUngappedSequence = Float.NaN;
 	
 	/**
 	 * This is the default, and currently preferred constructor for an AlignedSequenceRepresentation from a file.
@@ -1277,6 +1281,20 @@ public class AlignedSequenceRepresentation implements Serializable {
 		return numberOfInvariantSites;
 	}
 
+	/**
+	 * @return the meanSitewiseEntropy
+	 */
+	public float getMeanSitewiseEntropy() {
+		return meanSitewiseEntropy;
+	}
+
+	/**
+	 * @return the meanTaxonwiseLongestUngappedSequence
+	 */
+	public float getMeanTaxonwiseLongestUngappedSequence() {
+		return meanTaxonwiseLongestUngappedSequence;
+	}
+
 	public void printNumberOfSites() {
 		// TODO Auto-generated method stub
 		System.out.println(this.numberOfSites+" sites.");
@@ -1801,5 +1819,15 @@ public class AlignedSequenceRepresentation implements Serializable {
 			states.put(taxon, sequenceStates);
 		}
  		return states;
+	}
+
+	/**
+	 * A utility method to populate basic stats (mean sitewise entropy; mean taxonwise longest ungapped sequence) for reporting.
+	 * @author Joe Parker
+	 * @since r188, 2013/07/29
+	 */
+	public void calculateAlignmentStats() {
+		// TODO Auto-generated method stub
+		
 	}
 }

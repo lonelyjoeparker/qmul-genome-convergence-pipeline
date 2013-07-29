@@ -47,6 +47,14 @@ public class BasicAlignmentStats {
 						data.getMeanSitewiseEntropy()+"\t"+
 						data.getMeanTaxonwiseLongestUngappedSequence()
 						);
+				System.err.println(
+						child.getName()+"\t"+
+						data.getNumberOfSites()+"\t"+
+						data.getNumberOfTaxa()+"\t"+
+						data.getNumberOfInvariantSites()+"\t"+
+						data.getMeanSitewiseEntropy()+"\t"+
+						data.getMeanTaxonwiseLongestUngappedSequence()
+						);
 				
 			}
 		}else{
@@ -59,6 +67,14 @@ public class BasicAlignmentStats {
 				e.printStackTrace();
 			}
 			System.out.println(
+					inputFile.getName()+"\t"+
+					data.getNumberOfSites()+"\t"+
+					data.getNumberOfTaxa()+"\t"+
+					data.getNumberOfInvariantSites()+"\t"+
+					data.getMeanSitewiseEntropy()+"\t"+
+					data.getMeanTaxonwiseLongestUngappedSequence()
+					);
+			System.err.println(
 					inputFile.getName()+"\t"+
 					data.getNumberOfSites()+"\t"+
 					data.getNumberOfTaxa()+"\t"+

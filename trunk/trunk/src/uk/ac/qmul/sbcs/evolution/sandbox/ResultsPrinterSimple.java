@@ -121,17 +121,18 @@ public class ResultsPrinterSimple{
 								int nTax = someRun.getNumberOfTaxa();
 								int nSites = someRun.getNumberOfSites();
 
-								String[] nameSplit = someRun.getInputFile().getPath().split("_");
-								if(lociData.containsKey(nameSplit[5])){
-									System.out.print(lociData.get(nameSplit[5])+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
-									buf.append(lociData.get(nameSplit[5])+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+								String ensemblCode = this.extractEnsemblCodeFromSerFile(someRun.getInputFile().getPath().split("_"));
+								//TODO need to simply split the data to obtain the ENSG code - long term we need to integrate Ensembl code etc to the serfile.
+								if(lociData.containsKey(ensemblCode)){
+									System.out.print(lociData.get(ensemblCode)+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									buf.append(lociData.get(ensemblCode)+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}else{
-									System.out.print(nameSplit[5]+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
-									buf.append(nameSplit[5]+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									System.out.print(ensemblCode+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									buf.append(ensemblCode+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}
 
 								if((fittedTrees.length == this.maxTrees)&&(someRun.getNumberOfTaxa()==22)){
-									bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+nameSplit[5]+" = [&R] "+fittedTrees[(this.maxTrees-1)]+"\n");	// this is a bit of a fudge, we're looking for the random tree really, if one's not been specified it won't be there...
+									bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+ensemblCode+" = [&R] "+fittedTrees[(this.maxTrees-1)]+"\n");	// this is a bit of a fudge, we're looking for the random tree really, if one's not been specified it won't be there...
 								}
 								//							System.out.println("Fitted topologies: ");
 								//							System.out.println("\ttree\talpha\tpSH\tlnL\tlengths\ttopology");
@@ -253,6 +254,23 @@ public class ResultsPrinterSimple{
 		}else{
 			System.out.println("arg must be a directory");
 		}
+	}
+
+	/**
+	 * This is an internal utility method to extract the Ensembl gene code from a serialized SSLS object, so it can be matched to its metadata.
+	 * @since r186 29/07/2013
+	 * @author Joe Parker
+	 * @param String[] splitFileNameData - the filename of a serialised uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml object, split by some token (assumed to be an underscore)
+	 * @return String parsedEnsemblCode - an Ensembl gene code of the form ENSG00000XXXXXX
+	 */
+	private String extractEnsemblCodeFromSerFile(String[] splitFileNameData) {
+		String parsedEnsemblCode = "NA";
+		for(String token:splitFileNameData){
+			if(token.startsWith("ENSG")){
+				parsedEnsemblCode = token;
+			}
+		}
+		return parsedEnsemblCode;
 	}
 
 	public HashMap<String,String> initMetadata(){

@@ -87,11 +87,21 @@ public class NewickTreeRepresentation {
 	public NewickTreeRepresentation(String tree, TreeSet<String> names){
 		this.treeString = tree;
 		this.taxaNames = names;
-		this.numberOfTrees = treeString.split(";").length;
+		String[] separateTrees = treeString.split(";");
+		for(String someTree:separateTrees){
+			if(someTree.length()>2){
+				this.numberOfTrees++;
+			}
+		}
+		//this.numberOfTrees = treeString.split(";").length;
 		this.numberOfTaxa = taxaNames.size();
 		this.separateTopologies = new String[this.numberOfTrees];
 		if(this.numberOfTrees>0){
-			this.separateTopologies = this.treeString.split("\n");
+			for(int i=0;i<this.numberOfTrees;i++){
+				if(separateTrees[i].length()>2){
+					this.separateTopologies[i] = separateTrees[i];
+				}
+			}
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}

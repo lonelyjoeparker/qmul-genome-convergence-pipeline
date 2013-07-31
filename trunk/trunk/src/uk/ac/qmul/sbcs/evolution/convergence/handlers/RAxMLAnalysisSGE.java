@@ -1,12 +1,14 @@
 package uk.ac.qmul.sbcs.evolution.convergence.handlers;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.TreeMap;
 import javax.swing.JFileChooser;
 
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.CodemlDocument;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.PamlDocument.CodemlParameters;
+import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.VerboseSystemCommand;
 
 /**
@@ -138,6 +140,7 @@ public class RAxMLAnalysisSGE {
 		}
 		// TODO how to run a shell script?
 		new VerboseSystemCommand(this.getExeString());
+		this.hasRun = true;
 		this.outputFile = new File(this.workingDir.getAbsolutePath()+"/RAxML_bestTree."+identifier);
 	}
 
@@ -230,5 +233,23 @@ public class RAxMLAnalysisSGE {
 	public void setMultifuricatingConstraint(boolean b) {
 		this.constraintMultifuricating = b;
 		
+	}
+
+	public String getBestTree() {
+		if(this.hasRun){
+			ArrayList<String> output = new BasicFileReader().loadSequences(this.outputFile,false,true);
+			if(output.size() == 1){
+				return output.remove(0);
+			}else{
+				StringBuilder outputBuilder = new StringBuilder();
+				while(!output.isEmpty()){
+					outputBuilder.append(output.remove(0));
+				}
+				return outputBuilder.toString();
+			}
+		}else{
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 }

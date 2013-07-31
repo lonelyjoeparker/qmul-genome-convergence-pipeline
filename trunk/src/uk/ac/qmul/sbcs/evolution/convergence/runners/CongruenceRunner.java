@@ -1,9 +1,11 @@
 package uk.ac.qmul.sbcs.evolution.convergence.runners;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.TreeSet;
 
 import uk.ac.qmul.sbcs.evolution.convergence.analyses.*;
+import uk.ac.qmul.sbcs.evolution.convergence.util.CapitalisedFileReader;
 
 public class CongruenceRunner {
 
@@ -60,33 +62,50 @@ public class CongruenceRunner {
 			case (1): doFactor = true; break;
 			case (0): doFactor = false; break;
 		}
-		TreeSet<String> taxaList = new TreeSet<String>();
-		taxaList.add("TURSIOPS");
-		taxaList.add("CANIS");
-		taxaList.add("FELIS");
-		taxaList.add("LOXODONTA");
-		taxaList.add("ERINACEUS");
-		taxaList.add("MUS");
-		taxaList.add("MONODELPHIS");
-		taxaList.add("PAN");
-		taxaList.add("HOMO");
-		taxaList.add("PTERONOTUS");
-		taxaList.add("RHINOLOPHUS");
-		taxaList.add("PTEROPUS");
-		taxaList.add("EIDOLON");
-		taxaList.add("DASYPUS");
-		taxaList.add("EQUUS");
-		taxaList.add("MEGADERMA");
-		taxaList.add("MYOTIS");
-		taxaList.add("BOS");
-		taxaList.add("VICUGNA");
-		taxaList.add("OCHOTONA");
-		taxaList.add("ORYCTOLAGUS");
-		taxaList.add("SOREX");
+		TreeSet<String> taxaList = new CongruenceRunner().parseTaxaListConfigFile(args[8]);
 		String[] modelsList = {"dayhoff","wag","jones"};
 		MultiHnCongruenceAnalysis analysis = new MultiHnCongruenceAnalysis(dataSet, mainTreesFile, constraintTreeFile, labelledTreesFile, workDir, binaries, runID, taxaList, modelsList, thisFilter, doFactor);
 		analysis.run();
 	}
 
+	/**
+	 * 
+	 * @param configFileArg - path to file containing a list of possible taxa
+	 * @return
+	 */
+	private TreeSet<String> parseTaxaListConfigFile(String configFileArg){
+		TreeSet<String> taxaList = new TreeSet<String>();
+		File configFile = new File(configFileArg);
+		if(configFile.canRead()){
+			ArrayList<String> taxa = new CapitalisedFileReader().loadSequences(configFile,false);
+			for(String taxon:taxa){
+				taxaList.add(taxon);
+			}
+		}else{
+			taxaList.add("TURSIOPS");
+			taxaList.add("CANIS");
+			taxaList.add("FELIS");
+			taxaList.add("LOXODONTA");
+			taxaList.add("ERINACEUS");
+			taxaList.add("MUS");
+			taxaList.add("MONODELPHIS");
+			taxaList.add("PAN");
+			taxaList.add("HOMO");
+			taxaList.add("PTERONOTUS");
+			taxaList.add("RHINOLOPHUS");
+			taxaList.add("PTEROPUS");
+			taxaList.add("EIDOLON");
+			taxaList.add("DASYPUS");
+			taxaList.add("EQUUS");
+			taxaList.add("MEGADERMA");
+			taxaList.add("MYOTIS");
+			taxaList.add("BOS");
+			taxaList.add("VICUGNA");
+			taxaList.add("OCHOTONA");
+			taxaList.add("ORYCTOLAGUS");
+			taxaList.add("SOREX");
+		}
+		return taxaList;
+	}
 }
 

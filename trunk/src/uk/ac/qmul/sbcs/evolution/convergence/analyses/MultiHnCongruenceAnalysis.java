@@ -364,16 +364,52 @@ public class MultiHnCongruenceAnalysis {
 		
 	}
 
+	/**
+	 * Routine to resolve a topology with soft polytomies by RAxML
+	 * <br/><b>nb.</b> RAxML will only allow one tree at a time, so have to concat them.
+	 * @since r135; updated r191 to allow for multiple constraint trees.
+	 * @param constraintTree2
+	 * @return
+	 */
 	private NewickTreeRepresentation resolveTopologyWithSubtreeConstraint(NewickTreeRepresentation constraintTree2) {
-		RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, this.constraintTreeFilePruned, runID, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
-		ra.setTreeConstraint(true);
-		ra.setMultifuricatingConstraint(true);
-		ra.setNoStartTree(true);
-		ra.setBinaryDir(new File(this.binariesLocation.getAbsoluteFile()+"/raxmlHPC"));
-	//	ra.setWorkingDir(this.workDir);
-		ra.RunAnalysis();
-		resolvedTree = new NewickTreeRepresentation(ra.getOutputFile(),taxaList);
-		return resolvedTree;
+		if(this.constraintTree.getNumberOfTrees() == 1){
+			/*
+			 * There is only one constraint tree in the constraint tree file; proceed as per r135
+			 */
+			RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, this.constraintTreeFilePruned, runID, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
+			ra.setTreeConstraint(true);
+			ra.setMultifuricatingConstraint(true);
+			ra.setNoStartTree(true);
+			ra.setBinaryDir(new File(this.binariesLocation.getAbsoluteFile()+"/raxmlHPC"));
+		//	ra.setWorkingDir(this.workDir);
+			ra.RunAnalysis();
+			resolvedTree = new NewickTreeRepresentation(ra.getOutputFile(),taxaList);
+			return resolvedTree;
+		}else{
+			/*
+			 * More than one constraint tree is present. Resolve them separately by RAxML
+			 */
+			String[] prunedUnresolvedTrees = constraintTree.getIndividualTrees();
+			String prunedResolvedTrees = ""; 
+			for(int i=0;i<constraintTree.getNumberOfTrees();i++){
+				// Output single tree to a file
+				File temporarySingleConstraintTree = new File(this.constraintTreeFile.getAbsolutePath()+"_tmp_"+i);
+				new BasicFileWriter(temporarySingleConstraintTree,prunedUnresolvedTrees[i]+";");
+				// Do raxml and harvest output
+				RAxMLAnalysisSGE ra = new RAxMLAnalysisSGE(pamlDataFileAA, workDir, temporarySingleConstraintTree, runID+"_"+i, RAxMLAnalysisSGE.AAmodelOptions.PROTCATDAYHOFF, RAxMLAnalysisSGE.algorithmOptions.e);
+				ra.setTreeConstraint(true);
+				ra.setMultifuricatingConstraint(true);
+				ra.setNoStartTree(true);
+				ra.setBinaryDir(new File(this.binariesLocation.getAbsoluteFile()+"/raxmlHPC"));
+			//	ra.setWorkingDir(this.workDir);
+				ra.RunAnalysis();
+				prunedResolvedTrees += ra.getBestTree()+"\n";
+			}
+			
+			resolvedTree = new NewickTreeRepresentation(prunedResolvedTrees,taxaList);
+			return resolvedTree;
+			
+		}
 	}
 
 	private void pruneConstraintTree() {

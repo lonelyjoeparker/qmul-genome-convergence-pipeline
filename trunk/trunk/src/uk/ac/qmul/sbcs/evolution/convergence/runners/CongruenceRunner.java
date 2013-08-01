@@ -62,18 +62,26 @@ public class CongruenceRunner {
 			case (1): doFactor = true; break;
 			case (0): doFactor = false; break;
 		}
-		TreeSet<String> taxaList = new CongruenceRunner().parseTaxaListConfigFile(args[8]);
-		String[] modelsList = {"dayhoff","wag","jones"};
-		MultiHnCongruenceAnalysis analysis = new MultiHnCongruenceAnalysis(dataSet, mainTreesFile, constraintTreeFile, labelledTreesFile, workDir, binaries, runID, taxaList, modelsList, thisFilter, doFactor);
-		analysis.run();
+		TreeSet<String> taxaList;
+		try {
+			taxaList = new CongruenceRunner().parseTaxaListConfigFile(args[8]);
+			String[] modelsList = {"dayhoff","wag","jones"};
+			MultiHnCongruenceAnalysis analysis = new MultiHnCongruenceAnalysis(dataSet, mainTreesFile, constraintTreeFile, labelledTreesFile, workDir, binaries, runID, taxaList, modelsList, thisFilter, doFactor);
+			analysis.run();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			System.out.println("Not able to proceed without a taxon list. Check path and retry.");
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * 
 	 * @param configFileArg - path to file containing a list of possible taxa
 	 * @return
+	 * @throws Exception 
 	 */
-	private TreeSet<String> parseTaxaListConfigFile(String configFileArg){
+	private TreeSet<String> parseTaxaListConfigFile(String configFileArg) throws Exception{
 		TreeSet<String> taxaList = new TreeSet<String>();
 		File configFile = new File(configFileArg);
 		if(configFile.canRead()){
@@ -82,28 +90,7 @@ public class CongruenceRunner {
 				taxaList.add(taxon);
 			}
 		}else{
-			taxaList.add("TURSIOPS");
-			taxaList.add("CANIS");
-			taxaList.add("FELIS");
-			taxaList.add("LOXODONTA");
-			taxaList.add("ERINACEUS");
-			taxaList.add("MUS");
-			taxaList.add("MONODELPHIS");
-			taxaList.add("PAN");
-			taxaList.add("HOMO");
-			taxaList.add("PTERONOTUS");
-			taxaList.add("RHINOLOPHUS");
-			taxaList.add("PTEROPUS");
-			taxaList.add("EIDOLON");
-			taxaList.add("DASYPUS");
-			taxaList.add("EQUUS");
-			taxaList.add("MEGADERMA");
-			taxaList.add("MYOTIS");
-			taxaList.add("BOS");
-			taxaList.add("VICUGNA");
-			taxaList.add("OCHOTONA");
-			taxaList.add("ORYCTOLAGUS");
-			taxaList.add("SOREX");
+			throw new Exception("Unable to parse the taxon list.\n");
 		}
 		return taxaList;
 	}

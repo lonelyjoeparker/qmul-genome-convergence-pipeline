@@ -266,4 +266,121 @@ public class TreeNodeTest extends TestCase {
 		
 		species.getEndPos();
 	}
+	
+	public void testHowManyTips() throws Exception{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		if(species.howManyTips() != 20){
+			fail();
+		}
+	}
+
+	public void testHowManyFromMonophyleticSetTree13() {
+		String t13 = "(VN21: 0.000004, (((JJD001: 0.000004, (((MN23: 0.000004, ZY28: 0.000004): 0.000004, (RHFE: 0.030798, (PTEROPUS: 0.059729, (((ERINACEUS: 0.000004, (((MUS: 0.064403, (ORYCTOLAGUS: 0.036155, OCHOTONA: 0.023128): 0.018503): 0.036734, (PAN: 0.000004, HOMO: 0.000004): 0.000004): 0.000004, (MONODELPHIS: 0.124955, LOXODONTA: 0.000004): 0.000004): 0.000004): 0.020019, ((CANIS: 0.019464, FELIS: 0.018551): 0.018938, (EQUUS: 0.042617, (TURSIOPS: 0.021097, BOS: 0.000004): 0.084114): 0.041578): 0.000004): 0.000004, MYOTIS: 0.062492): 0.000004): 0.057992): 0.010215): 0.000004, (RHPECH: 0.000004, (((YLD001: 0.000004, WYS0705: 0.000004): 0.000004, ZY11: 0.000004): 0.000004, JSL055: 0.000004): 0.000004): 0.018900): 0.000004): 0.000004, ((VN005: 0.000004, ((NBCP011: 0.000004, YL005: 0.000004): 0.000004, RHYU: 0.000004): 0.000004): 0.000004, RHPEPE: 0.000004): 0.000004): 0.000004, FLD002: 0.000004): 0.000004, B014: 0.000004)";
+		TreeNode species = new TreeNode(t13.replaceAll("\\s", ""),1);
+		HashSet<String> taxaChinensis = new HashSet<String>();
+		taxaChinensis.add("RHPECH");
+		taxaChinensis.add("JSL055");
+		taxaChinensis.add("WYS0705");
+		taxaChinensis.add("YLD001");
+		taxaChinensis.add("ZY11");
+		int howMany = species.howManyFromMonophyleticSet(taxaChinensis);
+		if(howMany != taxaChinensis.size()){
+			fail();
+		}
+	}
+
+	public void testHowManyFromMonophyleticSetTree1() {
+		String t13 = "((NBCP011: 0.100004, ((RHYU: 0.100004, ((WYS0705: 0.100004, (ZY11: 0.100004, (FLD002: 0.100004, ((JSL055: 0.100004, (RHPECH: 0.100004, ((RHPEPE: 0.100004, ((MN23: 0.100004, ZY28: 0.100004): 0.100004, (RHFE: 0.187342, (PTEROPUS: 0.336618, (((ERINACEUS: 0.797420, (((MUS: 0.262004, (ORYCTOLAGUS: 0.168029, OCHOTONA: 0.197419): 0.131167): 0.163877, (PAN: 0.100004, HOMO: 0.100004): 0.102283): 0.103581, (MONODELPHIS: 0.215115, DASYPUS: 0.318737): 0.105996): 0.100004): 0.100004, ((CANIS: 0.186406, FELIS: 0.314986): 0.163642, (EQUUS: 0.265279, ((TURSIOPS: 0.120532, BOS: 0.186697): 0.100004, VICUGNA: 0.413095): 0.100004): 0.100004): 0.100004): 0.148946, MYOTIS: 0.314254): 0.133378): 0.100004): 0.100004): 0.126881): 0.100004, YL005: 0.100004): 0.100004): 0.100004): 0.100004, YLD001: 0.100004): 0.100004): 0.100004): 0.100004): 0.100004, VN005: 0.100004): 0.100004): 0.100004, JJD001: 0.100004): 0.100004): 0.100004, VN21: 6.116110, B014: 0.100004)";
+		TreeNode species = new TreeNode(t13.replaceAll("\\s", ""),1);
+		HashSet<String> taxaChinensis = new HashSet<String>();
+		taxaChinensis.add("RHPECH");
+		taxaChinensis.add("JSL055");
+		taxaChinensis.add("WYS0705");
+		taxaChinensis.add("YLD001");
+		taxaChinensis.add("ZY11");
+		int howMany = species.howManyFromMonophyleticSet(taxaChinensis);
+		if(howMany == taxaChinensis.size()){
+			fail();
+		}
+	}
+
+	public void testHowManyFromMonophyleticSetTree2() {
+		String t13 = "((NBCP011: 0.100004, ((RHYU: 0.100004, ((WYS0705: 0.100004, (B014: 0.100004, (FLD002: 0.100004, ((JSL055: 0.100004, (VN21: 0.100004, ((RHPEPE: 0.100004, ((MN23: 0.100004, ZY28: 0.100004): 0.100004, (RHFE: 0.187342, (PTEROPUS: 0.336618, (((ERINACEUS: 0.797420, (((MUS: 0.262004, (ORYCTOLAGUS: 0.168029, OCHOTONA: 0.197419): 0.131167): 0.163877, (PAN: 0.100004, HOMO: 0.100004): 0.102283): 0.103581, (MONODELPHIS: 0.215115, DASYPUS: 0.318737): 0.105996): 0.100004): 0.100004, ((CANIS: 0.186406, FELIS: 0.314986): 0.163642, (EQUUS: 0.265279, ((TURSIOPS: 0.120532, BOS: 0.186697): 0.100004, VICUGNA: 0.413095): 0.100004): 0.100004): 0.100004): 0.148946, MYOTIS: 0.314254): 0.133378): 0.100004): 0.100004): 0.126881): 0.100004, YL005: 0.100004): 0.100004): 0.100004): 0.100004, YLD001: 0.100004): 0.100004): 0.100004): 0.100004): 0.100004, VN005: 0.100004): 0.100004): 0.100004, JJD001: 0.100004): 0.100004): 0.100004, RPECH: 6.116110, ZY11: 0.100004)";
+		TreeNode species = new TreeNode(t13.replaceAll("\\s", ""),1);
+		HashSet<String> taxaChinensis = new HashSet<String>();
+		taxaChinensis.add("RHPECH");
+		taxaChinensis.add("JSL055");
+		taxaChinensis.add("WYS0705");
+		taxaChinensis.add("YLD001");
+		taxaChinensis.add("ZY11");
+		int howMany = species.howManyFromMonophyleticSet(taxaChinensis);
+		if(howMany == taxaChinensis.size()){
+			fail();
+		}
+	}
+
+	public void testContainsMonophyleticCladeTree13() {
+		String t13 = "(VN21: 0.000004, (((JJD001: 0.000004, (((MN23: 0.000004, ZY28: 0.000004): 0.000004, (RHFE: 0.030798, (PTEROPUS: 0.059729, (((ERINACEUS: 0.000004, (((MUS: 0.064403, (ORYCTOLAGUS: 0.036155, OCHOTONA: 0.023128): 0.018503): 0.036734, (PAN: 0.000004, HOMO: 0.000004): 0.000004): 0.000004, (MONODELPHIS: 0.124955, LOXODONTA: 0.000004): 0.000004): 0.000004): 0.020019, ((CANIS: 0.019464, FELIS: 0.018551): 0.018938, (EQUUS: 0.042617, (TURSIOPS: 0.021097, BOS: 0.000004): 0.084114): 0.041578): 0.000004): 0.000004, MYOTIS: 0.062492): 0.000004): 0.057992): 0.010215): 0.000004, (RHPECH: 0.000004, (((YLD001: 0.000004, WYS0705: 0.000004): 0.000004, ZY11: 0.000004): 0.000004, JSL055: 0.000004): 0.000004): 0.018900): 0.000004): 0.000004, ((VN005: 0.000004, ((NBCP011: 0.000004, YL005: 0.000004): 0.000004, RHYU: 0.000004): 0.000004): 0.000004, RHPEPE: 0.000004): 0.000004): 0.000004, FLD002: 0.000004): 0.000004, B014: 0.000004)";
+		TreeNode species = new TreeNode(t13.replaceAll("\\s", ""),1);
+		HashSet<String> taxaChinensis = new HashSet<String>();
+		taxaChinensis.add("RHPECH");
+		taxaChinensis.add("JSL055");
+		taxaChinensis.add("WYS0705");
+		taxaChinensis.add("YLD001");
+		taxaChinensis.add("ZY11");
+		int howMany = species.howManyFromMonophyleticSet(taxaChinensis);
+		if(!species.containsMonophyleticClade(taxaChinensis)){
+			fail();
+		}
+	}
+	
+	public void testContainsMonophyleticClade() throws Exception{
+		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		ObjectInputStream inOne = new ObjectInputStream(serfile);
+		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
+		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
+		HashSet<String> someTaxa = new HashSet<String>();
+		if(species.containsMonophyleticClade(someTaxa)){
+			fail();
+		}
+		someTaxa.add("RHINOLOPHUS");
+//		if(!species.containsMonophyleticClade(someTaxa)){
+//			fail();
+//		}
+		someTaxa.add("MEGADERMA");
+		if(!species.containsMonophyleticClade(someTaxa)){
+			fail();
+		}
+		someTaxa.add("LOXODONTA");
+		if(species.containsMonophyleticClade(someTaxa)){
+			fail();
+		}
+		someTaxa = new HashSet<String>();
+		someTaxa.add("LOXODONTA");
+		someTaxa.add("DASYPUS");
+		someTaxa.add("CANIS");
+		someTaxa.add("FELIS");
+		someTaxa.add("EQUUS");
+		someTaxa.add("TURSIOPS");
+		someTaxa.add("BOS");
+		someTaxa.add("VICUGNA");
+		someTaxa.add("MYOTIS");
+		someTaxa.add("RHINOLOPHUS");
+		someTaxa.add("MEGADERMA");
+		someTaxa.add("PTEROPUS");
+		someTaxa.add("SOREX");
+		someTaxa.add("ERINACEUS");
+		someTaxa.add("MUS");
+		someTaxa.add("ORYCTOLAGUS");
+		someTaxa.add("OCHOTONA");
+		someTaxa.add("PAN");
+		someTaxa.add("HOMO");
+		someTaxa.add("MONODELPHIS");
+		if(!species.containsMonophyleticClade(someTaxa)){
+			fail();
+		}
+	}
 }

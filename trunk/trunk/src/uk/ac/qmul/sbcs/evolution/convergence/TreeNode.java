@@ -7,6 +7,13 @@ import java.util.HashSet;
 
 import jebl.math.Random;
 
+/**
+ * 
+ * A utility class for operations on phylogenetic trees.
+ * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+ * 
+ */
+// TODO Expand this javadoc
 public class TreeNode {
 	ArrayList<TreeNode> daughters;
 	TreeNode parent;
@@ -377,7 +384,7 @@ public class TreeNode {
 	 * <p>Therefore the desired tip list <b>MUST</b> have been pruned by {@link TreeNode}.areTipsPresent(HashSet<String> echoMap)} first..
 	 * <p>NB also - 'MRCA' is used as a key for the MRCA states, so there <b>Must Not Be Any Tips Labelled 'MRCA'. At. All.</b> (ideally catch or failsafe this)
 	 * @param tipsToTrace - the terminal taxon tips that we want the states + MRCA of.
-	 * @return {@link HashMap<String,HashSet<String>[]>}
+	 * @return {@link HashMap&lt;String,HashSet&lt;String&gt;[]&gt;} - the states
 	 */
 	public HashMap<String, HashSet<String>[]> getTipAndMRCAStatesOf(HashSet<String> tipsToTrace) {
 		HashMap<String,HashSet<String>[]> retMap = new HashMap<String,HashSet<String>[]>();
@@ -421,5 +428,140 @@ public class TreeNode {
 			}
 		}
 		return retMap; 
+	}
+	
+	/**
+	 * Returns the size of the largest <i>monophyletic</i> clade for the given taxa list.
+	 * <br/>Hard polytomies (nodes with n>2 daughters) are counted as monophyletic <b>only</b> if all daughters are monophyletic.
+	 * @author Joe Parker
+	 * @since r194 2013/08/02
+	 * @param someTaxa - a {@link HashSet&lt;String&gt;} with target taxa to look for monophly of.
+	 * @return #of terminal taxa below that node which are in a reciprocally monophyletic clade.
+	 */
+	public int howManyFromMonophyleticSet(HashSet<String> someTaxa){
+		if(isTerminal){
+			if(someTaxa.contains(this.content)){
+				// return true if this taxon is in the desired list
+				return 1;
+			}else{
+				return 0;
+			}
+		}else{
+			int howManyMax = 0;
+			int howManyTotal = 0;
+			int howManyMin = Integer.MAX_VALUE;
+			// We will aggregate the max clade sizes up the tree
+			for(TreeNode daughter:daughters){
+				int daughterHowManyMRCA = daughter.howManyFromMonophyleticSet(someTaxa);
+				howManyTotal += daughterHowManyMRCA;
+				if(daughterHowManyMRCA > howManyMax){
+					// Daughter has a max clade worth aggregating
+					howManyMax = daughterHowManyMRCA;
+				}
+				if(daughterHowManyMRCA < howManyMin){
+					// Daughter decrement howManyMin (this should == 0 in the case that the daughter has no taxa from the list)
+					howManyMin = daughterHowManyMRCA;
+				}
+			}
+			if(howManyMin == 0){
+				// There is at least one daughter with a taxon outside of the taxaList; stop aggregating
+				if(howManyMax == 1){
+					// The only match(es) in daughters are singletons - since we already know this node is <i>not</i> monophyletic (howManyMin==0) we should not increment.
+					return 0;
+				}else{
+					// This node isn't monophyletic, but at least one of the daughters is; so pass the largest monophyletic value below.
+					return howManyMax;
+				}
+			}else{
+				// This node is itself directly monophyletic (no daughters with max clade==0) so pass up the aggregated score
+				return howManyTotal;
+			}
+		}
+	}
+	
+	/**
+	 * This method attempts to determine whether there are any monophyletic clades present containing the {@link HashSet&lt;String&gt;} of target taxa.
+	 * <p>@Deprecated - this method does <b>not</b> work well if hard polytomies are present (daughters.size()>2); instead use {@link uk.ac.qmul.sbcs.evolution.convergence.TreeNode#howManyFromMonophyleticSet()}
+	 * @author Joe Parker
+	 * @since r194 2013/08/02
+	 * @param someTaxa - a {@link HashSet&lt;String&gt;} with target taxa to look for monophly of.
+	 * @return boolean ifMonophyletic
+	 */
+	@Deprecated
+	public boolean containsMonophyleticClade(HashSet<String> someTaxa){
+		boolean hasMonophyly = false;
+		if(isTerminal){
+			// return true if this taxon is in the desired list
+			if(someTaxa.contains(this.content)){
+				hasMonophyly = true;
+			}
+		}else{
+			int tipsBelow = this.howManyTips();
+			int sizeOfMRCA = someTaxa.size();
+			/*
+			 * If this clade is ² desired monophyletic clade, return true if all daughters have monophyly
+			 * Else return true if any daughters have monophyly
+			 */
+			if(tipsBelow <= sizeOfMRCA){
+				hasMonophyly = true;
+				for(TreeNode daughter:daughters){
+					if(!daughter.containsMonophyleticClade(someTaxa)){
+						hasMonophyly = false;
+					}
+				}
+			}else{
+				if(daughters.size() > 2){
+					// TODO correctly evaluate polytomies in the case that a polytomy contains internal, not external, nodes
+					// FIXME just checking each (daughters' size == monophyletic set size) WON'T work, as daughter could contain clade without being monophyletic itself
+					// for the moment, allow polytomy to dictate a false retval; sort this out later
+					
+					// FIXME OK, this is just for polytomies entirely of terminal nodes - VERY quick, NOT tested.. 2013 08 01
+
+					// first see if we have a polytomy of only terminal taxa
+					if(this.howManyTips() == someTaxa.size()){
+						int allTerminalAndMonophyletic = 0;
+						for(TreeNode daughter:daughters){
+							if(daughter.containsMonophyleticClade(someTaxa) && daughter.isTerminal){
+								allTerminalAndMonophyletic++;
+							}
+						}
+						if(allTerminalAndMonophyletic == someTaxa.size()){
+							hasMonophyly = true;
+						}
+					}
+
+					// now, in case that's not applicable (e..g this has > n tips, or tips aren't all terminal, try seeing if the daughters have anything
+					for(TreeNode daughter:daughters){
+						if(daughter.containsMonophyleticClade(someTaxa) && (!daughter.isTerminal) && (daughter.howManyTips() == someTaxa.size())){
+							hasMonophyly = true;
+						}
+					}
+					// end FIXME
+				}else{
+					for(TreeNode daughter:daughters){
+						if(daughter.containsMonophyleticClade(someTaxa)){
+							hasMonophyly = true;
+						}
+					}
+				}
+			}
+		}
+		return hasMonophyly;
+	}
+	
+	/**
+	 * Simple utility method to count tips attached below this node (post-order traversal).
+	 * @return int - number of tips below this node.
+	 */
+	public int howManyTips(){
+		if(isTerminal){
+			return 1;
+		}else{
+			int tips = 0;
+			for(TreeNode daughter:daughters){
+				tips += daughter.howManyTips();
+			}
+			return tips;
+		}
 	}
 }

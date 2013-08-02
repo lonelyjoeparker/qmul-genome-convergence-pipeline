@@ -18,6 +18,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.CustomFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 
 public class ResultsPrinterSimpleMetadata{
@@ -110,6 +111,29 @@ public class ResultsPrinterSimpleMetadata{
 				}
 			}
 			String[] models = {"wag","jones","dayhoff"};
+			/*
+			 * Hardcoded the monophyly groups for now
+			 * @since 2013 08 01
+			 */
+			HashSet<String> taxaYunanensis = new HashSet<String>();
+			taxaYunanensis.add("RHYU");
+			taxaYunanensis.add("NBCP011");
+			taxaYunanensis.add("VN005");
+			taxaYunanensis.add("B014");
+			HashSet<String> taxaPearsoni = new HashSet<String>();
+			taxaPearsoni.add("RHPEPE");
+			taxaPearsoni.add("FLD002");
+			taxaPearsoni.add("JJD001");
+			taxaPearsoni.add("VN21");
+			taxaPearsoni.add("YL005");
+			HashSet<String> taxaChinensis = new HashSet<String>();
+			taxaChinensis.add("RHPECH");
+			taxaChinensis.add("JSL055");
+			taxaChinensis.add("WYS0705");
+			taxaChinensis.add("YLD001");
+			taxaChinensis.add("ZY11");
+			// End hardcoding of taxon for MRCA 
+			
 			for(String model:models){
 				for(SitewiseSpecificLikelihoodSupportAaml someRun:results){
 					try {
@@ -125,7 +149,7 @@ public class ResultsPrinterSimpleMetadata{
 								int nTax = someRun.getNumberOfTaxa();
 								int nSites = someRun.getNumberOfSites();
 
-								String ensemblCode = this.extractEnsemblCodeFromSerFile(someRun.getInputFile().getPath().split("_|\\.|\\+"));
+								String ensemblCode = this.extractEnsemblCodeFromSerFile(someRun.getInputFile().getPath().toUpperCase().split("_|\\.|\\+"));
 								//TODO need to simply split the data to obtain the ENSG code - long term we need to integrate Ensembl code etc to the serfile.
 								if(lociData.containsKey(ensemblCode)){
 									System.out.print(lociData.get(ensemblCode)+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
@@ -135,9 +159,29 @@ public class ResultsPrinterSimpleMetadata{
 									buf.append(ensemblCode+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}
 
-								if((fittedTrees.length == this.maxTrees)&&(someRun.getNumberOfTaxa()==22)){
-									bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+ensemblCode+" = [&R] "+fittedTrees[(this.maxTrees-1)]+"\n");	// this is a bit of a fudge, we're looking for the random tree really, if one's not been specified it won't be there...
+								int[] monophylyYunanensis = new int[fittedTrees.length];
+								int[] monophylyPearsoni   = new int[fittedTrees.length];
+								int[] monophylyChinensis  = new int[fittedTrees.length];
+								for(int t=0;t<fittedTrees.length;t++){
+									TreeNode tree = new TreeNode(fittedTrees[t].replaceAll("\\s", ""),1);
+									buf.append("\t"+tree.howManyFromMonophyleticSet(taxaYunanensis));
+									buf.append("\t"+tree.howManyFromMonophyleticSet(taxaPearsoni));
+									buf.append("\t"+tree.howManyFromMonophyleticSet(taxaChinensis));
+/*
+									if(tree.containsMonophyleticClade(taxaYunanensis)){
+										monophylyYunanensis[t]++;
+									}
+									if(tree.containsMonophyleticClade(taxaPearsoni)){
+										monophylyPearsoni[t]++;
+									}
+									if(tree.containsMonophyleticClade(taxaChinensis)){
+										monophylyChinensis[t]++;
+									}
+ */
 								}
+								//if((fittedTrees.length == this.maxTrees)&&(someRun.getNumberOfTaxa()==22)){
+									bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+ensemblCode+" = [&R] "+fittedTrees[(this.maxTrees-1)]+"\n");	// this is a bit of a fudge, we're looking for the random tree really, if one's not been specified it won't be there...
+								//}
 								//							System.out.println("Fitted topologies: ");
 								//							System.out.println("\ttree\talpha\tpSH\tlnL\tlengths\ttopology");
 								//								for(int k=0;k<someRun.getNumberOfTopologies();k++){
@@ -270,7 +314,7 @@ public class ResultsPrinterSimpleMetadata{
 	private String extractEnsemblCodeFromSerFile(String[] splitFileNameData) {
 		String parsedEnsemblCode = "NA";
 		for(String token:splitFileNameData){
-			if(token.startsWith("ENSG")){
+			if(token.toUpperCase().startsWith("ENSG")){
 				parsedEnsemblCode = token;
 			}
 		}

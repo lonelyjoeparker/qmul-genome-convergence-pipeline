@@ -8,11 +8,11 @@ import java.util.regex.Pattern;
 
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
 
-public class CladeModelOutput {
+public class ModelM8Output {
 	
 	File sitesOmegas;
 	ArrayList<String> rawData;
-	double[] dNdS = new double[3];
+	double[] dNdS = new double[11];
 	HashMap<Integer,Double> siteOmegas = new HashMap<Integer,Double>();
 	HashMap<Integer,Double> siteDivergent = new HashMap<Integer,Double>();
 	
@@ -20,13 +20,13 @@ public class CladeModelOutput {
 	 * No-arg constructor. Deprecated.
 	 */
 	@Deprecated
-	public CladeModelOutput(){}
+	public ModelM8Output(){}
 	
 	/**
-	 * Single-arg constructor for CladeModelOutput; this will automatically parse the supplied 'rst' file when a new instance is created.
-	 * @param rstfile - a {@link File} containing the results from a PAML Clade Model C analysis (normally 'rst').
+	 * Single-arg constructor for {@link ModelM8Output}; this will automatically parse the supplied 'rst' file when a new instance is created.
+	 * @param rstfile - a {@link File} containing the results from a PAML Site Model M8 analysis (normally 'rst').
 	 */
-	public CladeModelOutput(File rstfile){
+	public ModelM8Output(File rstfile){
 		this.sitesOmegas = rstfile;
 		rawData = new BasicFileReader().loadSequences(rstfile,false,true);
 		this.readRawData();
@@ -35,9 +35,9 @@ public class CladeModelOutput {
 	/**
 	 * Getter method for the estimated site omega (dN/dS) ratios, for sites under <i>divergent</i> selection only.
 	 * <br/>These are calculated from PAML as the product of the category BEB probabilities * the category dN/dS estimates.
-	 * <br/>Differs from {@link CladeModelOutput#getAllSiteOmegas()} in that only sites in third (divergent) site category BEB ³ 0.50 are returned.
+	 * <br/>Differs from {@link ModelM8Output#getAllSiteOmegas()} in that only sites in eleventh (divergent) site category BEB ³ 0.50 are returned.
 	 * @return {@link HashMap} <{@link Integer},{@link Double}>: a HashMap containing <i>divergent</i> site indices and their calculated product omegas.
-	 * @see {@link CladeModelOutput#getAllSiteOmegas()}
+	 * @see {@link ModelM8Output#getAllSiteOmegas()}
 	 */
 	public HashMap<Integer,Double> getDivergentSiteOmegas(){
 		return this.siteDivergent;
@@ -47,7 +47,7 @@ public class CladeModelOutput {
 	 * Getter method for the estimated site omega (dN/dS) ratios.
 	 * <br/>These are calculated from PAML as the product of the category BEB probabilities * the category dN/dS estimates.
 	 * @return {@link HashMap} <{@link Integer},{@link Double}>: a HashMap containing site indices and their calculated product omegas.
-	 * @see {@link CladeModelOutput#getDivergentSiteOmegas()}
+	 * @see {@link ModelM8Output#getDivergentSiteOmegas()}
 	 */
 	public HashMap<Integer,Double> getAllSiteOmegas(){
 		return this.siteOmegas;
@@ -61,7 +61,7 @@ public class CladeModelOutput {
 		Pattern p_BEB = Pattern.compile("BEB"); 
 		Pattern p_num = Pattern.compile("^[\\ ]{1,}[0-9]{1,}");
 		Pattern rates = Pattern.compile("BRANCH\\ TYPE\\ 1");
-		Pattern positive = Pattern.compile("3\\)");
+		Pattern positive = Pattern.compile("11\\)");
 		
 		for(String line:rawData){
 			Matcher isBEB = p_BEB.matcher(line);
@@ -77,6 +77,15 @@ public class CladeModelOutput {
 				probabilities[1] = Double.parseDouble(tokens[4]);
 				probabilities[2] = Double.parseDouble(tokens[5]);
 				double w = (probabilities[0]*dNdS[0])+(probabilities[1]*dNdS[1])+(probabilities[2]*dNdS[2]);
+				
+				// TODO iterate over all omega cat BEB probabilities to get full omega estimate
+				// TODO not tested!
+				double w_full = 0.0;
+				for(int i=0;i<11;i++){
+					probabilities[i] = Double.parseDouble(tokens[(i+3)]);
+					w_full += (probabilities[i] * dNdS[i]);
+				}
+
 				Integer siteIndex = Integer.parseInt(tokens[1])-1;
 				siteOmegas.put(siteIndex, w);
 				if(isPos.find()){
@@ -89,6 +98,12 @@ public class CladeModelOutput {
 				dNdS[0] = Double.parseDouble(tokens[3]);
 				dNdS[1] = Double.parseDouble(tokens[4]);
 				dNdS[2] = Double.parseDouble(tokens[5]);
+				// TODO iterate over all category dN/dS estimates to get them
+				// not tested!
+				for(int i=0;i<11;i++){
+					dNdS[i] = Double.parseDouble(tokens[i]);
+				}
+				
 			}
 		}
 	}

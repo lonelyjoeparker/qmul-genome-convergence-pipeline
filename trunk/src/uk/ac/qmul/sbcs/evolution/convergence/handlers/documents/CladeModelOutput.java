@@ -92,4 +92,9 @@ public class CladeModelOutput {
 			}
 		}
 	}
+
+	public double[] getdNdS() {
+		// TODO Auto-generated method stub
+		return this.dNdS;
+	}
 }

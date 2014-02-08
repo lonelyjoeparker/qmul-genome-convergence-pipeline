@@ -661,9 +661,22 @@ public class AlignedSequenceRepresentation implements Serializable {
 		new BasicFileWriter(fullyPathQualifiedFileName,buffer.toString());
 	}
 
+	/**
+	 * 
+	 * @param fullyPathQualifiedFileName - name of the whole
+	 * @param useOriginalTaxonNames - or the truncated sequence names hash (first 6 chars of original name + underscore + 3-digit padded UID)
+	 */
 	public void writePhylipFile(File fullyPathQualifiedFileName, boolean useOriginalTaxonNames){
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(numberOfTaxa+"   "+numberOfSites+"\n");
+		/*
+		 * We have to make sure the names are padded with enough space that (a) the sequences all line up, and (b) whitespace delimits names and sequences
+		 * First we find the maximum taxon name length - we will use this (+2) as the pad limit
+		 */
+		int max_name_length = 0; // Longest sequence name
+		for(String taxon:taxaListArray){
+			if(taxon.length()>max_name_length){max_name_length = taxon.length();}
+		}
 		for(String taxon:taxaListArray){
 			// TODO get shortname from truncatedNamesHash
 			StringBuilder paddedTaxon;
@@ -672,7 +685,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 			}else{
 				paddedTaxon = new StringBuilder(truncatedNamesHash.get(taxon));
 			}
-			while(paddedTaxon.length() < 15){
+			while(paddedTaxon.length() < (max_name_length+5)){
 				paddedTaxon.append(" ");
 			}
 			buffer.append(paddedTaxon);
@@ -1358,9 +1371,22 @@ public class AlignedSequenceRepresentation implements Serializable {
 		
 	}
 	
+	/**
+	 * 
+	 * @param fullyPathQualifiedFileName - name of the whole
+	 * @param useOriginalTaxonNames - or the truncated sequence names hash (first 6 chars of original name + underscore + 3-digit padded UID)
+	 */
 	public void writePhylipFile(String fullyPathQualifiedFileName, boolean useOriginalTaxonNames){
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(numberOfTaxa+"   "+numberOfSites+"\n");
+		/*
+		 * We have to make sure the names are padded with enough space that (a) the sequences all line up, and (b) whitespace delimits names and sequences
+		 * First we find the maximum taxon name length - we will use this (+2) as the pad limit
+		 */
+		int max_name_length = 0; // Longest sequence name
+		for(String taxon:taxaListArray){
+			if(taxon.length()>max_name_length){max_name_length = taxon.length();}
+		}
 		for(String taxon:taxaListArray){
 			// TODO get shortname from truncatedNamesHash
 			StringBuilder paddedTaxon;
@@ -1369,7 +1395,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 			}else{
 				paddedTaxon = new StringBuilder(truncatedNamesHash.get(taxon));
 			}
-			while(paddedTaxon.length() < 15){
+			while(paddedTaxon.length() < (max_name_length+5)){
 				paddedTaxon.append(" ");
 			}
 			buffer.append(paddedTaxon);

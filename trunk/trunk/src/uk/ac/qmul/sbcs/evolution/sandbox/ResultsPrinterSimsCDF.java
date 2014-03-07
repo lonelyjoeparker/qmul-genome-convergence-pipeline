@@ -324,48 +324,6 @@ public class ResultsPrinterSimsCDF{
 					}
 				}
 				
-				/*
-				 * Analyse SUBSAMLE of SIMULATIONS
-				 * Just H1 ÆSSLS for now
-				 */
-				int totalReps = 0;
-				double[] expectedD = new double[this.maxTrees-1];
-//				System.err.println("Analyse expected KS");
-//				for(int i=0;i<simulations.length;i++){
-//					System.err.print('x');
-//					if(Math.round((double)i/10.0d) == (double)i/10.0d){
-//						System.err.print(i);
-//						System.err.println();
-//					}
-//					SitewiseSpecificLikelihoodSupportAaml someRun = simulations[i];
-//					try {
-//						if(someRun.getModel().equals(model)&&(Math.random()>0.75d)&&(totalReps<31)){
-//							int nSites = someRun.getNumberOfSites();
-//							float[][] SSLS = someRun.getSSLSseriesSitewise();
-//							double[][] dSSLS = new double[this.maxTrees-1][nSites];
-//							for(int j=0;j<nSites;j++){
-//								for(int k=1;k<this.maxTrees;k++){
-//									try {
-//										dSSLS[k-1][j] = SSLS[j][0] - SSLS[j][k];
-//									} catch (Exception e) {
-//										// TODO Auto-generated catch block
-//										dSSLS[k-1][j] = Float.NaN;
-//										e.printStackTrace();
-//									}
-//								}
-//							}
-//							for (int k = 0; k < this.maxTrees-1; k++) {
-//								expectedD[k] += new PairedEmpirical(dSSLS[k],simulatedDeltas[k]).getKS();
-//							}
-//							totalReps++;
-//						}
-//					}catch(Exception e){
-//						e.printStackTrace();
-//					}
-//				}
-//				for (int k = 0; k < this.maxTrees-1; k++) {
-//					expectedD[k] = expectedD[k]/(double)totalReps;
-//				}
 
 				/*
 				 * Analysed OBSERVED sites
@@ -413,18 +371,6 @@ public class ResultsPrinterSimsCDF{
 									System.out.print("\t"+prefTree);
 									buf.append("\t"+prefTree);
 								}
-//								for(int k=1;k<this.maxTrees;k++){
-//									float dlnL;
-//									try {
-//										dlnL = (sli[0]-sli[k]);
-//									} catch (Exception e) {
-//										// TODO Auto-generated catch block
-//										dlnL = Float.NaN;
-//										e.printStackTrace();
-//									}
-//									System.out.print("\t"+dlnL);
-//									buf.append("\t"+dlnL);
-//								}
 								int[] largeDeltas = new int[(this.maxTrees-1)];
 								float[][] SSLS = someRun.getSSLSseriesSitewise();
 								float[] lnLsums = new float[someRun.getNumberOfTopologies()];
@@ -516,29 +462,6 @@ public class ResultsPrinterSimsCDF{
 								float[] lnLsumAvg 		= new float[(this.maxTrees-1)];
 								float[] lnLsumDiffAvgs 	= new float[(this.maxTrees-1)];
 
-//								for(int k=0;k<(this.maxTrees-1);k++){
-									// Average the ÆSSLS
-							//		BigDecimal avgOfSummedDiffs = diffsSummed[k].divide(new BigDecimal(nSites),RoundingMode.HALF_EVEN);
-							//		String AOSD = String.format("%.16f",avgOfSummedDiffs);
-//									System.out.print("\t"+AOSD);
-//									buf.append("\t"+AOSD);
-//								}
-
-//								for(int k=0;k<(this.maxTrees-1);k++){
-									// Average the ÆSSLS (threshold-corrected values)
-							//		BigDecimal avgOfSummedDiffs = diffsSummedThresh[k].divide(new BigDecimal(nSites),RoundingMode.HALF_EVEN);
-							//		String AOSD = String.format("%.16f",avgOfSummedDiffs);
-//									System.out.print("\t"+AOSD);
-//									buf.append("\t"+AOSD);
-//								}
-
-//								for(int k=0;k<largeDeltas.length;k++){
-//									lnLsumDiffs[k] = lnLsums[0] - lnLsums[k];
-//									lnLsumAvg[k] = (lnLsums[k] / nSites);
-//									lnLsumDiffAvgs[k] = (lnLsumDiffs[k]/nSites);
-//									System.out.print("\t"+largeDeltas[k]);
-//									buf.append("\t"+largeDeltas[k]);
-//								}
 								
 								
 								// METHOD 1.6 Unexpectedness matrix initialise
@@ -651,7 +574,7 @@ public class ResultsPrinterSimsCDF{
 									 */
 
 									BigDecimal avgOfSummedDiffs = diffsSummed[t].divide(new BigDecimal(nSites),RoundingMode.HALF_EVEN);
-									String AOSD = String.format("%.16f",avgOfSummedDiffs);
+									String AOSD = String.format("%.16f",avgOfSummedDiffs.doubleValue());
 									PairedEmpirical significance 		= new PairedEmpirical(dSSLS[t]			,simulatedDeltas[t]		,true);		// The KS test of the test trees[t]; EMPIRICAL vs. SIMULATED
 									PairedEmpirical significanceRTCE 	= new PairedEmpirical(dSSLS[t]			,dSSLSrandomTrees		,true);		// The KS test of the test trees[t] vs. random trees; EMPIRICAL (observed) amino acids
 									PairedEmpirical significanceRTCS 	= new PairedEmpirical(simulatedDeltas[t],dSSLSrandomTreesSims	,true);		// The KS test of the test trees[t] vs. random trees; SIMULATED  amino acids

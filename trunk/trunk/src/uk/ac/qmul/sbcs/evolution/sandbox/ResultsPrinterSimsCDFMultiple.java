@@ -511,7 +511,7 @@ public class ResultsPrinterSimsCDFMultiple{
 									 */
 
 									BigDecimal avgOfSummedDiffs = diffsSummed[t].divide(new BigDecimal(nSites),RoundingMode.HALF_EVEN);
-									String AOSD = String.format("%.16f",avgOfSummedDiffs);
+									String AOSD = String.format("%.16f",avgOfSummedDiffs.doubleValue());
 									System.out.print(
 											"\ttH"+referenceTree+"-H"+testTrees[c]+"\t"
 											+AOSD+"\t"

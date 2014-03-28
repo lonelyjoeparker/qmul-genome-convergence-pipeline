@@ -17,6 +17,8 @@ public class BasicAlignmentStats {
 	 */
 	private File inputFile;
 	private AlignedSequenceRepresentation data;
+	private boolean doSitewiseEntropy = false;
+	
 	public BasicAlignmentStats(String string) {
 		// TODO Auto-generated constructor stub
 		this.inputFile = new File(string);
@@ -24,6 +26,9 @@ public class BasicAlignmentStats {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		BasicAlignmentStats quick = new BasicAlignmentStats(args[0]);
+		if(args.length>1){
+			quick.doSitewiseEntropy = Boolean.parseBoolean(args[1]);
+		}
 		quick.go();
 	}
 	private void go() {
@@ -32,9 +37,13 @@ public class BasicAlignmentStats {
 			File[] children = inputFile.listFiles();
 			for(File child:children){
 				data = new AlignedSequenceRepresentation();
+				float[] siteEntropies = null;
 				try {
 					data.loadSequences(child, false);
 					data.calculateAlignmentStats(false);
+					if(this.doSitewiseEntropy){
+						siteEntropies = data.getSitewiseEntropies(true);
+					}
 				} catch (TaxaLimitException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -47,7 +56,7 @@ public class BasicAlignmentStats {
 						data.getMeanSitewiseEntropy()+"\t"+
 						data.getMeanTaxonwiseLongestUngappedSequence()
 						);
-				System.err.println(
+				System.err.print(
 						child.getName()+"\t"+
 						data.getNumberOfSites()+"\t"+
 						data.getNumberOfTaxa()+"\t"+
@@ -55,13 +64,24 @@ public class BasicAlignmentStats {
 						data.getMeanSitewiseEntropy()+"\t"+
 						data.getMeanTaxonwiseLongestUngappedSequence()
 						);
+				if((this.doSitewiseEntropy)&&(siteEntropies != null)){
+					System.err.print("\tE:");
+					for(float entropy:siteEntropies){
+						System.err.print("\t"+entropy);
+					}
+				}
+				System.err.println();
 				
 			}
 		}else{
 			data = new AlignedSequenceRepresentation();
+			float[] siteEntropies = null;
 			try {
 				data.loadSequences(inputFile, false);
 				data.calculateAlignmentStats(false);
+				if(this.doSitewiseEntropy){
+					siteEntropies = data.getSitewiseEntropies(true);
+				}
 			} catch (TaxaLimitException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -74,7 +94,7 @@ public class BasicAlignmentStats {
 					data.getMeanSitewiseEntropy()+"\t"+
 					data.getMeanTaxonwiseLongestUngappedSequence()
 					);
-			System.err.println(
+			System.err.print(
 					inputFile.getName()+"\t"+
 					data.getNumberOfSites()+"\t"+
 					data.getNumberOfTaxa()+"\t"+
@@ -82,6 +102,13 @@ public class BasicAlignmentStats {
 					data.getMeanSitewiseEntropy()+"\t"+
 					data.getMeanTaxonwiseLongestUngappedSequence()
 					);
+			if((this.doSitewiseEntropy)&&(siteEntropies != null)){
+				System.err.print("\tE:");
+				for(float entropy:siteEntropies){
+					System.err.print("\t"+entropy);
+				}
+			}
+			System.err.println();
 		}
 	}
 

@@ -1895,15 +1895,6 @@ public class AlignedSequenceRepresentation implements Serializable {
 	}
 
 	/**
-	 * Getter method (acts as accessor to private calculateSitewiseEntropies() method)
-	 * @param evaluateGaps - should gaps be treated as informative?
-	 * @return float[] of sitewise entropties
-	 */
-	public float[] getSitewiseEntropies(boolean evaluateGaps) {
-		return this.calculateSitewiseEntropies(evaluateGaps);
-	}
-	
-	/**
 	 * Private internal method to calculate sitewise entropies and return them as a float[]
 	 * 
 	 * <br>Log-base for alphabet will be assumed to be nucleotide/RNA/codon unless this ASR object has datatype=='AA'

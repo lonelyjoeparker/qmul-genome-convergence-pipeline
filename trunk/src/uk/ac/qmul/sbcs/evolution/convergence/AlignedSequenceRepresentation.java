@@ -1309,6 +1309,15 @@ public class AlignedSequenceRepresentation implements Serializable {
 	}
 
 	/**
+	 * Getter method (acts as accessor to private calculateSitewiseEntropies() method)
+	 * @param evaluateGaps - should gaps be treated as informative?
+	 * @return float[] of sitewise entropties
+	 */
+	public float[] getSitewiseEntropies(boolean evaluateGaps) {
+		return this.calculateSitewiseEntropies(evaluateGaps);
+	}
+	             
+	/**
 	 * @return the meanTaxonwiseLongestUngappedSequence
 	 */
 	public float getMeanTaxonwiseLongestUngappedSequence() {
@@ -1885,6 +1894,15 @@ public class AlignedSequenceRepresentation implements Serializable {
 		this.meanSitewiseEntropy /= (float)this.numberOfSites;
 	}
 
+	/**
+	 * Getter method (acts as accessor to private calculateSitewiseEntropies() method)
+	 * @param evaluateGaps - should gaps be treated as informative?
+	 * @return float[] of sitewise entropties
+	 */
+	public float[] getSitewiseEntropies(boolean evaluateGaps) {
+		return this.calculateSitewiseEntropies(evaluateGaps);
+	}
+	
 	/**
 	 * Private internal method to calculate sitewise entropies and return them as a float[]
 	 * 

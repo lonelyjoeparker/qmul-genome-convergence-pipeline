@@ -48,7 +48,7 @@ public class BasicAlignmentStats {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				System.out.println(
+				System.out.print(
 						child.getName()+"\t"+
 						data.getNumberOfSites()+"\t"+
 						data.getNumberOfTaxa()+"\t"+
@@ -65,12 +65,16 @@ public class BasicAlignmentStats {
 						data.getMeanTaxonwiseLongestUngappedSequence()
 						);
 				if((this.doSitewiseEntropy)&&(siteEntropies != null)){
-					System.err.print("\tE:");
+					float [] entropyStats = this.parseEntropiesToFindLongestNonzeroRun(siteEntropies);
+					System.out.print("\t"+entropyStats[0]+"\t"+entropyStats[1]);
+					System.err.print("\t"+entropyStats[0]+"\t"+entropyStats[1]);
+					System.out.print("\tE:");
 					for(float entropy:siteEntropies){
-						System.err.print("\t"+entropy);
+						System.out.print("\t"+entropy);
 					}
 				}
 				System.err.println();
+				System.out.println();
 				
 			}
 		}else{
@@ -86,7 +90,7 @@ public class BasicAlignmentStats {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			System.out.println(
+			System.out.print(
 					inputFile.getName()+"\t"+
 					data.getNumberOfSites()+"\t"+
 					data.getNumberOfTaxa()+"\t"+
@@ -103,13 +107,64 @@ public class BasicAlignmentStats {
 					data.getMeanTaxonwiseLongestUngappedSequence()
 					);
 			if((this.doSitewiseEntropy)&&(siteEntropies != null)){
-				System.err.print("\tE:");
+				float [] entropyStats = this.parseEntropiesToFindLongestNonzeroRun(siteEntropies);
+				System.err.print("\t"+entropyStats[0]+"\t"+entropyStats[1]);
+				System.out.print("\t"+entropyStats[0]+"\t"+entropyStats[1]);
+				System.out.print("\tE:");
 				for(float entropy:siteEntropies){
-					System.err.print("\t"+entropy);
+					System.out.print("\t"+entropy);
 				}
 			}
+			System.out.println();
 			System.err.println();
 		}
+	}
+	
+	/**
+	 *
+	 * @param entropies - float[] of sitewise entropy (diversity) stats from an alignment
+	 * @return retval - a float[] containing: [0] longest run of identical and nonzero entropies; [1] what the value of those entropies was
+	 */
+	private float[] parseEntropiesToFindLongestNonzeroRun(float [] entropies){
+		// Initialise vars
+		float [] retval = {0.0f,0.0f};		// return array (doing this explicitly)
+		int longestNonZero = 0;				// globally-longest run of identical nonzero entropies
+		int currentNonZeroLength = 0;		// current (locally) longest run of identical nonzero entropies
+		float whichNonZero = 0.0f;			// value of current nonzero entropies in current run (should update to global on completion)
+		float last = 0.0f;					// previous entropy seen
+
+		// iterate through sites
+		for(float entropy:entropies){
+			if(entropy == 0.0f){
+				// this entropy is zero which will terminate any nonzero runs so far
+				if(currentNonZeroLength > longestNonZero){
+					longestNonZero = currentNonZeroLength;	// there is a previous run to update LNZ with
+					whichNonZero = last;
+				}
+				currentNonZeroLength = 0;
+			}else{
+				// this entropy is nonzero.
+				// update LNZ so far
+				if(currentNonZeroLength > longestNonZero){
+					longestNonZero = currentNonZeroLength;	// there is a previous run to update LNZ with
+				}
+				// find out if the current entropy is part of current run, or a new run
+				if(entropy == last){
+					// is part of current run
+					currentNonZeroLength++;
+					whichNonZero = last;
+				}else{
+					// this entropy is starting a new run, reset CNZ counter
+					currentNonZeroLength = 0;
+				}
+			}
+			last = entropy;		// set the last entropy marker
+		}
+		
+		// Assign the return values to the retval array
+		retval[0] = (float) longestNonZero;
+		retval[1] = whichNonZero;
+		return retval;
 	}
 
 }

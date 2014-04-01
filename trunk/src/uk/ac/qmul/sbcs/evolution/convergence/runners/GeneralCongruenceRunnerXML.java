@@ -107,7 +107,7 @@ public class GeneralCongruenceRunnerXML {
 	 * @return
 	 * @throws Exception 
 	 */
-	private TreeSet<String> parseTaxaListConfigFile(String configFileArg) throws Exception{
+	public TreeSet<String> parseTaxaListConfigFile(String configFileArg) throws Exception{
 		TreeSet<String> taxaList = new TreeSet<String>();
 		File configFile = new File(configFileArg);
 		if(configFile.canRead()){

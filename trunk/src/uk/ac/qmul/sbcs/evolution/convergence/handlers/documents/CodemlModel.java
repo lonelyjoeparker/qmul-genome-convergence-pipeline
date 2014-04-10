@@ -1,6 +1,10 @@
 package uk.ac.qmul.sbcs.evolution.convergence.handlers.documents;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
+
+import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlModelNSsitesTypes;
+import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlModelType;
 
 public class CodemlModel {
 	private String modelString;
@@ -10,6 +14,11 @@ public class CodemlModel {
 	private float [] globalProportions;
 	private float [] estimatedOmegas;
 	private String[] rawData;
+	private CodemlModelType modelType;
+	private CodemlModelNSsitesTypes NSsitesType;
+	private Pattern p_BEB = Pattern.compile("BEB"); 
+	private Pattern p_num = Pattern.compile("^[\\ ]{1,}[0-9]{1,}");
+	private Pattern rates = Pattern.compile("BRANCH\\ TYPE\\ 1");
 	
 	/**
 	 * no-arg constructor

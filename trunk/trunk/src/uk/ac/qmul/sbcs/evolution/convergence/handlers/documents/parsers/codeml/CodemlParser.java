@@ -6,6 +6,8 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.CodemlModel;
 public abstract class CodemlParser {
 	
 	private ArrayList<String> input;
+	private CodemlModelType modelType;
+	private CodemlModelNSsitesTypes NSsitesType;
 	
 	public CodemlParser(){}
 	

@@ -16,9 +16,6 @@ public class CodemlModel {
 	private String[] rawData;
 	private CodemlModelType modelType;
 	private CodemlModelNSsitesTypes NSsitesType;
-	private Pattern p_BEB = Pattern.compile("BEB"); 
-	private Pattern p_num = Pattern.compile("^[\\ ]{1,}[0-9]{1,}");
-	private Pattern rates = Pattern.compile("BRANCH\\ TYPE\\ 1");
 	
 	/**
 	 * no-arg constructor
@@ -96,11 +93,19 @@ public class CodemlModel {
 	public void setGlobalProportions(float[] globalProportions) {
 		this.globalProportions = globalProportions;
 	}
-	public void setEstimatedOmegas(float[] estimatedOmegas) {
-		this.estimatedOmegas = estimatedOmegas;
+	public void setEstimatedOmegas(float[] floats) {
+		this.estimatedOmegas = floats;
 	}
 	public void setRawData(String[] rawData) {
 		this.rawData = rawData;
+	}
+
+	public void setCodemlModelType(CodemlModelType modelType) {
+		this.modelType = modelType;
+	}
+
+	public void setCodemlModelNSsitesType(CodemlModelNSsitesTypes nSsitesType) {
+		this.NSsitesType = NSsitesType;
 	}
 	
 	

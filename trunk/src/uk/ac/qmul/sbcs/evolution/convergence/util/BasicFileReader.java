@@ -5,6 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+/**
+ * A basic utility class to take a file, open it and read all non-empty lines to an {@link ArrayList}&lt;String&gt;
+ * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+ *
+ */
 public class BasicFileReader {
 
 	private File file;

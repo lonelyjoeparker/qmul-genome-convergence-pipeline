@@ -14,7 +14,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
 import uk.ac.qmul.sbcs.evolution.convergence.util.CustomFileWriter;
-import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 
@@ -66,7 +66,7 @@ public class ResultsPrinterSimple{
 	}
 
 	private void go(){
-		FilenameFilter serFileFilter = new serFilter();
+		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();
 		StringBuffer bufTree = new StringBuffer();
 

@@ -10,12 +10,12 @@ import java.io.FilenameFilter;
  * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
  *
  */
-public class serFilter implements FilenameFilter {
+public class RstFileFilter implements FilenameFilter {
 
 	/**
 	 * 
 	 */
-	public serFilter() {
+	public RstFileFilter() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -25,7 +25,7 @@ public class serFilter implements FilenameFilter {
 	@Override
 	public boolean accept(File arg0, String arg1) {
 		// TODO Auto-generated method stub
-		return arg1.endsWith(".ser");
+		return arg1.endsWith(".rst");
 	}
 
 }

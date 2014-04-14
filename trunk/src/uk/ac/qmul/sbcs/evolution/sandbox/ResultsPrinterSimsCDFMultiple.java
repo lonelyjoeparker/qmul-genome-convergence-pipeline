@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import uk.ac.qmul.sbcs.evolution.convergence.util.CustomFileWriter;
-import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical;
 
@@ -154,7 +154,7 @@ public class ResultsPrinterSimsCDFMultiple{
 		 *  - sitewise CDF construction, populate extreme_percentiles[tree][site] (for tree­random)
 		 *  - KS test etc on extreme_percentiles for empirical and simulated data.
 		 */
-		FilenameFilter serFileFilter = new serFilter();
+		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();				// no treefile buffer for this one.
 
 		Pattern simPattern = Pattern.compile("s_");
@@ -567,7 +567,7 @@ public class ResultsPrinterSimsCDFMultiple{
 	}
 
 	private void go(){
-		FilenameFilter serFileFilter = new serFilter();
+		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();
 		StringBuffer bufTree = new StringBuffer();
 

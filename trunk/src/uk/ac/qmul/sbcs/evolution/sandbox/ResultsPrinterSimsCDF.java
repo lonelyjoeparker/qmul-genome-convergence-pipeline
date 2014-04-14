@@ -19,7 +19,7 @@ import javax.swing.JFileChooser;
 import cern.jet.random.engine.RandomEngine;
 
 import uk.ac.qmul.sbcs.evolution.convergence.util.CustomFileWriter;
-import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.EmpiricalDistribution;
@@ -186,7 +186,7 @@ public class ResultsPrinterSimsCDF{
 		 *  - sitewise CDF construction, populate extreme_percentiles[tree][site] (for tree­random)
 		 *  - KS test etc on extreme_percentiles for empirical and simulated data.
 		 */
-		FilenameFilter serFileFilter = new serFilter();
+		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();				// no treefile buffer for this one.
 //		bufMain.append("locus\tensembl_URL\tshortcode\tdescription\thomog\tmodel\tmissingData\tlnl (species tree)\tlength (species tree)\tmodel alpha\tnumberOfTaxa\tnumberOfSites\tpreferredTopology");
 //		bufMain.append("\n");
@@ -746,7 +746,7 @@ public class ResultsPrinterSimsCDF{
 	}
 
 	private void go(){
-		FilenameFilter serFileFilter = new serFilter();
+		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();
 		StringBuffer bufTree = new StringBuffer();
 

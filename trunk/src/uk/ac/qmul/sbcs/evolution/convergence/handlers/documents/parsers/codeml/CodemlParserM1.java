@@ -57,17 +57,9 @@ public class CodemlParserM1 extends CodemlParser {
 				float w_full = 0.0f;
 				for(int i=0;i<probabilities.length;i++){
 					probabilities[i] = Float.parseFloat(tokens[(i+3)]);
-					
 					w_full += (probabilities[i] * dNdS[i]);
 				}
-
 				omegas.add(w_full);
-			
-			//	Integer siteIndex = Integer.parseInt(tokens[1])-1;
-			//	siteOmegas.put(siteIndex, w);
-			//	if(isPos.find()){
-			//		siteDivergent.put(siteIndex, w);
-			//	}
 			}
 			if(isNEB.find()){inNEB=true;}
 			if(isPro.find()){
@@ -103,6 +95,7 @@ public class CodemlParserM1 extends CodemlParser {
 		 * 
 		 * e.g., are relevant values not NaN (or at least not null) etc
 		 */
+		if(model.selfValidate()){this.parseSuccessful=true;}
 	}
 
 	/* (non-Javadoc)

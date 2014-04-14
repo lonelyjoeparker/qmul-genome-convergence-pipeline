@@ -8,7 +8,7 @@ import java.io.ObjectInputStream;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 
-import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 
@@ -34,7 +34,7 @@ public class ResultsBrowserSimple extends JComponent{
 	}
 	
 	private void go(){
-		FilenameFilter serFileFilter = new serFilter();
+		FilenameFilter serFileFilter = new SerfileFilter();
 		if(dir != null){
 			dir = new File(arg1);
 		}

@@ -16,7 +16,7 @@ import javax.swing.JFileChooser;
 
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.CustomFileWriter;
-import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
@@ -71,7 +71,7 @@ public class ResultsPrinterSimpleMetadata{
 	}
 
 	private void go(){
-		FilenameFilter serFileFilter = new serFilter();
+		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();
 		StringBuffer bufTree = new StringBuffer();
 

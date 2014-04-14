@@ -17,7 +17,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.ParsimonyReconstruction;
 import uk.ac.qmul.sbcs.evolution.convergence.StateComparison;
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
-import uk.ac.qmul.sbcs.evolution.convergence.util.serFilter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
 
 public class ParallelSubstitutionDetectorMRCA {
 
@@ -33,7 +33,7 @@ public class ParallelSubstitutionDetectorMRCA {
 	private void go(String[] args){
 		System.out.println("input\tInputFileName\tmodel\tParallel H1\tParallel H1c\tParallel H1o\tFrom MRCAH1\tfullStrictH1\tParallel H2\tParallel H2c\tParallel H2o\tFrom MRCAH2\tFrom MRCAH2 (require T.truncatus)\tFrom MRCAH2 (require T.truncatus, no root ambiguities)\tfull_strict_H2\t(Ambiguous at root)");
 		File dir = new File(args[0]);
-		FilenameFilter serFileFilter = new serFilter();
+		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();				// no treefile buffer for this one.
 //		bufMain.append("locus\tensembl_URL\tshortcode\tdescription\thomog\tmodel\tmissingData\tlnl (species tree)\tlength (species tree)\tmodel alpha\tnumberOfTaxa\tnumberOfSites\tpreferredTopology");
 //		bufMain.append("\n");

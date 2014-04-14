@@ -8,6 +8,15 @@ import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.C
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlModelType;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.LinearRegression;
 
+/**
+ * Representation of sitewise selection (dN/dS rates ratio) for codeml M0, M1a, M2a, M3, M4, M5, M6, M7, M8, branch-site and Clade models C & D.
+ * <br/>Includes methods to extract selected sites and do regressions on their indices to determine aggregation of selected sites for qulity-control analyses.
+ * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+ * @see uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlParser
+ * @see uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlParserM1
+ * @see uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlParserM2
+ * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.LinearRegression
+ */
 public class CodemlModel {
 	private String modelString;
 	private int numberOfRates;
@@ -44,6 +53,19 @@ public class CodemlModel {
 		return false;
 	}
 
+	/**
+	 * Getter method for intervals of selected sites.
+	 * @return - int[] of intervals of selected sites.
+	 * @see CodemlModel#calculateSelectionIntervals()
+	 * @see CodemlModel#doIntervalRegression()
+	 */
+	public int[] getSelectionIntervals(){
+		if(this.selectionIntervals == null){
+			this.calculateSelectionIntervals();
+		}
+		return this.selectionIntervals;
+	}
+	
 	/**
 	 * Do a regression of intervals (log-transformed, base e)
 	 * Intervals are calculated between each codon with estimated w > 1
@@ -153,20 +175,16 @@ public class CodemlModel {
 			log_intervals[i] = Math.log(this.selectionIntervals[i]);
 		}
 		intervalsRegression = new LinearRegression(indices,log_intervals);
-		intervalsRegression.getRsq();
 	}
 	
 	/**
 	 * Calculates the intervals between selected sites
-	 * @return
+	 * for details of intervals calculation see above ({@link CodemlModel#doIntervalRegression()}).
+	 * 
+	 * IMPORTANT! don't forget to sort the values prior to regression...
+	 * @see CodemlModel#doIntervalRegression()
 	 */
 	private void calculateSelectionIntervals() {
-		// TODO Auto-generated method stub
-		/*
-		 * for details of intervals calculation see above (doLinearRegression).
-		 * 
-		 * IMPORTANT! don't forget to sort the values prior to regression...
-		 */
 		int siteIndex = 1;
 		int last = -1;
 		ArrayList<Integer> intervalsList = new ArrayList<Integer>();
@@ -240,6 +258,20 @@ public class CodemlModel {
 		this.NSsitesType = nSsitesType;
 	}
 	
+	/**
+	 * @return the modelType
+	 */
+	public CodemlModelType getModelType() {
+		return modelType;
+	}
+
+	/**
+	 * @return the nSsitesType
+	 */
+	public CodemlModelNSsitesTypes getNSsitesType() {
+		return NSsitesType;
+	}
+
 	/**
 	 * Getter method for the regression of log-transformed selected sites intervals
 	 * @return LinearRegression of indices against log-transformed selection intervals

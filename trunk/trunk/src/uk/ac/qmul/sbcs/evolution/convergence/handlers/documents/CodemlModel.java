@@ -1,10 +1,12 @@
 package uk.ac.qmul.sbcs.evolution.convergence.handlers.documents;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Pattern;
 
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlModelNSsitesTypes;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlModelType;
+import uk.ac.qmul.sbcs.evolution.convergence.util.stats.LinearRegression;
 
 public class CodemlModel {
 	private String modelString;
@@ -14,8 +16,10 @@ public class CodemlModel {
 	private float [] globalProportions;
 	private float [] estimatedOmegas;
 	private String[] rawData;
+	private int[] selectionIntervals = null;
 	private CodemlModelType modelType;
 	private CodemlModelNSsitesTypes NSsitesType;
+	private LinearRegression intervalsRegression = null;
 	
 	/**
 	 * no-arg constructor
@@ -41,20 +45,148 @@ public class CodemlModel {
 	}
 
 	/**
-	 * Do a regression of intervals (log-transformed)
+	 * Do a regression of intervals (log-transformed, base e)
+	 * Intervals are calculated between each codon with estimated w > 1
+	 * DOES NOT include first or last interval (from 5' to first w>1, or from last w>1 to 3')
+	 * 
+	 * e.g. if omegas are (sites 1:4, 7:9, 11:19 and 21:24 omitted):
+	 * <pre>
+	 * i	w
+	 * 5	1.5
+	 * 6	1.0
+	 * 7	1.1
+	 * 10	1.01
+	 * 20	1.2
+	 * 25	1.0
+	 * </pre>
+	 * Then the sites passing BEB would be:
+	 * <pre>
+	 * i	w
+	 * 5	1.5
+	 * 7	1.1
+	 * 10	1.01
+	 * 20	1.2
+	 * </pre>
+	 * And the corresponding intervals assuming start/5' at 1 and end/3' at 25:
+	 * <pre>
+	 * i	w	interval
+	 * 1	(5')	n/a
+	 * 5	1.5	n/a
+	 * 7	1.1	2
+	 * 10	1.01	3
+	 * 20	1.2	10
+	 * 25	(3')	n/a
+	 * </pre>
+	 * These are log-transformed (base e), sorted and regressed:
+	 * <pre>
+	 * i	w	intrvl	log(i)	index
+	 * 1	(5')	n/a	n/a	n/a
+	 * 25	(3')	n/a	n/a	n/a
+	 * 5	1.5	n/a	n/a	n/a
+	 * 20	1.2	10	2.30	1
+	 * 10	1.01	3	1.10	2
+	 * 7	1.1	2	0.693	3
+	 * 
+	 * > summary(lm_r)
+	 * 
+	 * Call:
+	 * lm(formula = y_vals ~ x_vals)
+	 * 
+	 * Residuals:
+	 *       1       2       3 
+	 *  0.1322 -0.2643  0.1322 
+	 * 
+	 * Coefficients:
+	 *             Estimate Std. Error t value Pr(>|t|)
+	 * (Intercept)  -0.2427     0.4945  -0.491    0.710
+	 * x_vals        0.8035     0.2289   3.510    0.177
+	 * 
+	 * Residual standard error: 0.3237 on 1 degrees of freedom
+	 * Multiple R-squared: 0.9249,	Adjusted R-squared: 0.8498 
+	 * F-statistic: 12.32 on 1 and 1 DF,  p-value: 0.1767  
+	 * </pre>
+	 * In this implementation this is done using {@link uk.ac.qmul.sbcs.evolution.convergence.util.stats.LinearRegression}, adapted from  class of the same name, Copyright © 2000Ð2011, Robert Sedgewick and Kevin Wayne, Last updated: Wed Feb 9 09:20:16 EST 2011.</p>
+	 * @throws Exception - if there aren't enough intervals (<3) for a regression it won't do one...
+	 * @see uk.ac.qmul.sbcs.evolution.convergence.util.stats.LinearRegression
 	 */
-	public void doIntervalRegression(){
-		int[] intervals = this.calculateSelectionIntervals();
+	public void doIntervalRegression() throws Exception{
+		// check the intervals have been calculated
+		if(this.selectionIntervals == null){
+			this.calculateSelectionIntervals();
+		}
+		// the intervals should be here now, but are there enough for a regression?
+		if(selectionIntervals.length<3){
+			throw new Exception("Two or fewer intervals present - not enough for a regression!");
+		}
 		// use uk.ac.qmul.sbcs.evolution.convergence.util.stats.LinearRegression
+
+		/*
+		 * Doing the intervals & regression - from ~/Documents/all_work/QMUL/FSD/results_final_nov2012/complete_summary_includingLRT.pl:1564
+		 * 
+		 * IMPORTANT! don't forget to sort the interval values prior to regression...
+		 * 
+		 * 	$last = 0;
+			my @BEB_intervals;
+			my $numBEB=scalar(@data_BEB); // this is just an array of sites with BEB > 0.5 grabbed from the codeml.out file (e.g. ~/Documents/all_work/QMUL/FSD/results_final_nov2012/M8_outfiles/f_100_ENSG00000Otofaa_ng.fas_codemlM8.out:6594)
+			// nb the @data_BEB sites are all ³0.5 BEB though (since they're from outfile not rst file) - here we'll have to filter.
+			my $numBEBintervals=scalar(@data_BEB)+1;
+			foreach $data(sort(@data_BEB)){
+				@fields = split(/\ {1,}/,$data);
+				my $site = $fields[1];
+				my $distance = $site-$last;
+				push(@BEB_intervals,$distance);
+				$last = $site;
+			}
+			if(($nSitesAA-$last)>0){push(@BEB_intervals,($nSitesAA-$last))};		#adding the last distance in
+			my $numBEBintervals=scalar(@BEB_intervals);
+
+			if($numBEBintervals>1){
+				print R "vals=c(".join(',',@BEB_intervals).")\n";
+				print R "sortlogvals=sort(log(vals))\n";
+				print R "indices=(1:length(sortlogvals))\n";
+				print R "lm1=lm(sortlogvals~indices)\n";
+		 */
+		double[] indices 		= new double[this.selectionIntervals.length];
+		double[] log_intervals 	= new double[this.selectionIntervals.length];
+		for(int i=0;i<indices.length;i++){
+			indices[i]	= i;
+			log_intervals[i] = Math.log(this.selectionIntervals[i]);
+		}
+		intervalsRegression = new LinearRegression(indices,log_intervals);
+		intervalsRegression.getRsq();
 	}
 	
 	/**
 	 * Calculates the intervals between selected sites
 	 * @return
 	 */
-	private int[] calculateSelectionIntervals() {
+	private void calculateSelectionIntervals() {
 		// TODO Auto-generated method stub
-		return null;
+		/*
+		 * for details of intervals calculation see above (doLinearRegression).
+		 * 
+		 * IMPORTANT! don't forget to sort the values prior to regression...
+		 */
+		int siteIndex = 1;
+		int last = -1;
+		ArrayList<Integer> intervalsList = new ArrayList<Integer>();
+		// loop through omegas calculating intervals. DON'T include first or last interval (from 5' to first w>1, or from last w>1 to 3')
+		for(float someOmega:this.estimatedOmegas){
+			if(someOmega > 1){
+				if(last>-1){	// don't include the interval from 5' to first dNdS>1 site
+					int distance = siteIndex - last;
+					// add to array
+					intervalsList.add(distance);
+				}
+				last = siteIndex;
+			}
+			siteIndex++;
+		}
+		Collections.sort(intervalsList); // sort the intervals
+		this.selectionIntervals = new int[intervalsList.size()];
+		for(int i=0;i<intervalsList.size();i++){
+			selectionIntervals[i] = intervalsList.get(i);
+		}
 	}
 
 	public String getModelString() {
@@ -105,9 +237,52 @@ public class CodemlModel {
 	}
 
 	public void setCodemlModelNSsitesType(CodemlModelNSsitesTypes nSsitesType) {
-		this.NSsitesType = NSsitesType;
+		this.NSsitesType = nSsitesType;
 	}
 	
+	/**
+	 * Getter method for the regression of log-transformed selected sites intervals
+	 * @return LinearRegression of indices against log-transformed selection intervals
+	 * @throws Exception - if there are too few intervals for a regression it won't do one
+	 */
+	public LinearRegression getIntervalsRegression() throws Exception{
+		if(this.intervalsRegression == null){
+			this.doIntervalRegression();
+		}
+		return this.intervalsRegression;
+	}
 	
+	/**
+	 * Utility method to check whether this model contains valid data.
+	 * @return boolean isValid - TRUE if data is all valid (not-null); makes no guarantee results are meaningful
+	 */
+	public boolean selfValidate(){
+		boolean isValid = true;
+
+		// check estimated omegas
+		for(float omega:this.estimatedOmegas){
+			if(!(omega >= 0.0f)){isValid=false;}
+		}
+
+		// check global proportions
+		for(float prop:this.globalProportions){
+			if(!(prop >= 0.0f)){isValid=false;}
+		}
+
+		// check global omegas
+		for(float omega:this.globalOmegaRates){
+			if(!(omega >= 0.0f)){isValid=false;}
+		}
+
+		// check lnL
+		if(Float.isNaN(lnL)){isValid=false;}
+		
+		// check number of rates and omegas list match size
+		if(this.numberOfRates != this.globalOmegaRates.length ){isValid=false;}
+		if(this.numberOfRates != this.globalProportions.length){isValid=false;}
+
+		// results
+		return isValid;
+	}
 	
 }

@@ -273,6 +273,18 @@ public class CodemlRstParser {
 	 * do a quick comparison of M1 and M2, and print results on a single line
 	 */
 	private void printSummaryByFileM1M2(){
+		// print headers
+		System.out.print("file");
+		System.out.print("\tlnL_M1");
+		System.out.print("\tlnL_M2");
+		System.out.print("\tdeltaLnL");
+		System.out.print("\tN");
+		System.out.print("\tRsq");
+		System.out.print("\tslope");
+		System.out.print("\tintercept");
+		System.out.println();
+		
+		// iterate through files
 		java.util.Iterator<File> itr = this.models.keySet().iterator();
 		while(itr.hasNext()){
 			File thisFile = itr.next();

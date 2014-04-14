@@ -75,6 +75,14 @@ public class CodemlParserM1Test extends TestCase {
 		fail("Not yet implemented"); // TODO
 	}
 
+	public final void testRegression(){
+		CodemlModel model = parser.getModelData();
+		try{
+			model.getIntervalsRegression().getRsq();
+		}catch (Exception ex){
+			ex.printStackTrace();
+		}
+	}
 	private ArrayList<String> setUpData(){
 		ArrayList<String> data = new ArrayList<String>();
 		data.add("Model 1: NearlyNeutral");

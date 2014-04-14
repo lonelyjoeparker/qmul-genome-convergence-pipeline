@@ -65,15 +65,26 @@ public class CodemlParserM2Test extends TestCase {
 
 	public final void testRegression(){
 		CodemlModel model = parser.getModelData();
-		model.doIntervalRegression();
+		try {
+			model.doIntervalRegression();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public final void testGetRegression(){
 		CodemlModel model = parser.getModelData();
-		LinearRegression regression = model.getIntervalsRegression();
-		System.out.println(regression.getRsq());
-		System.out.println(regression.getBeta0());
-		System.out.println(regression.getBeta1());
+		LinearRegression regression;
+		try {
+			regression = model.getIntervalsRegression();
+			System.out.println(regression.getRsq());
+			System.out.println(regression.getBeta0());
+			System.out.println(regression.getBeta1());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private ArrayList<String> setUpData(){

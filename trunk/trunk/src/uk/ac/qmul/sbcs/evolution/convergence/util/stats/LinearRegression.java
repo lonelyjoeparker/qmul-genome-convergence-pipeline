@@ -2,10 +2,26 @@ package uk.ac.qmul.sbcs.evolution.convergence.util.stats;
 
 /**
  * Class to carry out a linear regression
- * Copyright © 2000Ð2011, Robert Sedgewick and Kevin Wayne. 
- * Last updated: Wed Feb 9 09:20:16 EST 2011.
- * @author Robert Sedgewick and Kevin Wayne, modified by <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+ * <br/>Copyright © 2000Ð2011, Robert Sedgewick and Kevin Wayne. 
+ * <br/>Last updated: Wed Feb 9 09:20:16 EST 2011.
  *
+ * <p><table>
+ *  <tr><td><b>variable</b>		</td><td><b>regression parameter</b><td></tr>
+ *  <tr><td>int N;		 		</td><td>#obs<td></tr>
+ *  <tr><td>double xbar; 		</td><td>mean x<td></tr>
+ *  <tr><td>double ybar; 		</td><td>mean y<td></tr>
+ *  <tr><td>double Rsq;			</td><td>R-squared<td></tr>
+ *  <tr><td>double beta0;		</td><td>intercept<td></tr>
+ *  <tr><td>double beta0_lo;	</td><td>lower 95% interval of intercept estimate<td></tr>
+ *  <tr><td>double beta0_hi;	</td><td>upper 95% interval of intercept estimate<td></tr>
+ *  <tr><td>double beta1;		</td><td>slope<td></tr>
+ *  <tr><td>double beta1_lo;	</td><td>lower 95% interval of slope estimate<td></tr>
+ *  <tr><td>double beta1_hi;	</td><td>upper 95% interval of slope estimate<td></tr>
+ *  <tr><td>double SStotal;<td></tr>
+ *  <tr><td>double SSresiduals;<td></tr>
+ *  <tr><td>double SSX;<td></tr>
+ *  </table>    
+ * @author Robert Sedgewick and Kevin Wayne, modified by <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
  */
 public class LinearRegression {
 	double[] x;
@@ -44,8 +60,8 @@ public class LinearRegression {
             sumx2 += x[n] * x[n];
             sumy  += y[n];
         }
-        double xbar = sumx / N;
-        double ybar = sumy / N;
+        xbar = sumx / N;
+        ybar = sumy / N;
 
         // second pass: compute summary statistics
         double xxbar = 0.0, yybar = 0.0, xybar = 0.0;

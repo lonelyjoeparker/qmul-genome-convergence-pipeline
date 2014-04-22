@@ -634,17 +634,13 @@ public class CodemlRstParser {
 	private int getMedian(int[] intervals){
 		int retInt = -1;
 		if(intervals.length > 2){
-			float medianIndex = intervals.length / 2;
-			float remainder = (float) (medianIndex - Math.floor(medianIndex));
-			
-			if(remainder > 0){
-				medianIndex = (intervals.length -1)/2;
+			int roundedIndex;
+			if((intervals.length & 1) > 0){		// check whether last bit is 0 or 1
+				roundedIndex = (int)((intervals.length -1)/2);	// last bit 1; odd number of intervals
 			}else{
-				medianIndex = intervals.length/2;
+				roundedIndex = intervals.length/2;				// last bit 0; even number of intervals
 			}
-			int roundedIndex = (int) medianIndex;
 			retInt = intervals[roundedIndex];
-			
 		}
 		return retInt;
 	}

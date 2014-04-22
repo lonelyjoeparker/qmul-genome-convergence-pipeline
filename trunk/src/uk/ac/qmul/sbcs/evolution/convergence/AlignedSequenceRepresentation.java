@@ -1974,4 +1974,17 @@ public class AlignedSequenceRepresentation implements Serializable {
 		}
 		return siteEntropies;
 	}
+
+	/**
+	 * Whether this alignment has been translated or not
+	 * @return - TRUE if alignment's SequenceCodingType is 'AA'
+	 * @see SequenceCodingType
+	 */
+	public boolean isAA() {
+		if(this.alignmentSequenceCodingType == SequenceCodingType.AA){
+			return true;
+		}else{
+			return false;
+		}
+	}
 }

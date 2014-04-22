@@ -77,14 +77,18 @@ import java.util.List;
 public class TableRenderDemoGCP extends JPanel implements ActionListener{
     private boolean DEBUG = true;
     private JTextArea text;
-    private CirclePanel circle;
     private ChartPanel cpanel;
+    private ChartPanel hpanel;
     private JFreeChart chart;
+    private JFreeChart hist;
     private ChartTestbed chartTest;
+    private ChartTestbed histTest;
     private JScrollPane sequencePane = new JScrollPane();
+    private JScrollPane sequencePaneAA = new JScrollPane();
     private JTable table;
     private MyTableModel dataModel;
     private final JFileChooser fc = new JFileChooser();
+    private final JFileChooser dc = new JFileChooser();
     
     public TableRenderDemoGCP() {
         super(new GridLayout(2,2));
@@ -99,22 +103,26 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
         table.setRowSelectionAllowed(true);
         table.setColumnSelectionAllowed(true);
         table.setCellSelectionEnabled(true);
+        table.setAutoCreateRowSorter(true);
+        dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-        // try to add data
-    	File alignmentFile = new File("/Users/gsjones/Downloads/NM005550/rhp.phy");
-    	AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
+/*
+ * 		// try to add init data
+ *        
     	try {
+        	File alignmentFile = new File("/Users/gsjones/Downloads/NM005550/rhp.phy");
+        	AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
 			asr.loadSequences(alignmentFile, false);
-		} catch (TaxaLimitException e) {
-			// TODO Auto-generated catch block
+			DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
+	        dataModel.data[4][0] = da;
+	        dataModel.data[4][1] = da.getName();
+	        dataModel.data[4][2] = "None of the above";
+	        dataModel.data[4][3] = asr.getNumberOfTaxa();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
-        dataModel.data[4][0] = da;
-        dataModel.data[4][1] = da.getName();
-        dataModel.data[4][2] = "None of the above";
-        dataModel.data[4][3] = asr.getNumberOfTaxa();
-
+ *
+ */
         //Create the scroll pane and add the table to it.
         JScrollPane scrollPane = new JScrollPane(table);
 
@@ -127,35 +135,41 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
         //Add the scroll pane to this panel.
         add(scrollPane);
 
-		JLabel label = new JLabel("somelabel");
-		text = new JTextArea();
-		text.setText("lalalalalala\nlalalalala\ns\ns\ne\nd\nr\nkjhkjhkjhkjhkjh\n");
-
-
-		/*
-		// circle
-		circle = new CirclePanel();
-		add(circle);
-		 */
-		
-		// chart
+		// chart (entropies)
 		chartTest = new ChartTestbed();
 		chartTest.go();
 		chart = chartTest.createChart();
 		cpanel = new ChartPanel(chart);
 		add(cpanel);
+
+		// chart (histogram)
+		// TODO
+		histTest = new ChartTestbed();
+		histTest.go();
+		hist = histTest.createHistogram();
+		hpanel = new ChartPanel(hist);
+		add(hpanel);
 		
 		// text
+		JLabel label = new JLabel("data");
+		text = new JTextArea();
+		text.setText("debug output goes here\n");
 		JPanel panel= new JPanel();
-		JButton button = new JButton("add");
+		JButton button = new JButton("Add single alignment");
 		button.addActionListener(new AddButtonListener());
 		panel.add(button);
+		JButton dirButton = new JButton("Add directory of alignments");
+		dirButton.addActionListener(new AddDirectoryButtonListener());
+		panel.add(dirButton);
 		panel.add(label);
 		panel.add(text);
 		add(panel);
 
-		// sequenceView
+		// sequenceView - NT
 		add(sequencePane);
+
+		// sequenceView - AA
+		add(sequencePaneAA);
 
     }
 
@@ -202,11 +216,8 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
     public void setUpSportColumn(JTable table, TableColumn sportColumn) {
         //Set up the editor for the sport cells.
         JComboBox comboBox = new JComboBox();
-        comboBox.addItem("Snowboarding");
-        comboBox.addItem("Rowing");
-        comboBox.addItem("Knitting");
-        comboBox.addItem("Speed reading");
-        comboBox.addItem("Pool");
+        comboBox.addItem("NT");
+        comboBox.addItem("AA");
         comboBox.addItem("None of the above");
         sportColumn.setCellEditor(new DefaultCellEditor(comboBox));
 
@@ -217,21 +228,22 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
     }
 
     class MyTableModel extends AbstractTableModel {
-        private String[] columnNames = {"First Name",
-                                        "Last Name",
-                                        "Sport",
-                                        "# of Years",
-                                        "Vegetarian"};
+        private String[] columnNames = {"Alignment",
+                                        "Locus (guess)",
+                                        "Input type",
+                                        "# taxa",
+                                        "# sites (NT)",
+                                        "# invar. sites (NT)",
+                                        "# sites (AA)",
+                                        "# invar. sites (AA)",
+                                        "mean entropy NT",
+                                        "Selection data?"};
 
         private Object[][] data = {
-        		{new DisplayAlignment("Kathy"), "Smith","Snowboarding", new Integer(5), new Boolean(false)},
-        		{new DisplayAlignment("John"), "Doe","Rowing", new Integer(3), new Boolean(true)},
-        		{new DisplayAlignment("Sue"), "Black","Knitting", new Integer(2), new Boolean(false)},
-        		{new DisplayAlignment("Jane"), "White","Speed reading", new Integer(20), new Boolean(true)},
-        		{new DisplayAlignment("Joe"), "Brown","Pool", new Integer(10), new Boolean(false)}
+        		{new DisplayAlignment("Joe.phy"), "Joe","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), new Boolean(false)}
         };
 
-        public final Object[] longValues = {"Jane", "Kathy","None of the above",new Integer(20), Boolean.TRUE};
+        public final Object[] longValues = {"file", "locus","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), Boolean.FALSE};
 
         public void addRow(DisplayAlignment rowData){
         	Object[][] newData = new Object[data.length+1][data[0].length];
@@ -240,10 +252,15 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
         	}
         	Object[] newRow = new Object[data[0].length];
         	newRow[0] = rowData;
-        	newRow[1] = rowData.getName();
+        	newRow[1] = rowData.getNameGuess();
         	newRow[2] = "None of the above";
         	newRow[3] = rowData.getNumberOfTaxa();
-        	newRow[4] = false;
+        	newRow[4] = rowData.getNumberOfSitesNT();
+        	newRow[5] = rowData.getNumberOfInvariantSitesNT();
+        	newRow[6] = rowData.getNumberOfSitesAA();
+        	newRow[7] = rowData.getNumberOfInvariantSitesAA();
+        	newRow[8] = rowData.getMeanSitewiseEntropyNT();
+        	newRow[9] = false;
         	newData[data.length] = newRow;
         	data = newData;
         	this.fireTableRowsInserted(data.length-1, data.length-1);
@@ -404,6 +421,40 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
         text.append(".\n");
     }
 
+    /**
+     * Attempt to add a directory of files in batch mode. 
+     * <br/>Currently *very* inefficient as multiple calls to addRow()
+     * @TODO improve efficiency: avoiding multiple calls to addRow()
+     * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+     *
+     */
+    private class AddDirectoryButtonListener implements ActionListener{
+ 		@Override
+		public void actionPerformed(ActionEvent ev) {
+ 			int returnVal = dc.showOpenDialog(text);
+ 			if(returnVal == JFileChooser.APPROVE_OPTION){
+ 	 			File alignmentDirectory = dc.getSelectedFile();
+ 	 			if(alignmentDirectory.isDirectory()){
+ 	 				File[] files  = alignmentDirectory.listFiles();
+ 	 				for(File alignmentFile:files){
+ 	 		 	    	try {
+ 	 	 		 	    	AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
+ 	 		 				asr.loadSequences(alignmentFile, false);
+ 	 		 				asr.calculateAlignmentStats(false);
+ 	 	 		 			DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
+ 	 	 					dataModel.addRow(da);
+ 	 	 					table.repaint();
+ 	 		 			} catch (TaxaLimitException e) {
+ 	 		 				// TODO Auto-generated catch block
+ 	 		 				e.printStackTrace();
+ 	 		 			}
+ 	 				}
+ 	 			}			
+ 				
+ 			}
+		}
+    }
+    
     private class AddButtonListener implements ActionListener{
  		@Override
 		public void actionPerformed(ActionEvent ev) {
@@ -414,6 +465,7 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
  	    	AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
  	    	try {
  				asr.loadSequences(alignmentFile, false);
+ 				asr.calculateAlignmentStats(false);
  			} catch (TaxaLimitException e) {
  				// TODO Auto-generated catch block
  				e.printStackTrace();
@@ -435,24 +487,44 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
         	 */
         	int row = table.getSelectedRow();
         	Object[] a_row = dataModel.data[row];
-        	int diameter = (Integer)a_row[3];
-        	System.out.println("selected diameter: "+diameter);
+        	int element = (Integer)a_row[3];
+        	System.out.println("selected diameter: "+element);
 
         	DisplayAlignment selectedAlignment = (DisplayAlignment)a_row[0];
         	/*
         	 * Replace the chart
         	 */
         	chartTest.setNewDataset(selectedAlignment.entropyNTData);
+        	chartTest.addXYseries(selectedAlignment.entropyAAData.getSeries(0));
         	/*
-        	 * Replace the alignement
+        	 * Try the histogram
+        	 */
+        	double[] compEntropies = new double[dataModel.data.length];
+        	double minVal = 0; //maximum to set hist limit
+        	double maxVal = 0; //maximum to set hist limit
+        	for(int i=0;i<compEntropies.length;i++){
+        		compEntropies[i] = ((Integer) dataModel.data[i][4]).doubleValue();
+        		minVal = Math.min(minVal, compEntropies[i]);
+        		maxVal = Math.max(maxVal, compEntropies[i]);
+        	}
+        	histTest.replaceHistSeries(compEntropies,minVal,maxVal);
+        	/*
+        	 * Replace the alignment NT
         	 */
         	JScrollPane scroller = selectedAlignment.getAlignmentScroller();
-        	//add(scroller);
         	remove(sequencePane);
         	sequencePane = scroller;
         	add(sequencePane);
         	
-            text.append("ROW SELECTION EVENT. ");
+        	/*
+        	 * Replace the alignment AA
+        	 */
+        	JScrollPane scrollerAA = selectedAlignment.getAlignmentScrollerAA();
+        	remove(sequencePaneAA);
+        	sequencePaneAA = scrollerAA;
+        	add(sequencePaneAA);
+
+        	text.append("ROW SELECTION EVENT. ");
             outputSelection();
         }
     }
@@ -474,7 +546,7 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
      */
     private static void createAndShowGUI() {
         //Create and set up the window.
-        JFrame frame = new JFrame("TableRenderDemo");
+        JFrame frame = new JFrame("FAVE");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         //Create and set up the content pane.

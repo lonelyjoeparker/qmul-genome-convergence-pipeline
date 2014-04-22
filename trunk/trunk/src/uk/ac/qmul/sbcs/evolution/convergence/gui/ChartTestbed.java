@@ -9,6 +9,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -55,9 +56,9 @@ public class ChartTestbed {
 
 	public JFreeChart createChart() {
 		final JFreeChart chart = ChartFactory.createScatterPlot(
-				"Title",                  // chart title
-				"X",                      // x axis label
-				"Y",                      // y axis label
+				"Entropies",                  // chart title
+				"Position",                      // x axis label
+				"Entropy",                      // y axis label
 				dataset,                  // data
 				PlotOrientation.VERTICAL,
 				false,                     // include legend
@@ -69,6 +70,21 @@ public class ChartTestbed {
 		renderer.setSeriesLinesVisible(0, true);
 		plot.setRenderer(renderer);
 		return chart;
+	}
+	
+	public JFreeChart createHistogram(){
+		double[] hdata = new double[100];
+		for(int i=0;i<100;i++){
+			hdata[i] = Math.random();
+		}
+		HistogramDataset histDataset = new HistogramDataset();
+		histDataset.addSeries("entropies comparison",hdata,30,0,1);
+		final JFreeChart hist = ChartFactory.createHistogram("Hist", null, null, histDataset, PlotOrientation.VERTICAL, false, false, false);
+		plot = (XYPlot) hist.getPlot();
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+		renderer.setSeriesLinesVisible(0, true);
+		plot.setRenderer(renderer);
+		return hist;
 	}
 
 	private JFreeChart createChart(final XYDataset dataset) {
@@ -92,6 +108,17 @@ public class ChartTestbed {
 	public void setNewDataset(XYSeriesCollection newDataset){
 		this.dataset = newDataset;
 		plot.setDataset(dataset);
+	}
+	
+	public void addXYseries(XYSeries newXYseries){
+		dataset.addSeries(newXYseries);
+	}
+	
+	public void replaceHistSeries(double[] hdata, double minVal, double maxVal){
+		HistogramDataset histDataset = new HistogramDataset();
+		histDataset.addSeries("entropies-comparison"+Math.random(),hdata,30,minVal,maxVal);
+		plot.setDataset(histDataset);
+		
 	}
 	
 	public void addSeries(int scale){

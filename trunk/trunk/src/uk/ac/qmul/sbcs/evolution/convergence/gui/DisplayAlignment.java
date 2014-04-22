@@ -26,6 +26,7 @@ public class DisplayAlignment{
 	private float[] entropiesAA;
 	XYSeriesCollection entropyNTData;
 	XYSeriesCollection entropyAAData;
+	private String[] taxa;
 	private String[] sequences;
 	private String[] sequencesAA;
 	private int numberOfTaxa = 0;
@@ -44,6 +45,7 @@ public class DisplayAlignment{
 	
 	public DisplayAlignment(String newName, AlignedSequenceRepresentation asr){
 		this.name = newName;
+		this.taxa = asr.getTaxaList().toArray(new String[asr.getNumberOfTaxa()]);
 		this.entropies = asr.getSitewiseEntropies(true);
 		XYSeries series = new XYSeries(Math.random()+"_NTentopies_"+name);
 		for(int i=0;i<entropies.length;i++){
@@ -79,12 +81,12 @@ public class DisplayAlignment{
 					sequencesAA[i] = new String(asr.getSequenceChars(i));
 				}
 				this.entropiesAA = asr.getSitewiseEntropies(true);
-				XYSeries seriesAA = new XYSeries(Math.random()+"_NTentopies_"+name);
+				XYSeries seriesAA = new XYSeries(Math.random()+"_AAentropies_"+name);
 				for(int i=0;i<entropiesAA.length;i++){
-					seriesAA.add(i,entropiesAA[i]);
+					seriesAA.add((i*3),entropiesAA[i]);
 				}
 				this.entropyAAData = new XYSeriesCollection();
-				this.entropyAAData.addSeries(series);
+				this.entropyAAData.addSeries(seriesAA);
 			} catch (SequenceTypeNotSupportedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -144,6 +146,15 @@ public class DisplayAlignment{
         JTextPane textPane = new JTextPane(doc);
         StringBuffer sb = new StringBuffer();
         for(int i=0;i<this.sequences.length;i++){
+        	String taxon = this.taxa[i];
+        	if(taxon.length() > 22){
+        		taxon = taxon.substring(0,22);
+        	}
+        	sb.append(taxon);
+        	// pad taxon names..
+        	for(int s = taxon.length();s<25;s++){
+        		sb.append(" ");
+        	}
         	sb.append(this.sequences[i]+"\r");
         }
         textPane.setText(sb.toString());
@@ -202,6 +213,14 @@ public class DisplayAlignment{
         			StyleConstants.setBackground(set, new Color(255, 100, 255));
         			break;
         			}
+        		case 'u':{   
+        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        			break;
+        			}
+        		case 'U':{   
+        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        			break;
+        			}
         		}
         	}
             doc.setCharacterAttributes(i, 1, set, true);
@@ -221,11 +240,190 @@ public class DisplayAlignment{
 		return scroller;
 	}
 
+	public JScrollPane getAlignmentScrollerAA(){
+		JScrollPane scroller;
+        StyledDocument doc = new DefaultStyledDocument();
+        JTextPane textPane = new JTextPane(doc);
+        StringBuffer sb = new StringBuffer();
+        for(int i=0;i<this.sequencesAA.length;i++){
+        	String taxon = this.taxa[i];
+        	if(taxon.length() > 22){
+        		taxon = taxon.substring(0,22);
+        	}
+        	sb.append(taxon);
+        	// pad taxon names..
+        	for(int s = taxon.length();s<25;s++){
+        		sb.append(" ");
+        	}
+        	sb.append(this.sequencesAA[i]+"\r");
+        }
+        textPane.setText(sb.toString());
+        //Random random = new Random();
+        for (int i = 0; i < textPane.getDocument().getLength(); i++) {
+            SimpleAttributeSet set = new SimpleAttributeSet();
+            StyleConstants.setFontFamily(set, "Courier");
+         //   StyleConstants.setBackground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+         //   StyleConstants.setForeground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+         //   StyleConstants.setFontSize(set, random.nextInt(12) + 12);
+          //  StyleConstants.setBold(set, random.nextBoolean());
+           // StyleConstants.setItalic(set, random.nextBoolean());
+           // StyleConstants.setUnderline(set, random.nextBoolean());
+
+            char c;
+            String s = null;
+            try {
+				s = doc.getText(i, 1);
+				
+			} catch (BadLocationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	if(s != null){
+        		c = s.toCharArray()[0];
+        		switch(c){
+        		case 'a':{   
+        			StyleConstants.setBackground(set, new Color(255, 100, 100));
+        			break;
+        			}
+        		case 'A':{   
+        			StyleConstants.setBackground(set, new Color(255, 100, 100));
+        			break;
+        			}
+        		case 'c':{   
+        			StyleConstants.setBackground(set, new Color(100, 255, 100));
+        			break;
+        			}
+        		case 'C':{   
+        			StyleConstants.setBackground(set, new Color(100, 255, 100));
+        			break;
+        			}
+        		case 'g':{   
+        			StyleConstants.setBackground(set, new Color(100, 100, 255));
+        			break;
+        			}
+        		case 'G':{   
+        			StyleConstants.setBackground(set, new Color(100, 100, 255));
+        			break;
+        			}
+        		case 't':{   
+        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        			break;
+        			}
+        		case 'T':{   
+        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        			break;
+        			}
+        		case 'u':{   
+        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        			break;
+        			}
+        		case 'U':{   
+        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        			break;
+        			}
+        		}
+        	}
+            doc.setCharacterAttributes(i, 1, set, true);
+        }
+
+        /*
+        Dimension dim = new Dimension();
+        dim.height = 150;
+        dim.width = 200;
+        textPane.setPreferredSize(dim);
+        textPane.setSize(200,150);
+        */
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(BorderLayout.CENTER,textPane);
+        scroller = new JScrollPane(panel,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scroller.setViewportView(panel);
+		return scroller;
+	}
+
+	
 	public int getNumberOfTaxa() {
 		return this.numberOfTaxa;
 	}
 
 	public int getNumberOfSites() {
 		return this.numberOfSitesNT;
+	}
+
+	public float[] getEntropiesAA() {
+		return entropiesAA;
+	}
+
+	public XYSeriesCollection getEntropyNTData() {
+		return entropyNTData;
+	}
+
+	public XYSeriesCollection getEntropyAAData() {
+		return entropyAAData;
+	}
+
+	public String[] getSequencesAA() {
+		return sequencesAA;
+	}
+
+	public int getNumberOfSitesNT() {
+		return numberOfSitesNT;
+	}
+
+	public int getNumberOfInvariantSitesNT() {
+		return numberOfInvariantSitesNT;
+	}
+
+	public int getNumberOfSitesAA() {
+		return numberOfSitesAA;
+	}
+
+	public int getNumberOfInvariantSitesAA() {
+		return numberOfInvariantSitesAA;
+	}
+
+	public float getMeanSitewiseEntropyNT() {
+		return meanSitewiseEntropyNT;
+	}
+
+	public float getMeanSitewiseEntropyAA() {
+		return meanSitewiseEntropyAA;
+	}
+
+	public float getMeanTaxonwiseLongestUngappedSequenceNT() {
+		return meanTaxonwiseLongestUngappedSequenceNT;
+	}
+
+	public float getMeanTaxonwiseLongestUngappedSequenceAA() {
+		return meanTaxonwiseLongestUngappedSequenceAA;
+	}
+
+	public float getLongestNonZeroEntropyRunNT() {
+		return longestNonZeroEntropyRunNT;
+	}
+
+	public float getWhichNonZeroEntropyRunNT() {
+		return whichNonZeroEntropyRunNT;
+	}
+
+	public float getLongestNonZeroEntropyRunAA() {
+		return longestNonZeroEntropyRunAA;
+	}
+
+	public float getWhichNonZeroEntropyRunAA() {
+		return whichNonZeroEntropyRunAA;
+	}
+
+	/**
+	 * Guesses the locus name from the alignment name
+	 * @return
+	 */
+	public String getNameGuess() {
+		// TODO Auto-generated method stub
+		String[] separated = this.name.split(".");
+		if(separated.length > 0){
+			return separated[0];			
+		}else{
+			return name;
+		}
 	}
 }

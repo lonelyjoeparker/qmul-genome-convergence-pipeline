@@ -23,6 +23,7 @@ public class BasicAlignmentStats {
 		// TODO Auto-generated constructor stub
 		this.inputFile = new File(string);
 	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		BasicAlignmentStats quick = new BasicAlignmentStats(args[0]);
@@ -125,7 +126,7 @@ public class BasicAlignmentStats {
 	 * @param entropies - float[] of sitewise entropy (diversity) stats from an alignment
 	 * @return retval - a float[] containing: [0] longest run of identical and nonzero entropies; [1] what the value of those entropies was
 	 */
-	private float[] parseEntropiesToFindLongestNonzeroRun(float [] entropies){
+	public static float[] parseEntropiesToFindLongestNonzeroRun(float [] entropies){
 		// Initialise vars
 		float [] retval = {0.0f,0.0f};		// return array (doing this explicitly)
 		int longestNonZero = 0;				// globally-longest run of identical nonzero entropies

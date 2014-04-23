@@ -91,6 +91,7 @@ public class CodemlRstParser {
 	 * Parse the output.
 	 * As each new model is encountered, create a CodemlModel for it.
 	 */
+	@Deprecated
 	private void parseRstFile(File singleRstFile) {
 		ArrayList<CodemlModel> modelsList = new ArrayList<CodemlModel>();
 		ArrayList<String> rawData;			// raw data from rst file
@@ -294,7 +295,7 @@ public class CodemlRstParser {
 		case MODEL_TYPE_3_CLADE:{
 			switch(nSsites){
 			case NSsites_TYPE_1_NEUTRAL: 		{ break;}	//TODO not implemented yet
-			case NSsites_TYPE_2_SELECTION: 		{ break;}	//TODO not implemented yet
+			case NSsites_TYPE_2_SELECTION: 		{ newModel = new CodemlParserCladeC(bufData).getModelData(); break;}	
 			default:							{ break;}	//TODO not implemented yet
 			}
 			
@@ -481,9 +482,12 @@ public class CodemlRstParser {
 				}else if(p_branch.matcher(line).find()){
 					// We're ALSO in a rates line but probably Model C or D
 					modelType = CodemlModelType.MODEL_TYPE_3_CLADE;
-					lastRatesCount = 0;
-					Matcher numbers = p_nums.matcher(line);
-					while(numbers.find()){lastRatesCount++;}
+					String[] tokens = line.split(":"); // split the line using the ':' in the "branch type 0:" or "branch type 1:" part of the line
+					if(tokens.length>1){
+						lastRatesCount = 0;
+						Matcher numbers = p_nums.matcher(tokens[1]);
+						while(numbers.find()){lastRatesCount++;}
+					}
 				}
 			}
 			bufData.add(line);
@@ -498,12 +502,17 @@ public class CodemlRstParser {
 			switch(lastRatesCount){
 			case 2: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_1_NEUTRAL; break; // only one possibility, M1a
 			case 3: {
-				// could be M2a or M3
-				if(guessedLastModelNum == 2){
+				// could be M2a or M3, or clade model
+				if((guessedLastModelNum == 2)||(modelType == CodemlModelType.MODEL_TYPE_3_CLADE)){
 					NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_2_SELECTION; break;
 				}else{
 					NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_3_DISCRETE; break;
 				}
+			}
+			case 4: {
+				// this is probably the branc-site model A, which has 4 sites
+				NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_4_FREQS; //NB this (sitewise) sites cat doesn't really apply to branch-site, which has sites in cat.2a and cat.2b rates (as opposed to cat.2 and cat.3 in the freqs model)
+				break;
 			}
 			case 5: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_4_FREQS; break;
 			case 10: {
@@ -558,8 +567,63 @@ public class CodemlRstParser {
 	
 		// should have finished parsing all the models now, print summaries
 		this.printSummaryForSingleModelM1M2(singleRstFile, modelsList);
+		// print clade C, if there are any
+		this.printAnyCladeC(singleRstFile, modelsList);
 	}
 	
+	private void printAnyCladeC(File singleFile,ArrayList<CodemlModel> modelsList) {
+		CodemlModel CladeC = null;
+		for(CodemlModel eachModel:modelsList){
+			if(eachModel != null){
+				if(eachModel.getModelType() == CodemlModelType.MODEL_TYPE_3_CLADE){
+					CladeC = eachModel;
+				}
+			}
+		}
+		if(CladeC != null){
+			// do clade c printing stuff
+			Float deltaLnL 	= Float.NaN;
+			Integer N 		= null;
+			Double Rsq 		= Double.NaN;
+			Double slope 	= Double.NaN;
+			Double intercept = Double.NaN;
+			
+			// lnL for comparisons (not done later)
+			float lnL = CladeC.getLnL();
+			
+			// do the regression - NB it will fail if not enough intervals (must be > 2 intervals, so > 3 sites selected)
+			LinearRegression loglinear;
+			try {
+				loglinear = CladeC.getIntervalsRegression();
+				N 			= loglinear.getN();
+				Rsq 		= loglinear.getRsq();
+				slope 		= loglinear.getBeta1();
+				intercept 	= loglinear.getBeta0();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.print(singleFile.getAbsolutePath());
+			System.out.print("\tNA");
+			System.out.print("\t"+lnL);
+			System.out.print("\t"+deltaLnL);
+			System.out.print("\t"+N);
+			System.out.print("\t"+CladeC.getEstimatedOmegas().length);
+			try {
+				System.out.print("\t"+(((float)N)/((float)CladeC.getEstimatedOmegas().length)));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.print("\t"+Rsq);
+			System.out.print("\t"+slope);
+			System.out.print("\t"+intercept);
+			System.out.print("\t"+getMedian(CladeC.getSelectionIntervals()));
+			if(this.printIntervals){System.out.print("\tc("+concatenateIntervals(CladeC)+")");}
+			System.out.println();
+		}
+	}
+
 	/**
 	 * Print summary for a single models list based on M1M2 comparison
 	 * @param thisFile

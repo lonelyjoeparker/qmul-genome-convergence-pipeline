@@ -29,6 +29,8 @@ If you are interested in contributing to the project, please also contact us. Ho
 
 = Acknowledgements =
 
-This work at Queen Mary, University of Lonfon, is supported by BBSRC and the Royal Society, UK.
+This work at Queen Mary, University of London, is supported by the European Research Council, BBSRC (UK) and the Royal Society.
+
 Written by Joe Parker in the Rossiter research group.
-Infrastructure support for this project comes from Mahesh Pancholi (School of Biological and Chemical Sciences) and Christopher Walker (Engineering and Physical Sciences)
+
+Infrastructure support for this project comes from [http://about.me/gawbul Steve Moss] (School of Biological and Chemical Sciences) and Christopher Walker (Engineering and Physical Sciences)

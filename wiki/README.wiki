@@ -22,7 +22,7 @@ The API functions include parsing and I/O support for most common alignment and 
 
 == Using the API ==
 
-At present we are working on a release of the relevant binaries that enable pipeline analyses as used in our recent papers [scholar.google.com/citations?user=_WCn7AYAAAAJ&hl=en]. These are not at stable release level but to get a development copy, please email the author at: [mailto:j.d.parker@qmul.ac.uk].
+At present we are working on a release of the relevant binaries that enable pipeline analyses as used in our recent [http://scholar.google.com/citations?user=_WCn7AYAAAAJ&hl=en papers]. These are not at stable release level but to get a development copy, please email the author at: [mailto:j.d.parker@qmul.ac.uk].
 
 If you are interested in contributing to the project, please also contact us. However this API is openly available for use/re-use and will remain so for the lifetime of this project. If you want to checkout or fork the API contact us for help if you need. You might want to start with the Javadoc, at
 [https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/source/browse/trunk/doc/index.html]

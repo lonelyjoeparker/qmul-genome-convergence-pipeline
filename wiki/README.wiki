@@ -13,12 +13,12 @@ For more questions please contact Joe Parker: [mailto:j.d.parker@qmul.ac.uk]
 
 == Capabilities ==
 The API functions include parsing and I/O support for most common alignment and phylogeny formats, including Phylip/PAML, Nexus and FASTA (sequential and interleaved). Interface layers for analyses such as RAxML, PAML/codeml, MrBayes, [https://code.google.com/p/beast-mcmc/ BEAST], Phylobayes and NewickUtilities are provided. Functionality includes:
-  *Alignment and tree I/O and operations including summary stats, translation, trimming, filtering, labelling, pruning and rerooting.
-  *Ancestral sequence reconstruction by ML or parsimony.
-  *Sitewise ∆SSLS (delta site-specific likelihood support).
-  *dN/dS (positive selection) estimation by codeml.
-  *Sequence simulation by evolver or MrBayes/Phylobayes
-  *Phylogeny inference by RAxML: *note* that phylogeny inference _de_ _novo_ is *not* a primary motivation for this work.
+  * Alignment and tree I/O and operations including summary stats, translation, trimming, filtering, labelling, pruning and rerooting.
+  * Ancestral sequence reconstruction by ML or parsimony.
+  * Sitewise ∆SSLS (delta site-specific likelihood support).
+  * dN/dS (positive selection) estimation by codeml.
+  * Sequence simulation by evolver or MrBayes/Phylobayes
+  * Phylogeny inference by RAxML: *note* that phylogeny inference _de_ _novo_ is *not* a primary motivation for this work.
 
 == Using the API ==
 

@@ -12,7 +12,7 @@ This readme is a placeholder until we have tested the package to beta level.
 For more questions please contact Joe Parker: [mailto:j.d.parker@qmul.ac.uk]
 
 == Capabilities ==
-The API functions include parsing and I/O support for most common alignment and phylogeny formats, including Phylip/PAML, Nexus and FASTA (sequential and interleaved). Interface layers for analyses such as RAxML, PAML/codeml, MrBayes, [https://code.google.com/p/beast-mcmc/ BEAST], Phylobayes and NewickUtilities are provided. Functionality includes:
+The API functions include parsing and I/O support for most common alignment and phylogeny formats, including Phylip/PAML, Nexus and FASTA (sequential and interleaved). Interface layers for analyses such as [https://github.com/stamatak/standard-RAxML RAxML], PAML/codeml, MrBayes, [https://code.google.com/p/beast-mcmc/ BEAST], Phylobayes and NewickUtilities are provided. Functionality includes:
   * Alignment and tree I/O and operations including summary stats, translation, trimming, filtering, labelling, pruning and rerooting.
   * Ancestral sequence reconstruction by ML or parsimony.
   * Sitewise ∆SSLS (delta site-specific likelihood support).

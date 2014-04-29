@@ -28,10 +28,11 @@ public class CodemlParserM1 extends CodemlParser {
 
 		// prepare to parse
 		boolean inNEB = false;
-		float[] dNdS = new float[2]; // global omegas
-		float[] proportions = new float[2]; // global omegas proportions (estimates)
+		float[] global_dNdS = new float[2]; // global omegas
+		float[] global_proportions = new float[2]; // global omegas proportions (estimates)
 		float lnL;
-		ArrayList<Float> omegas = new ArrayList<Float>();
+		ArrayList<Float> estimated_omegas = new ArrayList<Float>();
+		ArrayList<float[]> estimated_proportions = new ArrayList<float[]>();
 		Pattern p_NEB = Pattern.compile("NEB"); 
 		Pattern p_num = Pattern.compile("^[\\ ]{1,}[0-9]{1,}");
 		Pattern rates = Pattern.compile("w:");
@@ -57,22 +58,23 @@ public class CodemlParserM1 extends CodemlParser {
 				float w_full = 0.0f;
 				for(int i=0;i<probabilities.length;i++){
 					probabilities[i] = Float.parseFloat(tokens[(i+3)]);
-					w_full += (probabilities[i] * dNdS[i]);
+					w_full += (probabilities[i] * global_dNdS[i]);
 				}
-				omegas.add(w_full);
+				estimated_proportions.add(probabilities);
+				estimated_omegas.add(w_full);
 			}
 			if(isNEB.find()){inNEB=true;}
 			if(isPro.find()){
 				String[] tokens = line.split("\\ {1,}");
-				proportions[0] = Float.parseFloat(tokens[1]);
-				proportions[1] = Float.parseFloat(tokens[2]);
-				model.setGlobalProportions(proportions);
+				global_proportions[0] = Float.parseFloat(tokens[1]);
+				global_proportions[1] = Float.parseFloat(tokens[2]);
+				model.setGlobalProportions(global_proportions);
 			}
 			if(isRat.find()){
 				String[] tokens = line.split("\\ {1,}");
-				dNdS[0] = Float.parseFloat(tokens[1]);
-				dNdS[1] = Float.parseFloat(tokens[2]);
-				model.setGlobalOmegaRates(dNdS);
+				global_dNdS[0] = Float.parseFloat(tokens[1]);
+				global_dNdS[1] = Float.parseFloat(tokens[2]);
+				model.setGlobalOmegaRates(global_dNdS);
 			}
 			if(isLnL.find()){
 				String[] tokens = line.split("\\ {1,}");
@@ -81,11 +83,14 @@ public class CodemlParserM1 extends CodemlParser {
 			}
 		}
 		
-		float[] omegasArray = new float[omegas.size()];
+		float[][] estimated_proportions_matrix = new float[estimated_proportions.size()][2];
+		float[] omegasArray = new float[estimated_omegas.size()];
 		for(int i=0;i<omegasArray.length;i++){
-			omegasArray[i] = omegas.get(i);
+			omegasArray[i] = estimated_omegas.get(i);
+			estimated_proportions_matrix[i] = estimated_proportions.get(i);
 		}
 		model.setEstimatedOmegas(omegasArray);
+		model.setEstimatedProportions(estimated_proportions_matrix);
 		model.setNumberOfRates(2);
 		model.setCodemlModelType(this.modelType);
 		model.setCodemlModelNSsitesType(this.NSsitesType);

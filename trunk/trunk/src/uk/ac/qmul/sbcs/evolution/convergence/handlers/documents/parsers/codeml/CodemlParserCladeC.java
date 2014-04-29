@@ -30,10 +30,11 @@ public class CodemlParserCladeC extends CodemlParser {
 		// prepare to parse
 		boolean inNEB = false;
 		boolean inBEB = false;
-		float[] dNdS = new float[3]; 		// global omegas (3 for M2)
-		float[] proportions = new float[3]; // global omegas proportions (estimates; 3 for M2)
+		float[] global_dNdS = new float[3]; 		// global omegas (3 for M2)
+		float[] global_proportions = new float[3]; // global omegas proportions (estimates; 3 for M2)
 		float lnL;
-		ArrayList<Float> omegas = new ArrayList<Float>();
+		ArrayList<Float> estimated_omegas = new ArrayList<Float>();
+		ArrayList<float[]> estimated_proportions = new ArrayList<float[]>();
 		Pattern p_NEB = Pattern.compile("NEB"); 
 		Pattern p_BEB = Pattern.compile("BEB"); 
 		Pattern p_POS = Pattern.compile("Positively"); 
@@ -63,26 +64,27 @@ public class CodemlParserCladeC extends CodemlParser {
 				float w_full = 0.0f;
 				for(int i=0;i<probabilities.length;i++){
 					probabilities[i] = Float.parseFloat(tokens[(i+3)]);
-					w_full += (probabilities[i] * dNdS[i]);
+					w_full += (probabilities[i] * global_dNdS[i]);
 				}
-				omegas.add(w_full);
+				estimated_proportions.add(probabilities);
+				estimated_omegas.add(w_full);
 			}
 			if(isNEB.find()){inNEB=true; inBEB=false;}	// in naive empirical Bayes block
 			if(isBEB.find()){inNEB=false;inBEB=true;}	// in Bayes empirical Bayes (BEB) block
 			if(isPOS.find()){inNEB=false;inBEB=false;}	// in positive sites summary; neither NEB nor Bayes empirical Bayes (BEB) block
 			if(isPro.find()){
 				String[] tokens = line.split("\\ {1,}");
-				proportions[0] = Float.parseFloat(tokens[1]);
-				proportions[1] = Float.parseFloat(tokens[2]);
-				proportions[2] = Float.parseFloat(tokens[3]);
-				model.setGlobalProportions(proportions);
+				global_proportions[0] = Float.parseFloat(tokens[1]);
+				global_proportions[1] = Float.parseFloat(tokens[2]);
+				global_proportions[2] = Float.parseFloat(tokens[3]);
+				model.setGlobalProportions(global_proportions);
 			}
 			if(isRat.find()){
 				String[] tokens = line.split("\\ {1,}");
-				dNdS[0] = Float.parseFloat(tokens[3]);
-				dNdS[1] = Float.parseFloat(tokens[4]);
-				dNdS[2] = Float.parseFloat(tokens[5]);
-				model.setGlobalOmegaRates(dNdS);
+				global_dNdS[0] = Float.parseFloat(tokens[3]);
+				global_dNdS[1] = Float.parseFloat(tokens[4]);
+				global_dNdS[2] = Float.parseFloat(tokens[5]);
+				model.setGlobalOmegaRates(global_dNdS);
 			}
 			if(isLnL.find()){
 				String[] tokens = line.split("\\ {1,}");
@@ -91,11 +93,14 @@ public class CodemlParserCladeC extends CodemlParser {
 			}
 		}
 		
-		float[] omegasArray = new float[omegas.size()];
+		float[][] estimated_proportions_matrix = new float[estimated_proportions.size()][3];
+		float[] omegasArray = new float[estimated_omegas.size()];
 		for(int i=0;i<omegasArray.length;i++){
-			omegasArray[i] = omegas.get(i);
+			omegasArray[i] = estimated_omegas.get(i);
+			estimated_proportions_matrix[i] = estimated_proportions.get(i);
 		}
 		model.setEstimatedOmegas(omegasArray);
+		model.setEstimatedProportions(estimated_proportions_matrix);
 		model.setNumberOfRates(3);
 		model.setCodemlModelType(this.modelType);
 		model.setCodemlModelNSsitesType(this.NSsitesType);

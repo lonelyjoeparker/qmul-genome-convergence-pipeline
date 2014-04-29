@@ -722,4 +722,16 @@ public class CodemlRstParser {
 		}
 		
 	}
+	
+	/**
+	 * Method to estimate Ripley's K for all t in 1:(gene length)
+	 * @param CodemlModel someModel - a CodemlModel containing dN/dS estimates
+	 * @return float[] KofT - vector of observed K(t) for all t in 1:(gene length)
+	 */
+	private float[] calculateRipleysK(CodemlModel someModel){
+		float[] estimatedOmegas = someModel.getEstimatedOmegas();
+		float[] KofT = new float[estimatedOmegas.length];
+		//TODO implement this
+		return KofT;
+	}
 }

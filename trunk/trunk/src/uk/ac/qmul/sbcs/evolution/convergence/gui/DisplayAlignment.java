@@ -255,7 +255,7 @@ public class DisplayAlignment{
         	for(int s = taxon.length();s<25;s++){
         		sb.append(" ");
         	}
-        	sb.append(this.sequencesAA[i]+"\r");
+        	sb.append(this.sequencesAA	[i]+"\r");
         }
         textPane.setText(sb.toString());
         //Random random = new Random();

@@ -53,7 +53,18 @@ public class CodemlRstParser {
 			System.out.print("\tRsq");
 			System.out.print("\tslope");
 			System.out.print("\tintercept");
-			System.out.print("\tmedianInterval");
+			System.out.print("\tmedianIntervalBEB");
+			if(rst.printIntervals){
+				System.out.print("\tBEB_interval_vector");
+			}
+			System.out.print("\tfg_omega");
+			System.out.print("\t#sitesPrBEB (#PSS)");
+			System.out.print("\t#sitesPrBEB (#PSS) - ratio:N");
+			System.out.print("\tmedianIntervalPrBEB");
+			if(rst.printIntervals){
+				System.out.print("\tPrBEB_indices_vector");
+				System.out.print("\tPrBEB_interval_vector");
+			}
 			System.out.println();
 
 			//get the files themselves
@@ -79,6 +90,17 @@ public class CodemlRstParser {
 			System.out.print("\tslope");
 			System.out.print("\tintercept");
 			System.out.print("\tmedianInterval");
+			if(rst.printIntervals){
+				System.out.print("\tBEB_interval_vector");
+			}
+			System.out.print("\tfg_omega");
+			System.out.print("\t#sitesPrBEB (#PSS)");
+			System.out.print("\t#sitesPrBEB (#PSS) - ratio:N");
+			System.out.print("\tmedianIntervalPrBEB");
+			if(rst.printIntervals){
+				System.out.print("\tPrBEB_indices_vector");
+				System.out.print("\tPrBEB_interval_vector");
+			}
 			System.out.println();
 
 			//rst.parseRstFile(rst.rstFile);//old approach
@@ -618,8 +640,41 @@ public class CodemlRstParser {
 			System.out.print("\t"+Rsq);
 			System.out.print("\t"+slope);
 			System.out.print("\t"+intercept);
-			System.out.print("\t"+getMedian(CladeC.getSelectionIntervals()));
-			if(this.printIntervals){System.out.print("\tc("+concatenateIntervals(CladeC)+")");}
+			System.out.print("\t"+getMedian(CladeC.getSelectionIntervalsByBEBProbabilityProducts()));
+			if(this.printIntervals){System.out.print("\tc("+concatenateIntervalsFromBEB(CladeC)+")");}
+			float[] fg_omegas = CladeC.getGlobalOmegaRates();
+			System.out.print("\t"+fg_omegas[fg_omegas.length-1]);
+			int numSelectedByProbs = 0;
+			float ratioSelected = 0.0f;
+			int[] selectionIndicesByPrBEB = new int[0];
+			int[] selectionIntervalsByPrBEB = new int [0];
+			try {
+				
+				selectionIndicesByPrBEB = CladeC.getSelectedSitesByBEBProbabilities();
+				numSelectedByProbs = selectionIndicesByPrBEB.length;
+				ratioSelected = (float)((float)numSelectedByProbs) / ((float)CladeC.getEstimatedOmegas().length);
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.print("\t"+numSelectedByProbs);
+			System.out.print("\t"+ratioSelected);
+			try {
+				selectionIntervalsByPrBEB = CladeC.getSelectionIntervalsByBEBProbabilities();
+				System.out.print("\t"+getMedian(selectionIntervalsByPrBEB));
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				System.out.println("\tNA");
+				e.printStackTrace();
+			}
+			if(this.printIntervals){
+				if(numSelectedByProbs>0){
+					System.out.print("\tc("+this.concatenateIntervals(selectionIndicesByPrBEB)+")");
+					System.out.print("\tc("+this.concatenateIntervals(selectionIntervalsByPrBEB)+")");
+				}else{
+					System.out.print("\tc()");
+				}
+			}
 			System.out.println();
 		}
 	}
@@ -682,8 +737,8 @@ public class CodemlRstParser {
 			System.out.print("\t"+Rsq);
 			System.out.print("\t"+slope);
 			System.out.print("\t"+intercept);
-			System.out.print("\t"+getMedian(M2.getSelectionIntervals()));
-			if(this.printIntervals){System.out.print("\tc("+concatenateIntervals(M2)+")");}
+			System.out.print("\t"+getMedian(M2.getSelectionIntervalsByBEBProbabilityProducts()));
+			if(this.printIntervals){System.out.print("\tc("+concatenateIntervalsFromBEB(M2)+")");}
 			System.out.println();
 		}
 
@@ -709,12 +764,25 @@ public class CodemlRstParser {
 		return retInt;
 	}
 	
-	private String concatenateIntervals(CodemlModel someModel){
+	private String concatenateIntervalsFromBEB(CodemlModel someModel){
 		String ret = "";
-		int[] intervals = someModel.getSelectionIntervals();
+		int[] intervals = someModel.getSelectionIntervalsByBEBProbabilityProducts();
 		if(intervals.length > 2){
 			for(int interval:intervals){
 				ret = ret + "," + interval;
+			}
+			return ret.substring(1);
+		}else{
+			return ret;
+		}
+	}
+
+	private String concatenateIntervals(int[] indices){
+		String ret = "";
+//		int[] indices = someModel.getSelectedSitesByBEBProbabilities();
+		if(indices.length > 1){
+			for(int index:indices){
+				ret = ret + "," + index;
 			}
 			return ret.substring(1);
 		}else{

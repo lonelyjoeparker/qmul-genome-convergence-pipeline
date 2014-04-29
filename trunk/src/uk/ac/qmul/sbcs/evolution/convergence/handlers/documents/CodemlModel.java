@@ -1,6 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.convergence.handlers.documents;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
@@ -56,14 +57,67 @@ public class CodemlModel {
 
 	
 	/**
+	 * Iterates through the sites in the alignment to work out which may be under positive selection.
+	 * <br/>Returns a list of indices of sites (indexed to 1, <b>not</b> 0!) which have greatest BEB support for last site class. 
+	 * <p><b>Note</b> that:
+	 * <ul>
+	 * <li>Sites with 0.333 &lt; Pr(BEB(last cat)) &lt; 0.5 will be counted, but may not have BEB <i>products</i> &gt; 1;
+	 * <li>The last site class is treated as the informative one, but some models (e.g. M1) this may not actually be under selection at all. It does not make sense calling this method on those models...</li>
+	 * <li>The subsets of sites picked up as 'selected' by this method may (for these reasons) <b>differ substantially</b> from those picked up by summing the (BEB * omega) products, as in {@link CodemlModel#getSelectedSitesByBEBProbabilityProducts()}.</li>
+	 * <li>It therefore makes sense to call one or the other depending on what you intend to do with the data (and also verify the global omegas are sensible).</li>
+	 * </p>
+	 * @return selectedSiteIndices - int[] of site indices (indexed to 1, <b>not</b> 0!) for sites with highest BEB posterior for last site class)
+	 * @see CodemlModel#calculateSelectionIntervalsByBEBProbabilityProducts()
+	 * @see CodemlModel#getSelectedSitesByBEBProbabilityProducts()
+	 */
+	public int[] getSelectedSitesByBEBProbabilities() throws NullPointerException{
+		int[] selectedSiteIndices;
+		ArrayList<Integer> indices = new ArrayList<Integer>();
+		for(int i=0;i<this.estimatedProportions.length;i++){
+			// look at each site's proportions in turn
+			float maxProportionNotLast = 0.0f; // cumulative proportions of all site classes at this site *apart* from the last (possibly selected) site class
+			for(int j = 0; j<(this.estimatedProportions[i].length-1);j++){
+				maxProportionNotLast = Math.max(estimatedProportions[i][j],maxProportionNotLast);
+			}
+			if(maxProportionNotLast < this.estimatedProportions[i][this.estimatedProportions[i].length-1]){
+				// the biggest propportion so far isn't bigger than the last site class proportion, so add this site
+				indices.add((i+1)); // index to 1 not 0...
+			}
+		}
+		Integer[] selectedSiteIndicesInt = indices.toArray(new Integer[indices.size()]);
+		selectedSiteIndices = new int[selectedSiteIndicesInt.length];
+		for(int i=0;i<selectedSiteIndices.length;i++){
+			selectedSiteIndices[i] = selectedSiteIndicesInt[i];
+		}
+		if(selectedSiteIndices.length == 0){throw new NullPointerException("Array length == 0; No selected sites present.");}
+		return selectedSiteIndices;
+	}
+	
+	/**
+	 * Gets the intervals between selected sites - determined here as 'sites with last site class prob as majority.'
+	 * <br/>Calls {@link CodemlModel#getSelectedSitesByBEBProbabilities()} to get this info.
+	 * @return int[] of intervals (distances in AA/codons between selected sites.
+	 * @see CodemlModel#getSelectedSitesByBEBProbabilities()
+	 */
+	public int[] getSelectionIntervalsByBEBProbabilities() {
+		int[] selectedSitesIndices = this.getSelectedSitesByBEBProbabilities();
+		int[] selectionSitesIntervals = new int[selectedSitesIndices.length-1];
+		for(int i=0; i<selectionSitesIntervals.length;i++){
+			selectionSitesIntervals[i] = selectedSitesIndices[i+1] - selectedSitesIndices[i];
+		}
+		Arrays.sort(selectionSitesIntervals);
+		return selectionSitesIntervals;
+	}
+	
+	/**
 	 * Getter method for intervals of selected sites.
 	 * @return - int[] of intervals of selected sites.
-	 * @see CodemlModel#calculateSelectionIntervalsByBEB()
+	 * @see CodemlModel#calculateSelectionIntervalsByBEBProbabilityProducts()
 	 * @see CodemlModel#doIntervalRegression()
 	 */
-	public int[] getSelectionIntervalsByBEBProbabilities(){
+	public int[] getSelectionIntervalsByBEBProbabilityProducts(){
 		if(this.selectionIntervals == null){
-			this.calculateSelectionIntervalsByBEB();
+			this.calculateSelectionIntervalsByBEBProbabilityProducts();
 		}
 		return this.selectionIntervals;
 	}
@@ -136,7 +190,7 @@ public class CodemlModel {
 	public void doIntervalRegression() throws Exception{
 		// check the intervals have been calculated
 		if(this.selectionIntervals == null){
-			this.calculateSelectionIntervalsByBEB();
+			this.calculateSelectionIntervalsByBEBProbabilityProducts();
 		}
 		// the intervals should be here now, but are there enough for a regression?
 		if(selectionIntervals.length<3){
@@ -181,12 +235,14 @@ public class CodemlModel {
 	
 	/**
 	 * Calculates the intervals between selected sites
+	 * <br/>Uses the PRODUCT of Pr(BEB(i))*(dN/dS(i)) for each i in available site categories
 	 * for details of intervals calculation see above ({@link CodemlModel#doIntervalRegression()}).
 	 * 
 	 * IMPORTANT! don't forget to sort the values prior to regression...
 	 * @see CodemlModel#doIntervalRegression()
+	 * @see CodemlModel#getSelectedSitesByBEBProbabilities()
 	 */
-	private void calculateSelectionIntervalsByBEB() {
+	private void calculateSelectionIntervalsByBEBProbabilityProducts() {
 		int siteIndex = 1;
 		int last = -1;
 		ArrayList<Integer> intervalsList = new ArrayList<Integer>();
@@ -321,5 +377,5 @@ public class CodemlModel {
 		// results
 		return isValid;
 	}
-	
+
 }

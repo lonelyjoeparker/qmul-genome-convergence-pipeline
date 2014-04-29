@@ -24,6 +24,7 @@ public class CodemlModel {
 	private float [] globalOmegaRates;
 	private float [] globalProportions;
 	private float [] estimatedOmegas;
+	private float [][] estimatedProportions;
 	private String[] rawData;
 	private int[] selectionIntervals = null;
 	private CodemlModelType modelType;
@@ -53,15 +54,16 @@ public class CodemlModel {
 		return false;
 	}
 
+	
 	/**
 	 * Getter method for intervals of selected sites.
 	 * @return - int[] of intervals of selected sites.
-	 * @see CodemlModel#calculateSelectionIntervals()
+	 * @see CodemlModel#calculateSelectionIntervalsByBEB()
 	 * @see CodemlModel#doIntervalRegression()
 	 */
-	public int[] getSelectionIntervals(){
+	public int[] getSelectionIntervalsByBEBProbabilities(){
 		if(this.selectionIntervals == null){
-			this.calculateSelectionIntervals();
+			this.calculateSelectionIntervalsByBEB();
 		}
 		return this.selectionIntervals;
 	}
@@ -134,7 +136,7 @@ public class CodemlModel {
 	public void doIntervalRegression() throws Exception{
 		// check the intervals have been calculated
 		if(this.selectionIntervals == null){
-			this.calculateSelectionIntervals();
+			this.calculateSelectionIntervalsByBEB();
 		}
 		// the intervals should be here now, but are there enough for a regression?
 		if(selectionIntervals.length<3){
@@ -184,7 +186,7 @@ public class CodemlModel {
 	 * IMPORTANT! don't forget to sort the values prior to regression...
 	 * @see CodemlModel#doIntervalRegression()
 	 */
-	private void calculateSelectionIntervals() {
+	private void calculateSelectionIntervalsByBEB() {
 		int siteIndex = 1;
 		int last = -1;
 		ArrayList<Integer> intervalsList = new ArrayList<Integer>();
@@ -243,8 +245,11 @@ public class CodemlModel {
 	public void setGlobalProportions(float[] globalProportions) {
 		this.globalProportions = globalProportions;
 	}
-	public void setEstimatedOmegas(float[] floats) {
-		this.estimatedOmegas = floats;
+	public void setEstimatedOmegas(float[] estimatedOmegas) {
+		this.estimatedOmegas = estimatedOmegas;
+	}
+	public void setEstimatedProportions(float[][] estimatedSitewiseProportions){
+		this.estimatedProportions = estimatedSitewiseProportions;
 	}
 	public void setRawData(String[] rawData) {
 		this.rawData = rawData;

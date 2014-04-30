@@ -65,6 +65,9 @@ public class CodemlRstParser {
 				System.out.print("\tPrBEB_indices_vector");
 				System.out.print("\tPrBEB_interval_vector");
 			}
+			for(int i=0;i<11;i++){
+				System.out.print("\tK_"+i);
+			}
 			System.out.println();
 
 			//get the files themselves
@@ -100,6 +103,9 @@ public class CodemlRstParser {
 			if(rst.printIntervals){
 				System.out.print("\tPrBEB_indices_vector");
 				System.out.print("\tPrBEB_interval_vector");
+			}
+			for(int i=0;i<11;i++){
+				System.out.print("\tK_"+i);
 			}
 			System.out.println();
 
@@ -675,6 +681,18 @@ public class CodemlRstParser {
 					System.out.print("\tc()");
 				}
 			}
+			float[] observedKofT = this.calculateRipleysK(selectionIndicesByPrBEB, CladeC.getEstimatedOmegas().length);
+			System.out.print("\t"+observedKofT[0]);
+			System.out.print("\t"+observedKofT[1]);
+			System.out.print("\t"+observedKofT[2]);
+			System.out.print("\t"+observedKofT[3]);
+			System.out.print("\t"+observedKofT[4]);
+			System.out.print("\t"+observedKofT[5]);
+			System.out.print("\t"+observedKofT[6]);
+			System.out.print("\t"+observedKofT[7]);
+			System.out.print("\t"+observedKofT[8]);
+			System.out.print("\t"+observedKofT[9]);
+			System.out.print("\t"+observedKofT[10]);
 			System.out.println();
 		}
 	}
@@ -793,13 +811,41 @@ public class CodemlRstParser {
 	
 	/**
 	 * Method to estimate Ripley's K for all t in 1:(gene length)
-	 * @param CodemlModel someModel - a CodemlModel containing dN/dS estimates
+	 * @param int[] observations - a CodemlModel containing locations of observed dN/dS estimates > 1
+	 * @param int N - total length of the alignment
 	 * @return float[] KofT - vector of observed K(t) for all t in 1:(gene length)
 	 */
-	private float[] calculateRipleysK(CodemlModel someModel){
-		float[] estimatedOmegas = someModel.getEstimatedOmegas();
-		float[] KofT = new float[estimatedOmegas.length];
-		//TODO implement this
+	private float[] calculateRipleysK(int[] observations, int N){
+		float[] KofT = new float[N];
+		int obs_N = observations.length;
+		int N_sq = N*N;	//no point computing multiple times
+		float area = 1; 	//set area, A, to 1
+		float weight = 1;	//set weight w(i,j) to 1
+		// first step; calculate K(t) for all t from i:N, sum them 
+		for(int i=0;i<obs_N;i++){
+			for(int j=0;j<obs_N; j++){
+				if(i != j){
+					int distance_ij = Math.abs((observations[i] - observations[j]));
+					for(int k=0;k<N;k++){
+						if(distance_ij <= k){
+							KofT[k] += (weight / N_sq);
+						}
+					}
+				}
+			}
+		}
+
+		// second step;
+		// compare to expected value, e.g. L(t) = t - (K(t)/pi)^0.5 
+		for(int t=0;t<N;t++){
+			if(area != 1){
+				// scale by area A (if needed)
+				KofT[t] = KofT[t] * area;
+			}
+			double correct = Math.sqrt((KofT[t]/Math.PI));
+			KofT[t] = (float) (t - correct);
+		}
+			
 		return KofT;
 	}
 }

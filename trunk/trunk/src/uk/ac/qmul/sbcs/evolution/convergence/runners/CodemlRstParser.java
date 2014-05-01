@@ -815,7 +815,7 @@ public class CodemlRstParser {
 	 * @param int N - total length of the alignment
 	 * @return float[] KofT - vector of observed K(t) for all t in 1:(gene length)
 	 */
-	private float[] calculateRipleysK(int[] observations, int N){
+	public float[] calculateRipleysK(int[] observations, int N){
 		float[] KofT = new float[N];
 		int obs_N = observations.length;
 		int N_sq = N*N;	//no point computing multiple times

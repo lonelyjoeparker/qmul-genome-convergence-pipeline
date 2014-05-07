@@ -1987,4 +1987,58 @@ public class AlignedSequenceRepresentation implements Serializable {
 			return false;
 		}
 	}
+
+	public void loadSequences(ArrayList<String> inputData, boolean reportInputRead) throws TaxaLimitException{
+		try{
+			rawInput = inputData;
+			for(String line:rawInput){
+				if(line.length() == 0){System.out.println("read: ["+line+"]");}
+			}
+			assert(rawInput.size()>0);
+			this.determineInputFileDatatype();
+			assert(sequenceFileTypeSet);
+			switch(inputSequenceFileFormat){
+				case NEXUS: this.readNexusFile(); break;
+				case FASTA: this.readFastaFile(); break;
+				case PHYLIP: this.readPhylipFile(); break;
+				case PHYDEX: this.readXMLFile(); break;
+				case NATIVE: break;
+			}
+			if(numberOfTaxa > 999){
+				System.out.println("Too many taxa in alignment - limit is 999");
+				throw new TaxaLimitException(numberOfTaxa);
+			}
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+		}
+		alignmentSequenceCodingType = this.determineInputSequenceType();
+		// TODO write truncatedNamesHash. Remember to check for duplicates, and use UID where required
+		// TODO how are we going to handle on-the-fly UID generation w.r.t. compatibility with treefiles..?
+		int UIDroot = 1;
+		for(String longTaxon:taxaListArray){
+			if(UIDroot > 1000){
+				System.out.println("Too many taxa in alignment - limit is 999");
+				throw new TaxaLimitException(UIDroot);
+			}else{
+				StringBuilder shortTaxon = new StringBuilder();
+				if(longTaxon.length()>7){
+					shortTaxon.append(longTaxon.substring(0, 7));
+					shortTaxon.append(String.format("%03d", UIDroot));
+				}else{
+					shortTaxon.append(longTaxon);
+					while(shortTaxon.length() < 7){
+						shortTaxon.append("_");
+					}
+					shortTaxon.append(String.format("%03d", UIDroot));
+				}
+				assert(longTaxon.length()>1);
+				assert(shortTaxon.length()>1);
+				truncatedNamesHash.put(longTaxon, shortTaxon.toString());
+			}
+			UIDroot++;
+		}
+		this.padSequences();
+		this.determineInvariantSites();
+	}
 }

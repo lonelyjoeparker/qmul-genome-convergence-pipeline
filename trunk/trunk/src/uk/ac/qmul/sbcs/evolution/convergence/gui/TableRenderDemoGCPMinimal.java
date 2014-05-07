@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -61,12 +62,15 @@ import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /** 
@@ -87,12 +91,12 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
     private JScrollPane sequencePaneAA = new JScrollPane();
     private JTable table;
     private MyTableModel dataModel;
-    private final JFileChooser fc = new JFileChooser();
-    private final JFileChooser dc = new JFileChooser();
+    private CirclePanel circle;
+//    private final JFileChooser fc = new JFileChooser();
+//    private final JFileChooser dc = new JFileChooser();
     
     public TableRenderDemoGCPMinimal() {
-        super(new GridLayout(2,2));
-
+        super(new GridLayout(4,1));
         dataModel = new MyTableModel();
         table = new JTable(dataModel);
         table.setPreferredScrollableViewportSize(new Dimension(500, 70));
@@ -104,7 +108,7 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
         table.setColumnSelectionAllowed(true);
         table.setCellSelectionEnabled(true);
         table.setAutoCreateRowSorter(true);
-        dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+//        dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
 /*
  * 		// try to add init data
@@ -160,20 +164,24 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
 		JPanel panel= new JPanel();
 		JButton button = new JButton("Add single alignment");
 		button.addActionListener(new AddButtonListener());
-		panel.add(button);
+//		panel.add(button);
 		JButton dirButton = new JButton("Add directory of alignments");
 		dirButton.addActionListener(new AddDirectoryButtonListener());
-		panel.add(dirButton);
-		panel.add(label);
-		panel.add(text);
-		add(panel);
+//		panel.add(dirButton);
+//		panel.add(label);
+//		panel.add(text);
+//		add(panel);
 
 		// sequenceView - NT
+//		sequencePane.setSize(700, 200);
 		add(sequencePane);
 
 		// sequenceView - AA
+//		sequencePaneAA.setSize(700,200);
 		add(sequencePaneAA);
 
+		circle = new CirclePanel();
+		add(circle);
     }
 
     /*
@@ -437,6 +445,9 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
     private class AddDirectoryButtonListener implements ActionListener{
  		@Override
 		public void actionPerformed(ActionEvent ev) {
+ /*
+  * commented out filechooser actions as no security access
+  * 
  			int returnVal = dc.showOpenDialog(text);
  			if(returnVal == JFileChooser.APPROVE_OPTION){
  	 			File alignmentDirectory = dc.getSelectedFile();
@@ -458,6 +469,7 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
  	 			}			
  				
  			}
+ */			
 		}
     }
     
@@ -465,6 +477,7 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
  		@Override
 		public void actionPerformed(ActionEvent ev) {
 			// TODO Auto-generated method stub
+ 	/*
  			int returnVal = fc.showOpenDialog(text);
  			File alignmentFile = fc.getSelectedFile();
  	    	//File alignmentFile = new File("/Users/gsjones/Downloads/NM005550/rhp.phy");
@@ -479,7 +492,7 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
  			DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
 			dataModel.addRow(da);
 			table.repaint();
-			
+	*/		
 		}
     }
     
@@ -519,21 +532,59 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
         	/*
         	 * Replace the alignment NT
         	 */
-        	JScrollPane scroller = selectedAlignment.getAlignmentScroller();
-        	remove(sequencePane);
-        	sequencePane = scroller;
-        	add(sequencePane);
-        	
+        	JScrollPane scroller = null;
+			try {
+				scroller = selectedAlignment.getAlignmentScroller();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			if(scroller.getWidth() > 0){ 
+				remove(sequencePane);
+				sequencePane = scroller;
+				// 		sequencePane.setSize(700, 200);
+				sequencePane.setBackground(new Color((float)Math.random(), 1.0f, (float)Math.random()));
+				sequencePane.setVisible(true);
+				add(sequencePane);
+			}else{
+				//oops, alignment is not playing nicely with scrollpane setup..
+				remove(sequencePane);
+				System.err.println("what's up with the alignment? ");
+				JTextPane textPaneBasic = new JTextPane();
+				textPaneBasic.setText(selectedAlignment.getFirstSequence());
+				textPaneBasic.setBackground(new Color((float)Math.random(), 1.0f, (float)Math.random()));
+				sequencePane = new JScrollPane();
+				sequencePane.add(textPaneBasic);
+				sequencePane.setBackground(new Color((float)Math.random(), 1.0f, (float)Math.random()));
+				sequencePane.setVisible(true);
+				add(sequencePane);
+			}
+			
         	/*
         	 * Replace the alignment AA
         	 */
-        	JScrollPane scrollerAA = selectedAlignment.getAlignmentScrollerAA();
-        	remove(sequencePaneAA);
-        	sequencePaneAA = scrollerAA;
-        	add(sequencePaneAA);
-
-        	text.append("ROW SELECTION EVENT. ");
+        	JScrollPane scrollerAA = null;
+			try {
+				scrollerAA = selectedAlignment.getAlignmentScrollerAA();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(scrollerAA.getWidth() > 0){
+    			remove(sequencePaneAA);
+            	sequencePaneAA = scrollerAA;
+    //    		sequencePaneAA.setSize(700, 200);
+            	sequencePaneAA.setBackground(new Color((float)Math.random(), (float)Math.random(), 1.0f));
+              	sequencePaneAA.setVisible(true);
+            	add(sequencePaneAA);
+			}
+			
+			text.append("ROW SELECTION EVENT. ");
             outputSelection();
+            circle.setDiameter(element);
+            circle.setColour(new Color((float)Math.random(), (float)Math.random(), (float)Math.random()));
+            repaint();
         }
     }
 
@@ -547,6 +598,36 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
         }
     }
 
+    public void addFile(File newFile){
+    	//File alignmentFile = newFile("/Users/gsjones/Downloads/NM005550/rhp.phy");
+    	AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
+    	try {
+    		asr.loadSequences(newFile, false);
+    		asr.calculateAlignmentStats(false);
+    	} catch (TaxaLimitException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	}
+    	DisplayAlignment da = new DisplayAlignment(newFile.getName(),asr);
+    	dataModel.addRow(da);
+    	table.repaint();    	
+    }
+    
+    public void addAlignment(ArrayList<String> alignment) {
+    	AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
+    	try {
+    		asr.loadSequences(alignment, false);
+    		asr.calculateAlignmentStats(false);
+    	} catch (TaxaLimitException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	}
+    	DisplayAlignment da = new DisplayAlignment(null,asr);
+    	dataModel.addRow(da);
+    	table.repaint();    	
+    }
+    
+    
     /**
      * Create the GUI and show it.  For thread safety,
      * this method should be invoked from the
@@ -576,4 +657,5 @@ public class TableRenderDemoGCPMinimal extends JPanel implements ActionListener{
             }
         });
     }
+
 }

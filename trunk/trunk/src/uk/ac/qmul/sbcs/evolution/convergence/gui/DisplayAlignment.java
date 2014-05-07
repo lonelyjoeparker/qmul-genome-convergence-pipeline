@@ -145,17 +145,32 @@ public class DisplayAlignment{
         StyledDocument doc = new DefaultStyledDocument();
         JTextPane textPane = new JTextPane(doc);
         StringBuffer sb = new StringBuffer();
-        for(int i=0;i<this.sequences.length;i++){
-        	String taxon = this.taxa[i];
-        	if(taxon.length() > 22){
-        		taxon = taxon.substring(0,22);
+        if(this.sequences != null){
+        	for(int i=0;i<this.sequences.length;i++){
+        		String taxon = this.taxa[i];
+        		if(taxon.length() > 22){
+        			taxon = taxon.substring(0,22);
+        		}
+        		sb.append(taxon);
+        		// pad taxon names..
+        		for(int s = taxon.length();s<25;s++){
+        			sb.append(" ");
+        		}
+        		sb.append(this.sequences[i]+"\r");
+        	}  
+        }else{
+        	for(int i=0;i<this.sequences.length;i++){
+        		String taxon = this.taxa[i];
+        		if(taxon.length() > 22){
+        			taxon = taxon.substring(0,22);
+        		}
+        		sb.append(taxon);
+        		// pad taxon names..
+        		for(int s = taxon.length();s<25;s++){
+        			sb.append(" ");
+        		}
+        		sb.append("null\r");
         	}
-        	sb.append(taxon);
-        	// pad taxon names..
-        	for(int s = taxon.length();s<25;s++){
-        		sb.append(" ");
-        	}
-        	sb.append(this.sequences[i]+"\r");
         }
         textPane.setText(sb.toString());
         //Random random = new Random();
@@ -245,19 +260,34 @@ public class DisplayAlignment{
         StyledDocument doc = new DefaultStyledDocument();
         JTextPane textPane = new JTextPane(doc);
         StringBuffer sb = new StringBuffer();
-        for(int i=0;i<this.sequencesAA.length;i++){
-        	String taxon = this.taxa[i];
-        	if(taxon.length() > 22){
-        		taxon = taxon.substring(0,22);
-        	}
-        	sb.append(taxon);
-        	// pad taxon names..
-        	for(int s = taxon.length();s<25;s++){
-        		sb.append(" ");
-        	}
-        	sb.append(this.sequencesAA	[i]+"\r");
-        }
-        textPane.setText(sb.toString());
+        if(this.sequencesAA != null){
+			for (int i = 0; i < this.sequencesAA.length; i++) {
+				String taxon = this.taxa[i];
+				if (taxon.length() > 22) {
+					taxon = taxon.substring(0, 22);
+				}
+				sb.append(taxon);
+				// pad taxon names..
+				for (int s = taxon.length(); s < 25; s++) {
+					sb.append(" ");
+				}
+				sb.append(this.sequencesAA[i] + "\r");
+			}
+		}else{
+			for (int i = 0; i < this.taxa.length; i++) {
+				String taxon = this.taxa[i];
+				if (taxon.length() > 22) {
+					taxon = taxon.substring(0, 22);
+				}
+				sb.append(taxon);
+				// pad taxon names..
+				for (int s = taxon.length(); s < 25; s++) {
+					sb.append(" ");
+				}
+				sb.append("null\r");
+			}
+		}
+		textPane.setText(sb.toString());
         //Random random = new Random();
         for (int i = 0; i < textPane.getDocument().getLength(); i++) {
             SimpleAttributeSet set = new SimpleAttributeSet();
@@ -419,11 +449,19 @@ public class DisplayAlignment{
 	 */
 	public String getNameGuess() {
 		// TODO Auto-generated method stub
-		String[] separated = this.name.split(".");
-		if(separated.length > 0){
-			return separated[0];			
+		if(this.name != null){
+			String[] separated = this.name.split(".");
+			if(separated.length > 0){
+				return separated[0];			
+			}else{
+				return name;
+			}
 		}else{
 			return name;
 		}
+	}
+	
+	public String getFirstSequence(){
+		return this.sequences[0];
 	}
 }

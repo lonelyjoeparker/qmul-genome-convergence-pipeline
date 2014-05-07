@@ -145,9 +145,13 @@ public class DisplayAlignment{
         StyledDocument doc = new DefaultStyledDocument();
         JTextPane textPane = new JTextPane(doc);
         StringBuffer sb = new StringBuffer();
+        int numTaxa = this.sequences.length;	// getting num Taxa from sequences.length not taxa.length, hopefully it's safer	..
+        int numPosn = this.sequences[0].length();
+        int totalChars = (25 + numPosn + 1) * numTaxa; // an extra char per line, for the line endings!!
+        boolean[] skipColourChars = new boolean[totalChars]; // boolean: colour chars or not?
         if(this.sequences != null){
-        	for(int i=0;i<this.sequences.length;i++){
-        		String taxon = this.taxa[i];
+        	for(int t=0;t<numTaxa;t++){
+        		String taxon = this.taxa[t];
         		if(taxon.length() > 22){
         			taxon = taxon.substring(0,22);
         		}
@@ -156,11 +160,15 @@ public class DisplayAlignment{
         		for(int s = taxon.length();s<25;s++){
         			sb.append(" ");
         		}
-        		sb.append(this.sequences[i]+"\r");
+        		for(int c=0;c<25;c++){
+        			int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
+        			skipColourChars[i] = true;
+        		}
+        		sb.append(this.sequences[t]+"\r");
         	}  
         }else{
-        	for(int i=0;i<this.sequences.length;i++){
-        		String taxon = this.taxa[i];
+        	for(int t=0;t<this.sequences.length;t++){
+        		String taxon = this.taxa[t];
         		if(taxon.length() > 22){
         			taxon = taxon.substring(0,22);
         		}
@@ -168,12 +176,17 @@ public class DisplayAlignment{
         		// pad taxon names..
         		for(int s = taxon.length();s<25;s++){
         			sb.append(" ");
+        		}
+        		for(int c=0;c<25;c++){
+        			int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
+        			skipColourChars[i] = true;
         		}
         		sb.append("null\r");
         	}
         }
         textPane.setText(sb.toString());
         //Random random = new Random();
+//        for (int i = 0; i < textPane.getDocument().getLength(); i++) {
         for (int i = 0; i < textPane.getDocument().getLength(); i++) {
             SimpleAttributeSet set = new SimpleAttributeSet();
             StyleConstants.setFontFamily(set, "Courier");
@@ -193,7 +206,7 @@ public class DisplayAlignment{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        	if(s != null){
+        	if((s != null)&&(!skipColourChars[i])){
         		c = s.toCharArray()[0];
         		switch(c){
         		case 'a':{   
@@ -260,9 +273,13 @@ public class DisplayAlignment{
         StyledDocument doc = new DefaultStyledDocument();
         JTextPane textPane = new JTextPane(doc);
         StringBuffer sb = new StringBuffer();
-        if(this.sequencesAA != null){
-			for (int i = 0; i < this.sequencesAA.length; i++) {
-				String taxon = this.taxa[i];
+        int numTaxa = this.sequencesAA.length;	// getting num Taxa from sequencesAA.length not taxa.length, hopefully it's safer	..
+        int numPosn = this.sequencesAA[0].length();
+        int totalChars = (25 + numPosn + 1) * numTaxa; // an extra char per line, for the line endings!!
+        boolean[] skipColourChars = new boolean[totalChars]; // boolean: colour chars or not?
+      if(this.sequencesAA != null){
+			for (int t = 0; t < this.sequencesAA.length; t++) {
+				String taxon = this.taxa[t];
 				if (taxon.length() > 22) {
 					taxon = taxon.substring(0, 22);
 				}
@@ -271,11 +288,15 @@ public class DisplayAlignment{
 				for (int s = taxon.length(); s < 25; s++) {
 					sb.append(" ");
 				}
-				sb.append(this.sequencesAA[i] + "\r");
+        		for(int c=0;c<25;c++){
+        			int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
+        			skipColourChars[i] = true;
+        		}
+				sb.append(this.sequencesAA[t] + "\r");
 			}
 		}else{
-			for (int i = 0; i < this.taxa.length; i++) {
-				String taxon = this.taxa[i];
+			for (int t = 0; t < this.taxa.length; t++) {
+				String taxon = this.taxa[t];
 				if (taxon.length() > 22) {
 					taxon = taxon.substring(0, 22);
 				}
@@ -284,6 +305,10 @@ public class DisplayAlignment{
 				for (int s = taxon.length(); s < 25; s++) {
 					sb.append(" ");
 				}
+        		for(int c=0;c<25;c++){
+        			int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
+        			skipColourChars[i] = true;
+        		}
 				sb.append("null\r");
 			}
 		}
@@ -308,7 +333,7 @@ public class DisplayAlignment{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        	if(s != null){
+        	if((s != null)&&(!skipColourChars[i])){
         		c = s.toCharArray()[0];
         		switch(c){
         		case 'a':{   

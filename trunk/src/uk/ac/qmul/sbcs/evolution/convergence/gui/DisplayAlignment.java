@@ -140,6 +140,10 @@ public class DisplayAlignment{
 		return this.name;
 	}
 	
+	protected void setName(String newName) {
+		this.name = newName;
+	}
+
 	public JScrollPane getAlignmentScroller(){
 		JScrollPane scroller;
         StyledDocument doc = new DefaultStyledDocument();
@@ -190,8 +194,8 @@ public class DisplayAlignment{
         for (int i = 0; i < textPane.getDocument().getLength(); i++) {
             SimpleAttributeSet set = new SimpleAttributeSet();
             StyleConstants.setFontFamily(set, "Courier");
-         //   StyleConstants.setBackground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
-         //   StyleConstants.setForeground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+         //   StyleConstants.setBackground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256))); //BG colour
+         //   StyleConstants.setForeground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256))); //FG colour
          //   StyleConstants.setFontSize(set, random.nextInt(12) + 12);
           //  StyleConstants.setBold(set, random.nextBoolean());
            // StyleConstants.setItalic(set, random.nextBoolean());
@@ -208,45 +212,32 @@ public class DisplayAlignment{
 			}
         	if((s != null)&&(!skipColourChars[i])){
         		c = s.toCharArray()[0];
+                StyleConstants.setFontFamily(set, "Andale mono");
         		switch(c){
-        		case 'a':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 100));
-        			break;
-        			}
+        		case 'a':
         		case 'A':{   
         			StyleConstants.setBackground(set, new Color(255, 100, 100));
         			break;
         			}
-        		case 'c':{   
-        			StyleConstants.setBackground(set, new Color(100, 255, 100));
-        			break;
-        			}
+        		case 'c':
         		case 'C':{   
         			StyleConstants.setBackground(set, new Color(100, 255, 100));
         			break;
         			}
-        		case 'g':{   
-        			StyleConstants.setBackground(set, new Color(100, 100, 255));
-        			break;
-        			}
+        		case 'g':
         		case 'G':{   
         			StyleConstants.setBackground(set, new Color(100, 100, 255));
         			break;
         			}
-        		case 't':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 255));
-        			break;
-        			}
-        		case 'T':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 255));
-        			break;
-        			}
-        		case 'u':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 255));
-        			break;
-        			}
+        		case 't':
+        		case 'T':
+        		case 'u':
         		case 'U':{   
         			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        			break;
+        			}
+        		case '-':{   
+        			StyleConstants.setBackground(set, Color.LIGHT_GRAY);
         			break;
         			}
         		}
@@ -317,7 +308,8 @@ public class DisplayAlignment{
         for (int i = 0; i < textPane.getDocument().getLength(); i++) {
             SimpleAttributeSet set = new SimpleAttributeSet();
             StyleConstants.setFontFamily(set, "Courier");
-         //   StyleConstants.setBackground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+            //StyleConstants.setForeground(set, Color.WHITE);
+            //StyleConstants.setBackground(set, Color.LIGHT_GRAY);
          //   StyleConstants.setForeground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
          //   StyleConstants.setFontSize(set, random.nextInt(12) + 12);
           //  StyleConstants.setBold(set, random.nextBoolean());
@@ -334,46 +326,76 @@ public class DisplayAlignment{
 				e.printStackTrace();
 			}
         	if((s != null)&&(!skipColourChars[i])){
+                StyleConstants.setFontFamily(set, "Andale mono");
+                StyleConstants.setForeground(set, Color.WHITE);
+                StyleConstants.setBackground(set, Color.LIGHT_GRAY);
         		c = s.toCharArray()[0];
         		switch(c){
-        		case 'a':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 100));
-        			break;
-        			}
-        		case 'A':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 100));
-        			break;
-        			}
-        		case 'c':{   
-        			StyleConstants.setBackground(set, new Color(100, 255, 100));
-        			break;
-        			}
-        		case 'C':{   
-        			StyleConstants.setBackground(set, new Color(100, 255, 100));
-        			break;
-        			}
-        		case 'g':{   
-        			StyleConstants.setBackground(set, new Color(100, 100, 255));
-        			break;
-        			}
-        		case 'G':{   
-        			StyleConstants.setBackground(set, new Color(100, 100, 255));
-        			break;
-        			}
-        		case 't':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 255));
-        			break;
-        			}
+        		case 'a':
+        		case 'A':
+        		case 'g':
+        		case 'G':
+        		case 'p':
+        		case 'P':
+        		case 's':
+        		case 'S':
+        		case 't':
         		case 'T':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        			StyleConstants.setBackground(set, Color.MAGENTA);
         			break;
         			}
-        		case 'u':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        		case 'c':
+        		case 'C':{   
+        			StyleConstants.setBackground(set, Color.RED);
         			break;
         			}
-        		case 'U':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 255));
+        		case 'f':
+        		case 'F':
+        		case 'w':
+        		case 'W':
+        		case 'y':
+        		case 'Y':{   
+        			StyleConstants.setBackground(set, Color.BLUE);
+        			break;
+        			}
+        		case 'h':
+        		case 'H':
+        		case 'k':
+        		case 'K':
+        		case 'r':
+        		case 'R':{   
+        			StyleConstants.setBackground(set, new Color(0,183,247));
+        			break;
+        			}
+        		case 'i':
+        		case 'I':
+        		case 'l':
+        		case 'L':
+        		case 'm':
+        		case 'M':
+        		case 'v':
+        		case 'V':{   
+        			StyleConstants.setBackground(set, new Color(0,132,4));
+        			break;
+        			}
+        		case 'b':
+        		case 'B':
+        		case 'd':
+        		case 'D':
+        		case 'e':
+        		case 'E':
+        		case 'n':
+        		case 'N':
+        		case 'q':
+        		case 'Q':
+        		case 'z':
+        		case 'Z':{   
+        			StyleConstants.setBackground(set, Color.BLACK);
+        			break;
+        			}
+        		case 'x':
+        		case 'X':{   
+        			StyleConstants.setBackground(set, Color.DARK_GRAY);
         			break;
         			}
         		}

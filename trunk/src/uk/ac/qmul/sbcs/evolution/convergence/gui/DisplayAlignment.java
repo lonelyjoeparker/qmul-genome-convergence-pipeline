@@ -212,7 +212,6 @@ public class DisplayAlignment{
 			}
         	if((s != null)&&(!skipColourChars[i])){
         		c = s.toCharArray()[0];
-                StyleConstants.setFontFamily(set, "Andale mono");
         		switch(c){
         		case 'a':
         		case 'A':{   
@@ -326,7 +325,6 @@ public class DisplayAlignment{
 				e.printStackTrace();
 			}
         	if((s != null)&&(!skipColourChars[i])){
-                StyleConstants.setFontFamily(set, "Andale mono");
                 StyleConstants.setForeground(set, Color.WHITE);
                 StyleConstants.setBackground(set, Color.LIGHT_GRAY);
         		c = s.toCharArray()[0];

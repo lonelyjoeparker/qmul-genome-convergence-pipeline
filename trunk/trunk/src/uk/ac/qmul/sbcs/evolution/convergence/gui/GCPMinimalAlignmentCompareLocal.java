@@ -130,8 +130,12 @@ public class GCPMinimalAlignmentCompareLocal extends JPanel implements ActionLis
         table.setColumnSelectionAllowed(true);
         table.setCellSelectionEnabled(true);
         //ESSENTIAL - disable row sorting so table data match up with panels...
-        table.setAutoCreateRowSorter(false);
-        table.setRowSorter(null);
+        table.setAutoCreateRowSorter(true);
+        /*
+         * DISABLE ROW SORTING
+         * table.setRowSorter(null);
+         * table.setAutoCreateRowSorter(false);
+         */
         // /essential
         dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
@@ -531,10 +535,16 @@ public class GCPMinimalAlignmentCompareLocal extends JPanel implements ActionLis
         	/*
         	 * My code - try and get the row data...
         	 */
-        	int row = table.getSelectedRow();
-        	Object[] a_row = dataModel.data[row];
-        	int element = (Integer)a_row[3];
-        	System.out.println("selected diameter: "+element);
+        	int viewModelRow = table.getSelectedRow();
+        	Object[] a_row = dataModel.data[viewModelRow];
+        	int val = (Integer)a_row[4];
+        	float entropy = (Float)a_row[8];
+        	System.out.println("VIEW ROW ("+viewModelRow+") selected n sites nt: "+val+", entropy "+entropy);
+        	int tableModelRow = table.convertRowIndexToModel(viewModelRow);
+        	a_row = dataModel.data[tableModelRow];
+        	val = (Integer)a_row[4];
+        	entropy = (Float)a_row[8];
+        	System.out.println("MODEL ROW ("+tableModelRow+") selected n sites nt: "+val+", entropy "+entropy);
 
         	DisplayAlignment selectedAlignment = (DisplayAlignment)a_row[0];
         	/*

@@ -38,11 +38,16 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
@@ -58,6 +63,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.tests.AlignedSequenceRepresentationPreloader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 
 
@@ -67,6 +73,8 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /** 
@@ -422,6 +430,121 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
     }
 
     /**
+	     * Create the JMenu
+	     */
+	    public JMenuBar createMenuBar() {
+	        JMenuBar menuBar;
+	        JMenu menu, submenu;
+	        JMenuItem menuItem;
+	        JRadioButtonMenuItem rbMenuItem;
+	        JCheckBoxMenuItem cbMenuItem;
+	 
+	        //Create the menu bar.
+	        menuBar = new JMenuBar();
+	 
+	        //Build the first menu.
+	        menu = new JMenu("Menu");
+	        menuBar.add(menu);
+	 
+	        //a group of JMenuItems
+	        // single file button
+	        menuItem = new JMenuItem("Add single alignment file...");
+	        menuItem.getAccessibleContext().setAccessibleDescription("Adds a single alignment");
+	        menuItem.addActionListener(new AddButtonListener());
+	        menu.add(menuItem);
+	 
+	        // directory button
+	        menuItem = new JMenuItem("Add directory of alignments as batch...");
+	        menuItem.getAccessibleContext().setAccessibleDescription("Adds a directory of alignments");
+	        menuItem.addActionListener(new AddDirectoryButtonListener());
+	        menu.add(menuItem);
+	 
+	        // directory button
+	        menuItem = new JMenuItem("Add dummy alignments");
+	        menuItem.getAccessibleContext().setAccessibleDescription("Adds dummy alignments");
+	        menuItem.addActionListener(new AddDummyDataButtonListener());
+	        menu.add(menuItem);
+	/*
+	 *
+	        //a group of radio button menu items
+	        menu.addSeparator();
+	        ButtonGroup group = new ButtonGroup();
+	 
+	        rbMenuItem = new JRadioButtonMenuItem("A radio button menu item");
+	        rbMenuItem.setSelected(true);
+	        rbMenuItem.setMnemonic(KeyEvent.VK_R);
+	        group.add(rbMenuItem);
+	        menu.add(rbMenuItem);
+	 
+	        rbMenuItem = new JRadioButtonMenuItem("Another one");
+	        rbMenuItem.setMnemonic(KeyEvent.VK_O);
+	        group.add(rbMenuItem);
+	        menu.add(rbMenuItem);
+	 
+	        //a group of check box menu items
+	        menu.addSeparator();
+	        cbMenuItem = new JCheckBoxMenuItem("A check box menu item");
+	        cbMenuItem.setMnemonic(KeyEvent.VK_C);
+	        menu.add(cbMenuItem);
+	 
+	        cbMenuItem = new JCheckBoxMenuItem("Another one");
+	        cbMenuItem.setMnemonic(KeyEvent.VK_H);
+	        menu.add(cbMenuItem);
+	 
+	        //a submenu
+	        menu.addSeparator();
+	        submenu = new JMenu("A submenu");
+	        submenu.setMnemonic(KeyEvent.VK_S);
+	 
+	        menuItem = new JMenuItem("An item in the submenu");
+	        menuItem.setAccelerator(KeyStroke.getKeyStroke(
+	                KeyEvent.VK_2, ActionEvent.ALT_MASK));
+	        submenu.add(menuItem);
+	 
+	        menuItem = new JMenuItem("Another item");
+	        submenu.add(menuItem);
+	        menu.add(submenu);
+	
+	 *  
+	 *  
+	 */
+	        return menuBar;
+	    }
+
+	    
+	public void addAlignment(ArrayList<String> alignment) {
+		AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
+		try {
+			asr.loadSequences(alignment, false);
+			asr.calculateAlignmentStats(false);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		DisplayAlignment da = new DisplayAlignment(null,asr);
+		da.setName((dataModel.getRowCount()+1)+"_file");
+		dataModel.addRow(da);
+		table.repaint();    	
+	}
+
+	/**
+	 * Adds a set of dummy data, calling {@link AlignedSequenceRepresentationPreloader#getPreloadingAlignments()} to get ArrayList that can be used to populate tableModel.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 * @see uk.ac.qmul.sbcs.evolution.convergence.tests.AlignedSequenceRepresentationPreloader
+	 */
+	private class AddDummyDataButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev){
+	        ArrayList<ArrayList<String>> listOfAlignmentRawData = new AlignedSequenceRepresentationPreloader().getPreloadingAlignments();
+	        Iterator<ArrayList<String>> itr = listOfAlignmentRawData.iterator();
+	        while(itr.hasNext()){
+	        	ArrayList<String> rawAlignment = itr.next();
+	        	TableRenderDemoGCP.this.addAlignment(rawAlignment);
+	        }
+		}
+	} 	    
+	
+	/**
      * Attempt to add a directory of files in batch mode. 
      * <br/>Currently *very* inefficient as multiple calls to addRow()
      * @TODO improve efficiency: avoiding multiple calls to addRow()
@@ -486,7 +609,9 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
         	 * My code - try and get the row data...
         	 */
         	int row = table.getSelectedRow();
-        	Object[] a_row = dataModel.data[row];
+        	// IMPORTANT; convert index to correct dataModel index, in case the table _view_ has been sorted by user..!
+        	int dataModelRow = table.convertRowIndexToModel(row);
+        	Object[] a_row = dataModel.data[dataModelRow];
         	int element = (Integer)a_row[3];
         	System.out.println("selected diameter: "+element);
 
@@ -553,6 +678,9 @@ public class TableRenderDemoGCP extends JPanel implements ActionListener{
         TableRenderDemoGCP newContentPane = new TableRenderDemoGCP();
         newContentPane.setOpaque(true); //content panes must be opaque
         frame.setContentPane(newContentPane);
+
+        //Create / set the menu
+        frame.setJMenuBar(newContentPane.createMenuBar());
 
         //Display the window.
         frame.pack();

@@ -25,7 +25,7 @@ public class RstFileFilter implements FilenameFilter {
 	@Override
 	public boolean accept(File arg0, String arg1) {
 		// TODO Auto-generated method stub
-		return arg1.endsWith(".rst");
+		return arg1.endsWith("rst");
 	}
 
 }

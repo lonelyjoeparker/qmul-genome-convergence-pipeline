@@ -73,7 +73,13 @@ public class CodemlParserM1 extends CodemlParser {
 			if(isRat.find()){
 				String[] tokens = line.split("\\ {1,}");
 				global_dNdS[0] = Float.parseFloat(tokens[1]);
-				global_dNdS[1] = Float.parseFloat(tokens[2]);
+				try {
+					global_dNdS[1] = Float.parseFloat(tokens[2]);
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					System.out.println("tokens "+tokens[2]);
+					e.printStackTrace();
+				}
 				model.setGlobalOmegaRates(global_dNdS);
 			}
 			if(isLnL.find()){

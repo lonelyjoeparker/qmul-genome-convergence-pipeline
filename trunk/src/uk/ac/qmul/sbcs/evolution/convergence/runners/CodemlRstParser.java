@@ -757,7 +757,41 @@ public class CodemlRstParser {
 			System.out.print("\t"+intercept);
 			System.out.print("\t"+getMedian(M2.getSelectionIntervalsByBEBProbabilityProducts()));
 			if(this.printIntervals){System.out.print("\tc("+concatenateIntervalsFromBEB(M2)+")");}
+
+			int numSelectedByProbs = 0;
+			float ratioSelected = 0.0f;
+			int[] selectionIndicesByPrBEB = new int[0];
+			int[] selectionIntervalsByPrBEB = new int [0];
+			try {
+				selectionIntervalsByPrBEB = M2.getSelectionIntervalsByBEBProbabilities();
+				System.out.print("\t"+getMedian(selectionIntervalsByPrBEB));
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				System.out.print("\tNA");
+				e.printStackTrace();
+			}
+			if(this.printIntervals){
+				if(numSelectedByProbs>0){
+					System.out.print("\tc("+this.concatenateIntervals(selectionIndicesByPrBEB)+")");
+					System.out.print("\tc("+this.concatenateIntervals(selectionIntervalsByPrBEB)+")");
+				}else{
+					System.out.print("\tc()");
+				}
+			}
+			float[] observedKofT = this.calculateRipleysK(selectionIndicesByPrBEB, M2.getEstimatedOmegas().length);
+			System.out.print("\t"+observedKofT[0]);
+			System.out.print("\t"+observedKofT[1]);
+			System.out.print("\t"+observedKofT[2]);
+			System.out.print("\t"+observedKofT[3]);
+			System.out.print("\t"+observedKofT[4]);
+			System.out.print("\t"+observedKofT[5]);
+			System.out.print("\t"+observedKofT[6]);
+			System.out.print("\t"+observedKofT[7]);
+			System.out.print("\t"+observedKofT[8]);
+			System.out.print("\t"+observedKofT[9]);
+			System.out.print("\t"+observedKofT[10]);
 			System.out.println();
+		
 		}
 
 	}

@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.TaxaListsMismatchException;
 import uk.ac.qmul.sbcs.evolution.convergence.TaxonNotFoundError;
+import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.NewickUtilitiesHandler;
 
 import junit.framework.TestCase;
@@ -350,6 +351,44 @@ public class NewickTreeRepresentationTest extends TestCase {
 			treeH0Pruned.printSimply();
 		}
 
+	/**
+	 * Test harness to check the NewickTreeRepresentation can iteratively label tips, using TreeNode#printRecursivelyLabelling()
+	 */
+	public void testPrintIterativelyLabellingTips(){
+		// set up the tree object itself as an initialised NewickTreeRepresentation
+		File file = new File("/pamlTest/simpleNewick.tre");
+		TreeSet<String> names = new TreeSet<String>();
+		names.add("Human");
+		names.add("Chimpanzee");
+		names.add("Gorilla");
+		names.add("Orangutan");
+		names.add("Gibbon");
+		NewickTreeRepresentation r = new NewickTreeRepresentation(file,names);
+		
+		// print the tree with iterative branch labelling
+		String labelledString = r.printIterativelyLabellingTips();
+		
+		System.out.println(labelledString);
+	}
+
+	/**
+	 * Test harness to check the NewickTreeRepresentation write iteratively labelled tip trees, using TreeNode#printRecursivelyLabelling()
+	 */
+	public void testWriteIterativelyLabellingTips(){
+		// set up the tree object itself as an initialised NewickTreeRepresentation
+		File file = new File("/pamlTest/simpleNewick.tre");
+		TreeSet<String> names = new TreeSet<String>();
+		names.add("Human");
+		names.add("Chimpanzee");
+		names.add("Gorilla");
+		names.add("Orangutan");
+		names.add("Gibbon");
+		NewickTreeRepresentation r = new NewickTreeRepresentation(file,names);
+		
+		// write the tree with iterative branch labelling
+		r.writeLabellingTipsRecursively(new File("/pamlTest/labelledIterativelyNewick.tre"));
+	}
+	
 	public void testReadMultipleTrees(){
 			File treeFile = new File("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/f_100_ENSG00000070214_ng.fas/debug.tre");
 			TreeSet<String> taxaList = new TreeSet<String>();

@@ -153,6 +153,16 @@ public class NewickTreeRepresentation {
 		new BasicFileWriter(outputTreeFile, this.treeString);
 	}
 	
+
+	/**
+	 * Write the tree to given file, but label terminal tips iteratively in separate trees / lines
+	 * @param outputTreeFile
+	 */
+	public void writeLabellingTipsRecursively(File outputTreeFile){
+		String labelledOutput = this.printIterativelyLabellingTips();
+		new BasicFileWriter(outputTreeFile, labelledOutput);
+	}
+
 	public void setTreeFile(File newTreeFile){
 		this.treeFile = newTreeFile;
 	}
@@ -337,5 +347,25 @@ public class NewickTreeRepresentation {
 	
 	public String getSpecificTree(int index) throws ArrayIndexOutOfBoundsException{
 		return this.separateTopologies[index];
+	}
+
+	/**
+	 * Returns a String containing one tree for each terminal taxon present, labelling each one in turn.
+	 * @return - String
+	 */
+	public String printIterativelyLabellingTips() {
+		// Create the TreeNode
+		TreeNode n = new TreeNode(this.treeString,1);
+		// Set up buffer
+		StringBuffer b = new StringBuffer();
+		// Iterate through taxa
+		Iterator itr = this.taxaNames.iterator();
+		while(itr.hasNext()){
+			String[] labelTaxa = {((String) itr.next()).toUpperCase()};
+			b.append(n.printRecursivelyLabelling(labelTaxa));
+			b.append(";\n");
+		}
+		// Return buffer
+		return b.toString();
 	}
 }

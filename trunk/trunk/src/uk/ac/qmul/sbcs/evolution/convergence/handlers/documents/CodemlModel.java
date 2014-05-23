@@ -122,6 +122,17 @@ public class CodemlModel {
 		return this.selectionIntervals;
 	}
 	
+	public String[] getFilteredLastCatProbabilities(){
+		String[] filteredProps = new String[this.estimatedOmegas.length];
+		for(int i=0;i<filteredProps.length;i++){
+			if(this.estimatedProportions[i][this.getNumberOfRates()-1]>0.5){
+				filteredProps[i] = ""+(this.estimatedProportions[i][this.getNumberOfRates()-1]);
+			}else{
+				filteredProps[i] = "NA";
+			}
+		}
+		return filteredProps;
+	}
 	/**
 	 * Do a regression of intervals (log-transformed, base e)
 	 * Intervals are calculated between each codon with estimated w > 1

@@ -499,7 +499,7 @@ public class TreeNode {
 			int tipsBelow = this.howManyTips();
 			int sizeOfMRCA = someTaxa.size();
 			/*
-			 * If this clade is ² desired monophyletic clade, return true if all daughters have monophyly
+			 * If this clade is Â² desired monophyletic clade, return true if all daughters have monophyly
 			 * Else return true if any daughters have monophyly
 			 */
 			if(tipsBelow <= sizeOfMRCA){
@@ -565,7 +565,21 @@ public class TreeNode {
 		}
 	}
 	
-	/**
+	  public ArrayList<String> getTipsInOrder(){
+		ArrayList<String> tips = new ArrayList<String>();
+		if(isTerminal){
+			tips.add(content);
+		}else{
+			for(TreeNode daughter:daughters){
+				for(String daughterTip:daughter.getTipsInOrder()){
+					tips.add(daughterTip);
+				}
+			}
+		}
+		return tips;
+	}
+
+  /**
 	 * Get a list of the taxa (terminal tips) below this node.
 	 * @return
 	 */

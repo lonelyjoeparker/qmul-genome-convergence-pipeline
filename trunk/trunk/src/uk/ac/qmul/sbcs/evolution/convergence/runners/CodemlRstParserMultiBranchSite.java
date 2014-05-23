@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.CodemlModel;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.*;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
@@ -319,7 +320,7 @@ public class CodemlRstParserMultiBranchSite {
 			}
 		}
 		case MODEL_TYPE_1_FREERATIOS:{ break;}	//TODO not implemented yet
-		case MODEL_TYPE_2_BRANCHSITE:{ break;}	//TODO not implemented yet
+		case MODEL_TYPE_2_BRANCHSITE:{ newModel = new CodemlParserBranchSite(bufData).getModelData(); break;}	//TODO not implemented yet
 		case MODEL_TYPE_3_CLADE:{
 			switch(nSsites){
 			case NSsites_TYPE_1_NEUTRAL: 		{ break;}	//TODO not implemented yet
@@ -421,208 +422,118 @@ public class CodemlRstParserMultiBranchSite {
 		Pattern p_rates  = Pattern.compile("w:");
 		Pattern p_branch = Pattern.compile("branch type");
 		Pattern p_nums   = Pattern.compile("[0-9\\.]+");
+		boolean firstmodel = true; //flag so the first model gets parsed
 		for(String line:rawData){
-			if(p_Model.matcher(line).find()){
-				// We're in a "Model: " line, probably a sitewise model then.. try and guess which NSsites (at least dump existing buffer)
-				modelType = CodemlModelType.MODEL_TYPE_0_DEFAULT;
-	
-				// is lastRatesCount available? guess NSsites
-				if(lastRatesCount>0){
-					// the rates count ('w: ' line) is > -1
-					// we can have a good guess at the NSsites from this which might be safer than Model line
-					switch(lastRatesCount){
-					case 2: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_1_NEUTRAL; break; // only one possibility, M1a
-					case 3: {
-						// could be M2a or M3
-						if(guessedLastModelNum == 2){
-							NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_2_SELECTION; break;
-						}else{
-							NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_3_DISCRETE; break;
-						}
-					}
-					case 5: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_4_FREQS; break;
-					case 10: {
-						// could be M5, M6 or M7. Most likely to be M7 so we'll switch and default to M7
-						switch(guessedLastModelNum){
-						case 5: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_5_GAMMA; break;
-						case 6: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_6_2GAMMA; break;
-						case 7: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_7_BETA; break;
-						default: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_7_BETA; break;
-						}
-					}
-					case 11: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_8_BETAW; break;
-					default: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_0_W; break;
-					}
+			if(line.equals("site class             0        1       2a       2b")){
+				if(firstmodel){
+					// nothing to do as it's the start of the first model
+					firstmodel = false;
 				}else{
-					// either they don't agree(?) or last rates count ==1 in which case both are -1
-					switch(guessedLastModelNum){
-					case 0: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_0_W; break;		// TODO FIXME Big problems ahead if this value..
-					case 1: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_1_NEUTRAL; break;
-					case 2: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_2_SELECTION; break;
-					case 3: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_3_DISCRETE; break;
-					case 4: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_4_FREQS; break;
-					case 5: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_5_GAMMA; break;
-					case 6: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_6_2GAMMA; break;
-					case 7: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_7_BETA; break;
-					case 8: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_8_BETAW; break;
-					default: {
-						// Fallthrough, both lastRatesCount and guessedModelNum should == -1. 
-						// I have literally no idea what would make this happen.
-						// TODO check this
-						assert(false); //throw an assertion for now..
-						NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_0_W;
-						break;
-					}
-					}
-				}
-	
-				// having worked out NSsites and modelType for the last model (hopefully), create CodemlModel
-	
-				if((NSsites == CodemlModelNSsitesTypes.NSsites_TYPE_0_W)||(NSsites == null)){
-					// not safe to add this model..
-					modelsList.add(null);
-					// re-init model guessing numbers
-					NSsites			= null;
-					modelType		= null;
-					bufData.clear();
-					lastRatesCount 	= -1;
-				}else{
+					// create a new model
+					modelType = CodemlModelType.MODEL_TYPE_2_BRANCHSITE;
+					NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_2_SELECTION;
+					lastRatesCount = 4;
 					modelsList.add(this.createCodemlModel(bufData,NSsites,modelType));
-					// re-init model guessing numbers
-					NSsites			= null;
-					modelType		= null;
 					bufData.clear();
-					lastRatesCount 	= -1;
-				}
-	
-				// now try and guess the new ones
-				guessedLastModelNum = -1;
-				Matcher matchNums = p_nums.matcher(line);
-				if(matchNums.find()){
-					guessedLastModelNum = Integer.parseInt(matchNums.group());
 				}
 			}else{
-				if(p_rates.matcher(line).find()){
-					// We're in a rates line, try and guess how many rates this way. probably model=0 and sitewise
-					lastRatesCount = 0;
-					Matcher numbers = p_nums.matcher(line);
-					while(numbers.find()){lastRatesCount++;}
-				}else if(p_branch.matcher(line).find()){
-					// We're ALSO in a rates line but probably Model C or D
-					modelType = CodemlModelType.MODEL_TYPE_3_CLADE;
-					String[] tokens = line.split(":"); // split the line using the ':' in the "branch type 0:" or "branch type 1:" part of the line
-					if(tokens.length>1){
-						lastRatesCount = 0;
-						Matcher numbers = p_nums.matcher(tokens[1]);
-						while(numbers.find()){lastRatesCount++;}
-					}
-				}
+				bufData.add(line);
 			}
-			bufData.add(line);
 		}
-	
+
 		// add the last model in the list
-	
-		// is lastRatesCount available? guess NSsites
-		if(lastRatesCount>0){
-			// the rates count ('w: ' line) is > -1
-			// we can have a good guess at the NSsites from this which might be safer than Model line
-			switch(lastRatesCount){
-			case 2: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_1_NEUTRAL; break; // only one possibility, M1a
-			case 3: {
-				// could be M2a or M3, or clade model
-				if((guessedLastModelNum == 2)||(modelType == CodemlModelType.MODEL_TYPE_3_CLADE)){
-					NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_2_SELECTION; break;
-				}else{
-					NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_3_DISCRETE; break;
-				}
-			}
-			case 4: {
-				// this is probably the branc-site model A, which has 4 sites
-				NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_4_FREQS; //NB this (sitewise) sites cat doesn't really apply to branch-site, which has sites in cat.2a and cat.2b rates (as opposed to cat.2 and cat.3 in the freqs model)
-				break;
-			}
-			case 5: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_4_FREQS; break;
-			case 10: {
-				// could be M5, M6 or M7. Most likely to be M7 so we'll switch and default to M7
-				switch(guessedLastModelNum){
-				case 5: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_5_GAMMA; break;
-				case 6: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_6_2GAMMA; break;
-				case 7: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_7_BETA; break;
-				default: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_7_BETA; break;
-				}
-			}
-			case 11: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_8_BETAW; break;
-			default: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_0_W; break;
-			}
-		}else{
-			// either they don't agree(?) or last rates count ==1 in which case both are -1
-			switch(guessedLastModelNum){
-			case 0: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_0_W; break;		// TODO FIXME Big problems ahead if this value..
-			case 1: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_1_NEUTRAL; break;
-			case 2: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_2_SELECTION; break;
-			case 3: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_3_DISCRETE; break;
-			case 4: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_4_FREQS; break;
-			case 5: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_5_GAMMA; break;
-			case 6: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_6_2GAMMA; break;
-			case 7: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_7_BETA; break;
-			case 8: NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_8_BETAW; break;
-			default: {
-				// Fallthrough, both lastRatesCount and guessedModelNum should == -1. 
-				// I have literally no idea what would make this happen.
-				// TODO check this
-				assert(false); //throw an assertion for now..
-				NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_0_W;
-				break;
-			}
-			}
-		}
-	
-		// having worked out NSsites and modelType for the last model (hopefully), create CodemlModel
-	
-		if((NSsites == CodemlModelNSsitesTypes.NSsites_TYPE_0_W)||(NSsites == null)){
-			// not safe to add this model..
-			modelsList.add(null);
-		}else{
-			if(modelType != CodemlModelType.MODEL_TYPE_3_CLADE){modelType = CodemlModelType.MODEL_TYPE_0_DEFAULT;} //TODO FIXME for now, guess that if the last model isn't Clade, it's sitewise
-			modelsList.add(this.createCodemlModel(bufData,NSsites,modelType));
-			// re-init model guessing numbers
-			NSsites			= null;
-			modelType		= null;
-			bufData.clear();
-			lastRatesCount 	= -1;
-		}
+		modelType = CodemlModelType.MODEL_TYPE_2_BRANCHSITE;
+		NSsites = CodemlModelNSsitesTypes.NSsites_TYPE_2_SELECTION;
+		lastRatesCount = 4;
+		modelsList.add(this.createCodemlModel(bufData,NSsites,modelType));
+
 	
 		// should have finished parsing all the models now, print summaries
-		this.printSummaryForSingleModelM1M2(singleRstFile, modelsList);
+//		this.printSummaryForSingleModelM1M2(singleRstFile, modelsList);
 		// print clade C, if there are any
-		this.printAnyCladeC(singleRstFile, modelsList);
+		this.printSelectedSitesIntervals(singleRstFile, modelsList);
 	}
 	
-	private void printAnyCladeC(File singleFile,ArrayList<CodemlModel> modelsList) {
-		CodemlModel CladeC = null;
-		for(CodemlModel eachModel:modelsList){
-			if(eachModel != null){
-				if(eachModel.getModelType() == CodemlModelType.MODEL_TYPE_3_CLADE){
-					CladeC = eachModel;
-				}
+	private void printSelectedSitesIntervals(File singleFile,ArrayList<CodemlModel> modelsList) {
+		// try and open the outfile so we can get the taxalist
+		String name = singleFile.getPath();
+		String outfileName = name.substring(0, name.length()-3) + "out";
+		File outfile = new File(outfileName);
+		ArrayList<String> outdat = new BasicFileReader().loadSequences(outfile,false, false);
+		Pattern tree = Pattern.compile("JOE_PARAM_TREEzxcv");
+		TreeNode readTree = null;
+		ArrayList<String> tips  = null;
+		for(String line:outdat){
+			Matcher isTree = tree.matcher(line);
+			if(isTree.find()){
+				String treeStr = line.substring(18).replaceAll("\\ +", "");
+				readTree = new TreeNode(treeStr,1);
+				readTree.printRecursively();
+				tips = readTree.getTipsInOrder();
 			}
 		}
-		if(CladeC != null){
+		int whichTip = 0;
+		for(CodemlModel someModel:modelsList){
 			// do clade c printing stuff
 			Float deltaLnL 	= Float.NaN;
 			Integer N 		= null;
 			Double Rsq 		= Double.NaN;
 			Double slope 	= Double.NaN;
 			Double intercept = Double.NaN;
+			int totalSites = someModel.getEstimatedOmegas().length;
+			// Indices of selected sites (by last site cat probabilities)
+			int[] selectionIndicesBySiteCats = new int[0];
+			// Intervals of selected sites (by last site cat probabilities)
+			int[] selectionIntervalsBySiteCats = new int [0];
+			// Indices of selected sites (by sums of BEB probability * omega products)
+			int[] selectionIndicesByBEBProbProdSums = new int[0];
+			// Intervals of selected sites (by sums of BEB probability * omega products)
+			int[] selectionIntervalsByBEBProbProdSums = new int [0];
+			int numSelectedBySiteCats = 0;
+			float ratioSelectedBySiteCats = 0.0f;
+			int medianIntervalBySiteCats = 0;
+			int numSelectedByBEBProbProdSums = 0;
+			float ratioSelectedByBEBProbProdSums = 0.0f;
+			int medianIntervalByBEBProbProdSums = 0;
 			
 			// lnL for comparisons (not done later)
-			float lnL = CladeC.getLnL();
+			float lnL = someModel.getLnL();
+
+			// Try and get the stats for intervals based on site cats
+			try {
+				selectionIndicesBySiteCats = someModel.getSelectedSitesByBEBProbabilities();
+				selectionIntervalsBySiteCats = someModel.getSelectionIntervalsByBEBProbabilities();
+				numSelectedBySiteCats = selectionIndicesBySiteCats.length;
+				if(numSelectedBySiteCats>0){
+					ratioSelectedBySiteCats = (float)((float)numSelectedBySiteCats) / ((float)totalSites);
+					medianIntervalBySiteCats = getMedian(selectionIntervalsBySiteCats);
+				}
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
+			// Try and get the stats for intervals based on sums of BEB probability * omega products
+			try {
+				selectionIndicesByBEBProbProdSums = someModel.getSelectedSitesByBEBProbabilities();
+				selectionIntervalsByBEBProbProdSums = someModel.getSelectionIntervalsByBEBProbabilityProducts();
+				numSelectedByBEBProbProdSums= selectionIndicesByBEBProbProdSums.length;
+				if(numSelectedByBEBProbProdSums>0){
+					ratioSelectedByBEBProbProdSums = (float)((float)numSelectedByBEBProbProdSums) / ((float)totalSites);
+					medianIntervalByBEBProbProdSums = getMedian(selectionIntervalsByBEBProbProdSums);
+				}
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			
+/*
+ * 
 			// do the regression - NB it will fail if not enough intervals (must be > 2 intervals, so > 3 sites selected)
 			LinearRegression loglinear;
 			try {
-				loglinear = CladeC.getIntervalsRegression();
+				loglinear = someModel.getIntervalsRegression();
 				N 			= loglinear.getN();
 				Rsq 		= loglinear.getRsq();
 				slope 		= loglinear.getBeta1();
@@ -631,69 +542,53 @@ public class CodemlRstParserMultiBranchSite {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+ * 
+ */
 			System.out.print(singleFile.getAbsolutePath());
-			System.out.print("\tNA");
+			System.out.print("\t"+tips.get(whichTip));
 			System.out.print("\t"+lnL);
 			System.out.print("\t"+deltaLnL);
 			System.out.print("\t"+N);
-			System.out.print("\t"+CladeC.getEstimatedOmegas().length);
-			try {
-				System.out.print("\t"+(((float)N)/((float)CladeC.getEstimatedOmegas().length)));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			System.out.print("\t"+totalSites);
 			System.out.print("\t"+Rsq);
 			System.out.print("\t"+slope);
 			System.out.print("\t"+intercept);
-			System.out.print("\t"+getMedian(CladeC.getSelectionIntervalsByBEBProbabilityProducts()));
-			if(this.printIntervals){System.out.print("\tc("+concatenateIntervalsFromBEB(CladeC)+")");}
-			float[] fg_omegas = CladeC.getGlobalOmegaRates();
+			// get omegas
+			float[] fg_omegas = someModel.getGlobalOmegaRates();
 			System.out.print("\t"+fg_omegas[fg_omegas.length-1]);
-			int numSelectedByProbs = 0;
-			float ratioSelected = 0.0f;
-			int[] selectionIndicesByPrBEB = new int[0];
-			int[] selectionIntervalsByPrBEB = new int [0];
-			try {
-				
-				selectionIndicesByPrBEB = CladeC.getSelectedSitesByBEBProbabilities();
-				numSelectedByProbs = selectionIndicesByPrBEB.length;
-				ratioSelected = (float)((float)numSelectedByProbs) / ((float)CladeC.getEstimatedOmegas().length);
-			} catch (NullPointerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// print median intervals
+			System.out.print("\t"+getMedian(selectionIntervalsBySiteCats));
+			System.out.print("\t"+getMedian(selectionIntervalsByBEBProbProdSums));
+			// print num selected and ratios
+			System.out.print("\t"+numSelectedBySiteCats);
+			System.out.print("\t"+numSelectedByBEBProbProdSums);
+			System.out.print("\t"+ratioSelectedBySiteCats);
+			System.out.print("\t"+ratioSelectedByBEBProbProdSums);
+
+			// print Ripley's K measures
+			float[] observedKofT_cats = this.calculateRipleysK(selectionIndicesBySiteCats, someModel.getEstimatedOmegas().length);
+			float[] observedKofT_sums = this.calculateRipleysK(selectionIndicesByBEBProbProdSums, someModel.getEstimatedOmegas().length);
+			for(int i=0;i<11;i++){
+				System.out.print("\t"+observedKofT_cats[i]);
 			}
-			System.out.print("\t"+numSelectedByProbs);
-			System.out.print("\t"+ratioSelected);
-			try {
-				selectionIntervalsByPrBEB = CladeC.getSelectionIntervalsByBEBProbabilities();
-				System.out.print("\t"+getMedian(selectionIntervalsByPrBEB));
-			} catch (NullPointerException e) {
-				// TODO Auto-generated catch block
-				System.out.println("\tNA");
-				e.printStackTrace();
+			for(int i=0;i<11;i++){
+				System.out.print("\t"+observedKofT_sums[i]);
 			}
 			if(this.printIntervals){
-				if(numSelectedByProbs>0){
-					System.out.print("\tc("+this.concatenateIntervals(selectionIndicesByPrBEB)+")");
-					System.out.print("\tc("+this.concatenateIntervals(selectionIntervalsByPrBEB)+")");
+				if(numSelectedByBEBProbProdSums>0){
+					System.out.print("\tc("+concatenateIntervalsFromBEB(someModel)+")");
+					System.out.print("\tc("+this.concatenateIntervals(selectionIndicesBySiteCats)+")");
+					System.out.print("\tc("+this.concatenateIntervals(selectionIntervalsBySiteCats)+")");
+					System.out.print("\tprops=c("+this.concatenateIntervals(someModel.getFilteredLastCatProbabilities())+")");
 				}else{
+					System.out.print("\tc()");
+					System.out.print("\tc()");
+					System.out.print("\tc()");
 					System.out.print("\tc()");
 				}
 			}
-			float[] observedKofT = this.calculateRipleysK(selectionIndicesByPrBEB, CladeC.getEstimatedOmegas().length);
-			System.out.print("\t"+observedKofT[0]);
-			System.out.print("\t"+observedKofT[1]);
-			System.out.print("\t"+observedKofT[2]);
-			System.out.print("\t"+observedKofT[3]);
-			System.out.print("\t"+observedKofT[4]);
-			System.out.print("\t"+observedKofT[5]);
-			System.out.print("\t"+observedKofT[6]);
-			System.out.print("\t"+observedKofT[7]);
-			System.out.print("\t"+observedKofT[8]);
-			System.out.print("\t"+observedKofT[9]);
-			System.out.print("\t"+observedKofT[10]);
 			System.out.println();
+			whichTip++;
 		}
 	}
 
@@ -829,6 +724,19 @@ public class CodemlRstParserMultiBranchSite {
 		}
 	}
 
+	private String concatenateIntervals(String[] indices){
+		String ret = "";
+//		int[] indices = someModel.getSelectedSitesByBEBProbabilities();
+		if(indices.length > 1){
+			for(String index:indices){
+				ret = ret + "," + index;
+			}
+			return ret.substring(1);
+		}else{
+			return ret;
+		}
+	}
+
 	private String concatenateIntervals(int[] indices){
 		String ret = "";
 //		int[] indices = someModel.getSelectedSitesByBEBProbabilities();
@@ -840,7 +748,6 @@ public class CodemlRstParserMultiBranchSite {
 		}else{
 			return ret;
 		}
-		
 	}
 	
 	/**
@@ -881,5 +788,103 @@ public class CodemlRstParserMultiBranchSite {
 		}
 			
 		return KofT;
+	}
+
+	private void printAnyCladeC(File singleFile,ArrayList<CodemlModel> modelsList) {
+		CodemlModel CladeC = null;
+		for(CodemlModel eachModel:modelsList){
+			if(eachModel != null){
+				if(eachModel.getModelType() == CodemlModelType.MODEL_TYPE_3_CLADE){
+					CladeC = eachModel;
+				}
+			}
+		}
+		if(CladeC != null){
+			// do clade c printing stuff
+			Float deltaLnL 	= Float.NaN;
+			Integer N 		= null;
+			Double Rsq 		= Double.NaN;
+			Double slope 	= Double.NaN;
+			Double intercept = Double.NaN;
+			
+			// lnL for comparisons (not done later)
+			float lnL = CladeC.getLnL();
+			
+			// do the regression - NB it will fail if not enough intervals (must be > 2 intervals, so > 3 sites selected)
+			LinearRegression loglinear;
+			try {
+				loglinear = CladeC.getIntervalsRegression();
+				N 			= loglinear.getN();
+				Rsq 		= loglinear.getRsq();
+				slope 		= loglinear.getBeta1();
+				intercept 	= loglinear.getBeta0();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.print(singleFile.getAbsolutePath());
+			System.out.print("\tNA");
+			System.out.print("\t"+lnL);
+			System.out.print("\t"+deltaLnL);
+			System.out.print("\t"+N);
+			System.out.print("\t"+CladeC.getEstimatedOmegas().length);
+			try {
+				System.out.print("\t"+(((float)N)/((float)CladeC.getEstimatedOmegas().length)));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.print("\t"+Rsq);
+			System.out.print("\t"+slope);
+			System.out.print("\t"+intercept);
+			System.out.print("\t"+getMedian(CladeC.getSelectionIntervalsByBEBProbabilityProducts()));
+			if(this.printIntervals){System.out.print("\tc("+concatenateIntervalsFromBEB(CladeC)+")");}
+			float[] fg_omegas = CladeC.getGlobalOmegaRates();
+			System.out.print("\t"+fg_omegas[fg_omegas.length-1]);
+			int numSelectedByProbs = 0;
+			float ratioSelected = 0.0f;
+			int[] selectionIndicesByPrBEB = new int[0];
+			int[] selectionIntervalsByPrBEB = new int [0];
+			try {
+				
+				selectionIndicesByPrBEB = CladeC.getSelectedSitesByBEBProbabilities();
+				numSelectedByProbs = selectionIndicesByPrBEB.length;
+				ratioSelected = (float)((float)numSelectedByProbs) / ((float)CladeC.getEstimatedOmegas().length);
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.print("\t"+numSelectedByProbs);
+			System.out.print("\t"+ratioSelected);
+			try {
+				selectionIntervalsByPrBEB = CladeC.getSelectionIntervalsByBEBProbabilities();
+				System.out.print("\t"+getMedian(selectionIntervalsByPrBEB));
+			} catch (NullPointerException e) {
+				// TODO Auto-generated catch block
+				System.out.println("\tNA");
+				e.printStackTrace();
+			}
+			if(this.printIntervals){
+				if(numSelectedByProbs>0){
+					System.out.print("\tc("+this.concatenateIntervals(selectionIndicesByPrBEB)+")");
+					System.out.print("\tc("+this.concatenateIntervals(selectionIntervalsByPrBEB)+")");
+				}else{
+					System.out.print("\tc()");
+				}
+			}
+			float[] observedKofT = this.calculateRipleysK(selectionIndicesByPrBEB, CladeC.getEstimatedOmegas().length);
+			System.out.print("\t"+observedKofT[0]);
+			System.out.print("\t"+observedKofT[1]);
+			System.out.print("\t"+observedKofT[2]);
+			System.out.print("\t"+observedKofT[3]);
+			System.out.print("\t"+observedKofT[4]);
+			System.out.print("\t"+observedKofT[5]);
+			System.out.print("\t"+observedKofT[6]);
+			System.out.print("\t"+observedKofT[7]);
+			System.out.print("\t"+observedKofT[8]);
+			System.out.print("\t"+observedKofT[9]);
+			System.out.print("\t"+observedKofT[10]);
+			System.out.println();
+		}
 	}
 }

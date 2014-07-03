@@ -515,7 +515,7 @@ public class CodemlRstParserMultiBranchSite {
 			
 			// Try and get the stats for intervals based on sums of BEB probability * omega products
 			try {
-				selectionIndicesByBEBProbProdSums = someModel.getSelectedSitesByBEBProbabilities();
+				selectionIndicesByBEBProbProdSums = someModel.getSelectedSitesByBEBProbabilityProducts();
 				selectionIntervalsByBEBProbProdSums = someModel.getSelectionIntervalsByBEBProbabilityProducts();
 				numSelectedByBEBProbProdSums= selectionIndicesByBEBProbProdSums.length;
 				if(numSelectedByBEBProbProdSums>0){

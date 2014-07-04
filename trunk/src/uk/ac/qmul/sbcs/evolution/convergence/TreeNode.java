@@ -499,7 +499,7 @@ public class TreeNode {
 			int tipsBelow = this.howManyTips();
 			int sizeOfMRCA = someTaxa.size();
 			/*
-			 * If this clade is Â² desired monophyletic clade, return true if all daughters have monophyly
+			 * If this clade is ² desired monophyletic clade, return true if all daughters have monophyly
 			 * Else return true if any daughters have monophyly
 			 */
 			if(tipsBelow <= sizeOfMRCA){
@@ -565,7 +565,7 @@ public class TreeNode {
 		}
 	}
 	
-	  public ArrayList<String> getTipsInOrder(){
+	public ArrayList<String> getTipsInOrder(){
 		ArrayList<String> tips = new ArrayList<String>();
 		if(isTerminal){
 			tips.add(content);
@@ -579,29 +579,29 @@ public class TreeNode {
 		return tips;
 	}
 
-  /**
-	 * Get a list of the taxa (terminal tips) below this node.
-	 * @return
-	 */
-	public String[] getTipsBelow(){
-		if(this.isTerminal){
-			// Simple, return the taxon name
-			String[] below = {this.content};
-			return below;
-		}else{
-			// Internal node. Poll daughters.
-			int howManyTips = this.howManyTips();
-			String[] below = new String[howManyTips];
-			int startIndex = 0;
-			for(TreeNode daughter:this.daughters){
-				// Get daughter tips, add vals to below array, starting at last index
-				String[] daughterTips = daughter.getTipsBelow();
-				for(int i=0;i<daughterTips.length;i++){
-					below[startIndex+i] = daughterTips[i];
+	  /**
+		 * Get a list of the taxa (terminal tips) below this node.
+		 * @return
+		 */
+		public String[] getTipsBelow(){
+			if(this.isTerminal){
+				// Simple, return the taxon name
+				String[] below = {this.content};
+				return below;
+			}else{
+				// Internal node. Poll daughters.
+				int howManyTips = this.howManyTips();
+				String[] below = new String[howManyTips];
+				int startIndex = 0;
+				for(TreeNode daughter:this.daughters){
+					// Get daughter tips, add vals to below array, starting at last index
+					String[] daughterTips = daughter.getTipsBelow();
+					for(int i=0;i<daughterTips.length;i++){
+						below[startIndex+i] = daughterTips[i];
+					}
+					startIndex += daughterTips.length;
 				}
-				startIndex += daughterTips.length;
+				return below;
 			}
-			return below;
 		}
-	}
 }

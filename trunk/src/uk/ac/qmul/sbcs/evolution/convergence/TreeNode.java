@@ -579,29 +579,29 @@ public class TreeNode {
 		return tips;
 	}
 
-	  /**
-		 * Get a list of the taxa (terminal tips) below this node.
-		 * @return
-		 */
-		public String[] getTipsBelow(){
-			if(this.isTerminal){
-				// Simple, return the taxon name
-				String[] below = {this.content};
-				return below;
-			}else{
-				// Internal node. Poll daughters.
-				int howManyTips = this.howManyTips();
-				String[] below = new String[howManyTips];
-				int startIndex = 0;
-				for(TreeNode daughter:this.daughters){
-					// Get daughter tips, add vals to below array, starting at last index
-					String[] daughterTips = daughter.getTipsBelow();
-					for(int i=0;i<daughterTips.length;i++){
-						below[startIndex+i] = daughterTips[i];
-					}
-					startIndex += daughterTips.length;
+	/**
+	 * Get a list of the taxa (terminal tips) below this node.
+	 * @return
+	 */
+	public String[] getTipsBelow(){
+		if(this.isTerminal){
+			// Simple, return the taxon name
+			String[] below = {this.content};
+			return below;
+		}else{
+			// Internal node. Poll daughters.
+			int howManyTips = this.howManyTips();
+			String[] below = new String[howManyTips];
+			int startIndex = 0;
+			for(TreeNode daughter:this.daughters){
+				// Get daughter tips, add vals to below array, starting at last index
+				String[] daughterTips = daughter.getTipsBelow();
+				for(int i=0;i<daughterTips.length;i++){
+					below[startIndex+i] = daughterTips[i];
 				}
-				return below;
+				startIndex += daughterTips.length;
 			}
+			return below;
 		}
+	}
 }

@@ -3,6 +3,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.runners;
 import java.io.File;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.SequenceTypeNotSupportedException;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 
 /** 
@@ -18,6 +19,8 @@ public class BasicAlignmentStats {
 	private File inputFile;
 	private AlignedSequenceRepresentation data;
 	private boolean doSitewiseEntropy = false;
+	private boolean doSharedSubsIn = false;
+	private boolean doSharedPrivateSubsIn = false;
 	
 	public BasicAlignmentStats(String string) {
 		// TODO Auto-generated constructor stub
@@ -27,8 +30,15 @@ public class BasicAlignmentStats {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		BasicAlignmentStats quick = new BasicAlignmentStats(args[0]);
+		
 		if(args.length>1){
-			quick.doSitewiseEntropy = Boolean.parseBoolean(args[1]);
+			if(args[1].equals("shared")){
+				quick.doSharedSubsIn = true;
+			}else if(args[1].equals("private")){
+				quick.doSharedPrivateSubsIn  = true;
+			}else{
+				quick.doSitewiseEntropy = Boolean.parseBoolean(args[1]);
+			}
 		}
 		quick.go();
 	}
@@ -44,6 +54,21 @@ public class BasicAlignmentStats {
 					data.calculateAlignmentStats(false);
 					if(this.doSitewiseEntropy){
 						siteEntropies = data.getSitewiseEntropies(true);
+					}
+					if(this.doSharedSubsIn||this.doSharedPrivateSubsIn){
+						if (!data.isAA()) {
+							try {
+								data.translate(true);
+							} catch (SequenceTypeNotSupportedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						if(this.doSharedPrivateSubsIn){
+							data.printSharedPrivateSubs();
+						}else{
+							data.printSharedSubs();
+						}
 					}
 				} catch (TaxaLimitException e) {
 					// TODO Auto-generated catch block
@@ -86,6 +111,21 @@ public class BasicAlignmentStats {
 				data.calculateAlignmentStats(false);
 				if(this.doSitewiseEntropy){
 					siteEntropies = data.getSitewiseEntropies(true);
+				}
+				if(this.doSharedSubsIn||this.doSharedPrivateSubsIn){
+					if (!data.isAA()) {
+						try {
+							data.translate(true);
+						} catch (SequenceTypeNotSupportedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					if(this.doSharedPrivateSubsIn){
+						data.printSharedPrivateSubs();
+					}else{
+						data.printSharedSubs();
+					}
 				}
 			} catch (TaxaLimitException e) {
 				// TODO Auto-generated catch block

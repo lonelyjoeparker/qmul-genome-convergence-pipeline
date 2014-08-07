@@ -2041,4 +2041,95 @@ public class AlignedSequenceRepresentation implements Serializable {
 		this.padSequences();
 		this.determineInvariantSites();
 	}
+
+	public void printSharedSubs() {
+		// TODO Auto-generated method stub
+		int diag = 0;
+		for(String taxon_2:this.taxaListArray){
+			for(int i=0;(i<this.numberOfTaxa)&&(i!=diag);i++){
+				String taxon_1 = this.taxaListArray[i];
+				String shared = this.sharedSubsBetween(taxon_1,taxon_2);
+				if(shared != null){
+					System.out.println("shared in:\t"+taxon_1+"\t"+taxon_2+"("+diag+","+i+")\t"+this.numberOfSites+"\t"+shared);
+				}
+			}
+			diag++;
+		}
+		System.out.println();
+	}
+
+	public void printSharedPrivateSubs() {
+		// TODO Auto-generated method stub
+		int diag = 0;
+		for(String taxon_2:this.taxaListArray){
+			for(int i=0;(i<this.numberOfTaxa)&&(i!=diag);i++){
+				String taxon_1 = this.taxaListArray[i];
+				String shared = this.privateSharedSubsBetween(taxon_1,taxon_2);
+				if(shared != null){
+					System.out.println("shared in:\t"+taxon_1+"\t"+taxon_2+"("+diag+","+i+")\t"+this.numberOfSites+"\t"+shared);
+				}
+			}
+			diag++;
+		}
+		System.out.println();
+	}
+
+	private String privateSharedSubsBetween(String taxon_1, String taxon_2) {
+		// first build array of chars seen (other taxa)
+		HashSet<Character>[] charsSeen = new HashSet[this.numberOfSites];
+		Iterator itr = this.sequenceHash.keySet().iterator();
+		while(itr.hasNext()){
+			String background_taxon = (String)itr.next();
+			if(!(background_taxon.equals(taxon_1))&&!(background_taxon.equals(taxon_2))){
+				char[] background_sequence = sequenceHash.get(background_taxon);
+				for(int i=0;i<this.numberOfSites;i++){
+					if(charsSeen[i]==null){
+						// first sequence, charset not initalised
+						charsSeen[i] = new HashSet<Character>();
+					}
+					// add char seen (duplicates discarded anyway...
+					charsSeen[i].add(background_sequence[i]);
+				}
+			}
+		}
+		// if taxon_1 char appears in seenlist, no point continuing
+		StringBuffer buf = new StringBuffer();
+		char[] seq_1 = this.sequenceHash.get(taxon_1);
+		char[] seq_2 = this.sequenceHash.get(taxon_2);
+		int matches = 0;
+		for(int i=0;i<seq_1.length;i++){
+			if((seq_1[i] == seq_2[i])&&(!charsSeen[i].contains(seq_1[i]))&&(seq_1[i] !='-')){
+				buf.append(seq_1[i]);
+				matches++;
+			}else{
+				buf.append("^");
+			}
+		}
+		if(matches > 0){
+			return matches+"\t"+buf.toString();
+		}else{
+			return null;
+		}
+	}
+
+	private String sharedSubsBetween(String taxon_1, String taxon_2) {
+		// TODO Auto-generated method stub
+		StringBuffer buf = new StringBuffer();
+		char[] seq_1 = this.sequenceHash.get(taxon_1);
+		char[] seq_2 = this.sequenceHash.get(taxon_2);
+		int matches = 0;
+		for(int i=0;i<seq_1.length;i++){
+			if(seq_1[i] == seq_2[i]){
+				buf.append(seq_1[i]);
+				matches++;
+			}else{
+				buf.append("^");
+			}
+		}
+		if(matches > 0){
+			return matches+"\t"+buf.toString();
+		}else{
+			return null;
+		}
+	}
 }

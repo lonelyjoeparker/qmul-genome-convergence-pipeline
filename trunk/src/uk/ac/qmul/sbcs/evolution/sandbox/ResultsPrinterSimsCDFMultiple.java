@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import uk.ac.qmul.sbcs.evolution.convergence.util.CustomFileWriter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.EnsemblCodeGuesser;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 import uk.ac.qmul.sbcs.evolution.convergence.util.stats.PairedEmpirical;
@@ -311,14 +312,16 @@ public class ResultsPrinterSimsCDFMultiple{
 								boolean[] preferred = someRun.getPreferred();
 								int nTax = someRun.getNumberOfTaxa();
 								int nSites = someRun.getNumberOfSites();
-
-								String[] nameSplit = someRun.getInputFile().getPath().split("_");
-								if(lociData.containsKey(nameSplit[5].toUpperCase())){
-									System.out.print(lociData.get(nameSplit[5].toUpperCase())+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
-									buf.append(lociData.get(nameSplit[5].toUpperCase())+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+								
+								// Guess the ENSG (ensembl code) of the filename from the input file
+								String guessedLocus = EnsemblCodeGuesser.guess(someRun.getInputFile().getPath());
+								// try and print some stats about it
+								if(lociData.containsKey(guessedLocus)){
+									System.out.print(lociData.get(guessedLocus.toUpperCase())+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									buf.append(lociData.get(guessedLocus.toUpperCase())+"\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}else{
-									System.out.print(nameSplit[5].toUpperCase()+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
-									buf.append(nameSplit[5].toUpperCase()+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									System.out.print(guessedLocus.toUpperCase()+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
+									buf.append(guessedLocus.toUpperCase()+"\tNA\tNA\tNA\t"+someRun.getHomogeneityChiSq()+"\t"+model+"\t"+someRun.getFilterFactor()+"\t"+sli[0]+"\t"+lengths[0]+"\t"+alphas[0]+"\t"+nTax+"\t"+nSites);
 								}
 
 								Integer prefTree = null;

@@ -2098,7 +2098,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 		char[] seq_2 = this.sequenceHash.get(taxon_2);
 		int matches = 0;
 		for(int i=0;i<seq_1.length;i++){
-			if((seq_1[i] == seq_2[i])&&(!charsSeen[i].contains(seq_1[i]))&&(seq_1[i] !='-')){
+			if((seq_1[i] == seq_2[i])&&(!charsSeen[i].contains(seq_1[i]))&&(seq_1[i] !='-')&&(seq_1[i] != 'X')){
 				buf.append(seq_1[i]);
 				matches++;
 			}else{

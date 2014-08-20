@@ -108,6 +108,13 @@ public class AlignedSequenceRepresentation implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Deprecated
+	/**
+	 * Method to perform a deep copy of an AlignedSequenceRepresentation. Not implemented.
+	 */
+	public AlignedSequenceRepresentation cloneDeep(){
+		return null;
+	}
 	/**
 	 * A private method to build the numberOfSites by iteration through data sequenceHash
 	 * @return the numberOfSites
@@ -2072,6 +2079,19 @@ public class AlignedSequenceRepresentation implements Serializable {
 			diag++;
 		}
 		System.out.println();
+	}
+
+	/**
+	 * Prints substitutions shared between two taxa exclusively (no other taxa) to stdout
+	 * @param taxon_1
+	 * @param taxon_2
+	 */
+	public void printSharedPrivateSubs(String taxon_1, String taxon_2) {
+		// TODO Auto-generated method stub
+		String shared = this.privateSharedSubsBetween(taxon_1,taxon_2);
+		if(shared != null){
+			System.out.println("shared in:\t"+taxon_1+"\t"+taxon_2+")\t"+this.numberOfSites+"\t"+shared);
+		}
 	}
 
 	private String privateSharedSubsBetween(String taxon_1, String taxon_2) {

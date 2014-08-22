@@ -1,6 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.convergence.runners;
 
 import java.io.File;
+import java.util.HashMap;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.SequenceTypeNotSupportedException;
@@ -21,6 +22,9 @@ public class BasicAlignmentStats {
 	private boolean doSitewiseEntropy = false;
 	private boolean doSharedSubsIn = false;
 	private boolean doSharedPrivateSubsIn = false;
+	private boolean doSharedPrivateSubsInSubset = false;
+	private String[] focusTaxa = null;
+	private String[] subsetTaxa = null;
 	
 	public BasicAlignmentStats(String string) {
 		// TODO Auto-generated constructor stub
@@ -36,12 +40,18 @@ public class BasicAlignmentStats {
 				quick.doSharedSubsIn = true;
 			}else if(args[1].equals("private")){
 				quick.doSharedPrivateSubsIn  = true;
+			}else if(args[1].equals("subset")){
+				quick.doSharedPrivateSubsInSubset  = true;
+				// get the focus and subset taxon lists from args[2] and args[3]
+				quick.focusTaxa = args[2].split("\\|");
+				quick.subsetTaxa = args[3].split("\\|");
 			}else{
 				quick.doSitewiseEntropy = Boolean.parseBoolean(args[1]);
 			}
 		}
 		quick.go();
 	}
+	
 	private void go() {
 		// TODO Auto-generated method stub
 		if(inputFile.isDirectory()){
@@ -55,7 +65,7 @@ public class BasicAlignmentStats {
 					if(this.doSitewiseEntropy){
 						siteEntropies = data.getSitewiseEntropies(true);
 					}
-					if(this.doSharedSubsIn||this.doSharedPrivateSubsIn){
+					if(this.doSharedSubsIn||this.doSharedPrivateSubsIn||this.doSharedPrivateSubsInSubset){
 						if (!data.isAA()) {
 							try {
 								data.translate(true);
@@ -64,10 +74,12 @@ public class BasicAlignmentStats {
 								e.printStackTrace();
 							}
 						}
-						if(this.doSharedPrivateSubsIn){
+						if(this.doSharedSubsIn){
+							data.printSharedSubs();
+						}else if(this.doSharedPrivateSubsIn){
 							data.printSharedPrivateSubs();
 						}else{
-							data.printSharedSubs();
+							this.printSubsetOfSharedSubsWithFocus(this.focusTaxa, this.subsetTaxa,child);
 						}
 					}
 				} catch (TaxaLimitException e) {
@@ -112,7 +124,7 @@ public class BasicAlignmentStats {
 				if(this.doSitewiseEntropy){
 					siteEntropies = data.getSitewiseEntropies(true);
 				}
-				if(this.doSharedSubsIn||this.doSharedPrivateSubsIn){
+				if(this.doSharedSubsIn||this.doSharedPrivateSubsIn||this.doSharedPrivateSubsInSubset){
 					if (!data.isAA()) {
 						try {
 							data.translate(true);
@@ -121,10 +133,12 @@ public class BasicAlignmentStats {
 							e.printStackTrace();
 						}
 					}
-					if(this.doSharedPrivateSubsIn){
+					if(this.doSharedSubsIn){
+						data.printSharedSubs();
+					}else if(this.doSharedPrivateSubsIn){
 						data.printSharedPrivateSubs();
 					}else{
-						data.printSharedSubs();
+						this.printSubsetOfSharedSubsWithFocus(this.focusTaxa, this.subsetTaxa, this.inputFile);
 					}
 				}
 			} catch (TaxaLimitException e) {
@@ -208,4 +222,64 @@ public class BasicAlignmentStats {
 		return retval;
 	}
 
+	/**
+	 * Does a private shared amino acids comparison between two sets of taxa; one set (the <i>focus</i> set) 
+	 * being compared simultaneously - that is, substitutions must be exclusive to either/each of the focal set;
+	 * and a separate subset of the aligned taxa (the <i>subset set</i>) which are compared iteratively, e.g.
+	 * for each in turn the others are removed from the alignment.
+	 * 
+	 * <p>TODO currently assumes focus taxa n=2. Generalise for any n<numberOfTaxa.</p>
+	 * 
+	 * @param focusTaxa - taxa for simultaneous pairwise private shared sites comparison (e.g. 'bos','taurus')
+	 * @param subsetTaxa - taxa to be iteratively compared in isolation (e.g. for each n, all but n removed)
+	 */
+	private void printSubsetOfSharedSubsWithFocus(String[] focusTaxa, String[] subsetTaxa, File originalInput){
+		// storing the masked alignments in a hashset to aid debugging...
+		HashMap<String,AlignedSequenceRepresentation> downsampledAlignments = new HashMap<String,AlignedSequenceRepresentation>();
+		// create the subsets
+		for(String subsetTaxonInTurn:subsetTaxa){
+			// clone the alignment
+			//AlignedSequenceRepresentation maskedAlignment = data.clone();
+			// massive megaballs. cloning isn't working. can we reinstantiate..?
+			AlignedSequenceRepresentation maskedAlignment = new AlignedSequenceRepresentation();
+			try {
+				maskedAlignment.loadSequences(originalInput, false);
+			} catch (TaxaLimitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			maskedAlignment.calculateAlignmentStats(false);
+			try {
+				maskedAlignment.translate(true);
+			} catch (SequenceTypeNotSupportedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			/*
+			 * mask (remove, as no mask method implemented) all
+			 * but the current member of the subset..
+			 * .. I know this is bad iteration practice but in a hurry
+			 */
+			String[] taxaToMask = new String[subsetTaxa.length-1];
+			int index = 0;
+			for(String subsetTaxonToMask:subsetTaxa){
+				if(subsetTaxonToMask != subsetTaxonInTurn){
+					taxaToMask[index] = subsetTaxonToMask;
+					index++;
+				}
+			}
+			// mask
+			maskedAlignment.removeTaxa(taxaToMask);
+			// put the masked alignment in hashmap
+			downsampledAlignments.put(subsetTaxonInTurn, maskedAlignment);
+			
+			/*
+			 * Now we have a masked alignment, look for shared private
+			 * pairwise subs
+			 */
+			for(String focalTaxon:focusTaxa){
+				maskedAlignment.printSharedPrivateSubs(focalTaxon, subsetTaxonInTurn);
+			}
+		}
+	}
 }

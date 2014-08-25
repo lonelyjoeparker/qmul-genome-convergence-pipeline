@@ -4,6 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * Wrapper class for executing risky system commands via perl wrapper script (runCmd.pl) and capturing stdout stream.
+ * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+ *
+ */
 public class VerboseSystemCommand {
 	public final String exeString;
 	public StringBuffer output;

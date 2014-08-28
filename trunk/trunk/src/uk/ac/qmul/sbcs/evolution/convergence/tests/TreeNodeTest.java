@@ -356,6 +356,15 @@ public class TreeNodeTest extends TestCase {
 		}
 	}
 	
+	public void testNodeNumbers(){
+		String numberedTree = "(((9_LOXODONTA, 3_DASYPUS) 25 , (((((2_CANIS, 7_FELIS) 30 , (5_EQUUS, ((21_TURSIOPS, 1_BOS) 33 , 22_VICUGNA) 32 ) 31 ) 29 , ((17_PTERONOTUS, 13_MYOTIS) 35 , ((19_RHINOLOPHUS, 10_MEGADERMA) 37 , (18_PTEROPUS, 4_EIDOLON) 38 ) 36 ) 34 ) 28 , (20_SOREX, 6_ERINACEUS) 39 ) 27 , ((12_MUS, (15_ORYCTOLAGUS, 14_OCHOTONA) 42 ) 41 , (16_PAN, 8_HOMO) 43 ) 40 ) 26 ) 24 , 11_MONODELPHIS) 23 ;";
+		// ought to process this tree to get a) acceptable tree with terminal taxa for treenode constructor; b) list of terminal taxa numbers, incl. highest number
+		TreeNode numbered = new TreeNode(numberedTree.replaceAll("\\s", ""),1);
+		// then root numbering... check it follows preorder traversal rules..
+		numbered.printRecursively();
+		numbered.printTree();
+	}
+	
 	public void testContainsMonophyleticClade() throws Exception{
 		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);

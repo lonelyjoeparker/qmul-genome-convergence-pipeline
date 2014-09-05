@@ -2175,7 +2175,14 @@ public class AlignedSequenceRepresentation implements Serializable {
 		int[] targetSitesIndices;
 		// TODO determine which sites we will converge at.
 		// NOTE WELL - the Perl implementation of this uses a different index generation method for AA vs. codon data. Need to remember why this is.
-		if(this.invariantSitesIndices == null){this.determineInvariantSites();}
+		
+		/*
+		 * first determine invariant sites. 
+		 * this may have been done already but these indices are crucial, 
+		 * so repeat in case there's been a translation, sites removed, taxa removed etc since initialisation
+		 * 
+		 */
+		this.determineInvariantSites();
 		System.out.println("Attempting to simulate convergence in "+numberOfSitesToConverge+" sites.\nThere are "+numberOfSites+" in total; "+numberOfInvariantSites+" invariant sites on which to simulate convergence.");
 		HashSet<Integer> targetSet = new HashSet<Integer>();
 		if(numberOfInvariantSites < numberOfSitesToConverge){
@@ -2195,21 +2202,32 @@ public class AlignedSequenceRepresentation implements Serializable {
 			 */
 		}else{
 			targetSitesIndices = new int[numberOfSitesToConverge];
+			// randomisations will be unfairly slow if across large alignemnt with few invariant sites
+			// so create specific array with indices of only invariants
+			int[] invariantSitesIndicesOnly = new int[this.numberOfInvariantSites];
+			int j=0;
+			for(int i=0;i<numberOfSites;i++){
+				if(invariantSitesIndices[i]){
+					invariantSitesIndicesOnly[j] = i;
+					j++;
+				}
+			}
 			// TODO time to randomize and get those indices.
 			Random generator = new Random(System.currentTimeMillis());
 			while(targetSet.size() < numberOfSitesToConverge){
-				int possibleIndex = generator.nextInt(numberOfSites);
-				if(invariantSitesIndices[possibleIndex]){
-					targetSet.add(possibleIndex);
-				}
+				int possibleIndex = generator.nextInt(numberOfInvariantSites);
+				targetSet.add(invariantSitesIndicesOnly[possibleIndex]);
 			}
 		}
 	
+		// copy the target site indices set to the target sites indices array
 		Iterator definedTargetSites = targetSet.iterator();
 		for(int definedIndices=0; definedIndices<targetSitesIndices.length;definedIndices++){
 			targetSitesIndices[definedIndices] = Integer.parseInt(definedTargetSites.next().toString());
 			System.out.print(targetSitesIndices[definedIndices]+", ");
 		}			
+		
+		// do the actual convergence
 		System.out.println("\nStarting convergence");
 		switch(alignmentSequenceCodingType){
 			case AA:

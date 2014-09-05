@@ -734,7 +734,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 	 * @throws TaxaAbsentFromAlignmentException  - In cases where the taxaToForce are not present in the alignment (check case of taxa?) 
 	 * @throws VariantSitesUnavailableException 
 	 */
-	public void simulateConvergence(String masterTaxon, String[] taxaToForce, int numberOfSitesToConverge) throws TaxaAbsentFromAlignmentException, VariantSitesUnavailableException{
+	public void simulateConvergenceInVariantSites(String masterTaxon, String[] taxaToForce, int numberOfSitesToConverge) throws TaxaAbsentFromAlignmentException, VariantSitesUnavailableException{
 		char[] masterSequence = sequenceHash.get(masterTaxon);
 		int[] targetSitesIndices;
 		// TODO determine which sites we will converge at.
@@ -2151,5 +2151,117 @@ public class AlignedSequenceRepresentation implements Serializable {
 		}else{
 			return null;
 		}
+	}
+
+	/**
+	 *	
+	 * 	Purpose:	constrain a subset of taxa to have the same AA
+	 *	<p>execution:	
+	 * <pre>for i in num sites{
+	 *	random indices
+	 *	get target master taxon as char array /// NB: codon triplets
+	 *	read array[indices]
+	 *	replace
+	 *}</pre> 
+	 * 
+	 * @param masterTaxon - The taxon that is being treated as the master. Sites will be converged to this taxon's sequence randomly
+	 * @param taxaToForce - The taxa that in which convergence is to be simulated.
+	 * @param numberOfSitesToConverge - The number of sites to be forced to converge.
+	 * @throws TaxaAbsentFromAlignmentException  - In cases where the taxaToForce are not present in the alignment (check case of taxa?) 
+	 * @throws VariantSitesUnavailableException 
+	 */
+	public void simulateConvergenceInInvariantSites(String masterTaxon, String[] taxaToForce, int numberOfSitesToConverge) throws TaxaAbsentFromAlignmentException, VariantSitesUnavailableException{
+		char[] masterSequence = sequenceHash.get(masterTaxon);
+		int[] targetSitesIndices;
+		// TODO determine which sites we will converge at.
+		// NOTE WELL - the Perl implementation of this uses a different index generation method for AA vs. codon data. Need to remember why this is.
+		if(this.invariantSitesIndices == null){this.determineInvariantSites();}
+		System.out.println("Attempting to simulate convergence in "+numberOfSitesToConverge+" sites.\nThere are "+numberOfSites+" in total; "+numberOfInvariantSites+" invariant sites on which to simulate convergence.");
+		HashSet<Integer> targetSet = new HashSet<Integer>();
+		if(numberOfInvariantSites < numberOfSitesToConverge){
+			System.out.println("WARNING: Convergence simulation is parametized for more convergent sites than are available!\nI will instead simulate as many sites as possible (e.g. all invariant sites - master and slave taxa will be identical. This seems like a very bad idea...");
+			numberOfSitesToConverge = numberOfInvariantSites;
+			targetSitesIndices = new int[numberOfSitesToConverge];
+			// We don't need to piss about with randomizations to fill the array, we can just write the variant sites' indices across.
+			for(int i=0;i<numberOfSites;i++){
+				if(invariantSitesIndices[i]){
+					targetSet.add(i);
+				}
+			}
+			/*
+			 * Don't throw the exception as it's not handled at the moment
+			 * 
+			 * throw new VariantSitesUnavailableException();
+			 */
+		}else{
+			targetSitesIndices = new int[numberOfSitesToConverge];
+			// TODO time to randomize and get those indices.
+			Random generator = new Random(System.currentTimeMillis());
+			while(targetSet.size() < numberOfSitesToConverge){
+				int possibleIndex = generator.nextInt(numberOfSites);
+				if(invariantSitesIndices[possibleIndex]){
+					targetSet.add(possibleIndex);
+				}
+			}
+		}
+	
+		Iterator definedTargetSites = targetSet.iterator();
+		for(int definedIndices=0; definedIndices<targetSitesIndices.length;definedIndices++){
+			targetSitesIndices[definedIndices] = Integer.parseInt(definedTargetSites.next().toString());
+			System.out.print(targetSitesIndices[definedIndices]+", ");
+		}			
+		System.out.println("\nStarting convergence");
+		switch(alignmentSequenceCodingType){
+			case AA:
+				// TODO force AA convergence
+				// TODO pay close attention to perl implementation
+				Random generator = new Random(System.currentTimeMillis());
+				for(int index:targetSitesIndices){
+					/*
+					 * 	This site should be invariant
+					 * 	So we need to pick a new AA at random.
+					 *	It should not be the existing one..
+					 */
+					char currentAA = masterSequence[index];	// what's currently here
+					char convergeToAA = currentAA;				// init converve char
+					int AAbasisCharsLimitNoStop = this.basisCharsAminoAcid.length - 1; // the last basis char is a stop '*' char; we don't want to pick from this
+					while(convergeToAA == currentAA){			// loopthrough until new AA picked
+						char proposeAA = this.basisCharsAminoAcid[generator.nextInt(AAbasisCharsLimitNoStop)];
+						if((proposeAA != currentAA) && (proposeAA != '*')){
+							convergeToAA = proposeAA;
+						}
+					}
+					// actually force the convergence
+					masterSequence[index]	= convergeToAA;
+					// iterate through target taxa
+					// lots of hash remove/put ops so this will be slow...
+					for(String taxon:taxaToForce){
+						if(taxaList.contains(taxon)){
+							char[] currentSequence = sequenceHash.remove(taxon);
+							// Do stuff to it
+							currentSequence[index] = convergeToAA;
+							sequenceHash.put(taxon, currentSequence);
+						}else{
+							throw new TaxaAbsentFromAlignmentException();
+						}
+					}
+				}
+
+				break;
+			case RNA:
+				// TODO force RNA/DNA (e.g., codon) convergence
+				// TODO pay close attention to perl implementation
+				break;
+			case DNA:
+				// TODO force RNA/DNA (e.g., codon) convergence
+				// TODO pay close attention to perl implementation
+				break;
+			case CODON:
+				// TODO this is not implemented... 
+				// TODO urrrrrrrk
+			default:
+				break;
+		}
+		this.determineInvariantSites();
 	}
 }

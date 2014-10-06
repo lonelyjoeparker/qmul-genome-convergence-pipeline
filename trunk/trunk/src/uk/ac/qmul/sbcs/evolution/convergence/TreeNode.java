@@ -21,6 +21,7 @@ public class TreeNode {
 	String content;
 	int startPos;
 	int endPos;
+	int nodeNumber; // numbering of nodes; tips in order unless tip content is entirely numeric, in which case tips == numbers assumed. Internal nodes numbered L-R and root-tip
 	double branchLength;
 	public HashSet<String>[] states;
 	int fitchStateChanges;
@@ -146,6 +147,11 @@ public class TreeNode {
 			this.branchLength = Double.parseDouble(brLength);
 		}
 	}
+	
+	/**
+	 * numbering of nodes; tips in order unless tip content is entirely numeric, in which case tips == numbers assumed. Internal nodes numbered L-R and root-tip
+	 */
+	private void SetNodeNumbers(){}
 
 	/**
 	 * This calls a post-order (leaves-to-root) traversal of the tree, terminal taxa will have their states determined by the input list.

@@ -92,6 +92,39 @@ public class TreeNodeTest extends TestCase {
 			fail();
 		}
 	}
+
+	/*
+	 * Test that the TreeNode is able to label tips separately and correctly
+	 */
+	public void testIterativeNodenumbering(){
+		String input="(((LOXODONTA:0.023584,DASYPUS:0.029504):0.000004,((((CANIS:0.076115,(EQUUS:0.014067,((TURSIOPS:0.000004,BOS:0.014131):0.003492,VICUGNA:0.021123):0.010546):0.000004):0.000004,((PTERONOTUS:0.025088,MYOTIS:0.032407):0.003456,((RHINOLOPHUS:0.008430,MEGADERMA:0.031984):0.005840,(PTEROPUS:0.000004,EIDOLON:0.006953):0.021190):0.000004):0.000004):0.000004,(SOREX:0.088536,ERINACEUS:0.044769):0.010306):0.003510,((MUS:0.090365,(ORYCTOLAGUS:0.011232,OCHOTONA:0.044380):0.036082):0.001096,(PAN:0.000004,HOMO:0.000004):0.013368):0.006229):0.001213):0.165422,MONODELPHIS:0.138559);";
+		TreeNode n1 = new TreeNode(input,1);
+		
+		// test the numbering
+		n1.setNodeNumbers(0,n1.howManyTips());
+		
+		System.out.println(n1.printRecursivelyAsNumberedNodes());
+		System.out.println(n1.printRecursively());
+
+		String inputNumberedTips="(((8,3),((((2,(5,((20,1),21))),((16,12),((18,9),(17,4)))),(19,6)),((11,(14,13)),(15,7)))),10);";
+		TreeNode numbered = new TreeNode(inputNumberedTips,1);
+		
+		// test the numbering
+		numbered.setNodeNumbers(0,numbered.howManyTips());
+		
+		System.out.println(numbered.printRecursivelyAsNumberedNodes());
+		System.out.println(numbered.printRecursively());
+
+		inputNumberedTips="(((LOXODONTA,DASYPUS),((((2,(5,((20,1),21))),((16,12),((18,9),(17,4)))),(19,6)),((11,(ORYCTOLAGUS,13_OCHOTONA)),(15,HOMO)))),10);";
+		numbered = new TreeNode(inputNumberedTips,1);
+		
+		// test the numbering
+		numbered.setNodeNumbers(0,numbered.howManyTips());
+		
+		System.out.println(numbered.printRecursivelyAsNumberedNodes());
+		System.out.println(numbered.printRecursively());
+	
+	}
 	
 	public void testPrestinTrees(){
 		TreeNode n1 = new TreeNode("(((LOXODONTA:0.080618,DASYPUS:0.028235):0.002756,(((((CANIS:0.012983,FELIS:0.013897):0.005719,(EQUUS:0.028437,((TURSIOPS:0.038936,BOS:0.016707):0.003048,VICUGNA:0.031996):0.004509):0.006443):0.000004,(MYOTIS:0.056507,((RHINOLOPHUS:0.066174,MEGADERMA:0.021473):0.006671,PTEROPUS:0.015521):0.000004):0.008379):0.002227,(SOREX:0.022136,ERINACEUS:0.013937):0.004338):0.004428,((MUS:0.034943,(ORYCTOLAGUS:0.021193,OCHOTONA:0.063783):0.025907):0.003677,(PAN:0.010448,HOMO:0.001622):0.021809):0.002889):0.000004):0.144025,MONODELPHIS:0.113014)",1);

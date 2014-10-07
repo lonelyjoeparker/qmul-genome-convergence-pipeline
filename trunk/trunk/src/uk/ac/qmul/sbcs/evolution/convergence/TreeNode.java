@@ -149,9 +149,37 @@ public class TreeNode {
 	}
 	
 	/**
-	 * numbering of nodes; tips in order unless tip content is entirely numeric, in which case tips == numbers assumed. Internal nodes numbered L-R and root-tip
+	 * Numbering of nodes; tips in order unless tip content is entirely numeric, in which case tips == numbers assumed. Internal nodes numbered L-R and root-tip
+	 * @param maxTipNumbering tip numbering from 1 on
+	 * @param maxInternalNumbering number of last assigned tip
+	 * @return updated last numbering; [tip,internal] (int[])
 	 */
-	private void SetNodeNumbers(){}
+	public int[] setNodeNumbers(int maxTipNumbering, int maxInternalNumbering){
+		if(isTerminal){
+			try {
+				// try and parse the tip content in case a number is present
+				int parsedNumber = Integer.parseInt(content);
+				this.nodeNumber = parsedNumber;
+				if(nodeNumber > maxTipNumbering){maxTipNumbering = nodeNumber;}
+			} catch (NumberFormatException e) {
+				// either no number is present, or we can't parse it
+				//e.printStackTrace(); we don't really need the stack trace
+				// assign numnber for this tip de novo
+				maxTipNumbering++;
+				this.nodeNumber = maxTipNumbering;
+			}
+		}else{
+			maxInternalNumbering++;
+			this.nodeNumber = maxInternalNumbering;
+			for(TreeNode daughter:daughters){
+				int[] lastNodeNumberings = daughter.setNodeNumbers(maxTipNumbering, maxInternalNumbering);
+				maxTipNumbering = lastNodeNumberings[0];
+				maxInternalNumbering = lastNodeNumberings[1];
+			}
+		}
+		int[] retVals = {maxTipNumbering,maxInternalNumbering};
+		return retVals;
+	}
 
 	/**
 	 * This calls a post-order (leaves-to-root) traversal of the tree, terminal taxa will have their states determined by the input list.
@@ -332,6 +360,23 @@ public class TreeNode {
 				retString = retString + daughter.printRecursively() + ",";
 			}
 			retString = retString.substring(0, retString.length()-1) + ")";
+			return retString;
+		}
+	}
+
+	/**
+	 * Prints the recursive (Newick) representation of this node (tree)
+	 * @return String containing nodes below this one
+	 */
+	public String printRecursivelyAsNumberedNodes(){
+		if(this.isTerminal){
+			return this.nodeNumber+"_"+this.content;
+		}else{
+			String retString = "(";
+			for(TreeNode daughter:daughters){
+				retString = retString + daughter.printRecursivelyAsNumberedNodes() + ",";
+			}
+			retString = retString.substring(0, retString.length()-1) + ") "+this.nodeNumber;
 			return retString;
 		}
 	}

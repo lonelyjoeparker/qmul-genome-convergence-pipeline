@@ -93,6 +93,68 @@ public class TreeNodeTest extends TestCase {
 		}
 	}
 
+
+	/*
+	 * Test that the TreeNode finds the lowest internal node containing target taxa, and returns its ID / numbering
+	 * Tests for lowest clade containing all the taxa in the target set, which in this case are strictly monophyletic (e.g. n tips == n set, or only listed taxa are present in the clade, to put it another way)
+	 */
+	public void testGetnodeNumberingIDContainingTaxaCheckStrictMonophyly(){
+		// instantiate the tree
+		String input="(((LOXODONTA:0.023584,DASYPUS:0.029504):0.000004,((((CANIS:0.076115,(EQUUS:0.014067,((TURSIOPS:0.000004,BOS:0.014131):0.003492,VICUGNA:0.021123):0.010546):0.000004):0.000004,((PTERONOTUS:0.025088,MYOTIS:0.032407):0.003456,((RHINOLOPHUS:0.008430,MEGADERMA:0.031984):0.005840,(PTEROPUS:0.000004,EIDOLON:0.006953):0.021190):0.000004):0.000004):0.000004,(SOREX:0.088536,ERINACEUS:0.044769):0.010306):0.003510,((MUS:0.090365,(ORYCTOLAGUS:0.011232,OCHOTONA:0.044380):0.036082):0.001096,(PAN:0.000004,HOMO:0.000004):0.013368):0.006229):0.001213):0.165422,MONODELPHIS:0.138559);";
+		TreeNode n1 = new TreeNode(input,1);
+		// create a taxa list to look for
+		String[] bats = {
+				"PTERONOTUS",
+				"MYOTIS",
+				"RHINOLOPHUS",
+				"MEGADERMA",
+				"PTEROPUS",
+				"EIDOLON"
+		};
+		HashSet<String> echoMap = new HashSet<String>(Arrays.asList(bats));
+		// init retval
+		int retval = -1;
+		// IMPORTANT!!! at the moment node numbers / IDs *NOT* set when node instantiated!!
+		// TODO set node numbers at instantiation
+		// FIXME set node numbers at instantiation
+		n1.setNodeNumbers(0, n1.howManyTips());
+		// test the method. retval should ==32 at the end
+		retval = n1.getNodeNumberingIDContainingTaxa(echoMap);
+		if(retval != 32){
+			fail("Incorrect node ID found!");
+		}
+	}
+
+	/*
+	 * Test that the TreeNode finds the lowest internal node containing target taxa, and returns its ID / numbering
+	 * Tests for lowest clade containing all the taxa in the target set, which in this case are actually paraphyletic (e.g. n tips > n set, or a non-listed taxon is present in the clade, to put it another way)
+	 */
+	public void testGetnodeNumberingIDContainingTaxaCheckMonophyly(){
+		// instantiate the tree
+		String input="(((LOXODONTA:0.023584,DASYPUS:0.029504):0.000004,((((CANIS:0.076115,(EQUUS:0.014067,((TURSIOPS:0.000004,BOS:0.014131):0.003492,VICUGNA:0.021123):0.010546):0.000004):0.000004,((PTERONOTUS:0.025088,MYOTIS:0.032407):0.003456,((RHINOLOPHUS:0.008430,MEGADERMA:0.031984):0.005840,(PTEROPUS:0.000004,EIDOLON:0.006953):0.021190):0.000004):0.000004):0.000004,(SOREX:0.088536,ERINACEUS:0.044769):0.010306):0.003510,((MUS:0.090365,(ORYCTOLAGUS:0.011232,OCHOTONA:0.044380):0.036082):0.001096,(PAN:0.000004,HOMO:0.000004):0.013368):0.006229):0.001213):0.165422,MONODELPHIS:0.138559);";
+		TreeNode n1 = new TreeNode(input,1);
+		// create a taxa list to look for
+		String[] bats = {
+				"PTERONOTUS",
+				"MYOTIS",
+				"RHINOLOPHUS",
+				"PTEROPUS",
+				"EIDOLON"
+		};
+		HashSet<String> echoMap = new HashSet<String>(Arrays.asList(bats));
+		// init retval
+		int retval = -1;
+		// IMPORTANT!!! at the moment node numbers / IDs *NOT* set when node instantiated!!
+		// TODO set node numbers at instantiation
+		// FIXME set node numbers at instantiation
+		n1.setNodeNumbers(0, n1.howManyTips());
+		// test the method. retval should ==32 at the end
+		retval = n1.getNodeNumberingIDContainingTaxa(echoMap);
+		if(retval != 32){
+			fail("Incorrect node ID found!");
+		}
+	}
+	
 	/*
 	 * Test that the TreeNode is able to label tips separately and correctly
 	 */

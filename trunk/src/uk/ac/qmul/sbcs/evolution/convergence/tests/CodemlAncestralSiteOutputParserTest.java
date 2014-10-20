@@ -25,12 +25,16 @@ public class CodemlAncestralSiteOutputParserTest extends TestCase {
 
 	public final void testCodemlAncestralSiteOutputParserFile() {
 		CodemlAncestralSiteOutputParser parser = new CodemlAncestralSiteOutputParser(new File("/Users/gsjones/Downloads/ENSG00000072364/convergentSites.out"));
+		CodemlAncestralSiteOutputParser parser2 = new CodemlAncestralSiteOutputParser(new File("~/Documents/all_work/manuscripts_presentations/nature-rebuttal/zhang_empirical/codeml_anc_all_loci/ENSG00000072364/convergentSites.out"));
 		fail("Not yet implemented"); // TODO
 	}
 
 	public final void testGetAllBranchPairProbabilitiesSitewiseSummed() {
 		CodemlAncestralSiteOutputParser parser = new CodemlAncestralSiteOutputParser(new File("/Users/gsjones/Downloads/ENSG00000072364/convergentSites.out"));
 		float[][] data = parser.getAllBranchPairProbabilitiesSitewiseSummed();
+		data.toString();
+		CodemlAncestralSiteOutputParser parser2 = new CodemlAncestralSiteOutputParser(new File("/Users/joeparker/Documents/all_work/manuscripts_presentations/nature-rebuttal/zhang_empirical/codeml_anc_all_loci/ENSG00000072364/convergentSites.out"));
+		data = parser2.getAllBranchPairProbabilitiesSitewiseSummed();
 		data.toString();
 		fail("Not yet implemented"); // TODO
 	}

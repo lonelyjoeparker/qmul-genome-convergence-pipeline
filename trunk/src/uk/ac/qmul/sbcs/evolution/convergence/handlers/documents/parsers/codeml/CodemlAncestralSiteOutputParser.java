@@ -154,12 +154,36 @@ public class CodemlAncestralSiteOutputParser {
 		return null;
 	}
 	
-	public float[] getProbabilitiesForNodeComparisons(int nodeFrom_A, int nodeTo_A, int nodeFrom_B, int nodeTo_B){
+	public float[] getProbabilitiesForNodeComparisons(BranchPairComparison comparison){
 		// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for the branch-pair comparison between branches A1->A2 and B1->B2
 		// currently no good way to do this as data containing Strings of composite_unique_branch_key are not a logical data structure. buggy as fuck, not even going to implement this
 		// TODO not implemented
 		// FIXME implement this
-		return null;
+		float[] returnProbabilities = new float[4];
+		// get branch pair sitewise info
+		/*
+		ArrayList<Float[]> branch_pair_probabilities = data.get(comparison);
+		TODO the get() method does not work on BranchPairComparison at the moment, so nothing returned
+		FIXME work out the best way to either subclass HashMap for overidden get(), or implement relevant (?/ equals() ?) for BPC class..
+		FIXME see also http://stackoverflow.com/questions/4794953/for-a-hashmap-that-maps-from-a-custom-class-how-to-make-it-so-that-two-equivale
+		 * 
+		 */
+		for(Float[] sitewise_branch_pair_probabilities:branch_pair_probabilities){
+			// sum over all substitutions at this branch pair
+			for(int i=0;i<4;i++){
+				returnProbabilities[i] = returnProbabilities[i] + sitewise_branch_pair_probabilities[i];
+			}
+		}
+		return returnProbabilities;
+	}
+
+	public float[] getProbabilitiesForNodeComparisons(int nodeFrom_A, int nodeTo_A, int nodeFrom_B, int nodeTo_B){
+		BranchPairComparison c = new BranchPairComparison(nodeFrom_A,nodeTo_A,nodeFrom_B,nodeTo_B);
+		// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for the branch-pair comparison between branches A1->A2 and B1->B2
+		// currently no good way to do this as data containing Strings of composite_unique_branch_key are not a logical data structure. buggy as fuck, not even going to implement this
+		// TODO not implemented
+		// FIXME implement this
+		return this.getProbabilitiesForNodeComparisons(c);
 	}
 
 	public float[] getProbabilitiesForNodeComparisonsDefinedByTaxonSetMRCAs(String[] TaxonSetFrom_A, String[] TaxonSetTo_A, String[] TaxonSetFrom_B, String[] TaxonSetTo_B) throws ReferencePhylogenyNotSetException{
@@ -189,8 +213,34 @@ public class CodemlAncestralSiteOutputParser {
 		// FIXME implement this
 		return null;
 	}
+	
+	public boolean containsNode(int i) {
+		boolean hasNode = false;
+		Iterator<BranchPairComparison> itr = data.keySet().iterator();
+		while(itr.hasNext()){
+			BranchPairComparison p = itr.next();
+			hasNode = (hasNode || p.contains(i));
+		}
+		return hasNode;
+	}
 
-	public class ReferencePhylogenyNotSetException extends Exception{}
+	public boolean containsBranch(int node_from, int node_to){
+		Branch b = new Branch(node_from, node_to);
+		boolean hasBranch = false;
+		Iterator<BranchPairComparison> itr = data.keySet().iterator();
+		while(itr.hasNext()){
+			BranchPairComparison p = itr.next();
+			hasBranch = (hasBranch || p.containsBranch(b));
+		}
+		return hasBranch;
+	}
+
+	public class ReferencePhylogenyNotSetException extends Exception{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4901978545143436342L;}
 	
 	/**
 	 * Internal class to represent pairs of branches (themselves pairs of nodes) which are compared in a branch-pair comparison.
@@ -223,6 +273,28 @@ public class CodemlAncestralSiteOutputParser {
 		 */
 		public boolean contains(Integer I){
 			return (branch_A.contains(I) || branch_B.contains(I));
+		}
+
+		/**
+		 * Returns true if this either of the branches under comparison is branch specified by node values A and B
+		 * @param int branch_from - first node 
+		 * @param int branch_to   - second node 
+		 * @return {@link Boolean} - true if branch is present
+		 * @see {@link Branch}
+		 */
+		public boolean containsBranch(int branch_from, int branch_to){
+			Branch b = new Branch(branch_from, branch_to);
+			return (branch_A.equals(b) || branch_B.equals(b));
+		}
+
+		/**
+		 * Returns true if this either of the branches under comparison is branch B
+		 * @param b - Branch 
+		 * @return {@link Boolean} - true if branch is present
+		 * @see {@link Branch}
+		 */
+		public boolean containsBranch(Branch b){
+			return (branch_A.equals(b) || branch_B.equals(b));
 		}
 
 		/**
@@ -270,6 +342,25 @@ public class CodemlAncestralSiteOutputParser {
 		public boolean contains(Integer I){
 			return branch.contains(I);
 		}
+		
+		/**
+		 * Bidirectional equality test. Returns true if the branch joins both node start AND node end.
+		 * @param start node at start of branch
+		 * @param finish node at end of branch
+		 * @return true if branch describes the same pair of nodes
+		 */
+		public boolean equals(int start, int finish){
+			return((node_begin==start && node_end==finish)||(node_begin==finish && node_end==start));
+		}
+		
+		/**
+		 * Bidirectional equality test. Returns true if the two branches are equal, e.g. join the same pair of nodes.
+		 * @param B branch to test
+		 * @return true if branches describe the same pair of nodes
+		 */
+		public boolean equals(Branch b){
+			return(this.equals(b.node_begin, b.node_end));
+		}		
 		
 		/**
 		 * Overidden toString() method. 

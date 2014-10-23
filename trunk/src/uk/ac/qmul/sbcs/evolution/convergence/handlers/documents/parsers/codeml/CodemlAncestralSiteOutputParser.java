@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
@@ -73,7 +74,7 @@ public class CodemlAncestralSiteOutputParser {
 				BranchPairComparison theBranches = new BranchPairComparison(branch_A_from, branch_A_to, branch_B_from, branch_B_to);
 				// FIXED amend branch info parsing to remove unwanted whitespace etc, e.h. from  'branch pair 22..10' or '39..11:' to '22..10' or '39..11'
 				// FIXED ultimately data structure should be e.g. HashMap<Set<Int>[],ArrayList<Float[]>> where key is an Set<Int>[], each elem of [] is a Set<Integer> e.g. {{22,10},{39,11}} 
-				String composite_unique_branch_key = branch_A + "_" + branch_B;
+				// String composite_unique_branch_key = branch_A + "_" + branch_B;
 				// parse the probabilities, should be in tokens[4..7]
 				Float prob_divergent 			= Float.parseFloat(tokens[4]);		// probability of divergent changes between branches A and B
 				Float prob_convergent_all 		= Float.parseFloat(tokens[5]);		// probability of all types of convergent changes between branches A and B
@@ -87,7 +88,7 @@ public class CodemlAncestralSiteOutputParser {
 				newProbabilities[3] = prob_convergent_strict;
 				if(data.containsKey(theBranches)){
 					// this branch pair has already been seen in the data, simply add to its branch info line (the probabilities for divergence, all convergence, parallel, strict convergence respectively)
-					ArrayList<Float[]> existingProbabilities = data.remove(composite_unique_branch_key);
+					ArrayList<Float[]> existingProbabilities = data.remove(theBranches);
 					existingProbabilities.add(newProbabilities);
 					data.put(theBranches, existingProbabilities);
 				}else{
@@ -154,24 +155,28 @@ public class CodemlAncestralSiteOutputParser {
 		return null;
 	}
 	
-	public float[] getProbabilitiesForNodeComparisons(BranchPairComparison comparison){
-		// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for the branch-pair comparison between branches A1->A2 and B1->B2
-		// currently no good way to do this as data containing Strings of composite_unique_branch_key are not a logical data structure. buggy as fuck, not even going to implement this
-		// TODO not implemented
-		// FIXME implement this
+	public float[] getProbabilitiesForNodeComparisons(BranchPairComparison comparison) throws NullBranchPairComparisonPointerException{
 		float[] returnProbabilities = new float[4];
-		// get branch pair sitewise info
-		/*
-		ArrayList<Float[]> branch_pair_probabilities = data.get(comparison);
-		TODO the get() method does not work on BranchPairComparison at the moment, so nothing returned
-		FIXME work out the best way to either subclass HashMap for overidden get(), or implement relevant (?/ equals() ?) for BPC class..
-		FIXME see also http://stackoverflow.com/questions/4794953/for-a-hashmap-that-maps-from-a-custom-class-how-to-make-it-so-that-two-equivale
-		 * 
-		 */
-		for(Float[] sitewise_branch_pair_probabilities:branch_pair_probabilities){
-			// sum over all substitutions at this branch pair
-			for(int i=0;i<4;i++){
-				returnProbabilities[i] = returnProbabilities[i] + sitewise_branch_pair_probabilities[i];
+		if(!data.containsKey(comparison)){
+			throw new NullBranchPairComparisonPointerException("Branch pair "+comparison.toString()+" not present in data!");
+		}else{
+			// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for the branch-pair comparison between branches A1->A2 and B1->B2
+			// currently no good way to do this as data containing Strings of composite_unique_branch_key are not a logical data structure. buggy as fuck, not even going to implement this
+			// TODO not implemented
+			// FIXME implement this
+			// get branch pair sitewise info
+			/*
+			TODO the get() method does not work on BranchPairComparison at the moment, so nothing returned
+			FIXME work out the best way to either subclass HashMap for overidden get(), or implement relevant (?/ equals() ?) for BPC class..
+			FIXME see also http://stackoverflow.com/questions/4794953/for-a-hashmap-that-maps-from-a-custom-class-how-to-make-it-so-that-two-equivale
+			 * 
+			 */
+			ArrayList<Float[]> branch_pair_probabilities = data.get(comparison);
+			for(Float[] sitewise_branch_pair_probabilities:branch_pair_probabilities){
+				// sum over all substitutions at this branch pair
+				for(int i=0;i<4;i++){
+					returnProbabilities[i] = returnProbabilities[i] + sitewise_branch_pair_probabilities[i];
+				}
 			}
 		}
 		return returnProbabilities;
@@ -224,8 +229,13 @@ public class CodemlAncestralSiteOutputParser {
 		return hasNode;
 	}
 
-	public boolean containsBranch(int node_from, int node_to){
-		Branch b = new Branch(node_from, node_to);
+	/**
+	 * Tests whether this branch is present in the data. 
+	 * <p><b>IMPORTANT</b>: this method marked private to try and ensure that Branch is properly constructed (e.g. sortIntPair() has been called to sort branch nodes into numeric order.)
+	 * @param b
+	 * @return
+	 */
+	private boolean containsBranch(Branch b){
 		boolean hasBranch = false;
 		Iterator<BranchPairComparison> itr = data.keySet().iterator();
 		while(itr.hasNext()){
@@ -234,11 +244,64 @@ public class CodemlAncestralSiteOutputParser {
 		}
 		return hasBranch;
 	}
+	
+	/**
+	 * Tests whether this branch is present in the data. 
+	 * <p><b>IMPORTANT</b>: this method marked public but containsBranch(Branch b) is private to try and ensure that Branch is properly constructed (e.g. sortIntPair() has been called to sort branch nodes into numeric order.)
+	 * @param b
+	 * @return
+	 */
+	public boolean containsBranch(int node_from, int node_to){
+		int[] sortedInts = this.sortIntPair(node_from, node_to);
+		Branch b = new Branch(sortedInts[0], sortedInts[1]);
+		return this.containsBranch(b);
+	}
 
-	public class ReferencePhylogenyNotSetException extends Exception{
+	/**
+	 * Sorts two ints into numerical order
+	 * @param int_a
+	 * @param int_b
+	 * @return int[] where int_a and int_b are sorted
+	 */
+	public static int[] sortIntPair(int int_a, int int_b){
+		int[] retArray = new int[2];
+		if(int_a < int_b){
+			// a is smaller than b, supplied order is numerical order
+			retArray[0] = int_a;
+			retArray[1] = int_b;
+		}else{
+			// a is bigger than b, reverse supplied order for numerical order
+			retArray[0] = int_b;
+			retArray[1] = int_a;
+			
+		}
+		return retArray;
+	}
+	
+	/**
+	 * Custom exception extends NullPointerException - for use when an operation is attempted using a branch pair comparison that is not present in the data.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 */
+	public class NullBranchPairComparisonPointerException extends NullPointerException{
+
+		public NullBranchPairComparisonPointerException(String exceptionString) {
+			// TODO Auto-generated constructor stub
+			System.out.println(exceptionString);
+			System.err.println(exceptionString);
+		}
 
 		/**
 		 * 
+		 */
+		private static final long serialVersionUID = -2902265783356134872L;
+		
+	}
+	
+	public class ReferencePhylogenyNotSetException extends Exception{
+
+		/**
+		 * Custom exception when there is no reference phylogeny present yet
 		 */
 		private static final long serialVersionUID = -4901978545143436342L;}
 	
@@ -249,8 +312,8 @@ public class CodemlAncestralSiteOutputParser {
 	 * @see {@link Branch}
 	 */
 	public class BranchPairComparison{
-		Branch branch_A;
-		Branch branch_B;
+		final Branch branch_A;
+		final Branch branch_B;
 		
 		/**
 		 * No-arg constructor. Deprecated.
@@ -258,13 +321,73 @@ public class CodemlAncestralSiteOutputParser {
 		 * TODO consider overriding compare() in BranchPairComparison...
 		 */
 		@Deprecated
-		private BranchPairComparison(){}
+		private BranchPairComparison(){
+			branch_A = null;
+			branch_B = null;
+		}
 
 		public BranchPairComparison(int node_from_branch_A, int node_to_branch_A, int node_from_branch_B, int node_to_branch_B){
-			branch_A = new Branch(node_from_branch_A, node_to_branch_A);
-			branch_B = new Branch(node_from_branch_B, node_to_branch_B);
+			/*
+			 * TODO Order the nodes within branches, and the branches within BCP,
+			 * so that they are in numeric order, and hashCode() and equals(Object)
+			 * can be implemented with predictable behaviour.
+			 */
+			// first sort branches' pairs
+			int[] sorted_branch_A_pair = sortIntPair(node_from_branch_A, node_to_branch_A);
+			int[] sorted_branch_B_pair = sortIntPair(node_from_branch_B, node_to_branch_B);
+			// now add branches depending on whether A[0] > B[0] or not
+			if(sorted_branch_A_pair[0] < sorted_branch_B_pair[0]){
+				// start A lower than start B so add pair as {A,B}
+				branch_A = new Branch(sorted_branch_A_pair[0], sorted_branch_A_pair[1]);
+				branch_B = new Branch(sorted_branch_B_pair[0], sorted_branch_B_pair[1]);
+			}else{
+				// see if B[0] > A[0]
+				if(sorted_branch_A_pair[0] > sorted_branch_B_pair[0]){
+					// start A lower than start B so add pair as {B,A}
+					branch_A = new Branch(sorted_branch_B_pair[0], sorted_branch_B_pair[1]);
+					branch_B = new Branch(sorted_branch_A_pair[0], sorted_branch_A_pair[1]);
+				}else{
+					// A[0] == B[0], e.g. same start; so pick depending on (A[1] > B[1])
+					if(sorted_branch_A_pair[1] < sorted_branch_B_pair[1]){
+						// end A lower than end B so add pair as {A,B}
+						branch_A = new Branch(sorted_branch_A_pair[0], sorted_branch_A_pair[1]);
+						branch_B = new Branch(sorted_branch_B_pair[0], sorted_branch_B_pair[1]);
+					}else{
+						// end A higher than end B so add pair as {B,A}
+						branch_A = new Branch(sorted_branch_B_pair[0], sorted_branch_B_pair[1]);
+						branch_B = new Branch(sorted_branch_A_pair[0], sorted_branch_A_pair[1]);
+					}
+				}
+			}
 		}
 		
+		@Override
+		/**
+		 * @Override
+		 * Overides equals() method to allow proper comparison operations for e.g. Set interface
+		 * <p><b>IMPORTANT</b>: Assumes branch nodes have been sorted at constructor, so that node_from ² node_to
+		 */
+		public boolean equals(Object aBranchPairComparison){
+			BranchPairComparison compare = (BranchPairComparison) aBranchPairComparison;
+			// return true if all nodes are equal - the branches' nodes should have been sorted in constructor
+			return (
+					(this.branch_A.node_begin == compare.branch_A.node_begin) &&
+					(this.branch_A.node_end == compare.branch_A.node_end) &&
+					(this.branch_B.node_begin == compare.branch_B.node_begin) &&
+					(this.branch_B.node_end == compare.branch_B.node_end) 
+			);
+		}
+		
+		@Override
+		/**
+		 * @Override
+		 * Overides hashCode() method to allow proper comparison operations for e.g. Set interface
+		 * <p><b>IMPORTANT</b>: Assumes branch nodes have been sorted at constructor, so that node_from ² node_to
+		 */
+		public int hashCode(){
+			return (this.branch_A.hashCode()+"_"+this.branch_B.hashCode()).hashCode();
+		}
+
 		/**
 		 * Returns true if this either of the branches under comparison joins node I
 		 * @param I - node ID 
@@ -314,21 +437,31 @@ public class CodemlAncestralSiteOutputParser {
 	 * @see {@link BranchPairComparison}
 	 */
 	public class Branch{
-		int node_begin;
-		int node_end;
-		HashSet<Integer> branch;
+		final int node_begin;
+		final int node_end;
+		final TreeSet<Integer> branch;
 		
 		/**
 		 * No-arg constructor. Deprecated.
 		 * @deprecated
 		 */
 		@Deprecated
-		private Branch(){}
+		private Branch(){
+			node_begin = Integer.MIN_VALUE;
+			node_end = Integer.MIN_VALUE;
+			branch = null;
+		}
 		
 		public Branch(int node_from, int node_to){
-			node_begin = node_from;
-			node_end = node_to;
-			branch = new HashSet<Integer>();
+			/*
+			 * TODO Order the nodes within branches, and the branches within BCP,
+			 * so that they are in numeric order, and hashCode() and equals(Object)
+			 * can be implemented with predictable behaviour.
+			 */
+			int[] sortedNodes = sortIntPair(node_from, node_to);
+			node_begin = sortedNodes[0];
+			node_end = sortedNodes[1];
+			branch = new TreeSet<Integer>();
 			branch.add(node_begin);
 			branch.add(node_end);
 		}
@@ -369,6 +502,15 @@ public class CodemlAncestralSiteOutputParser {
 		@Override
 		public String toString(){
 			return node_begin + ".." + node_end;
+		}
+		
+		/**
+		 * Overidden hashCode() method. 
+		 * @return hashCode of String of form "from..to"
+		 */
+		@Override
+		public int hashCode(){
+			return this.toString().hashCode();
 		}
 	}
 }

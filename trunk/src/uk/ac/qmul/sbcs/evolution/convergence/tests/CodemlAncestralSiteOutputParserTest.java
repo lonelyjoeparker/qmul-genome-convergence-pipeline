@@ -95,6 +95,8 @@ public class CodemlAncestralSiteOutputParserTest extends TestCase {
 		boolean test_should_fail_branch_B = parser.containsBranch(33,11); // should eval to 1
 		if(test_should_pass_branch_A||test_should_pass_branch_B||test_should_fail_branch_A||test_should_fail_branch_B){
 			fail("hasBranch tests failed: "+test_should_pass_branch_A+""+test_should_pass_branch_B+""+test_should_fail_branch_A+""+test_should_fail_branch_B);
+		}else{
+			System.out.println("hasBranch: tests passed.");
 		}
 	}
 

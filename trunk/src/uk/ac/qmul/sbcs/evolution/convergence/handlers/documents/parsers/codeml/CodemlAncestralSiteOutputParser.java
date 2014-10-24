@@ -202,6 +202,37 @@ public class CodemlAncestralSiteOutputParser {
 		// FIXME implement this
 		return null;
 	}
+
+	public float[] getProbabilitiesForNodeComparisonsDefinedByMRCASubtreeOf(String[] TaxonSet) throws ReferencePhylogenyNotSetException{
+		if(this.phylogeny == null){throw new ReferencePhylogenyNotSetException();}
+		// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for all branch-pair comparisons present in MRCA subtree defined by taxon sets
+		// e.g. A1 = MRCA of TaxonSetFrom_A, A2 = MRCA of TaxonSetFrom_A etc. 
+		// assumes TreeNode phylogeny present/set
+		// needs to be robust to terminal branches, too
+		// currently no good way to do this as data containing Strings of composite_unique_branch_key are not a logical data structure. buggy as fuck, not even going to implement this
+		// TODO not implemented
+		// FIXME implement this
+		return null;
+	}
+
+	public float[] getProbabilitiesForNodeComparisonsOnBranchesBetweenNodes(int node_from, int node_to) throws ReferencePhylogenyNotSetException{
+		if(this.phylogeny == null){throw new ReferencePhylogenyNotSetException();}
+		// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for the branch-pair comparison between branches connecting the two nodes node_from and node_to.
+		// Can be tips, internals, or a combination
+		// assumes TreeNode phylogeny present/set
+		// TODO not implemented
+		// FIXME implement this
+		return null;
+	}
+	
+	public float[] getProbabilitiesForNodeComparisonsOnBranchesBetweenTips(String taxon_from, String taxon_to) throws ReferencePhylogenyNotSetException{
+		if(this.phylogeny == null){throw new ReferencePhylogenyNotSetException();}
+		// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for the branch-pair comparison between branches connecting the two terminal taxa taxon_from and taxon_to. 
+		// assumes TreeNode phylogeny present/set
+		// TODO not implemented
+		// FIXME implement this
+		return null;
+	}
 	
 	public float[] getProbabilitiesBySiteIndex(int siteIndex){
 		// return all the divergent, convergent, parallel, strict-convergent probabilities, summed over all branch-pair comparison, for a given site index

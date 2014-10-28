@@ -682,4 +682,37 @@ public class TreeNode {
 		}
 		return retval;
 	}
+
+	/**
+	 * A method to retrieve the number (node ID, as set in {@link TreeNode#setNodeNumbers()} method) of the lowest node containing all taxa present in taxaContained, a {@link HashSet} of {@link String}s representing taxa. 
+	 * <p>Note that although all taxa <b>must</b> be present (so, this method does not have predictable behaviour in trees where branches have been pruned etc), the most recent clade containing them which will be reported <b>may not actually be <i>strictly</i> monophyletic</b>. That is, other taxa not listed might be present as well: this method <i>only</i> guarantees that the node returned is the lowest containing all members in the target list.</p> 
+	 * @param taxaContained - a {@link HashSet}&lt;String&gt; of taxon names.
+	 * @return int[]; {ID of the lowest node containing all members of taxaContained,ID of the node immediately above that}; or -1 otherwise.
+	 * @see HashSet
+	 */
+	public int[] getBranchNumberingIDContainingTaxa(HashSet<String> taxaContained){
+		int[] retval = {-1,-1};
+		if(isTerminal && (taxaContained.size()==1) && (taxaContained.contains(content))){
+			// there is only one taxon sought, and this is it. return this node (tip's) number (ID)
+			retval[0] = nodeNumber;
+		}else if(!isTerminal){
+			// loop through daughters. if any have nonegative retval, we'll pass that up- othereise check this node.
+			for(TreeNode daughter:daughters){
+				int[] daughterRetval = daughter.getBranchNumberingIDContainingTaxa(taxaContained);
+				retval[0] = Math.max(retval[0], daughterRetval[0]);
+				if(retval[0] != -1){
+					retval[1] = Math.max(retval[1], daughterRetval[1]);
+				}
+			}
+			// if any of the daughters have the taxa required as a monophyletic clade, we should have passed up their IDs. If not, we need to see if this node does (i.e. daughters together comprise target clade)
+			if((retval[0] == -1) && (this.areTipsPresent(taxaContained).size() == taxaContained.size())){
+				retval[0] = nodeNumber;
+			}
+			// if the daughter retval is nonnegative then retval[1] needs to be this node ID
+			if((retval[0] > -1)&&(retval[0] != nodeNumber)&&(retval[1] == -1)){
+				retval[1] = nodeNumber;
+			}
+		}
+		return retval;
+	}
 }

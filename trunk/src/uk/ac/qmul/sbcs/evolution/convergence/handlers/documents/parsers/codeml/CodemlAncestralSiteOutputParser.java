@@ -1,6 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -113,6 +114,8 @@ public class CodemlAncestralSiteOutputParser {
 	 */
 	public void setPhylogeny(TreeNode phylogeny) {
 		this.phylogeny = phylogeny;
+		// set internal node numbers, we'll need these...
+		this.phylogeny.setNodeNumbers(0, this.phylogeny.howManyTips());
 	}
 
 	public float[][] getAllBranchPairProbabilitiesSitewiseSummed(){
@@ -191,7 +194,7 @@ public class CodemlAncestralSiteOutputParser {
 		return this.getProbabilitiesForNodeComparisons(c);
 	}
 
-	public float[] getProbabilitiesForNodeComparisonsDefinedByTaxonSetMRCAs(String[] TaxonSetFrom_A, String[] TaxonSetTo_A, String[] TaxonSetFrom_B, String[] TaxonSetTo_B) throws ReferencePhylogenyNotSetException{
+	public float[] getProbabilitiesForAncestralBranchComparisonsDefinedByTaxonSetMRCAs(String[] TaxonSetTo_A, String[] TaxonSetTo_B) throws ReferencePhylogenyNotSetException{
 		if(this.phylogeny == null){throw new ReferencePhylogenyNotSetException();}
 		// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for the branch-pair comparison between branches A1->A2 and B1->B2, defined by taxon sets
 		// e.g. A1 = MRCA of TaxonSetFrom_A, A2 = MRCA of TaxonSetFrom_A etc. 
@@ -200,7 +203,15 @@ public class CodemlAncestralSiteOutputParser {
 		// currently no good way to do this as data containing Strings of composite_unique_branch_key are not a logical data structure. buggy as fuck, not even going to implement this
 		// TODO not implemented
 		// FIXME implement this
-		return null;
+		// populate taxon set for MRCA(A)
+		HashSet<String> taxaContained_A = new HashSet<String>(Arrays.asList(TaxonSetTo_A));
+		// populate taxon set for MRCA(B)
+		HashSet<String> taxaContained_B = new HashSet<String>(Arrays.asList(TaxonSetTo_B));
+		// get the branch IDs for branches leading to MRCA(A) and MRCA(B)
+		int[] branch_A_IDs = phylogeny.getBranchNumberingIDContainingTaxa(taxaContained_A);
+		int[] branch_B_IDs = phylogeny.getBranchNumberingIDContainingTaxa(taxaContained_B);
+		BranchPairComparison bpc = new BranchPairComparison(branch_A_IDs[0],branch_A_IDs[1],branch_B_IDs[0],branch_B_IDs[1]);
+		return this.getProbabilitiesForNodeComparisons(bpc);
 	}
 
 	public float[] getProbabilitiesForNodeComparisonsDefinedByMRCASubtreeOf(String[] TaxonSet) throws ReferencePhylogenyNotSetException{

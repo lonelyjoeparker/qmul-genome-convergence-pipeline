@@ -209,7 +209,11 @@ public class CodemlAncestralSiteOutputParserTest extends TestCase {
 	 */
 	public void testGetBranchNumberingIDContainingTaxaCheckMonophyly(){
 		// instantiate the tree
-		String input="(((LOXODONTA:0.023584,DASYPUS:0.029504):0.000004,((((CANIS:0.076115,(EQUUS:0.014067,((TURSIOPS:0.000004,BOS:0.014131):0.003492,VICUGNA:0.021123):0.010546):0.000004):0.000004,((PTERONOTUS:0.025088,MYOTIS:0.032407):0.003456,((RHINOLOPHUS:0.008430,MEGADERMA:0.031984):0.005840,(PTEROPUS:0.000004,EIDOLON:0.006953):0.021190):0.000004):0.000004):0.000004,(SOREX:0.088536,ERINACEUS:0.044769):0.010306):0.003510,((MUS:0.090365,(ORYCTOLAGUS:0.011232,OCHOTONA:0.044380):0.036082):0.001096,(PAN:0.000004,HOMO:0.000004):0.013368):0.006229):0.001213):0.165422,MONODELPHIS:0.138559);";
+//		String input="(((LOXODONTA:0.023584,DASYPUS:0.029504):0.000004,((((CANIS:0.076115,(EQUUS:0.014067,((TURSIOPS:0.000004,BOS:0.014131):0.003492,VICUGNA:0.021123):0.010546):0.000004):0.000004,((PTERONOTUS:0.025088,MYOTIS:0.032407):0.003456,((RHINOLOPHUS:0.008430,MEGADERMA:0.031984):0.005840,(PTEROPUS:0.000004,EIDOLON:0.006953):0.021190):0.000004):0.000004):0.000004,(SOREX:0.088536,ERINACEUS:0.044769):0.010306):0.003510,((MUS:0.090365,(ORYCTOLAGUS:0.011232,OCHOTONA:0.044380):0.036082):0.001096,(PAN:0.000004,HOMO:0.000004):0.013368):0.006229):0.001213):0.165422,MONODELPHIS:0.138559);";
+		String input="(((8_LOXODONTA:0.023584,3_DASYPUS:0.029504):0.000004,((((2_CANIS:0.076115,(EQUUS:0.014067,((TURSIOPS:0.000004,BOS:0.014131):0.003492,VICUGNA:0.021123):0.010546):0.000004):0.000004,((PTERONOTUS:0.025088,MYOTIS:0.032407):0.003456,((RHINOLOPHUS:0.008430,MEGADERMA:0.031984):0.005840,(PTEROPUS:0.000004,EIDOLON:0.006953):0.021190):0.000004):0.000004):0.000004,(SOREX:0.088536,ERINACEUS:0.044769):0.010306):0.003510,((MUS:0.090365,(ORYCTOLAGUS:0.011232,OCHOTONA:0.044380):0.036082):0.001096,(PAN:0.000004,HOMO:0.000004):0.013368):0.006229):0.001213):0.165422,MONODELPHIS:0.138559);"; //using treeview-like labelling
+// use tip alphanumeric labels
+//		String input = ("(((8_LOXODONTA,3_DASYPUS)24,((((2_CANIS,(5_EQUUS,((20_TURSIOPS,1_BOS)31,21_VICUGNA)30)29)28,((16_PTERONOTUS,12_MYOTIS)33,((18_RHINOLOPHUS,9_MEGADERMA)35,(17_PTEROPUS,4_EIDOLON)36)34)32)27,(19_SOREX,6_ERINACEUS)37)26,((11_MUS,(14_ORYCTOLAGUS,13_OCHOTONA)40)39,(15_PAN,7_HOMO)41)38)25)23,10_MONODELPHIS);"); // no spaces
+//		String input = "(((8_LOXODONTA, 3_DASYPUS) 24 , ((((2_CANIS, (5_EQUUS, ((20_TURSIOPS, 1_BOS) 31 , 21_VICUGNA) 30 ) 29 ) 28 , ((16_PTERONOTUS, 12_MYOTIS) 33 , ((18_RHINOLOPHUS, 9_MEGADERMA) 35 , (17_PTEROPUS, 4_EIDOLON) 36 ) 34 ) 32 ) 27 , (19_SOREX, 6_ERINACEUS) 37 ) 26 , ((11_MUS, (14_ORYCTOLAGUS, 13_OCHOTONA) 40 ) 39 , (15_PAN, 7_HOMO) 41 ) 38 ) 25 ) 23 , 10_MONODELPHIS) 22 ;"; // with spaces
 		TreeNode phylogeny_number_1 = new TreeNode(input,1);
 		// create a taxa list to look for
 		String[] bats = {
@@ -219,7 +223,6 @@ public class CodemlAncestralSiteOutputParserTest extends TestCase {
 				"PTEROPUS",
 				"EIDOLON"
 		};
-		HashSet<String> echoMap = new HashSet<String>(Arrays.asList(bats));
 
 		/* guff from the TreenNode.getBranchNumberingIDContainingTaxa() test
 		 * 
@@ -242,21 +245,32 @@ public class CodemlAncestralSiteOutputParserTest extends TestCase {
 		
 		
 		String[] cetartiodactyls = {"TURSIOPS","BOS"};
-		HashSet<String> cetMap = new HashSet<String>(Arrays.asList(cetartiodactyls));
-		
+		String[] cows = {"BOS"};
+		String[] dols = {"TURSIOPS"};
+		Object[] tries = {cetartiodactyls,cows,dols};
 		
 		// should have the tree set up now
 		// set up the parser with output:
 		String convergentSitesFilePath = System.getProperty("debugConvergentSitesFilePath");
 		CodemlAncestralSiteOutputParser parser = new CodemlAncestralSiteOutputParser(new File(convergentSitesFilePath));
 		parser.setPhylogeny(phylogeny_number_1);
-		float[] dataForThisPair = null;
-		try {
-			dataForThisPair = parser.getProbabilitiesForAncestralBranchComparisonsDefinedByTaxonSetMRCAs(bats, cetartiodactyls);
-			System.out.println(dataForThisPair[0]);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		for(Object focal:tries){
+			String[] focalTaxa = (String[]) focal;
+			float[] dataForThisPair = null;
+			try {
+				dataForThisPair = parser.getProbabilitiesForAncestralBranchComparisonsDefinedByTaxonSetMRCAs(bats, focalTaxa);
+				for(float val:dataForThisPair){
+					System.out.print(val+"\t");
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.print("\t(");
+			for(String taxon:focalTaxa){
+				System.out.print(taxon+",");
+			}
+			System.out.println(")");
 		}
 		
 	}

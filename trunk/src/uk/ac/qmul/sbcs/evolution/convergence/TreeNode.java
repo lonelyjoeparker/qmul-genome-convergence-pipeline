@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import jebl.math.Random;
 
@@ -156,9 +158,13 @@ public class TreeNode {
 	 */
 	public int[] setNodeNumbers(int maxTipNumbering, int maxInternalNumbering){
 		if(isTerminal){
-			try {
+			// TODO enable parsing of Rod Paige / TreeView format strings, containing IDs and names. e.g. 10_MONODELPHIS should receive '10'.
+			// TODO grep on /^[0-9]+/ e.g. greedy on opening contiguous numbers?
+			Pattern digitStart = Pattern.compile("^[0-9]+");
+			Matcher digitMatch = digitStart.matcher(content);
+			if(digitMatch.find()) try {
 				// try and parse the tip content in case a number is present
-				int parsedNumber = Integer.parseInt(content);
+				int parsedNumber = Integer.parseInt(digitMatch.group());
 				this.nodeNumber = parsedNumber;
 				if(nodeNumber > maxTipNumbering){maxTipNumbering = nodeNumber;}
 			} catch (NumberFormatException e) {

@@ -16,10 +16,13 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileReader;
 /**
  * Class to parse the convergentSites.out output from the modified codeml-ancestral package by	Jason De Koning at evolutionarygenomics.com / U Colorado, and used in Castoe <i>et al.</i> (2009)'s paper on convergence in agamid lizards.
  * <p>Constructor should be called with a single {@link java.io.File} argument, this being the location of the convergentSites.out file. The constructor will then build a hash of node comparison IDs and site convergent/divergent probability data. This can then be polled by the getData() method.</p>
+ * <p>Note that general outputs (tree string, taxon list) can be pulled from the codeml-anc.out file using {@link uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlAncestralGeneralOutputParser}</p>
  * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
  * @see <a href="http://www.evolutionarygenomics.com/codeml_ancestral/ancestral.html">evolutionarygenomics.com</a>
  * @see <a href="http://www.evolutionarygenomics.com/codeml_ancestral/codeMLancestral/README.txt">codeml-ancestral README</a>
- */
+ * @see {@link uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml}
+ * @see {@link uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlAncestralGeneralOutputParser}
+*/
 public class CodemlAncestralSiteOutputParser {
 	// A class to parse the sites info from codeml-ancestral
 	// By 'sites info' we mean the '' file from the codeml-ancestral analysis
@@ -110,10 +113,24 @@ public class CodemlAncestralSiteOutputParser {
 	}
 
 	/**
+	 * Set the phylogeny (also calls setNodeNumbers as we'll need these to extract the node IDs for branch-pair comparison etc)
 	 * @param phylogeny the phylogeny to set
 	 */
 	public void setPhylogeny(TreeNode phylogeny) {
 		this.phylogeny = phylogeny;
+		// set internal node numbers, we'll need these...
+		this.phylogeny.setNodeNumbers(0, this.phylogeny.howManyTips());
+	}
+
+	/**
+	 * Set the pylogeny AND specified a HashMap<String,Integer> of terminal tip name - ID mappings. (also calls setNodeNumbers as we'll need these to extract the node IDs for branch-pair comparison etc)
+	 * @param phylogeny the phylogeny to set
+	 * 
+	 */
+	public void setPhylogenyWithSpecifiedTipLabelNumberMapping(TreeNode phylogeny, HashMap<String,Integer> specifiedTipNameNumberMapping) {
+		this.phylogeny = phylogeny;
+		// set the specified mapping for tip names - numbers
+		phylogeny.setTipNameNumberMapping(specifiedTipNameNumberMapping);
 		// set internal node numbers, we'll need these...
 		this.phylogeny.setNodeNumbers(0, this.phylogeny.howManyTips());
 	}
@@ -142,20 +159,52 @@ public class CodemlAncestralSiteOutputParser {
 		return returnMatrix;
 	}
 	
+	/**
+	 * Return all the sitewise (not-summed) divergent, convergent, parallel, strict-convergent probabilities for any branch-pair comparisons including a particular node number.
+	 * <p>This is presented as an [n][4] matrix.
+	 * <p>This method uses the {@link BranchPairComparison#contains()} method to search for nodes in the data.
+	 * @param nodeNumber - an integer UID describing a node (tip or internal) in the data
+	 * @return float[n][4] containing the divergent, convergent, parallel, strict-convergent probabilities for any branch-pair comparisons including the specified node number.
+	 */
 	public float[][] getSitewiseBranchPairProbabilitiesIncludingSpecificNodeNumber(int nodeNumber){
 		// return all the sitewise (not-summed) divergent, convergent, parallel, strict-convergent probabilities for any branch-pair comparisons including a particular node number
-		// currently only way to do this is loop through the data examining each String of composite_unique_branch_key looking to see if it contains nodeNumber. buggy as fuck, not even going to implement that
-		// TODO not implemented
 		// FIXME implement this
-		return null;
+		ArrayList<Float[]> returnArray = new ArrayList<Float[]>();
+		Iterator<BranchPairComparison> dataItr = data.keySet().iterator();
+		while(dataItr.hasNext()){
+			BranchPairComparison candidate = dataItr.next();
+			if(candidate.contains(nodeNumber)){
+				returnArray.addAll(data.get(candidate));
+			}
+		}
+		float[][] returnMatrix = new float[returnArray.size()][4];
+		int row_index = 0;
+		for(Float[] row:returnArray){
+			for(int i=0;i<4;i++){
+				returnMatrix[row_index][i] = row[i];
+			}
+			row_index++;
+		}
+		return returnMatrix;
 	}
 	
+	/**
+	 * Return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for any branch-pair comparisons including a particular node number.
+	 * <p>This is achieved by taking column sums from an [n][4] matrix returned by the {@link CodemlAncestralSiteOutputParser#getSitewiseBranchPairProbabilitiesIncludingSpecificNodeNumber(int nodeNumber)} method.
+	 * <p><i>That</i> method uses the {@link BranchPairComparison#contains()} method to search for nodes.
+	 * @param nodeNumber - an integer UID describing a node (tip or internal) in the data
+	 * @return float[4] containing the summed divergent, convergent, parallel, strict-convergent probabilities for any branch-pair comparisons including the specified node number.
+	 */
 	public float[] getSummedBranchPairProbabilitiesIncludingSpecificNodeNumber(int nodeNumber){
 		// return all the sitewise (summed) divergent, convergent, parallel, strict-convergent probabilities for any branch-pair comparisons including a particular node number
-		// currently only way to do this is loop through the data examining each String of composite_unique_branch_key looking to see if it contains nodeNumber. buggy as fuck, not even going to implement that
-		// TODO not implemented
-		// FIXME implement this
-		return null;
+		float[][] returnMatrix = this.getSitewiseBranchPairProbabilitiesIncludingSpecificNodeNumber(nodeNumber);
+		float[] retArr = new float[4];
+		for(int i=0;i<returnMatrix.length;i++){
+			for(int j=0;j<4;j++){
+				retArr[j] += returnMatrix[i][j];
+			}
+		}
+		return retArr;
 	}
 	
 	public float[] getProbabilitiesForNodeComparisons(BranchPairComparison comparison) throws NullBranchPairComparisonPointerException{
@@ -345,7 +394,182 @@ public class CodemlAncestralSiteOutputParser {
 		/**
 		 * Custom exception when there is no reference phylogeny present yet
 		 */
-		private static final long serialVersionUID = -4901978545143436342L;}
+		private static final long serialVersionUID = -4901978545143436342L;
+	}
+	
+	/**
+	 * Internal class to determine whether an ArrayList<Branch> contains a continuous path/lineage from tip A <=> tip B.
+	 * <p><b>NOTE</b> that internal lineage representation implemented in {@link HashSet}; thus, duplicate branches <i>can exist</i>
+	 * <p><b>NOTE</b> that there is no mechanism at the moment to define nodes as tips only. This means internal node UIDs <i>could</i> be used. This would be a bad idea, as chains could extend towards terminal tips without ever joining!
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 */
+	public class BranchLineage{
+		final int tip_UID_A;	// the tip the lineage runs from	
+		final int tip_UID_B;	// the tip the lineage ultimately runs to
+		private int extent_chain_A;	// the chain of branches from A
+		private int extent_chain_B;	// the chain of branches from B
+		private boolean adjoins = false;	// whether A and B chains join 
+		private HashSet<Branch> branchPool;	// branches added to the lineage that don't add 
+		private HashSet<Branch> chain_A;
+		private HashSet<Branch> chain_B;
+		private HashSet<Branch> completeLineage;
+		
+		/**
+		 * Constructor for BranchLineage - args are tip UIDs for destination points, and the {@link Branch}es that contain them.
+		 * <p><b>NOTE</b> that internal lineage representation implemented in {@link HashSet}; thus, duplicate branches <i>can exist</i>
+		 * 
+		 * @param A - UID for node number at one tip of the lineage
+		 * @param B - UID for node number at the other tip of the lineage
+		 */
+		public BranchLineage(int A, int B){
+			tip_UID_A = A;
+			tip_UID_B = B;
+			extent_chain_A = tip_UID_A;
+			extent_chain_B = tip_UID_B;
+			branchPool = new HashSet<Branch>();
+			chain_A = new HashSet<Branch>();
+			chain_B = new HashSet<Branch>(); 
+		}
+		
+		/**
+		 * Returns the {@link HashSet} of all {@link Branch}es that connect this lineage, if it is complete. Tests whether adjoins is already true, or attempts to complete from branch pool if it isn't before giving up and throwing a NullPointerException if the lineage can't be completed from the branch pool.
+		 * @return HashSet<Branch> of the branches comprising this lineage.
+		 * @throws NullPointerException if the lineage can't be completed from the two chains (A and B) and the current branch pool.
+		 */
+		public HashSet<Branch> getCompleteLineage() throws NullPointerException{
+			if(adjoins){
+				return completeLineage;
+			}else{
+				if(this.doesLineageAdjoin()){
+					return completeLineage;
+				}else{
+					throw new NullPointerException("Lineage not set / does not adjoin");
+				}
+			}
+		}
+		
+		/**
+		 * Adds a branch to the internal branches ArrayList
+		 * @param newBranch - branch to be added to lineage.
+		 */
+		public boolean addBranch(Branch newBranch){
+			// before adding this branch to the branch pool, see if by chance we can extend either chain
+			boolean A_contains = false;
+			boolean B_contains = false;
+			if(newBranch.contains(extent_chain_A)){
+				chain_A.add(newBranch);
+				extent_chain_A = newBranch.otherNode(extent_chain_A);
+				A_contains = true;
+			}
+			if(newBranch.contains(extent_chain_B)){
+				if(A_contains){
+					// the branch contains A and B chain tips
+					// therefore the lineage is complete (Branch b will already have been added to chain_A, and extent_A == extent_B); no need to add this branch
+					adjoins = true;
+					completeLineage = new HashSet<Branch>();
+					completeLineage.addAll(chain_A);
+					completeLineage.addAll(chain_B);
+				}else{
+					chain_B.add(newBranch);
+					extent_chain_B = newBranch.otherNode(extent_chain_B);
+					B_contains = true;
+				}
+			}
+			// call doesLineageAdjoin() in case the new branch has allowed previous branches to be inserted;
+			this.doesLineageAdjoin();
+			// finish up by returning a boolean depending on whether the branch has been successfully added or not
+			if(A_contains || B_contains){
+				// Branch b happens to contain A or B chain tip, those chains have been extended, no need to add to branch pool
+				return true;
+			}else{
+				// Neither 
+				return branchPool.add(newBranch);
+			}
+		}
+		
+		/**
+		 * Evaluates whether the ArrayList<Branch> branches describes a continuous lineage from A to B; returns true if so; all other values false.
+		 * <p>Pseudocode:
+		 * <pre>
+		 * extent_A = tip_A
+		 * extent_B = tip_B
+		 * chain_A
+		 * chain_B
+		 * exhausted = false #this will set to true if we ever iterate through all available branches without a hit
+		 * while(!exhausted){
+		 * 	extended_this_round = false
+		 * 	for(branch:branches){
+		 * 		if(branch.contains(extent_A){
+		 * 			extent_A = branch.tip.not_extent_A
+		 * 			chain_A.add(branch)
+		 * 			extended_this_round = true
+		 * 		}
+		 * 		if(branch.contains(extent_B){... as for A...}
+		 * 		if(branch.contains(extent_A && extent_B){
+		 * 			#this is the final branch, lineage is complete
+		 * 			adjoins = true; extended_this_round = true
+		 * 		}
+		 * 	}
+		 * 	exhausted = !extended_this_round
+		 * }
+		 * </pre>
+		 * @return true if branches describe a path from A to B; otherwise false
+		 */
+		public boolean doesLineageAdjoin(){
+			if(adjoins){
+				// lineage has already been evaluated and adjoins flag evaluated true; return it
+				return adjoins;
+			}else{
+				// we need to evaluate whether lineages adjoin
+				boolean exhausted = false;
+				while(!exhausted){
+					// flag to keep track of whether we've managed to add a branch to from the pool to the chains
+					boolean extended_this_round = false;
+					// loop through the branches, trying to extend the chain if we can...
+					Iterator<Branch> branchPoolItr = branchPool.iterator();
+					while(branchPoolItr.hasNext()){
+						Branch someBranch = branchPoolItr.next();
+						boolean A_contains = false;
+						boolean B_contains = false;
+						// see if the branch can extend chain A
+						if(someBranch.contains(extent_chain_A)){
+							// add to chain A
+							chain_A.add(someBranch);
+							// remove from pool
+							branchPoolItr.remove();
+							extent_chain_A = someBranch.otherNode(extent_chain_A);
+							A_contains = true;
+						}
+						// see if the branch can extend chain B
+						if(someBranch.contains(extent_chain_B)){
+							// first check termination condition
+							if(A_contains){
+								// the branch contains A and B chain tips
+								// therefore the lineage is complete (Branch b will already have been added to chain_A, and extent_A == extent_B); no need to add this branch
+								adjoins = true;
+								completeLineage = new HashSet<Branch>();
+								completeLineage.addAll(chain_A);
+								completeLineage.addAll(chain_B);
+							}else{
+								// add to chain B
+								chain_B.add(someBranch);
+								// remove from pool
+								branchPoolItr.remove();
+								extent_chain_B = someBranch.otherNode(extent_chain_B);
+								B_contains = true;
+							}
+						}
+						// have we managed to exend either chain in this round?
+						extended_this_round = (A_contains || B_contains || extended_this_round);
+					}
+					// if we've not managed to add a branch at all, then we have exhausted all possibilities - can't form a lineage between these chains with this branch pool!
+					exhausted = !extended_this_round;
+				}
+				return adjoins;
+			}
+		}
+	}
 	
 	/**
 	 * Internal class to represent pairs of branches (themselves pairs of nodes) which are compared in a branch-pair comparison.
@@ -519,6 +743,20 @@ public class CodemlAncestralSiteOutputParser {
 		}
 		
 		/**
+		 * Given a node UID, checks whether this branch contains this node. If so returns the other node UID. If not, throws NullPointerException
+		 * @param some_node - the UID of some node, hopefully present on this branch
+		 * @return int - UID of the other node comprising this branch
+		 * @throws NullPointerException if some_node isn't in fact present on this branch.
+		 */
+		public int otherNode(int some_node) throws NullPointerException{
+			if(this.contains(some_node)){
+				if(some_node == node_begin){return node_end;}else{return node_begin;}
+			}else{
+				throw new NullPointerException("Node "+some_node+" not found at branch "+this.toString());
+			}
+		}
+		
+		/**
 		 * Bidirectional equality test. Returns true if the branch joins both node start AND node end.
 		 * @param start node at start of branch
 		 * @param finish node at end of branch
@@ -528,6 +766,20 @@ public class CodemlAncestralSiteOutputParser {
 			return((node_begin==start && node_end==finish)||(node_begin==finish && node_end==start));
 		}
 		
+		/**
+		 * Bidirectional equality test. Returns true if the two branches are equal, e.g. join the same pair of nodes.
+		 * @param B branch to test
+		 * @return true if branches describe the same pair of nodes
+		 */
+		@Override
+		public boolean equals(Object o){
+			if(o instanceof Branch){
+				Branch b = (Branch) o;
+				return(this.equals(b.node_begin, b.node_end));
+			}
+			return false;
+		}		
+
 		/**
 		 * Bidirectional equality test. Returns true if the two branches are equal, e.g. join the same pair of nodes.
 		 * @param B branch to test

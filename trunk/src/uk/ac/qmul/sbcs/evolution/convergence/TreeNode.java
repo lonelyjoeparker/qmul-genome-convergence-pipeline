@@ -18,6 +18,7 @@ import jebl.math.Random;
 // TODO Expand this javadoc
 public class TreeNode {
 	ArrayList<TreeNode> daughters;
+	HashMap<String,Integer> tipNumberingMap = null;
 	TreeNode parent;
 	boolean isTerminal;
 	String content;
@@ -158,21 +159,54 @@ public class TreeNode {
 	 */
 	public int[] setNodeNumbers(int maxTipNumbering, int maxInternalNumbering){
 		if(isTerminal){
-			// TODO enable parsing of Rod Paige / TreeView format strings, containing IDs and names. e.g. 10_MONODELPHIS should receive '10'.
+			/*
+			 * There are several possible contingencies for tip naming schemes that this method has to address:
+			 * 
+			 * 	1. Tips are named simply as [A-Za-z] strings, and numbering is not important, e.g.: (((LOXODONTA:0.1,DASYPUS:0.1):0.1,((((CANIS:0.1,(EQUUS:0.1,((TURSIOPS:0.1,BOS:0.1):0.1,VICUGNA:0.1):0.1):0.1):0.1,((PTERONOTUS:0.1,MYOTIS:0.1):0.1,((RHINOLOPHUS:0.1,MEGADERMA:0.1):0.1,(PTEROPUS:0.1,EIDOLON:0.1):0.1):0.1):0.1):0.1,(SOREX:0.1,ERINACEUS:0.1):0.1):0.1,((MUS:0.1,(ORYCTOLAGUS:0.1,OCHOTONA:0.1):0.1):0.1,(PAN:0.1,HOMO:0.1):0.1):0.1):0.1):0.1,MONODELPHIS:0.1)
+			 * 		(in this case numbering would proceed from (1,2..n) in the order tips are encountered.
+			 * 	2. Tips are named simply as in (1), but a specific numbering order is required by another class. For instance, PAML may have numbered sequences/taxa alphabetically.
+			 * 		(in this case the numbering for the same topology above may look like (((8, 3), ((((2, (5, ((20, 1), 21))), ((16, 12), ((18, 9), (17, 4)))), (19, 6)), ((11, (14, 13)), (15, 7)))), 10) in numbered form.
+			 * 	3. Tips are already numeric only (as in the exmaple in (2)
+			 * 	4. Tips are a horrible hybrid composite label, e.g. (((8_LOXODONTA, 3_DASYPUS) 24 , ((((2_CANIS, (5_EQUUS, ((20_TURSIOPS, 1_BOS) 31 , 21_VICUGNA) 30 ) 29 ) 28 , ((16_PTERONOTUS, 12_MYOTIS) 33 , ((18_RHINOLOPHUS, 9_MEGADERMA) 35 , (17_PTEROPUS, 4_EIDOLON) 36 ) 34 ) 32 ) 27 , (19_SOREX, 6_ERINACEUS) 37 ) 26 , ((11_MUS, (14_ORYCTOLAGUS, 13_OCHOTONA) 40 ) 39 , (15_PAN, 7_HOMO) 41 ) 38 ) 25 ) 23 , 10_MONODELPHIS) 22 ;
+			 * 
+			 * This class has ^attempted^ to cover all these but focussed mainly on (1) and (2). Note that support for tip labelling with specific name-ID mappings is supported through the setTipNameNumberMapping() method, in which a HashMap<String,Integer> is used to specify them.
+			 * Note also that this is not very well tested for odd mixtures of labels (some numeric, some alphabetical, some both), or for whitespace / special chars. 
+			 */
+			//enable parsing of Rod Paige / TreeView format strings, containing IDs and names. e.g. 10_MONODELPHIS should receive '10'.
 			// TODO grep on /^[0-9]+/ e.g. greedy on opening contiguous numbers?
 			Pattern digitStart = Pattern.compile("^[0-9]+");
 			Matcher digitMatch = digitStart.matcher(content);
-			if(digitMatch.find()) try {
-				// try and parse the tip content in case a number is present
-				int parsedNumber = Integer.parseInt(digitMatch.group());
-				this.nodeNumber = parsedNumber;
-				if(nodeNumber > maxTipNumbering){maxTipNumbering = nodeNumber;}
-			} catch (NumberFormatException e) {
-				// either no number is present, or we can't parse it
-				//e.printStackTrace(); we don't really need the stack trace
-				// assign numnber for this tip de novo
+			if(digitMatch.find()){
+				// a number is present at the start of the content string
+				try {
+					// try and parse the tip content as a number is present
+					int parsedNumber = Integer.parseInt(digitMatch.group());
+					this.nodeNumber = parsedNumber;
+					if(nodeNumber > maxTipNumbering){maxTipNumbering = nodeNumber;}
+				} catch (NumberFormatException e) {
+					// either no number is present, or we can't parse it
+					//e.printStackTrace(); we don't really need the stack trace
+					// assign numnber for this tip de novo
+					maxTipNumbering++;
+					this.nodeNumber = maxTipNumbering;
+				}
+			} else {
+				// this content string appears to be alphanumeric, at least, numerals are not present at the start of the string
+				// increment and label tip numbers as normal (so that maxtipNumbering == number of tips in the tree), but we'll check to see if a specific name-ID mapping exists too.
 				maxTipNumbering++;
 				this.nodeNumber = maxTipNumbering;
+				// see if the tipNumberingMap is set
+				if(this.tipNumberingMap != null){
+					// note that nodeNumber and tempNumbering are ^not^ initialised. this is because the ID returned by tipNumberingMap.get(content) could have any value and is not predictable. 
+					// this means that iniialising to 0 and testing for inequality (or any other test) might give odd results.
+					try {
+						// there is a map present, see if this tip content has a numbering ID specified
+						int tempNumbering = tipNumberingMap.get(content);
+						this.nodeNumber = tempNumbering;
+					} catch (Exception e) {
+						// no tip found with a numbering specified
+					}
+				}
 			}
 		}else{
 			maxInternalNumbering++;
@@ -720,5 +754,49 @@ public class TreeNode {
 			}
 		}
 		return retval;
+	}
+
+	/**
+	 * Sets the HashMap<String,Integer> that will contain the taxon names / numeric IDs (both unique). This information is required to ensure that classes using specific tip-ID mappings can specify them (e.g. {@link:uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlAncestralSiteOutputParser} using PAML's tip-numberings, not native sequential numberings.
+	 * @param tipNumberMap a HashMap of String,Integer containing the taxon names / numeric IDs (both unique)
+	 */
+	public void setTipNameNumberMapping(HashMap<String, Integer> tipNumberMap) {
+		// set mapping for this node
+		if(this.tipNumberingMap == null){
+			this.tipNumberingMap = tipNumberMap;
+		}
+		if(!isTerminal){
+			// traverse the tree recursively
+			for(TreeNode daughter:daughters){
+				daughter.setTipNameNumberMapping(tipNumberingMap);
+			}
+		}
+	}
+
+	/**
+	 * A method that extracts the ID (numbering) for tip taxonName within the tree. NB names are matched using String.equals(String) call, so are caSe SeNsITive.
+	 * <p><b>IMPORTANT</b> returns 0 with no error/exception if no matching tip can be found. Be warned!
+	 * @param taxonName
+	 * @return integer unique ID defining the tip which has this taxonName. NB returns 0 if no tip found with no error.
+	 */
+	public int getTipNumber(String taxonName) {
+		int retval = 0;
+		// is this a terminal?
+		if(isTerminal){
+			//it this tip the right one?
+			if(content.equals(taxonName)){
+				retval = nodeNumber;
+			}
+			return retval;
+		}else{
+			//recurse the tree
+			for(TreeNode daughter:daughters){
+				int searchDaughters = daughter.getTipNumber(taxonName);
+				if(searchDaughters != 0){
+					retval = searchDaughters;
+				}
+			}
+			return retval;
+		}
 	}
 }

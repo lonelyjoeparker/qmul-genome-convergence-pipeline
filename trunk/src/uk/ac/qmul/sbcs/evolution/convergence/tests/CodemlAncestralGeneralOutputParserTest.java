@@ -5,13 +5,10 @@ package uk.ac.qmul.sbcs.evolution.convergence.tests;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.TreeSet;
 
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlAncestralGeneralOutputParser;
-import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlAncestralSiteOutputParser;
-import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlAncestralSiteOutputParser.Branch;
 import uk.ac.qmul.sbcs.evolution.convergence.handlers.documents.parsers.codeml.CodemlAncestralSiteOutputParser.BranchLineage;
 import junit.framework.TestCase;
 
@@ -88,27 +85,6 @@ public class CodemlAncestralGeneralOutputParserTest extends TestCase {
 		String testExpectedTree = "(((LOXODONTA,DASYPUS),((((CANIS,(EQUUS,((TURSIOPS,BOS),VICUGNA))),((PTERONOTUS,MYOTIS),((RHINOLOPHUS,MEGADERMA),(PTEROPUS,EIDOLON)))),(SOREX,ERINACEUS)),((MUS,(ORYCTOLAGUS,OCHOTONA)),(PAN,HOMO)))),MONODELPHIS)";
 		if(!phylogeny.getContent().equals(testExpectedTree)){
 			fail("tree string not parsed correctly ("+phylogeny.getContent()+")"); 
-		}
-	}
-
-	/**
-	 * Tests that the behaviour of Branch in Collections.contains() method is correct.
-	 */
-	public final void testBranchContains() {
-		HashSet<Branch> branches = new HashSet<Branch>();
-		branches.add(new CodemlAncestralSiteOutputParser().new Branch(1,4));
-		branches.add(new CodemlAncestralSiteOutputParser().new Branch(8,4));
-		branches.add(new CodemlAncestralSiteOutputParser().new Branch(38,8));
-		Branch test = new CodemlAncestralSiteOutputParser().new Branch(8,38);
-		int[] hashCodes = new int[4];
-		hashCodes[0] = test.hashCode();
-		int i=1;
-		for(Branch abranch:branches){
-			hashCodes[i] = abranch.hashCode();
-			i++;
-		}
-		if(!branches.contains(test)){
-			fail("failed to find branch");
 		}
 	}
 }

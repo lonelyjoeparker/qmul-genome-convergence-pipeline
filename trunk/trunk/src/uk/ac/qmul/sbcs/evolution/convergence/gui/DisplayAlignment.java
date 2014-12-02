@@ -140,7 +140,7 @@ public class DisplayAlignment{
 		return this.name;
 	}
 	
-	protected void setName(String newName) {
+	public void setName(String newName) {
 		this.name = newName;
 	}
 

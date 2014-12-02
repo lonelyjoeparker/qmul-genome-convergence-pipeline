@@ -59,6 +59,7 @@ import javax.swing.table.TableColumn;
 //import org.jfree.chart.JFreeChart;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.wireframe.CirclePanel;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 
 

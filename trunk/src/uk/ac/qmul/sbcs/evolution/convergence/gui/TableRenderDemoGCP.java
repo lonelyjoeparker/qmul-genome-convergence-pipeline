@@ -63,6 +63,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.wireframe.ChartTestbed;
 import uk.ac.qmul.sbcs.evolution.convergence.runners.BasicAlignmentStats;
 import uk.ac.qmul.sbcs.evolution.convergence.tests.AlignedSequenceRepresentationPreloader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;

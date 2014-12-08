@@ -26,6 +26,6 @@ public class GlobalController {
 
 	public void addResultsController(ResultsController addResultsController) {
 		this.resultsController = addResultsController;
-		view.addTab(this.resultsController.getView());
+		view.addTab(this.resultsController.getView(), "Results tab");
 	}
 }

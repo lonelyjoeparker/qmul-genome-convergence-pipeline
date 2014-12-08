@@ -17,7 +17,7 @@ public class GlobalApplicationView extends JFrame {
 		setVisible(true);
 	}
 	
-	public void addTab(JComponent comp){
-		mainTabPane.add(comp);
+	public void addTab(JComponent comp, String tabName){
+		mainTabPane.add(comp, tabName);
 	}
 }

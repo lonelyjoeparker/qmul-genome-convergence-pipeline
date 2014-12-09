@@ -2,6 +2,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.util.HashSet;
 import java.util.Random;
 
 import javax.swing.JPanel;
@@ -488,6 +489,20 @@ public class DisplayAlignment{
 		return whichNonZeroEntropyRunAA;
 	}
 
+	/**
+	 * Compares a HashSet<String> of taxa against the String[] of taxa present in this DisplayAlignment. Any new taxa are added to the set and the set is returned.
+	 * @param originalNameSet
+	 * @return originalNameSet with any unseen taxa present in the DisplayAlignment added...
+	 */
+	public HashSet<String> expandTaxonNameSet(HashSet<String> originalNameSet) throws NullPointerException{
+		for(String someTaxon:this.taxa){
+			if(!originalNameSet.contains(someTaxon)){
+				originalNameSet.add(someTaxon);
+			}
+		}
+		return originalNameSet;
+	}
+	
 	/**
 	 * Guesses the locus name from the alignment name
 	 * @return

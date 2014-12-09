@@ -19,18 +19,20 @@ public class ResultsController {
 
 	ResultsTableModel model;
 	ResultsView view;
+	AddResultsButtonListener addResultsListener;
 
 	public ResultsController(ResultsTableModel aModel, ResultsView aView){
 		model = aModel;
 		view = aView;
-		view.addResultsButtonListener(new AddResultsButtonListener());
+		addResultsListener = new AddResultsButtonListener();
+		view.addResultsButtonListener(addResultsListener);
 		view.addTable(model);
 		initColumnSizes();
 		view.addListRowSelectionListener(new ResultsRowListener());
 		view.addListColumnSelectionListener(new ResultsColumnListener());
 	}
 
-	class AddResultsButtonListener implements ActionListener{
+	public class AddResultsButtonListener implements ActionListener{
 		String chooserText = "choose a results file..";
 		@Override
 		public void actionPerformed(ActionEvent ev) {

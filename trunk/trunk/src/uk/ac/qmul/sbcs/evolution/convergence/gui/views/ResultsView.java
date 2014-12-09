@@ -24,10 +24,6 @@ public class ResultsView extends JComponent {
 	
 	public ResultsView() {
 		panel = new JPanel(new FlowLayout());
-		JLabel filler = new JLabel("results a sub panel");
-		filler.setHorizontalAlignment(JLabel.LEFT);
-		filler.setVerticalAlignment(JLabel.TOP);
-		panel.add(filler);
 		addResults = new JButton("Add results...");
 		panel.add(addResults);
 	}

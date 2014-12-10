@@ -539,4 +539,69 @@ public class TreeNodeTest extends TestCase {
 			fail();
 		}
 	}
+
+	/*
+	 * Test that the TreeNode is able to label tips separately and correctly where a HashMap<String,int> mapping for tip names -> numbers is provided
+	 */
+	public void testIterativeNodeNumberingWithTipMappingSet(){
+		// create the mapping set
+		HashMap<String,Integer> tipNumberMap = new HashMap<String,Integer>();
+		tipNumberMap.put("LOXODONTA",8 );
+		tipNumberMap.put("DASYPUS",3 );
+		tipNumberMap.put("CANIS",2);
+		tipNumberMap.put("EQUUS",5);
+		tipNumberMap.put("TURSIOPS",20);
+		tipNumberMap.put("BOS",1);
+		tipNumberMap.put("VICUGNA",21);
+		tipNumberMap.put("PTERONOTUS",16);
+		tipNumberMap.put("MYOTIS",12);
+		tipNumberMap.put("RHINOLOPHUS",18);
+		tipNumberMap.put("MEGADERMA",9);
+		tipNumberMap.put("PTEROPUS",17);
+		tipNumberMap.put("EIDOLON",4 );
+		tipNumberMap.put("SOREX",19);
+		tipNumberMap.put("ERINACEUS",6);
+		tipNumberMap.put("MUS",11);
+		tipNumberMap.put("ORYCTOLAGUS",14);
+		tipNumberMap.put("OCHOTONA",13);
+		tipNumberMap.put("PAN",15);
+		tipNumberMap.put("HOMO",7);
+		tipNumberMap.put("MONODELPHIS",10);
+		
+		String input="(((LOXODONTA:0.023584,DASYPUS:0.029504):0.000004,((((CANIS:0.076115,(EQUUS:0.014067,((TURSIOPS:0.000004,BOS:0.014131):0.003492,VICUGNA:0.021123):0.010546):0.000004):0.000004,((PTERONOTUS:0.025088,MYOTIS:0.032407):0.003456,((RHINOLOPHUS:0.008430,MEGADERMA:0.031984):0.005840,(PTEROPUS:0.000004,EIDOLON:0.006953):0.021190):0.000004):0.000004):0.000004,(SOREX:0.088536,ERINACEUS:0.044769):0.010306):0.003510,((MUS:0.090365,(ORYCTOLAGUS:0.011232,OCHOTONA:0.044380):0.036082):0.001096,(PAN:0.000004,HOMO:0.000004):0.013368):0.006229):0.001213):0.165422,MONODELPHIS:0.138559);";
+		TreeNode n1 = new TreeNode(input,1);
+		
+		// set the mapping set
+		n1.setTipNameNumberMapping(tipNumberMap);
+		
+		// set the numbering
+		n1.setNodeNumbers(0,n1.howManyTips());
+		
+		// test the numbering (implicit)
+		System.out.println(n1.printRecursivelyAsNumberedNodes());
+		System.out.println(n1.printRecursively());
+	
+		// test the numbering (explicit)
+		if(n1.getTipNumber("PAN") != 15){
+			fail("tip numbering incorrect (should be: 15; value in memory: "+n1.getTipNumber("PAN")+").");
+		}
+		String inputNumberedTips="(((8,3),((((2,(5,((20,1),21))),((16,12),((18,9),(17,4)))),(19,6)),((11,(14,13)),(15,7)))),10);";
+		TreeNode numbered = new TreeNode(inputNumberedTips,1);
+		
+		// test the numbering
+		numbered.setNodeNumbers(0,numbered.howManyTips());
+		
+		System.out.println(numbered.printRecursivelyAsNumberedNodes());
+		System.out.println(numbered.printRecursively());
+	
+		inputNumberedTips="(((LOXODONTA,DASYPUS),((((2,(5,((20,1),21))),((16,12),((18,9),(17,4)))),(19,6)),((11,(ORYCTOLAGUS,13_OCHOTONA)),(15,HOMO)))),10);";
+		numbered = new TreeNode(inputNumberedTips,1);
+		
+		// test the numbering
+		numbered.setNodeNumbers(0,numbered.howManyTips());
+		
+		System.out.println(numbered.printRecursivelyAsNumberedNodes());
+		System.out.println(numbered.printRecursively());
+	
+	}
 }

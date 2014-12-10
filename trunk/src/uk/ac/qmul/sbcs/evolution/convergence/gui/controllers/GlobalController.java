@@ -11,6 +11,7 @@ public class GlobalController {
 	GlobalModel model;
 	GlobalApplicationView view;
 	AlignmentsController alignmentsController;
+	PhylogeniesController phylogeniesController;
 	ResultsController resultsController;
 	MenuBarController menuBarController;
 	
@@ -42,6 +43,15 @@ public class GlobalController {
 	}
 
 	/**
+	 * Add the Controller for the phylogenies panel / model.
+	 * @param addPhylogeniesController
+	 */
+	public void addPhylogeniesController(PhylogeniesController addPhylogeniesController) {
+		this.phylogeniesController = addPhylogeniesController;
+		view.addTab(this.phylogeniesController.getView(), "Phylogenies");
+	}
+
+	/**
 	 * Add the Controller for the results panel / model.
 	 * @param addResultsController
 	 */
@@ -63,12 +73,15 @@ public class GlobalController {
 	 * Add those listeners which are global e.g. span multiple models/views/controllers
 	 */
 	public void addGlobalActionListeners(){
-		if((resultsController != null)&&(menuBarController != null)){
-			menuBarController.addAddResultsMenuListener(resultsController.addResultsListener);
-		}
 		if((alignmentsController != null)&&(menuBarController != null)){
 			menuBarController.addAddAlignmentsMenuListenerSingle(alignmentsController.addAlignmentsListenerSingle);
 			menuBarController.addAddAlignmentsMenuListenerBatch(alignmentsController.addAlignmentsListenerBatch);
+		}
+		if((phylogeniesController != null)&&(menuBarController != null)){
+			menuBarController.addAddPhylogeniesMenuListener(phylogeniesController.addPhylogenyListener);
+		}
+		if((resultsController != null)&&(menuBarController != null)){
+			menuBarController.addAddResultsMenuListener(resultsController.addResultsListener);
 		}
 	}
 

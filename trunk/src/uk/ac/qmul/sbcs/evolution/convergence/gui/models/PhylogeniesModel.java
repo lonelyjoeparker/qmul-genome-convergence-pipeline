@@ -64,25 +64,60 @@ public class PhylogeniesModel extends AbstractTableModel{
 	 * Add a new phylogeny to the TableModel as a File.
 	 */
 	public void addPhylogenyRowAsStringTree(File newTreeAsFile){
-		Object[][] newData = new Object[data.length+1][data[0].length];
-		for(int i=0;i<data.length;i++){
-			newData[i] = data[i];
+		if((data.length == 1)&&(data[0][0] == null)){
+			System.out.println("the first row of the table is null");
+			// rather than update it we should just replace
+			Object[][] newData = new Object[1][3];
+			Object[] newRow = new Object[3];
+			DisplayPhylogeny dp;
+			try {
+				dp = new DisplayPhylogeny(newTreeAsFile);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				dp = new DisplayPhylogeny("();");
+			}
+			newRow[0] = dp;
+			try {
+				newRow[1] = dp.getNewickTree().getNumberOfTrees();
+			} catch (Exception e) {
+				newRow[1] = 0;
+			}
+			try {
+				newRow[2] = dp.getTextTreeRepresentation();
+			} catch (Exception e) {
+				newRow[2] = "();";
+			}
+			newData[0] = newRow;
+			data = newData;
+			this.fireTableRowsInserted(data.length-1, data.length-1);
+		}else{
+			// data already exists
+			Object[][] newData = new Object[data.length+1][data[0].length];
+			for(int i=0;i<data.length;i++){
+				newData[i] = data[i];
+			}
+			Object[] newRow = new Object[this.getColumnCount()];
+			DisplayPhylogeny dp;
+			try {
+				dp = new DisplayPhylogeny(newTreeAsFile);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				dp = new DisplayPhylogeny("();");
+			}
+			newRow[0] = dp;
+			try {
+				newRow[1] = dp.getNewickTree().getNumberOfTrees();
+			} catch (Exception e) {
+				newRow[1] = 0;
+			}
+			try {
+				newRow[2] = dp.getTextTreeRepresentation();
+			} catch (Exception e) {
+				newRow[2] = "();";
+			}
+			newData[data.length] = newRow;
+			data = newData;
+			this.fireTableRowsInserted(data.length-1, data.length-1);
 		}
-		Object[] newRow = new Object[this.getColumnCount()];
-		DisplayPhylogeny dp = new DisplayPhylogeny(newTreeAsFile);
-		newRow[0] = dp;
-		try {
-			newRow[1] = dp.getNewickTree().getNumberOfTrees();
-		} catch (Exception e) {
-			newRow[1] = 0;
-		}
-		try {
-			newRow[2] = dp.getTextTreeRepresentation();
-		} catch (Exception e) {
-			newRow[2] = "();";
-		}
-		newData[data.length] = newRow;
-		data = newData;
-		this.fireTableRowsInserted(data.length-1, data.length-1);
 	}
 }

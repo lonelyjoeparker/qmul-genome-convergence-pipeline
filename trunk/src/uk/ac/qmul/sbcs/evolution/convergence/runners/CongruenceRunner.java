@@ -65,7 +65,7 @@ public class CongruenceRunner {
 		TreeSet<String> taxaList;
 		try {
 			taxaList = new CongruenceRunner().parseTaxaListConfigFile(args[8]);
-			String[] modelsList = {"dayhoff","wag","jones"};
+			String[] modelsList = {"wag"}; // other models ("jones","dayhoff") disabled for now
 			MultiHnCongruenceAnalysis analysis = new MultiHnCongruenceAnalysis(dataSet, mainTreesFile, constraintTreeFile, labelledTreesFile, workDir, binaries, runID, taxaList, modelsList, thisFilter, doFactor);
 			analysis.run();
 		} catch (Exception e) {

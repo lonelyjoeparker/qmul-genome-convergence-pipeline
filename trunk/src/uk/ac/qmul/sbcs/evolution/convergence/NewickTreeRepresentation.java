@@ -73,7 +73,18 @@ public class NewickTreeRepresentation {
 	 */
 	public NewickTreeRepresentation(File inputFile){
 		this.treeFile = inputFile;
-		this.treeString = new CapitalisedFileReader().loadSequences(treeFile,true).get(0);
+		ArrayList<String> trees = new CapitalisedFileReader().loadSequences(treeFile,true);
+		treeString = null;
+		for(String tree:trees){
+			if(!tree.isEmpty()){
+				if(treeString == null){
+					treeString = tree;
+				}else{
+					treeString = treeString + "\n"+ tree;
+				}
+				numberOfTrees++;
+			}
+		}
 		this.taxaNames = this.obtainTaxaNames(treeString);
 		this.numberOfTaxa = taxaNames.size();
 		this.separateTopologies = new String[this.numberOfTrees];
@@ -167,12 +178,13 @@ public class NewickTreeRepresentation {
 		this.treeFile = newTreeFile;
 	}
 	
-	@Deprecated
 	private TreeSet<String> obtainTaxaNames(String inputTreeString){
-		assert(false);
-		// FIXME this method is used by both single-arg constructors - they are marked deprecated until this method is implemented.
-		// TODO implement this.
+		TreeNode node = new TreeNode(inputTreeString, 1);
+		String[] tipNames = node.getTipsBelow();
 		TreeSet<String> names = new TreeSet<String>();
+		for(String aTip:tipNames){
+			names.add(aTip);
+		}
 		return names;
 	}
 	

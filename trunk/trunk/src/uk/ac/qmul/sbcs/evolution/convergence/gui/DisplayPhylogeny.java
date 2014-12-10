@@ -58,28 +58,28 @@ public class DisplayPhylogeny {
 	}
 	
 	/**
-	 * Constructor using String
+	 * Constructor using String. This is <b>VERY</b> likely to cause problems further on however
 	 * @param newTreeAsString
 	 */
 	public DisplayPhylogeny(String newTreeAsString){
-		newickTree = null;
-		treeNode = null;
-		taxonList = null;
-		taxonSet = null;
+		newickTree = new NewickTreeRepresentation(newTreeAsString);
+		treeNode = new TreeNode(newTreeAsString,1);
+		taxonList = treeNode.getTipsBelow();
+		taxonSet = newickTree.getTaxaNames();
 		textTreeRepresentation = newTreeAsString;
-		treeFile = null;
+		treeFile = new File("");
 	}
 
 	/**
 	 * Constructor using File. <b>Preferred constructor</b>.
 	 * @param newTreeAsFile
 	 */
-	public DisplayPhylogeny(File newTreeAsFile){
-		newickTree = null;
-		treeNode = null;
-		taxonList = null;
-		taxonSet = null;
-		textTreeRepresentation = null;
+	public DisplayPhylogeny(File newTreeAsFile) throws Exception{
+		newickTree = new NewickTreeRepresentation(newTreeAsFile);
+		treeNode = new TreeNode(newickTree.getTreeString(),1);
+		taxonList = treeNode.getTipsBelow();
+		taxonSet = newickTree.getTaxaNames();
+		textTreeRepresentation = treeNode.printRecursively();
 		treeFile = newTreeAsFile;
 	}
 

@@ -134,6 +134,9 @@ public class ResultsPrinterSimple{
 								if((fittedTrees.length == this.maxTrees)&&(someRun.getNumberOfTaxa()==22)){
 									bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+ensemblCode+" = [&R] "+fittedTrees[(this.maxTrees-1)]+"\n");	// this is a bit of a fudge, we're looking for the random tree really, if one's not been specified it won't be there...
 								}
+								// print H0 tree anyway
+								bufTree.append("\ttree "+model+"_"+someRun.getFilterFactor()+"_"+ensemblCode+" = [&R] "+fittedTrees[0]+"\n");
+
 								//							System.out.println("Fitted topologies: ");
 								//							System.out.println("\ttree\talpha\tpSH\tlnL\tlengths\ttopology");
 								//								for(int k=0;k<someRun.getNumberOfTopologies();k++){

@@ -19,6 +19,11 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 	private AlignmentsTableModel alignmentsModel;
 	private AlignmentsView alignmentsView;
 	private AlignmentsController alignmentsController;
+	// Phylogenies M-V-C
+	private PhylogeniesModel phylogeniesModel;
+	private PhylogeniesView phylogeniesView;
+	private PhylogeniesController phylogeniesController;
+	
 	// Results M-V-C
 	private ResultsTableModel resultsModel;
 	private ResultsView resultsView;
@@ -40,6 +45,11 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 		alignmentsView = new AlignmentsView();
 		alignmentsController = new AlignmentsController(alignmentsModel, alignmentsView);
 
+		// Phylogenies MVC
+		phylogeniesModel = new PhylogeniesModel();
+		phylogeniesView = new PhylogeniesView();
+		phylogeniesController = new PhylogeniesController(phylogeniesModel, phylogeniesView);
+		
 		// Results MVC
 		resultsModel = new ResultsTableModel();
 		resultsView = new ResultsView();
@@ -60,6 +70,9 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 		// Add the alignments model-view-controller to the global controller
 		globalController.addAlignmentsController(alignmentsController);
 
+		// Add the phylogenies model-view-controller to the global controller
+		globalController.addPhylogeniesController(phylogeniesController);
+		
 		// Add the results model-view-controller to the global controller
 		globalController.addResultsController(resultsController);
 		

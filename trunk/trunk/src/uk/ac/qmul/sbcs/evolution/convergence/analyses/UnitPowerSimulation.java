@@ -117,7 +117,7 @@ public class UnitPowerSimulation {
 		}
 		// CONVERGE!!
 		try {
-			simulatedData.simulateConvergence(masterTaxon, taxaToConverge , sitesToConverge);
+			simulatedData.simulateConvergenceInVariantSites(masterTaxon, taxaToConverge , sitesToConverge);
 		} catch (TaxaAbsentFromAlignmentException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

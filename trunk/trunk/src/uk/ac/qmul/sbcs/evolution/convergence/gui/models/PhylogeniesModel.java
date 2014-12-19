@@ -41,7 +41,11 @@ public class PhylogeniesModel extends AbstractTableModel{
 	 * rather than a check box.
 	 */
 	public Class getColumnClass(int c) {
-		return getValueAt(0, c).getClass();
+		if(data != null){
+			return getValueAt(0, c).getClass();
+		}else{
+			return null;
+		}
 	}
 
 	public Object[][] getData(){
@@ -56,6 +60,9 @@ public class PhylogeniesModel extends AbstractTableModel{
 	public PhylogeniesModel(){
 		// instantiate the table, although this is a bit risky as null vals in first row...
 		data = new Object[1][3];
+		data[0][0] = new DisplayPhylogeny("(A,(B,C));");
+		data[0][1] = 0;
+		data[0][2] = "(A,(B,C));";
 	}
 	
 	/* Object methods for specific PhylogenyModel-y things... */

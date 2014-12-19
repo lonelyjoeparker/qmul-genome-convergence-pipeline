@@ -1,6 +1,11 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui.views;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -23,6 +28,7 @@ public class PhylogeniesView extends JComponent {
 	private JTable phylogeniesTable;
 	private JScrollPane phylogenyTableScrollPane;
 	private JFileChooser chooser = new JFileChooser("Choose a phylogeny");
+	private TreeGraphicsDisplay renderPhylogeny = new TreeGraphicsDisplay();
 	
 	/**
 	 * Default no-arg constructor
@@ -35,6 +41,7 @@ public class PhylogeniesView extends JComponent {
 		displayPanel.add(new JLabel("Phylogeny display here"));
 		textTreeDisplay = new JTextArea("Trees as text strings");
 		textTreeDisplay.setColumns(35);
+		displayPanel.add(renderPhylogeny);
 		displayPanel.add(textTreeDisplay);
 		mainPanel.add(selectionPanel);
 		mainPanel.add(displayPanel);
@@ -46,6 +53,14 @@ public class PhylogeniesView extends JComponent {
 	 */
 	public void setTextTreeDisplay(String updateTextTreeString){
 		textTreeDisplay.setText(updateTextTreeString);
+	}
+	
+	/**
+	 * returns the JPanel containing the display phylogeny.
+	 * @return
+	 */
+	public TreeGraphicsDisplay getRenderedPhylogeny(){
+		return this.renderPhylogeny;
 	}
 	
 	/**
@@ -74,5 +89,29 @@ public class PhylogeniesView extends JComponent {
 		phylogenyTableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		phylogenyTableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		selectionPanel.add(phylogenyTableScrollPane);
+	}
+	
+	public class TreeGraphicsDisplay extends JPanel{
+		
+		Graphics2D g2d;
+		
+		@Override
+		public void paintComponent(Graphics g){
+			super.paintComponent(g);
+			g2d = (Graphics2D)g;
+			g2d.setBackground(Color.cyan);
+			g2d.fillRect(0, 0, 100, 100);
+			g2d.setColor(Color.RED);
+			g2d.drawString("Tree canvas text string",50,50);
+			g2d.setColor(Color.GREEN);
+			g2d.setStroke(new BasicStroke(10));
+			g2d.drawLine(25, 90, 125, 110);
+		}
+
+		public void drawCircle() {
+			// TODO Auto-generated method stub
+			g2d.setColor(Color.BLUE);
+			g2d.fillOval(75, 75, 30, 30);
+		}
 	}
 }

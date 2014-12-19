@@ -11,6 +11,7 @@ import javax.swing.JMenuBar;
 
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.AddBatchAlignmentsButtonListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.AddSingleAlignmentsButtonListener;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AnalysesController.AddAnalysesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.PhylogeniesController.AddPhylogeniesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.GlobalModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.MenuBarFactory;
@@ -79,6 +80,14 @@ public class MenuBarController {
 		view.loadTrees.addActionListener(addPhylogeniesListener);
 	}
 
+	/**
+	 * Add an actionListener to the 'Load pre-specified as XML...' menu item.
+	 * @param al
+	 */
+	public void addAddAnalysesMenuListener(AddAnalysesListener addAnalysesListener) {
+		view.loadAnalysisXMLs.addActionListener(addAnalysesListener);
+	}
+	
 	/**
 	 * Add an actionListener to the 'Add Results...' menu item.
 	 * @param al

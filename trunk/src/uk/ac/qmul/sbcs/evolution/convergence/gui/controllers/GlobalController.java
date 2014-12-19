@@ -12,6 +12,7 @@ public class GlobalController {
 	GlobalApplicationView view;
 	AlignmentsController alignmentsController;
 	PhylogeniesController phylogeniesController;
+	AnalysesController analysesController;
 	ResultsController resultsController;
 	MenuBarController menuBarController;
 	
@@ -52,6 +53,16 @@ public class GlobalController {
 	}
 
 	/**
+	 * Add the Controller for the analyses panel / model.
+	 * @param addPhylogeniesController
+	 */
+	public void addAnalysesController(AnalysesController addAnalysesController) {
+		this.analysesController = addAnalysesController;
+		view.addTab(this.analysesController.getView(), "Analyses");
+	}
+
+
+	/**
 	 * Add the Controller for the results panel / model.
 	 * @param addResultsController
 	 */
@@ -79,6 +90,9 @@ public class GlobalController {
 		}
 		if((phylogeniesController != null)&&(menuBarController != null)){
 			menuBarController.addAddPhylogeniesMenuListener(phylogeniesController.addPhylogenyListener);
+		}
+		if((analysesController != null)&&(menuBarController != null)){
+			menuBarController.addAddAnalysesMenuListener(analysesController.addAnalysesListener);
 		}
 		if((resultsController != null)&&(menuBarController != null)){
 			menuBarController.addAddResultsMenuListener(resultsController.addResultsListener);

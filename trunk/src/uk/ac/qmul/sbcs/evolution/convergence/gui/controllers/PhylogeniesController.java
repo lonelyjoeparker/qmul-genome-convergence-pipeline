@@ -42,6 +42,7 @@ public class PhylogeniesController {
 			File phylogenyFile = view.getFileChooser().getSelectedFile();
 			// do nothing for now
 			model.addPhylogenyRowAsStringTree(phylogenyFile);
+			view.getRenderedPhylogeny().drawCircle();
 			view.repaint();
 		}
 	}

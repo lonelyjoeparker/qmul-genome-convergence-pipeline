@@ -15,19 +15,27 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 	private GlobalModel globalModel;
 	private GlobalApplicationView globalView;
 	private GlobalController globalController;
+
 	// Alignments M-V-C
 	private AlignmentsTableModel alignmentsModel;
 	private AlignmentsView alignmentsView;
 	private AlignmentsController alignmentsController;
+
 	// Phylogenies M-V-C
 	private PhylogeniesModel phylogeniesModel;
 	private PhylogeniesView phylogeniesView;
 	private PhylogeniesController phylogeniesController;
 	
+	// Analyses (XMLs) M-V-C
+	private AnalysesModel analysesModel;
+	private AnalysesView analysesView;
+	private AnalysesController analysesController;
+	
 	// Results M-V-C
 	private ResultsTableModel resultsModel;
 	private ResultsView resultsView;
 	private ResultsController resultsController;
+
 	// Menu bar
 	private MenuBarFactory menuBar;
 	private MenuBarController menuController;
@@ -49,6 +57,11 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 		phylogeniesModel = new PhylogeniesModel();
 		phylogeniesView = new PhylogeniesView();
 		phylogeniesController = new PhylogeniesController(phylogeniesModel, phylogeniesView);
+		
+		// Analyses (XMLs) M-V-C
+		analysesModel = new AnalysesModel();
+		analysesView = new AnalysesView();
+		analysesController = new AnalysesController(analysesModel, analysesView);
 		
 		// Results MVC
 		resultsModel = new ResultsTableModel();
@@ -73,6 +86,9 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 		// Add the phylogenies model-view-controller to the global controller
 		globalController.addPhylogeniesController(phylogeniesController);
 		
+		// Add the analyese model-view-controller to the global controller
+		globalController.addAnalysesController(analysesController);
+		
 		// Add the results model-view-controller to the global controller
 		globalController.addResultsController(resultsController);
 		
@@ -96,6 +112,6 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 
 	@Override
 	public void run() {
-		new GeneralConvergencePipelineApplication();
+//		new GeneralConvergencePipelineApplication();
 	}
 }

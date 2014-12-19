@@ -7,9 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import uk.ac.qmul.sbcs.evolution.convergence.ParsimonyReconstruction;
 import uk.ac.qmul.sbcs.evolution.convergence.StateComparison;
@@ -227,7 +231,19 @@ public class TreeNodeTest extends TestCase {
 		TreeNode n3 = new TreeNode("(((LOXODONTA: 0.080618, DASYPUS: 0.028235): 0.002756, (((((CANIS: 0.012983, FELIS: 0.013897): 0.005719, (EQUUS: 0.028437, ((TURSIOPS: 0.038936, BOS: 0.016707): 0.003048, VICUGNA: 0.031996): 0.004509): 0.006443): 0.000004, (MYOTIS: 0.056507, ((RHINOLOPHUS: 0.066174, MEGADERMA: 0.021473): 0.006671, PTEROPUS: 0.015521): 0.000004): 0.008379): 0.002227, (SOREX: 0.022136, ERINACEUS: 0.013937): 0.004338): 0.004428, ((MUS: 0.034943, (ORYCTOLAGUS: 0.021193, OCHOTONA: 0.063783): 0.025907): 0.003677, (PAN: 0.010448, HOMO: 0.001622): 0.021809): 0.002889): 0.000004): 0.144025, MONODELPHIS: 0.113014);",1);
 		n1.getEndPos();
 	}
-	
+
+	public void testDrawTrees(){
+		TreeNode n1 = new TreeNode("(((LOXODONTA:0.080618,DASYPUS:0.028235):0.002756,(((((CANIS:0.012983,FELIS:0.013897):0.005719,(EQUUS:0.028437,((TURSIOPS:0.038936,BOS:0.016707):0.003048,VICUGNA:0.031996):0.004509):0.006443):0.000004,(MYOTIS:0.056507,((RHINOLOPHUS:0.066174,MEGADERMA:0.021473):0.006671,PTEROPUS:0.015521):0.000004):0.008379):0.002227,(SOREX:0.022136,ERINACEUS:0.013937):0.004338):0.004428,((MUS:0.034943,(ORYCTOLAGUS:0.021193,OCHOTONA:0.063783):0.025907):0.003677,(PAN:0.010448,HOMO:0.001622):0.021809):0.002889):0.000004):0.144025,MONODELPHIS:0.113014)",1);
+		ArrayList<Integer[]> coords = n1.getBranchesAsCoOrdinates(0, 100, 10, 10);
+		JFrame frame = new JFrame();
+		DisplayCoordinatesPanel panel = new DisplayCoordinatesPanel(coords);
+		frame.add(panel);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(1000,1000);
+		frame.setVisible(true);
+		n1.getEndPos();
+	}
+
 	public void testReinflateSerAndAssignStates() throws IOException, ClassNotFoundException{
 		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);

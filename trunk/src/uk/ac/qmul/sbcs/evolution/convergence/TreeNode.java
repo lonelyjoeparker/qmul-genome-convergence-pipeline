@@ -799,4 +799,54 @@ public class TreeNode {
 			return retval;
 		}
 	}
+	
+	/**
+	 * Returns a list of relative X,Y positions for line segments representing branches, to be rendered with a Graphics2D.drawLine(x1,y1,x2,y2) call or similar.
+	 * <br/>Note this method assumes a strictly bifurcating tree, e.g. n=2 daughters for each node exactly.
+	 * <br/>Note also that 'left' and 'right' refer to these two daughters, not left/right orientation on the screen.
+	 * @param startX - Xposition to start from
+	 * @param startY - Y pos to start from
+	 * @param branchIncrementX - how much to increment each branch by (width)
+	 * @param branchIncrementY - how much to increment each branch by (height)
+	 * @return - An ArrayList<Integer[]> of branches. Each Integer[4] of the form {x1, y1, x2, y2}. All x will be positive. Those branches 'left' of the root will have -ve x, those right will have +ve.
+	 */
+	public ArrayList<Integer[]> getBranchesAsCoOrdinates(int startX, int startY, int branchIncrementX, int branchIncrementY){
+		// Instantiate the return array
+		ArrayList<Integer[]> returnLineCoordinates = new ArrayList<Integer[]>();
+		
+		// Calculate co-ordinates for this branch, only extend in X-direction
+		int endX = startX + branchIncrementX;
+		Integer[] thisBranch = new Integer[4];
+		thisBranch[0] = startX;
+		thisBranch[1] = startY;
+		thisBranch[2] = endX;
+		thisBranch[3] = startY;
+		returnLineCoordinates.add(thisBranch);
+		
+		// Calculate co-ordinates for the vertical line which will connect the daughters, extend Y direction only
+		int endYleft = startY - branchIncrementY;
+		int endYright= startY + branchIncrementY;
+		Integer[] nodeConnector = new Integer[4];
+		nodeConnector[0] = endX;
+		nodeConnector[1] = endYleft;
+		nodeConnector[2] = endX;
+		nodeConnector[3] = endYright;			
+		returnLineCoordinates.add(nodeConnector);
+		
+		// repeat calculation for daughters. assume n=2 daughters exactly. left daughter will have -Y, right daughter will have +Y
+		if(!this.isTerminal){
+			// can't just iterate - each daughter needs a different Y offset.
+			// daughters.get(0)
+			TreeNode leftDaughter = daughters.get(0);
+			ArrayList<Integer[]> daughterLeftCoords = leftDaughter.getBranchesAsCoOrdinates(endX, endYleft, branchIncrementX, branchIncrementY);
+			returnLineCoordinates.addAll(daughterLeftCoords);
+			// daughters.get(1)
+			TreeNode rightDaughter = daughters.get(1);
+			ArrayList<Integer[]> daughterRightCoords = rightDaughter.getBranchesAsCoOrdinates(endX, endYright, branchIncrementX, branchIncrementY);
+			returnLineCoordinates.addAll(daughterRightCoords);
+		}
+		
+		// return finished list of co-ordinates
+		return returnLineCoordinates;
+	}
 }

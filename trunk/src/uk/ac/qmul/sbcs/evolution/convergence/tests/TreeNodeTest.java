@@ -18,7 +18,9 @@ import javax.swing.JPanel;
 import uk.ac.qmul.sbcs.evolution.convergence.ParsimonyReconstruction;
 import uk.ac.qmul.sbcs.evolution.convergence.StateComparison;
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.PhylogenyDisplayPanel;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
+import uk.ac.qmul.sbcs.evolution.sandbox.DisplayCoordinatesPanel;
 import junit.framework.TestCase;
 
 public class TreeNodeTest extends TestCase {
@@ -232,8 +234,56 @@ public class TreeNodeTest extends TestCase {
 		n1.getEndPos();
 	}
 
-	public void testDrawTrees(){
+	public void testDrawTreesUsingPhylogenyDisplayPanel(){
 		TreeNode n1 = new TreeNode("(((LOXODONTA:0.080618,DASYPUS:0.028235):0.002756,(((((CANIS:0.012983,FELIS:0.013897):0.005719,(EQUUS:0.028437,((TURSIOPS:0.038936,BOS:0.016707):0.003048,VICUGNA:0.031996):0.004509):0.006443):0.000004,(MYOTIS:0.056507,((RHINOLOPHUS:0.066174,MEGADERMA:0.021473):0.006671,PTEROPUS:0.015521):0.000004):0.008379):0.002227,(SOREX:0.022136,ERINACEUS:0.013937):0.004338):0.004428,((MUS:0.034943,(ORYCTOLAGUS:0.021193,OCHOTONA:0.063783):0.025907):0.003677,(PAN:0.010448,HOMO:0.001622):0.021809):0.002889):0.000004):0.144025,MONODELPHIS:0.113014)",1);
+		/*
+		 * 26/12/2014
+		 * Test the display of a phylogeny as a rendered object
+		 * 
+		 * Implementation of this not decided yet, perhaps:
+		 * 
+		 *  - get the co-ordinates for the lines representing internal nodes/edges
+		 *  	>these will need vertical offset to decrease exponentially as the tree branches
+		 *  	>maybe supply # tips as an argument so that the offset function can be used sensibly
+		 *  - also get the tip labels
+		 *  	>this could be achieved through a function to return tips in tree traversal order
+		 *  	>that array can then be used to place phylogeny labels
+		 *  - so DisplayCoordinatesPanel might be renamed PhylogenyDisplayPanel, and constructor overloaded with tip names array as well as edge co-ords.
+		 */
+		ArrayList<Integer[]> coords = n1.getBranchesAsCoOrdinates(0, 100, 10, 10);
+		ArrayList<Integer[]> coordsFromBranches = n1.getBranchesAsCoordinatesFromTips(0, 0);
+		ArrayList<String> names = n1.getTipsInOrder();
+		JFrame frame = new JFrame();
+		PhylogenyDisplayPanel panel = new PhylogenyDisplayPanel(coords, names);
+		frame.add(panel);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(1000,1000);
+		frame.setVisible(true);
+		JFrame frame2 = new JFrame();
+		PhylogenyDisplayPanel panel2 = new PhylogenyDisplayPanel(coordsFromBranches, names);
+		frame2.add(panel2);
+		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame2.setSize(1000,1000);
+		frame2.setVisible(true);
+		n1.getEndPos();
+	}
+
+	public void testDrawTreesUsingDisplayCoordinatesPanel(){
+		TreeNode n1 = new TreeNode("(((LOXODONTA:0.080618,DASYPUS:0.028235):0.002756,(((((CANIS:0.012983,FELIS:0.013897):0.005719,(EQUUS:0.028437,((TURSIOPS:0.038936,BOS:0.016707):0.003048,VICUGNA:0.031996):0.004509):0.006443):0.000004,(MYOTIS:0.056507,((RHINOLOPHUS:0.066174,MEGADERMA:0.021473):0.006671,PTEROPUS:0.015521):0.000004):0.008379):0.002227,(SOREX:0.022136,ERINACEUS:0.013937):0.004338):0.004428,((MUS:0.034943,(ORYCTOLAGUS:0.021193,OCHOTONA:0.063783):0.025907):0.003677,(PAN:0.010448,HOMO:0.001622):0.021809):0.002889):0.000004):0.144025,MONODELPHIS:0.113014)",1);
+		/*
+		 * 26/12/2014
+		 * Test the display of a phylogeny as a rendered object
+		 * 
+		 * Implementation of this not decided yet, perhaps:
+		 * 
+		 *  - get the co-ordinates for the lines representing internal nodes/edges
+		 *  	>these will need vertical offset to decrease exponentially as the tree branches
+		 *  	>maybe supply # tips as an argument so that the offset function can be used sensibly
+		 *  - also get the tip labels
+		 *  	>this could be achieved through a function to return tips in tree traversal order
+		 *  	>that array can then be used to place phylogeny labels
+		 *  - so DisplayCoordinatesPanel might be renamed PhylogenyDisplayPanel, and constructor overloaded with tip names array as well as edge co-ords.
+		 */
 		ArrayList<Integer[]> coords = n1.getBranchesAsCoOrdinates(0, 100, 10, 10);
 		JFrame frame = new JFrame();
 		DisplayCoordinatesPanel panel = new DisplayCoordinatesPanel(coords);

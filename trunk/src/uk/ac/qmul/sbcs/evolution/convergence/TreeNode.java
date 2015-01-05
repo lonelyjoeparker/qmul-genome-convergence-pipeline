@@ -656,6 +656,10 @@ public class TreeNode {
 		}
 	}
 	
+	/**
+	 * A method that gets the terminal tips labelling, hopefully in left-right post-order traversal ordering.
+	 * @return ArrayList<String> of terminal tips (taxa names) in order
+	 */
 	public ArrayList<String> getTipsInOrder(){
 		ArrayList<String> tips = new ArrayList<String>();
 		if(isTerminal){
@@ -848,5 +852,86 @@ public class TreeNode {
 		
 		// return finished list of co-ordinates
 		return returnLineCoordinates;
+	}
+	
+	public ArrayList<Integer[]> getBranchesAsCoordinatesFromTips(int depth, int tipNumber){
+		// Instantiate the return array
+		ArrayList<Integer[]> returnLineCoordinates = new ArrayList<Integer[]>();
+
+		/*
+		 * The branch co-ords array will have this format:
+		 * 	[0] - X1 (start of line X-pos)
+		 * 	[1] - Y1 (start of line Y-pos)
+		 * 	[2] - X2 (end of line X-pos)
+		 * 	[3] - Y2 (end of line Y-pos)
+		 *  [4] - depth (how many internal nodes from root)
+		 *  [5] - tipNumber (how many terminal tips have already been drawn (and hence Y pos)
+		 */
+		if(isTerminal){
+			// this is a terminal tip. place the co-ordinates at depth*20, (tipNumber-1)*20 and increment tipNumber
+			tipNumber++;
+			depth++;
+			Integer[] thisBranch = new Integer[6];
+			thisBranch[0] = depth * 20;
+			thisBranch[1] = (tipNumber-1) * 20;
+			thisBranch[2] = thisBranch[0] + 20;
+			thisBranch[3] = thisBranch[1];
+			thisBranch[4] = depth;
+			thisBranch[5] = tipNumber;
+			returnLineCoordinates.add(thisBranch);	
+		}else{
+			depth++;	// this is an internal node so depth is incremented
+
+			// calculation for daughters. assume n=2 daughters exactly. 
+			// can't just iterate - each daughter needs a different Y offset.
+
+			// daughters.get(0)
+			TreeNode leftDaughter = daughters.get(0);
+			ArrayList<Integer[]> daughterLeftCoords = leftDaughter.getBranchesAsCoordinatesFromTips(depth, tipNumber);
+			returnLineCoordinates.addAll(daughterLeftCoords);
+			
+			// update the last tipNumber reached from last branch of daughter coords (now copied to returnLineCoordinates)
+			Integer[] lastLeftDaughterBranch = returnLineCoordinates.get(returnLineCoordinates.size()-1);
+			tipNumber = lastLeftDaughterBranch[5]; // NOTE that tipNumber for the *right* branch will be updated from this value (tipNumber from the *left* branch)
+			
+
+			// daughters.get(1)
+			TreeNode rightDaughter = daughters.get(1);
+			ArrayList<Integer[]> daughterRightCoords = rightDaughter.getBranchesAsCoordinatesFromTips(depth, tipNumber);
+			returnLineCoordinates.addAll(daughterRightCoords);
+			
+			// update the last tipNumber reached from last branch of daughter coords (now copied to returnLineCoordinates)
+			Integer[] lastRightDaughterBranch = returnLineCoordinates.get(returnLineCoordinates.size()-1);
+			tipNumber = lastRightDaughterBranch[5];
+
+			// use the positions from the two internal nodes to place this node's Y-position:
+			int nodeYspan = lastRightDaughterBranch[1] - lastLeftDaughterBranch[1]; 
+			int midpointIncrement = Math.round(((float)nodeYspan) / 2.0f);
+			int nodeYpos = lastLeftDaughterBranch[1] + midpointIncrement;
+			
+			// draw a vertical line to represent this node
+			Integer[] thisNode = new Integer[6];
+			thisNode[0] = (depth+1) * 20;
+			thisNode[1] = lastLeftDaughterBranch[1];
+			thisNode[2] = thisNode[0];
+			thisNode[3] = lastRightDaughterBranch[1];
+			thisNode[4] = depth;
+			thisNode[5] = tipNumber;
+			returnLineCoordinates.add(thisNode);	
+			
+			// draw a branch to this node
+			Integer[] thisBranch = new Integer[6];
+			thisBranch[0] = depth * 20;
+			thisBranch[1] = nodeYpos;
+			thisBranch[2] = thisBranch[0] + 20;
+			thisBranch[3] = nodeYpos;
+			thisBranch[4] = depth;
+			thisBranch[5] = tipNumber;
+			returnLineCoordinates.add(thisBranch);	
+		}
+		
+		// return finished list of co-ordinates
+		return returnLineCoordinates;
+		
 	}
 }

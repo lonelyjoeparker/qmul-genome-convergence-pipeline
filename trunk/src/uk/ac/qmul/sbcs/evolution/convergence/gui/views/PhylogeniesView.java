@@ -20,6 +20,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 
+import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.PhylogenyDisplayPanel;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.PhylogeniesController.PhylogeniesRowListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.PhylogeniesModel;
 
 public class PhylogeniesView extends JComponent {
@@ -28,7 +31,7 @@ public class PhylogeniesView extends JComponent {
 	private JTable phylogeniesTable;
 	private JScrollPane phylogenyTableScrollPane;
 	private JFileChooser chooser = new JFileChooser("Choose a phylogeny");
-	private TreeGraphicsDisplay renderPhylogeny = new TreeGraphicsDisplay();
+	private JPanel renderPhylogeny = new TreeGraphicsDisplay();
 	
 	/**
 	 * Default no-arg constructor
@@ -59,7 +62,7 @@ public class PhylogeniesView extends JComponent {
 	 * returns the JPanel containing the display phylogeny.
 	 * @return
 	 */
-	public TreeGraphicsDisplay getRenderedPhylogeny(){
+	public JPanel getRenderedPhylogeny(){
 		return this.renderPhylogeny;
 	}
 	
@@ -91,6 +94,10 @@ public class PhylogeniesView extends JComponent {
 		selectionPanel.add(phylogenyTableScrollPane);
 	}
 	
+	public JTable getTable(){
+		return phylogeniesTable;
+	}
+	
 	public class TreeGraphicsDisplay extends JPanel{
 		
 		Graphics2D g2d;
@@ -113,5 +120,24 @@ public class PhylogeniesView extends JComponent {
 			g2d.setColor(Color.BLUE);
 			g2d.fillOval(75, 75, 30, 30);
 		}
+	}
+
+	public void updatePhylogenyDisplay(DisplayPhylogeny dp) {
+		String textTreeString = dp.getTextTreeRepresentation();
+		this.setTextTreeDisplay(textTreeString);
+		JPanel pdp = dp.getDisplayedPhylogeny();
+		try {
+			displayPanel.remove(renderPhylogeny);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		renderPhylogeny = (JPanel)pdp;
+		displayPanel.add(renderPhylogeny);
+		
+	}
+
+	public void addRowSelectionListener(PhylogeniesRowListener phylogeniesRowListener) {
+		phylogeniesTable.getSelectionModel().addListSelectionListener(phylogeniesRowListener);		
 	}
 }

@@ -1,7 +1,10 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.TreeSet;
+
+import javax.swing.JPanel;
 
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
@@ -18,6 +21,7 @@ public class DisplayPhylogeny {
 	private final TreeSet<String> taxonSet;
 	private String textTreeRepresentation;
 	private final File treeFile;
+	private PhylogenyDisplayPanel displayedPhylogeny;
 	
 	/**
 	 * Default no-arg constructor
@@ -81,6 +85,9 @@ public class DisplayPhylogeny {
 		taxonSet = newickTree.getTaxaNames();
 		textTreeRepresentation = treeNode.printRecursively();
 		treeFile = newTreeAsFile;
+		ArrayList<String> names = treeNode.getTipsInOrder();
+		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
+		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
 	}
 
 	@Override
@@ -106,5 +113,9 @@ public class DisplayPhylogeny {
 
 	public String getTextTreeRepresentation() {
 		return textTreeRepresentation;
+	}
+	
+	public JPanel getDisplayedPhylogeny() {
+		return displayedPhylogeny;
 	}
 }

@@ -159,6 +159,11 @@ public class AlignmentsController {
 		}
 	}
 
+	/**
+	 * Listener class for table row selection events.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 */
 	public class AlignmentsRowListener implements ListSelectionListener {
 		public void valueChanged(ListSelectionEvent event) {
 			if (event.getValueIsAdjusting()) {

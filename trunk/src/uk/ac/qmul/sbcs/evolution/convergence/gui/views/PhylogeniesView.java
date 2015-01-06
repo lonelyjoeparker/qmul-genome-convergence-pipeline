@@ -40,7 +40,7 @@ public class PhylogeniesView extends JComponent {
 		mainPanel = new JPanel(new GridLayout(2,1));
 		selectionPanel = new JPanel(new GridLayout(2,1));
 		selectionPanel.add(new JLabel("Selection/table here"));
-		displayPanel = new JPanel(new GridLayout(2,1));
+		displayPanel = new JPanel(new GridLayout(1,3 	));
 		displayPanel.add(new JLabel("Phylogeny display here"));
 		textTreeDisplay = new JTextArea("Trees as text strings");
 		textTreeDisplay.setColumns(35);

@@ -7,6 +7,11 @@ import java.awt.Graphics2D;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+/**
+ * A class demonstrating basic method to render alignments with block colours using java.awt.Graphics2D canvas instead of style sheets.
+ * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+ *
+ */
 public class ColouredCharPanelWireframe {
 
 	/**

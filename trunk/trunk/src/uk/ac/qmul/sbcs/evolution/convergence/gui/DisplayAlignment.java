@@ -2,6 +2,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.Random;
 
@@ -43,7 +44,7 @@ public class DisplayAlignment{
 	private float whichNonZeroEntropyRunNT = 0;
 	private float longestNonZeroEntropyRunAA = 0;
 	private float whichNonZeroEntropyRunAA = 0;
-	
+
 	public DisplayAlignment(String newName, AlignedSequenceRepresentation asr){
 		this.name = newName;
 		this.taxa = asr.getTaxaList().toArray(new String[asr.getNumberOfTaxa()]);
@@ -66,7 +67,7 @@ public class DisplayAlignment{
 		float [] entropyStats = BasicAlignmentStats.parseEntropiesToFindLongestNonzeroRun(this.entropies);
 		this.longestNonZeroEntropyRunNT = entropyStats[0];
 		this.whichNonZeroEntropyRunNT = entropyStats[1];
-		
+
 		if(!asr.isAA()){
 			/*
 			 * Attempt to translate the alignment and put AA data
@@ -95,7 +96,7 @@ public class DisplayAlignment{
 		}
 		System.out.println("parsed "+this.name);
 	}
-	
+
 	public DisplayAlignment(String newName){
 		this.name = newName;
 		this.entropies = new float[100];
@@ -124,15 +125,15 @@ public class DisplayAlignment{
 		this.numberOfSitesNT = new Random().nextInt();
 
 	}
-	
+
 	public float[] getEntropies() {
 		return this.entropies;
 	}
-	
+
 	public String[] getSequences(){
 		return this.sequences;
 	}
-	
+
 	public String toString(){
 		return this.name;
 	}
@@ -140,135 +141,158 @@ public class DisplayAlignment{
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public void setName(String newName) {
 		this.name = newName;
 	}
 
+	public JScrollPane getAlignmentCanvas(boolean drawAminoAcidSequences){
+		JScrollPane scroller;
+		JPanel canvas;
+		if(drawAminoAcidSequences){
+			// draw amino acid sequences
+			canvas = new DisplayAlignmentPanel(this.sequencesAA, this.taxa, drawAminoAcidSequences);
+		}else{
+			// draw nucleotide sequences
+			canvas = new DisplayAlignmentPanel(this.sequences, this.taxa, drawAminoAcidSequences);
+
+		}
+		//		canvas.setAutoscrolls(true);
+		//      JPanel panel = new JPanel(new BorderLayout());
+		//      panel.add(BorderLayout.CENTER,canvas);
+		//        scroller = new JScrollPane(canvas,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		canvas.setPreferredSize(new Dimension(2000,2000));
+		scroller = new JScrollPane(canvas);
+		scroller.setPreferredSize(new Dimension(800,300));
+		scroller.setViewportView(canvas);
+		scroller.setAutoscrolls(true);
+		return scroller;
+	}
+
 	public JScrollPane getAlignmentScroller(){
 		JScrollPane scroller;
-        StyledDocument doc = new DefaultStyledDocument();
-        JTextPane textPane = new JTextPane(doc);
-        StringBuffer sb = new StringBuffer();
-        int numTaxa = this.sequences.length;	// getting num Taxa from sequences.length not taxa.length, hopefully it's safer	..
-        int numPosn = this.sequences[0].length();
-        int totalChars = (25 + numPosn + 1) * numTaxa; // an extra char per line, for the line endings!!
-        boolean[] skipColourChars = new boolean[totalChars]; // boolean: colour chars or not?
-        if(this.sequences != null){
-        	for(int t=0;t<numTaxa;t++){
-        		String taxon = this.taxa[t];
-        		if(taxon.length() > 22){
-        			taxon = taxon.substring(0,22);
-        		}
-        		sb.append(taxon);
-        		// pad taxon names..
-        		for(int s = taxon.length();s<25;s++){
-        			sb.append(" ");
-        		}
-        		for(int c=0;c<25;c++){
-        			int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
-        			skipColourChars[i] = true;
-        		}
-        		sb.append(this.sequences[t]+"\r");
-        	}  
-        }else{
-        	for(int t=0;t<this.sequences.length;t++){
-        		String taxon = this.taxa[t];
-        		if(taxon.length() > 22){
-        			taxon = taxon.substring(0,22);
-        		}
-        		sb.append(taxon);
-        		// pad taxon names..
-        		for(int s = taxon.length();s<25;s++){
-        			sb.append(" ");
-        		}
-        		for(int c=0;c<25;c++){
-        			int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
-        			skipColourChars[i] = true;
-        		}
-        		sb.append("null\r");
-        	}
-        }
-        textPane.setText(sb.toString());
-        //Random random = new Random();
-//        for (int i = 0; i < textPane.getDocument().getLength(); i++) {
-        for (int i = 0; i < textPane.getDocument().getLength(); i++) {
-            SimpleAttributeSet set = new SimpleAttributeSet();
-            StyleConstants.setFontFamily(set, "Courier");
-         //   StyleConstants.setBackground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256))); //BG colour
-         //   StyleConstants.setForeground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256))); //FG colour
-         //   StyleConstants.setFontSize(set, random.nextInt(12) + 12);
-          //  StyleConstants.setBold(set, random.nextBoolean());
-           // StyleConstants.setItalic(set, random.nextBoolean());
-           // StyleConstants.setUnderline(set, random.nextBoolean());
+		StyledDocument doc = new DefaultStyledDocument();
+		JTextPane textPane = new JTextPane(doc);
+		StringBuffer sb = new StringBuffer();
+		int numTaxa = this.sequences.length;	// getting num Taxa from sequences.length not taxa.length, hopefully it's safer	..
+		int numPosn = this.sequences[0].length();
+		int totalChars = (25 + numPosn + 1) * numTaxa; // an extra char per line, for the line endings!!
+		boolean[] skipColourChars = new boolean[totalChars]; // boolean: colour chars or not?
+		if(this.sequences != null){
+			for(int t=0;t<numTaxa;t++){
+				String taxon = this.taxa[t];
+				if(taxon.length() > 22){
+					taxon = taxon.substring(0,22);
+				}
+				sb.append(taxon);
+				// pad taxon names..
+				for(int s = taxon.length();s<25;s++){
+					sb.append(" ");
+				}
+				for(int c=0;c<25;c++){
+					int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
+					skipColourChars[i] = true;
+				}
+				sb.append(this.sequences[t]+"\r");
+			}  
+		}else{
+			for(int t=0;t<this.sequences.length;t++){
+				String taxon = this.taxa[t];
+				if(taxon.length() > 22){
+					taxon = taxon.substring(0,22);
+				}
+				sb.append(taxon);
+				// pad taxon names..
+				for(int s = taxon.length();s<25;s++){
+					sb.append(" ");
+				}
+				for(int c=0;c<25;c++){
+					int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
+					skipColourChars[i] = true;
+				}
+				sb.append("null\r");
+			}
+		}
+		textPane.setText(sb.toString());
+		//Random random = new Random();
+		//        for (int i = 0; i < textPane.getDocument().getLength(); i++) {
+		for (int i = 0; i < textPane.getDocument().getLength(); i++) {
+			SimpleAttributeSet set = new SimpleAttributeSet();
+			StyleConstants.setFontFamily(set, "Courier");
+			//   StyleConstants.setBackground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256))); //BG colour
+			//   StyleConstants.setForeground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256))); //FG colour
+			//   StyleConstants.setFontSize(set, random.nextInt(12) + 12);
+			//  StyleConstants.setBold(set, random.nextBoolean());
+			// StyleConstants.setItalic(set, random.nextBoolean());
+			// StyleConstants.setUnderline(set, random.nextBoolean());
 
-            char c;
-            String s = null;
-            try {
+			char c;
+			String s = null;
+			try {
 				s = doc.getText(i, 1);
-				
+
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        	if((s != null)&&(!skipColourChars[i])){
-        		c = s.toCharArray()[0];
-        		switch(c){
-        		case 'a':
-        		case 'A':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 100));
-        			break;
-        			}
-        		case 'c':
-        		case 'C':{   
-        			StyleConstants.setBackground(set, new Color(100, 255, 100));
-        			break;
-        			}
-        		case 'g':
-        		case 'G':{   
-        			StyleConstants.setBackground(set, new Color(100, 100, 255));
-        			break;
-        			}
-        		case 't':
-        		case 'T':
-        		case 'u':
-        		case 'U':{   
-        			StyleConstants.setBackground(set, new Color(255, 100, 255));
-        			break;
-        			}
-        		case '-':{   
-        			StyleConstants.setBackground(set, Color.LIGHT_GRAY);
-        			break;
-        			}
-        		}
-        	}
-            doc.setCharacterAttributes(i, 1, set, true);
-        }
+			if((s != null)&&(!skipColourChars[i])){
+				c = s.toCharArray()[0];
+				switch(c){
+				case 'a':
+				case 'A':{   
+					StyleConstants.setBackground(set, new Color(255, 100, 100));
+					break;
+				}
+				case 'c':
+				case 'C':{   
+					StyleConstants.setBackground(set, new Color(100, 255, 100));
+					break;
+				}
+				case 'g':
+				case 'G':{   
+					StyleConstants.setBackground(set, new Color(100, 100, 255));
+					break;
+				}
+				case 't':
+				case 'T':
+				case 'u':
+				case 'U':{   
+					StyleConstants.setBackground(set, new Color(255, 100, 255));
+					break;
+				}
+				case '-':{   
+					StyleConstants.setBackground(set, Color.LIGHT_GRAY);
+					break;
+				}
+				}
+			}
+			doc.setCharacterAttributes(i, 1, set, true);
+		}
 
-        /*
+		/*
         Dimension dim = new Dimension();
         dim.height = 150;
         dim.width = 200;
         textPane.setPreferredSize(dim);
         textPane.setSize(200,150);
-        */
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(BorderLayout.CENTER,textPane);
-        scroller = new JScrollPane(panel,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scroller.setViewportView(panel);
+		 */
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(BorderLayout.CENTER,textPane);
+		scroller = new JScrollPane(panel,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scroller.setViewportView(panel);
 		return scroller;
 	}
 
 	public JScrollPane getAlignmentScrollerAA(){
 		JScrollPane scroller;
-        StyledDocument doc = new DefaultStyledDocument();
-        JTextPane textPane = new JTextPane(doc);
-        StringBuffer sb = new StringBuffer();
-        int numTaxa = this.sequencesAA.length;	// getting num Taxa from sequencesAA.length not taxa.length, hopefully it's safer	..
-        int numPosn = this.sequencesAA[0].length();
-        int totalChars = (25 + numPosn + 1) * numTaxa; // an extra char per line, for the line endings!!
-        boolean[] skipColourChars = new boolean[totalChars]; // boolean: colour chars or not?
-      if(this.sequencesAA != null){
+		StyledDocument doc = new DefaultStyledDocument();
+		JTextPane textPane = new JTextPane(doc);
+		StringBuffer sb = new StringBuffer();
+		int numTaxa = this.sequencesAA.length;	// getting num Taxa from sequencesAA.length not taxa.length, hopefully it's safer	..
+		int numPosn = this.sequencesAA[0].length();
+		int totalChars = (25 + numPosn + 1) * numTaxa; // an extra char per line, for the line endings!!
+		boolean[] skipColourChars = new boolean[totalChars]; // boolean: colour chars or not?
+		if(this.sequencesAA != null){
 			for (int t = 0; t < this.sequencesAA.length; t++) {
 				String taxon = this.taxa[t];
 				if (taxon.length() > 22) {
@@ -279,10 +303,10 @@ public class DisplayAlignment{
 				for (int s = taxon.length(); s < 25; s++) {
 					sb.append(" ");
 				}
-        		for(int c=0;c<25;c++){
-        			int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
-        			skipColourChars[i] = true;
-        		}
+				for(int c=0;c<25;c++){
+					int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
+					skipColourChars[i] = true;
+				}
 				sb.append(this.sequencesAA[t] + "\r");
 			}
 		}else{
@@ -296,127 +320,127 @@ public class DisplayAlignment{
 				for (int s = taxon.length(); s < 25; s++) {
 					sb.append(" ");
 				}
-        		for(int c=0;c<25;c++){
-        			int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
-        			skipColourChars[i] = true;
-        		}
+				for(int c=0;c<25;c++){
+					int i = ((25 + numPosn + 1) * t) + c; // +1 for \n char
+					skipColourChars[i] = true;
+				}
 				sb.append("null\r");
 			}
 		}
 		textPane.setText(sb.toString());
-        //Random random = new Random();
-        for (int i = 0; i < textPane.getDocument().getLength(); i++) {
-            SimpleAttributeSet set = new SimpleAttributeSet();
-            StyleConstants.setFontFamily(set, "Courier");
-            //StyleConstants.setForeground(set, Color.WHITE);
-            //StyleConstants.setBackground(set, Color.LIGHT_GRAY);
-         //   StyleConstants.setForeground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
-         //   StyleConstants.setFontSize(set, random.nextInt(12) + 12);
-          //  StyleConstants.setBold(set, random.nextBoolean());
-           // StyleConstants.setItalic(set, random.nextBoolean());
-           // StyleConstants.setUnderline(set, random.nextBoolean());
+		//Random random = new Random();
+		for (int i = 0; i < textPane.getDocument().getLength(); i++) {
+			SimpleAttributeSet set = new SimpleAttributeSet();
+			StyleConstants.setFontFamily(set, "Courier");
+			//StyleConstants.setForeground(set, Color.WHITE);
+			//StyleConstants.setBackground(set, Color.LIGHT_GRAY);
+			//   StyleConstants.setForeground(set, new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+			//   StyleConstants.setFontSize(set, random.nextInt(12) + 12);
+			//  StyleConstants.setBold(set, random.nextBoolean());
+			// StyleConstants.setItalic(set, random.nextBoolean());
+			// StyleConstants.setUnderline(set, random.nextBoolean());
 
-            char c;
-            String s = null;
-            try {
+			char c;
+			String s = null;
+			try {
 				s = doc.getText(i, 1);
-				
+
 			} catch (BadLocationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        	if((s != null)&&(!skipColourChars[i])){
-                StyleConstants.setForeground(set, Color.WHITE);
-                StyleConstants.setBackground(set, Color.LIGHT_GRAY);
-        		c = s.toCharArray()[0];
-        		switch(c){
-        		case 'a':
-        		case 'A':
-        		case 'g':
-        		case 'G':
-        		case 'p':
-        		case 'P':
-        		case 's':
-        		case 'S':
-        		case 't':
-        		case 'T':{   
-        			StyleConstants.setBackground(set, Color.MAGENTA);
-        			break;
-        			}
-        		case 'c':
-        		case 'C':{   
-        			StyleConstants.setBackground(set, Color.RED);
-        			break;
-        			}
-        		case 'f':
-        		case 'F':
-        		case 'w':
-        		case 'W':
-        		case 'y':
-        		case 'Y':{   
-        			StyleConstants.setBackground(set, Color.BLUE);
-        			break;
-        			}
-        		case 'h':
-        		case 'H':
-        		case 'k':
-        		case 'K':
-        		case 'r':
-        		case 'R':{   
-        			StyleConstants.setBackground(set, new Color(0,183,247));
-        			break;
-        			}
-        		case 'i':
-        		case 'I':
-        		case 'l':
-        		case 'L':
-        		case 'm':
-        		case 'M':
-        		case 'v':
-        		case 'V':{   
-        			StyleConstants.setBackground(set, new Color(0,132,4));
-        			break;
-        			}
-        		case 'b':
-        		case 'B':
-        		case 'd':
-        		case 'D':
-        		case 'e':
-        		case 'E':
-        		case 'n':
-        		case 'N':
-        		case 'q':
-        		case 'Q':
-        		case 'z':
-        		case 'Z':{   
-        			StyleConstants.setBackground(set, Color.BLACK);
-        			break;
-        			}
-        		case 'x':
-        		case 'X':{   
-        			StyleConstants.setBackground(set, Color.DARK_GRAY);
-        			break;
-        			}
-        		}
-        	}
-            doc.setCharacterAttributes(i, 1, set, true);
-        }
+			if((s != null)&&(!skipColourChars[i])){
+				StyleConstants.setForeground(set, Color.WHITE);
+				StyleConstants.setBackground(set, Color.LIGHT_GRAY);
+				c = s.toCharArray()[0];
+				switch(c){
+				case 'a':
+				case 'A':
+				case 'g':
+				case 'G':
+				case 'p':
+				case 'P':
+				case 's':
+				case 'S':
+				case 't':
+				case 'T':{   
+					StyleConstants.setBackground(set, Color.MAGENTA);
+					break;
+				}
+				case 'c':
+				case 'C':{   
+					StyleConstants.setBackground(set, Color.RED);
+					break;
+				}
+				case 'f':
+				case 'F':
+				case 'w':
+				case 'W':
+				case 'y':
+				case 'Y':{   
+					StyleConstants.setBackground(set, Color.BLUE);
+					break;
+				}
+				case 'h':
+				case 'H':
+				case 'k':
+				case 'K':
+				case 'r':
+				case 'R':{   
+					StyleConstants.setBackground(set, new Color(0,183,247));
+					break;
+				}
+				case 'i':
+				case 'I':
+				case 'l':
+				case 'L':
+				case 'm':
+				case 'M':
+				case 'v':
+				case 'V':{   
+					StyleConstants.setBackground(set, new Color(0,132,4));
+					break;
+				}
+				case 'b':
+				case 'B':
+				case 'd':
+				case 'D':
+				case 'e':
+				case 'E':
+				case 'n':
+				case 'N':
+				case 'q':
+				case 'Q':
+				case 'z':
+				case 'Z':{   
+					StyleConstants.setBackground(set, Color.BLACK);
+					break;
+				}
+				case 'x':
+				case 'X':{   
+					StyleConstants.setBackground(set, Color.DARK_GRAY);
+					break;
+				}
+				}
+			}
+			doc.setCharacterAttributes(i, 1, set, true);
+		}
 
-        /*
+		/*
         Dimension dim = new Dimension();
         dim.height = 150;
         dim.width = 200;
         textPane.setPreferredSize(dim);
         textPane.setSize(200,150);
-        */
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(BorderLayout.CENTER,textPane);
-        scroller = new JScrollPane(panel,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scroller.setViewportView(panel);
+		 */
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(BorderLayout.CENTER,textPane);
+		scroller = new JScrollPane(panel,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scroller.setViewportView(panel);
 		return scroller;
 	}
 
-	
+
 	public int getNumberOfTaxa() {
 		return this.numberOfTaxa;
 	}
@@ -502,7 +526,7 @@ public class DisplayAlignment{
 		}
 		return originalNameSet;
 	}
-	
+
 	/**
 	 * Guesses the locus name from the alignment name
 	 * @return
@@ -520,7 +544,7 @@ public class DisplayAlignment{
 			return name;
 		}
 	}
-	
+
 	public String getFirstSequence(){
 		return this.sequences[0];
 	}

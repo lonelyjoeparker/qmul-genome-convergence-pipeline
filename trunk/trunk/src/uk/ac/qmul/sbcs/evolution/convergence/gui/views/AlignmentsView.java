@@ -95,27 +95,33 @@ public class AlignmentsView extends JComponent{
 	 */
 	public void updateAlignmentScrollPanes(DisplayAlignment da) {
 		// Get scroller JScrollPanes from DisplayAlignment
-		JScrollPane newPaneNT = da.getAlignmentScroller();
-		JScrollPane newPaneAA = da.getAlignmentScrollerAA();
+		//JScrollPane newPaneNT = da.getAlignmentScroller();	// do not call the old Stylesheet-based method
+		// instead call getAlignmentCanvas() which uses java.awt.Graphics2D to render text.
+		JScrollPane newPaneNT = da.getAlignmentCanvas(false);	//arg (useAminoAcidColours) is false e.g. nucleotide colouring
+		//JScrollPane newPaneAA = da.getAlignmentScrollerAA();	// do not call the old Stylesheet-based method
+		// instead call getAlignmentCanvas() which uses java.awt.Graphics2D to render text.
+		JScrollPane newPaneAA = da.getAlignmentCanvas(true);	//arg (useAminoAcidColours) is true e.g. amino-acid colouring
 		// Swap the sequencePaneNT
 		panel.remove(sequencePaneNT);
 		sequencePaneNT = newPaneNT;
-		sequencePaneNT.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		sequencePaneNT.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+//		sequencePaneNT.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//		sequencePaneNT.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		panel.add(sequencePaneNT);
 		// Swap the sequencePaneAA		
 		panel.remove(sequencePaneAA);
 		sequencePaneAA = newPaneAA;
-		sequencePaneAA.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		sequencePaneAA.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+//		sequencePaneAA.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//		sequencePaneAA.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		panel.add(sequencePaneAA);
-/*
+
 		// repaint / update components
+/*
 		paintComponents(getGraphics());
 		panel.paintComponents(panel.getGraphics());
 		sequencePaneNT.paintComponents(sequencePaneNT.getGraphics());
 		repaint();
 		subPanel.repaint();
+		super.repaint();
 */
 	}
 }

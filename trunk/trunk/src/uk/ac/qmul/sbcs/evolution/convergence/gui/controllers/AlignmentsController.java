@@ -187,7 +187,7 @@ public class AlignmentsController {
 			/* Attempt to update the view alignment representation JScrollPanes */
 			DisplayAlignment da = (DisplayAlignment) a_row[0];
 			view.updateAlignmentScrollPanes(da);
-			view.repaint();
+//			view.repaint();
 		}
 	}
 

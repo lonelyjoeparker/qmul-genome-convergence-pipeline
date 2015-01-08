@@ -17,9 +17,7 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 			"# invar. sites (AA)",
 			"mean entropy NT",
 	"Selection data?"};
-	private Object[][] data = {
-			{new DisplayAlignment("-"), "-","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), new Boolean(false)}
-	};
+	private Object[][] data;
 	public final Object[] longValues = {"file", "locus","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), Boolean.FALSE};
 
 	public AlignmentsTableModel(){
@@ -31,22 +29,39 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 	}
 
 	public void addRow(DisplayAlignment rowData){
-		Object[][] newData = new Object[getData().length+1][getData()[0].length];
-		for(int i=0;i<getData().length;i++){
-			newData[i] = getData()[i];
+		Object[][] newData;
+		if(data != null){
+			newData = new Object[getData().length+1][getData()[0].length];
+			for(int i=0;i<getData().length;i++){
+				newData[i] = getData()[i];
+			}
+			Object[] newRow = new Object[getData()[0].length];
+			newRow[0] = rowData;
+			newRow[1] = rowData.getNameGuess();
+			newRow[2] = "None of the above";
+			newRow[3] = rowData.getNumberOfTaxa();
+			newRow[4] = rowData.getNumberOfSitesNT();
+			newRow[5] = rowData.getNumberOfInvariantSitesNT();
+			newRow[6] = rowData.getNumberOfSitesAA();
+			newRow[7] = rowData.getNumberOfInvariantSitesAA();
+			newRow[8] = rowData.getMeanSitewiseEntropyNT();
+			newRow[9] = false;
+			newData[getData().length] = newRow;
+		}else{
+			newData = new Object[1][getColumnCount()];
+			Object[] newRow = new Object[getColumnCount()];
+			newRow[0] = rowData;
+			newRow[1] = rowData.getNameGuess();
+			newRow[2] = "None of the above";
+			newRow[3] = rowData.getNumberOfTaxa();
+			newRow[4] = rowData.getNumberOfSitesNT();
+			newRow[5] = rowData.getNumberOfInvariantSitesNT();
+			newRow[6] = rowData.getNumberOfSitesAA();
+			newRow[7] = rowData.getNumberOfInvariantSitesAA();
+			newRow[8] = rowData.getMeanSitewiseEntropyNT();
+			newRow[9] = false;
+			newData[0] = newRow;
 		}
-		Object[] newRow = new Object[getData()[0].length];
-		newRow[0] = rowData;
-		newRow[1] = rowData.getNameGuess();
-		newRow[2] = "None of the above";
-		newRow[3] = rowData.getNumberOfTaxa();
-		newRow[4] = rowData.getNumberOfSitesNT();
-		newRow[5] = rowData.getNumberOfInvariantSitesNT();
-		newRow[6] = rowData.getNumberOfSitesAA();
-		newRow[7] = rowData.getNumberOfInvariantSitesAA();
-		newRow[8] = rowData.getMeanSitewiseEntropyNT();
-		newRow[9] = false;
-		newData[getData().length] = newRow;
 		setData(newData);
 		this.fireTableRowsInserted(getData().length-1, getData().length-1);
 	}
@@ -56,7 +71,11 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 	}
 
 	public int getRowCount() {
-		return getData().length;
+		if(data != null){
+			return getData().length;
+		}else{
+			return 0;
+		}
 	}
 
 	public String getColumnName(int col) {
@@ -64,7 +83,11 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 	}
 
 	public Object getValueAt(int row, int col) {
-		return getData()[row][col];
+		if(data != null){
+			return getData()[row][col];
+		}else{
+			return null;
+		}
 	}
 
 	/*

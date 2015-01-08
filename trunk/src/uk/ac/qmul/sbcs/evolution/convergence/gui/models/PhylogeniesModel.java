@@ -22,12 +22,28 @@ public class PhylogeniesModel extends AbstractTableModel{
 
 	@Override
 	public int getRowCount() {
-		return data.length;
+		if(data != null){
+			return data.length;
+		}else{
+			return 0;
+		}
 	}
 
+	/**
+	 * Returns an internal Object representing data. <b>Remember:</b>
+	 * <ul>
+	 * <li>All Objects must be cast - which class depends on which column, see javadoc for this class;</li>
+	 * <li>This method may throw NullPointerException or similar if the data array has not been filled (when this class is instantiated data is left null).</li>
+	 * </ul>
+	 * @return Object containing the table data for this cell.
+	 */
 	@Override
 	public Object getValueAt(int row, int col) {
-		return data[row][col];
+		if(data != null){
+			return data[row][col];
+		}else{
+			return null;
+		}
 	}
 
 	public String getColumnName(int col) {
@@ -41,13 +57,24 @@ public class PhylogeniesModel extends AbstractTableModel{
 	 * rather than a check box.
 	 */
 	public Class getColumnClass(int c) {
-		if(data != null){
-			return getValueAt(0, c).getClass();
-		}else{
-			return null;
-		}
+		return getValueAt(0, c).getClass();
 	}
 
+	/*
+	 * Don't need to implement this method unless column's editable.
+	 */
+	public boolean isCellEditable(int row, int col) {
+		return false;
+	}
+
+	/**
+	 * Returns the internal Object[][] representing data. <b>Remember:</b>
+	 * <ul>
+	 * <li>All Objects must be cast - which class depends on which column, see javadoc for this class;</li>
+	 * <li>This method may throw NullPointerException or similar if the data array has not been filled (when this class is instantiated data is left null).</li>
+	 * </ul>
+	 * @return Object[][] containing the table data.
+	 */
 	public Object[][] getData(){
 		return data;
 	}
@@ -58,11 +85,7 @@ public class PhylogeniesModel extends AbstractTableModel{
 	 * Default no-arg constructor
 	 */
 	public PhylogeniesModel(){
-		// instantiate the table, although this is a bit risky as null vals in first row...
-		data = new Object[1][3];
-		data[0][0] = new DisplayPhylogeny("(A,(B,C));");
-		data[0][1] = 0;
-		data[0][2] = "(A,(B,C));";
+		// nothing to do here as we want data (Object[][]) to remain null.
 	}
 	
 	/* Object methods for specific PhylogenyModel-y things... */
@@ -71,10 +94,11 @@ public class PhylogeniesModel extends AbstractTableModel{
 	 * Add a new phylogeny to the TableModel as a File.
 	 */
 	public void addPhylogenyRowAsStringTree(File newTreeAsFile){
-		if((data.length == 1)&&(data[0][0] == null)){
+		Object[][] newData;
+		if(data == null){
 			System.out.println("the first row of the table is null");
 			// rather than update it we should just replace
-			Object[][] newData = new Object[1][3];
+			newData = new Object[1][3];
 			Object[] newRow = new Object[3];
 			DisplayPhylogeny dp;
 			try {
@@ -95,11 +119,9 @@ public class PhylogeniesModel extends AbstractTableModel{
 				newRow[2] = "();";
 			}
 			newData[0] = newRow;
-			data = newData;
-			this.fireTableRowsInserted(data.length-1, data.length-1);
 		}else{
 			// data already exists
-			Object[][] newData = new Object[data.length+1][data[0].length];
+			newData = new Object[data.length+1][data[0].length];
 			for(int i=0;i<data.length;i++){
 				newData[i] = data[i];
 			}
@@ -123,8 +145,8 @@ public class PhylogeniesModel extends AbstractTableModel{
 				newRow[2] = "();";
 			}
 			newData[data.length] = newRow;
-			data = newData;
-			this.fireTableRowsInserted(data.length-1, data.length-1);
 		}
+		data = newData;
+		this.fireTableRowsInserted(data.length-1, data.length-1);
 	}
 }

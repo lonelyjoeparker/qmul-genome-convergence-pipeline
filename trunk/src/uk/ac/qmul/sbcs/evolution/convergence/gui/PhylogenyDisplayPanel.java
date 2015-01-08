@@ -1,6 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -55,6 +56,8 @@ public class PhylogenyDisplayPanel extends JPanel {
 		for(Integer[] line:lineCoordinates){
 			g2.drawLine(line[0], line[1]+5, line[2], line[3]+5);
 		}
+		Dimension size = new Dimension(names_x+200,names_y+50);
+		this.setPreferredSize(size);
 	}
 	
 }

@@ -107,7 +107,8 @@ public class AlignmentsController {
 			}
 			DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
 			model.addRow(da);
-			view.repaint();
+			view.updateAlignmentScrollPanes(da);
+//			view.repaint();
 		}
 	}
 
@@ -125,14 +126,14 @@ public class AlignmentsController {
 				File alignmentDirectory = view.getDirectoryChooser().getSelectedFile();
 				if(alignmentDirectory.isDirectory()){
 					File[] files  = alignmentDirectory.listFiles();
+					DisplayAlignment da = null;
 					for(File alignmentFile:files){
 						try {
 							AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
 							asr.loadSequences(alignmentFile, false);
 							asr.calculateAlignmentStats(false);
-							DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
+							da = new DisplayAlignment(alignmentFile.getName(),asr);
 							model.addRow(da);
-							view.getTable().repaint();
 						} catch (TaxaLimitException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -140,6 +141,11 @@ public class AlignmentsController {
 							ex.printStackTrace();
 						}
 					}
+					if(da != null){
+						view.updateAlignmentScrollPanes(da);
+					}
+//					view.getTable().repaint();
+
 				}			
 			}
 		}

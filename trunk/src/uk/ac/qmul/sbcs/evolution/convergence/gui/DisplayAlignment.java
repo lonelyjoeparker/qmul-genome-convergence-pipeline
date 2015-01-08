@@ -148,7 +148,7 @@ public class DisplayAlignment{
 
 	public JScrollPane getAlignmentCanvas(boolean drawAminoAcidSequences){
 		JScrollPane scroller;
-		JPanel canvas;
+		DisplayAlignmentPanel canvas;
 		if(drawAminoAcidSequences){
 			// draw amino acid sequences
 			canvas = new DisplayAlignmentPanel(this.sequencesAA, this.taxa, drawAminoAcidSequences);
@@ -161,9 +161,10 @@ public class DisplayAlignment{
 		//      JPanel panel = new JPanel(new BorderLayout());
 		//      panel.add(BorderLayout.CENTER,canvas);
 		//        scroller = new JScrollPane(canvas,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		canvas.setPreferredSize(new Dimension(2000,2000));
+		canvas.setPreferredSize(new Dimension((this.sequences[0].toCharArray().length*10),(this.numberOfTaxa*15)));
+		canvas.allowRepaintFlag = true;
 		scroller = new JScrollPane(canvas);
-		scroller.setPreferredSize(new Dimension(800,300));
+		//scroller.setPreferredSize(new Dimension(800,300));
 		scroller.setViewportView(canvas);
 		scroller.setAutoscrolls(true);
 		return scroller;

@@ -2,6 +2,8 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui.views;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -10,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -32,20 +35,25 @@ public class PhylogeniesView extends JComponent {
 	private JScrollPane phylogenyTableScrollPane;
 	private JFileChooser chooser = new JFileChooser("Choose a phylogeny");
 	private JPanel renderPhylogeny = new TreeGraphicsDisplay();
+	private JScrollPane textTreeScrollPane = new JScrollPane();
 	
 	/**
 	 * Default no-arg constructor
 	 */
 	public PhylogeniesView(){
-		mainPanel = new JPanel(new GridLayout(2,1));
-		selectionPanel = new JPanel(new GridLayout(2,1));
+		mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel,BoxLayout.Y_AXIS));
+		selectionPanel = new JPanel();
 		selectionPanel.add(new JLabel("Selection/table here"));
-		displayPanel = new JPanel(new GridLayout(1,3 	));
+		displayPanel = new JPanel();
+		displayPanel.setLayout(new BoxLayout(displayPanel,BoxLayout.Y_AXIS));
 		displayPanel.add(new JLabel("Phylogeny display here"));
 		textTreeDisplay = new JTextArea("Trees as text strings");
-		textTreeDisplay.setColumns(35);
+		textTreeDisplay.setPreferredSize(new Dimension(320, 30));
+		textTreeScrollPane.setViewportView(textTreeDisplay);
 		displayPanel.add(renderPhylogeny);
-		displayPanel.add(textTreeDisplay);
+		displayPanel.add(textTreeScrollPane);
+		selectionPanel.setPreferredSize(new Dimension(320, 30));
 		mainPanel.add(selectionPanel);
 		mainPanel.add(displayPanel);
 	}
@@ -134,7 +142,8 @@ public class PhylogeniesView extends JComponent {
 		}
 		renderPhylogeny = (JPanel)pdp;
 		displayPanel.add(renderPhylogeny);
-		
+		displayPanel.revalidate();
+		displayPanel.repaint();
 	}
 
 	public void addRowSelectionListener(PhylogeniesRowListener phylogeniesRowListener) {

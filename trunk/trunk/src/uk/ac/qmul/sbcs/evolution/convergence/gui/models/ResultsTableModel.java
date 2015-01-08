@@ -20,11 +20,7 @@ public class ResultsTableModel extends AbstractTableModel {
 			"# invar. sites (AA)",
 			"mean entropy NT",
 			"Selection data?"};
-
-	private Object[][] data = new Object[][]{
-			{new DisplayAlignment("-"), "-","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), new Boolean(false)}
-	};
-
+	private Object[][] data;
 	private final Object[] longNames = new Object[] {"file", "locus","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), Boolean.FALSE};
 
 	public ResultsTableModel(){
@@ -36,22 +32,39 @@ public class ResultsTableModel extends AbstractTableModel {
 	}
 	
 	public void addRow(File resultFile){
-		Object[][] newData = new Object[data.length+1][data[0].length];
-		for(int i=0;i<data.length;i++){
-			newData[i] = data[i];
+		Object[][] newData;
+		if(data != null){
+			newData = new Object[data.length+1][data[0].length];
+			for(int i=0;i<data.length;i++){
+				newData[i] = data[i];
+			}
+			Object[] newRow = new Object[data[0].length];
+			newRow[0] = resultFile;
+			newRow[1] = resultFile.getName();
+			newRow[2] = "None of the above";
+			newRow[3] = Math.rint(Math.random()*100);
+			newRow[4] = Math.rint(Math.random()*100);
+			newRow[5] = Math.rint(Math.random()*100);
+			newRow[6] = Math.rint(Math.random()*100);
+			newRow[7] = Math.rint(Math.random()*100);
+			newRow[8] = Math.random();
+			newRow[9] = false;
+			newData[data.length] = newRow;
+		}else{
+			newData = new Object[1][getColumnCount()];
+			Object[] newRow = new Object[getColumnCount()];
+			newRow[0] = resultFile;
+			newRow[1] = resultFile.getName();
+			newRow[2] = "None of the above";
+			newRow[3] = Math.rint(Math.random()*100);
+			newRow[4] = Math.rint(Math.random()*100);
+			newRow[5] = Math.rint(Math.random()*100);
+			newRow[6] = Math.rint(Math.random()*100);
+			newRow[7] = Math.rint(Math.random()*100);
+			newRow[8] = Math.random();
+			newRow[9] = false;
+			newData[0] = newRow;
 		}
-		Object[] newRow = new Object[data[0].length];
-		newRow[0] = resultFile;
-		newRow[1] = resultFile.getName();
-		newRow[2] = "None of the above";
-		newRow[3] = Math.rint(Math.random()*100);
-		newRow[4] = Math.rint(Math.random()*100);
-		newRow[5] = Math.rint(Math.random()*100);
-		newRow[6] = Math.rint(Math.random()*100);
-		newRow[7] = Math.rint(Math.random()*100);
-		newRow[8] = Math.random();
-		newRow[9] = false;
-		newData[data.length] = newRow;
 		data = newData;
 		this.fireTableRowsInserted(data.length-1, data.length-1);
 	}
@@ -61,7 +74,11 @@ public class ResultsTableModel extends AbstractTableModel {
 	}
 
 	public int getRowCount() {
-		return data.length;
+		if(data != null){
+			return data.length;
+		}else{
+			return 0;
+		}
 	}
 
 	public String getColumnName(int col) {
@@ -69,7 +86,11 @@ public class ResultsTableModel extends AbstractTableModel {
 	}
 
 	public Object getValueAt(int row, int col) {
-		return data[row][col];
+		if(data != null){
+			return data[row][col];
+		}else{
+			return null;
+		}
 	}
 
 	/*
@@ -83,13 +104,12 @@ public class ResultsTableModel extends AbstractTableModel {
 	}
 
 	/*
-	 * Don't need to implement this method unless your table's
-	 * editable.
+	 * Don't need to implement this method unless column's editable.
 	 */
 	public boolean isCellEditable(int row, int col) {
 		//Note that the data/cell address is constant,
 		//no matter where the cell appears onscreen.
-		if (col < 2) {
+		if (col < 0) {
 			return false;
 		} else {
 			return true;

@@ -113,6 +113,9 @@ public class AlignmentsView extends JComponent{
 //		sequencePaneAA.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 //		sequencePaneAA.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		panel.add(sequencePaneAA);
+		
+		panel.revalidate();
+		panel.repaint();
 
 		// repaint / update components
 /*

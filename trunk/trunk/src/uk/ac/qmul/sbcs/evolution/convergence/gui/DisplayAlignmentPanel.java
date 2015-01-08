@@ -18,6 +18,11 @@ public class DisplayAlignmentPanel extends JPanel{
 	private final String[] drawSequences;	// sequences of nucleotides or amino acids
 	private final String[] drawTaxa;		// names of the taxa
 	private final boolean isAminoAcids;		// TRUE if amino acids, else nucleotide or codon colours will be used.
+	protected boolean allowRepaintFlag;		// A flag to only allow repainting via paintComponent() when desired.
+	private int paintCallsAllowed = 0;
+	private int paintCallsDenied = 0;
+	private Color[][] sequenceCharColours = null;
+	private long lastRepaintMillis = 0;
 
 	/**
 	 * Default no-arg constructor, deprecated.
@@ -40,12 +45,34 @@ public class DisplayAlignmentPanel extends JPanel{
 		drawSequences = sequences;
 		drawTaxa = taxa;
 		isAminoAcids = isTranslated;
+		// Initialize the Color[][] matrix for the nucleotide or AA colouration
+		sequenceCharColours = new Color[drawSequences.length][drawSequences[0].toCharArray().length]; // assume that all sequences same length
+		for(int taxon=0;taxon<drawSequences.length;taxon++){
+			char[] someSequence = drawSequences[taxon].toCharArray();
+			for(int c=0;c<someSequence.length;c++){
+				sequenceCharColours[taxon][c] = chooseColours(someSequence[c],isAminoAcids);
+			}
+		}
 	}
 	
 	@Override
 	public void paintComponent(Graphics g){
-		Graphics2D g2 = (Graphics2D) g;
-		drawCharsWithBackground(g2, 0, 10);
+		//allowRepaintFlag = true;
+		
+//		if(allowRepaintFlag){
+		long currentTimeMillis = System.currentTimeMillis();
+		if((currentTimeMillis - this.lastRepaintMillis) > 50){
+			paintCallsAllowed++;
+			lastRepaintMillis = currentTimeMillis;
+			System.out.println("\tpaintComponent() call allowed #"+paintCallsAllowed+", context "+g.toString());
+			Graphics2D g2 = (Graphics2D) g;
+			drawCharsWithBackground(g2, 0, 10);
+			allowRepaintFlag = false;
+		}else{
+			paintCallsDenied++;
+			System.out.println("paintComponent() call ignored #"+paintCallsDenied+", context "+g.toString());
+		}
+		
 	}
 	
 	/**
@@ -63,6 +90,10 @@ public class DisplayAlignmentPanel extends JPanel{
 		 * 		draw sequence[i] in background blocks, then chars, continuing to increment x
 		 * 		increment y
 		 */
+		
+		// Clear the canvas before repainting
+		g2d.setColor(Color.WHITE);
+		g2d.fillRect(0, 0, this.WIDTH-1, this.HEIGHT-1);
 		
 		//g2d.setFont(new Font("Courier", Font.BOLD, 12)); //set the font	
 		Color textColour = Color.BLACK;
@@ -92,7 +123,9 @@ public class DisplayAlignmentPanel extends JPanel{
 			
 			// now draw the sequence chars. background filled rectangles are drawn first then chars placed
 			for(int c=0;c<sequenceChars.length;c++){
-				Color chosenColour = chooseColours(sequenceChars[c], this.isAminoAcids);
+				// Pick the colour for the amino acid or nucleotide background
+				//Color chosenColour = chooseColours(sequenceChars[c], this.isAminoAcids); // now using Color[][] array instantiated earlier
+				Color chosenColour = this.sequenceCharColours[taxon][c];
 				g2d.setColor(chosenColour);
 				g2d.fillRect(x-1, y-12, 10, 15);
 				g2d.setColor(textColour);

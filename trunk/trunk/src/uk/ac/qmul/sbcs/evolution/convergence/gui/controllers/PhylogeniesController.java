@@ -48,7 +48,9 @@ public class PhylogeniesController {
 			File phylogenyFile = view.getFileChooser().getSelectedFile();
 			// do nothing for now
 			model.addPhylogenyRowAsStringTree(phylogenyFile);
-			view.repaint();
+			Object[][] modelData = model.getData();
+			view.updatePhylogenyDisplay((DisplayPhylogeny) modelData[modelData.length-1][0]);
+//			view.repaint();
 		}
 	}
 	
@@ -80,7 +82,7 @@ public class PhylogeniesController {
 			/* Attempt to update the view representation */
 			DisplayPhylogeny dp = (DisplayPhylogeny) a_row[0];
 			view.updatePhylogenyDisplay(dp);
-			view.repaint();
+//			view.repaint();
 		}
 		
 	}

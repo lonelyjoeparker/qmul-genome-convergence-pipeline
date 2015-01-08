@@ -21,7 +21,8 @@ public class AlignmentsView extends JComponent{
 	private JPanel panel, subPanel;
 	private JFileChooser fc = new JFileChooser();	// file chooser for single files
 	private JFileChooser dc = new JFileChooser();	// file chooser for directories
-	private JButton addAlignments;
+	private JButton addAlignmentsButton;		// add alignment
+	private JButton removeAlignmentsButton;	// remove selected alignment
 	private JTable alignmentsTable;
 	private JScrollPane alignmentsScrollPane;
 	private JScrollPane sequencePaneNT;
@@ -30,8 +31,10 @@ public class AlignmentsView extends JComponent{
 	public AlignmentsView() {
 		panel = new JPanel(new GridLayout(3,1));
 		subPanel = new JPanel(new FlowLayout());
-		addAlignments = new JButton("Add alignments...");
-		subPanel.add(addAlignments);
+		addAlignmentsButton = new JButton("Add alignments...");
+		removeAlignmentsButton = new JButton("Remove selected alignment...");
+		subPanel.add(addAlignmentsButton);
+		subPanel.add(removeAlignmentsButton);
 		panel.add(subPanel);
 		dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}
@@ -69,8 +72,12 @@ public class AlignmentsView extends JComponent{
 		return panel;
 	}
 
-	public void addAlignmentsButtonListener(ActionListener al){
-		addAlignments.addActionListener(al);
+	public void addAddAlignmentsButtonListener(ActionListener al){
+		addAlignmentsButton.addActionListener(al);
+	}
+	
+	public void addRemoveAlignmentsButtonListener(ActionListener al){
+		removeAlignmentsButton.addActionListener(al);
 	}
 
 	public void addListRowSelectionListener(AlignmentsRowListener arl){

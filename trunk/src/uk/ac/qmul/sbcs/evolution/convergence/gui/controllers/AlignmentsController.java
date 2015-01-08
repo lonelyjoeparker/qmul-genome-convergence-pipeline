@@ -26,6 +26,7 @@ public class AlignmentsController {
 	final AlignmentsView view;
 	AddSingleAlignmentsButtonListener 	addAlignmentsListenerSingle;
 	AddBatchAlignmentsButtonListener 	addAlignmentsListenerBatch;
+	RemoveSelectedAlignmentsButtonListener	removeSelectedAlignmentSingle;
 
 	/**
 	 * No-arg constructor - deprecated. 
@@ -47,7 +48,9 @@ public class AlignmentsController {
 		view = alignmentsView;
 		addAlignmentsListenerSingle = new AddSingleAlignmentsButtonListener();
 		addAlignmentsListenerBatch = new AddBatchAlignmentsButtonListener();
-		view.addAlignmentsButtonListener(addAlignmentsListenerSingle);
+		removeSelectedAlignmentSingle = new RemoveSelectedAlignmentsButtonListener();
+		view.addAddAlignmentsButtonListener(addAlignmentsListenerSingle);
+		view.addRemoveAlignmentsButtonListener(removeSelectedAlignmentSingle);
 		view.addTable(model);
 		initColumnSizes();
 		view.addListRowSelectionListener(new AlignmentsRowListener());
@@ -109,6 +112,39 @@ public class AlignmentsController {
 			model.addRow(da);
 			view.updateAlignmentScrollPanes(da);
 //			view.repaint();
+		}
+	}
+	
+	/**
+	 * If a single alignment is selected in the AlignmentsTableModel, 
+	 * remove it and update the table.
+	 * 
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 *	TODO Implement this. 
+	 *	TODO Implement this behaviour for multiple, non-consecutive table rows.
+	 */
+	public class RemoveSelectedAlignmentsButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev){
+			switch(view.getTable().getSelectedRowCount()){
+				case 0:{
+					System.out.println("No selected alignment row to remove.");
+					break;
+				}
+				case 1:{
+					// if exactly one row is selected
+					int selectedRow = view.getTable().getSelectedRow();
+					System.out.println("remove selected alignment, row "+selectedRow);
+					model.removeRow(selectedRow);
+					view.repaint();
+					break;
+				}
+				default:{
+					System.out.println("More than one row selected ("+view.getTable().getSelectedRowCount()+"); select exactly one row to remove.");
+					break;
+				}
+			}
 		}
 	}
 

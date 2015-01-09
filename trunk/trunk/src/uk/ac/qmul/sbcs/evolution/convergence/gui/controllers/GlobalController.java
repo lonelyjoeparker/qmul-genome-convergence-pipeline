@@ -127,8 +127,14 @@ public class GlobalController {
 		
 		@Override
 		public void actionPerformed(ActionEvent arg0){
-			view.parametersWindow.setLocation(64, 128);
-			view.parametersWindow.setVisible(true);
+			if(view.parametersWindow.isVisible()){
+				view.parametersWindow.setVisible(false);
+				menuBarController.view.showParameters.setSelected(false);
+			}else{
+				//view.parametersWindow.setLocation(64, 128); // to re-set the location back to the start. we'll disable this so the parameters window reappears where it was last positioned by the user.
+				view.parametersWindow.setVisible(true);
+				menuBarController.view.showParameters.setSelected(true);
+			}
 		}
 	}
 	

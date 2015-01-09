@@ -5,6 +5,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui.views;
 
 import java.awt.FlowLayout;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -23,7 +24,7 @@ public class MenuBarFactory extends JMenuBar {
 	public JMenu fileMenu, actionMenu, viewMenu, helpMenu;
 	public JMenuItem loadAlignments, loadAlignmentsSingle, loadAlignmentsBatch, loadAnalysisXMLs, loadResults, loadTrees, close, about;				// fileMenu sub-items
 	public JMenuItem createConvergenceAnalyses, verifyDependencies, runLocalAnalysis, runRemoteAnalysis;	// actionMenu sub-items
-	public JMenuItem showParameters;		// viewMenu sub-items
+	public JCheckBoxMenuItem showParameters;		// viewMenu sub-items
 	public JMenuItem help, reportBugs, contributeCode;														// helpMenu sub-items
 	
 	public MenuBarFactory(){
@@ -52,7 +53,7 @@ public class MenuBarFactory extends JMenuBar {
 		runRemoteAnalysis = new JMenuItem("Write batch file to run convergence analyses on another computer");
 
 		// Instantiate the View Menu items
-		showParameters = new JMenuItem("Show parameters window");
+		showParameters = new JCheckBoxMenuItem("Show parameters window", true);
 		
 		// Instantiate the Help menu items
 		help = new JMenuItem("Help...");

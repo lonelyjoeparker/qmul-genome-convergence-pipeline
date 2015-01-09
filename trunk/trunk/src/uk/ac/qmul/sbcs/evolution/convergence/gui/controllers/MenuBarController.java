@@ -97,6 +97,14 @@ public class MenuBarController {
 	}
 
 	/**
+	 * Add an action listener to the 'Show Parameters window' menu item.
+	 * @param al
+	 */
+	public void addShowParameterWindowListener(ActionListener al){
+		view.showParameters.addActionListener(al);
+	}
+	
+	/**
 	 * Show the application's About message.
 	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
 	 */

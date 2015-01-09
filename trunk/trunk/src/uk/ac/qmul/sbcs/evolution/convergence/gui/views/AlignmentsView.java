@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -18,7 +19,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsTableModel;
 
 
 public class AlignmentsView extends JComponent{
-	private JPanel panel, subPanel;
+	private JPanel panel, subPanel, buttonPanel;
 	private JFileChooser fc = new JFileChooser();	// file chooser for single files
 	private JFileChooser dc = new JFileChooser();	// file chooser for directories
 	private JButton addAlignmentsButton;		// add alignment
@@ -30,11 +31,15 @@ public class AlignmentsView extends JComponent{
 
 	public AlignmentsView() {
 		panel = new JPanel(new GridLayout(3,1));
-		subPanel = new JPanel(new FlowLayout());
+		subPanel = new JPanel();
+		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		addAlignmentsButton = new JButton("Add alignments...");
 		removeAlignmentsButton = new JButton("Remove selected alignment...");
-		subPanel.add(addAlignmentsButton);
-		subPanel.add(removeAlignmentsButton);
+		buttonPanel.add(addAlignmentsButton);
+		buttonPanel.add(removeAlignmentsButton);
+		subPanel.add(buttonPanel);
 		panel.add(subPanel);
 		dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}
@@ -48,10 +53,9 @@ public class AlignmentsView extends JComponent{
         alignmentsTable.setColumnSelectionAllowed(true);
         alignmentsTable.setCellSelectionEnabled(true);
         alignmentsTable.setAutoCreateRowSorter(true);
+        alignmentsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         /* Create scrollpanes  and add them to the pane */
-		alignmentsScrollPane = new JScrollPane(alignmentsTable);
-		alignmentsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		alignmentsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        alignmentsScrollPane = new JScrollPane(alignmentsTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sequencePaneNT = new JScrollPane();
 		sequencePaneNT.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		sequencePaneNT.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);

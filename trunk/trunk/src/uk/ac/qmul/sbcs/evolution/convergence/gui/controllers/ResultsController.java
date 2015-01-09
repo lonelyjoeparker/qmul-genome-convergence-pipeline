@@ -115,6 +115,16 @@ public class ResultsController {
 				cellWidth = comp.getPreferredSize().width;
 				column.setPreferredWidth(Math.max(headerWidth, cellWidth));
 			}
+		}else{
+			// try and set column widths based on the table column names (surely that's the obvious way to do it anyway? - Ed)
+			for(int col = 0; col < colCount; col++){
+				column = table.getColumnModel().getColumn(col);
+
+				comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
+				headerWidth = comp.getPreferredSize().width;
+				cellWidth = comp.getPreferredSize().width;
+				column.setPreferredWidth(headerWidth);
+			}
 		}
 	}
 }

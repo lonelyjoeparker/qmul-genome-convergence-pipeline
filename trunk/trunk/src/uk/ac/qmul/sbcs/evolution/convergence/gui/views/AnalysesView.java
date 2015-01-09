@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -26,15 +27,26 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.models.PhylogeniesModel;
  */
 public class AnalysesView extends JComponent {
 
-	private JPanel panel;
+	private JPanel panel, buttonPanel;
+	private JButton addAnalyses, deleteAnalyses;
 	private JTable analysesTable;
 	private JScrollPane analysesScrollPane;
 	private JFileChooser chooser = new JFileChooser("Choose analysis XMLs");
 	
 	
 	public AnalysesView() {
-		panel = new JPanel(new FlowLayout());
+		// main panel
+		panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(new JLabel("Panel for analyses records/XMLs"));
+		// sub-panel for buttons
+		addAnalyses = new JButton("Add analyses...");
+		deleteAnalyses = new JButton("Delete analyses...");
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		buttonPanel.add(addAnalyses);
+		buttonPanel.add(deleteAnalyses);
+		panel.add(buttonPanel);
 	}
 
 	public JTable getTable(){
@@ -47,9 +59,7 @@ public class AnalysesView extends JComponent {
 	 */
 	public void addTable(AnalysesModel analysesModel) {
         analysesTable = new JTable(analysesModel);
-        analysesScrollPane = new JScrollPane(analysesTable);
-		analysesScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		analysesScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        analysesScrollPane = new JScrollPane(analysesTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         panel.add(analysesScrollPane);
  	}
 

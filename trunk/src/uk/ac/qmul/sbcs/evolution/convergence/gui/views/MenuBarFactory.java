@@ -20,15 +20,17 @@ import javax.swing.JPanel;
  *
  */
 public class MenuBarFactory extends JMenuBar {
-	public JMenu fileMenu, actionMenu, helpMenu;
+	public JMenu fileMenu, actionMenu, viewMenu, helpMenu;
 	public JMenuItem loadAlignments, loadAlignmentsSingle, loadAlignmentsBatch, loadAnalysisXMLs, loadResults, loadTrees, close, about;				// fileMenu sub-items
 	public JMenuItem createConvergenceAnalyses, verifyDependencies, runLocalAnalysis, runRemoteAnalysis;	// actionMenu sub-items
+	public JMenuItem showParameters;		// viewMenu sub-items
 	public JMenuItem help, reportBugs, contributeCode;														// helpMenu sub-items
 	
 	public MenuBarFactory(){
 		// Instantiate top-level menus
 		fileMenu = new JMenu("File");
 		actionMenu = new JMenu("Actions");
+		viewMenu = new JMenu("View");
 		helpMenu = new JMenu("Help");
 		
 		// Instantiate the File menu items
@@ -49,6 +51,9 @@ public class MenuBarFactory extends JMenuBar {
 		runLocalAnalysis = new JMenuItem("Run convergence analyses on this computer");
 		runRemoteAnalysis = new JMenuItem("Write batch file to run convergence analyses on another computer");
 
+		// Instantiate the View Menu items
+		showParameters = new JMenuItem("Show parameters window");
+		
 		// Instantiate the Help menu items
 		help = new JMenuItem("Help...");
 		reportBugs = new JMenuItem("Report a bug, error, or request a feature...");
@@ -68,6 +73,9 @@ public class MenuBarFactory extends JMenuBar {
 		actionMenu.add(loadAnalysisXMLs);
 		actionMenu.add(runRemoteAnalysis);
 
+		// Add items to View menu
+		viewMenu.add(showParameters);
+
 		// Add items to Help menu
 		helpMenu.add(help);
 		helpMenu.add(reportBugs);
@@ -76,6 +84,7 @@ public class MenuBarFactory extends JMenuBar {
 		// Add menus to the menu bar
 		add(fileMenu);
 		add(actionMenu);
+		add(viewMenu);
 		add(helpMenu);
 	}
 	

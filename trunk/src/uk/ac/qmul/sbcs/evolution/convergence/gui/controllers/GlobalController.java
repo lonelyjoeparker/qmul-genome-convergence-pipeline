@@ -87,6 +87,8 @@ public class GlobalController {
 		if((alignmentsController != null)&&(menuBarController != null)){
 			menuBarController.addAddAlignmentsMenuListenerSingle(alignmentsController.addAlignmentsListenerSingle);
 			menuBarController.addAddAlignmentsMenuListenerBatch(alignmentsController.addAlignmentsListenerBatch);
+			menuBarController.addShowParameterWindowListener(new ShowParametersWindowListener());
+			alignmentsController.setGlobalController(this);
 		}
 		if((phylogeniesController != null)&&(menuBarController != null)){
 			menuBarController.addAddPhylogeniesMenuListener(phylogeniesController.addPhylogenyListener);
@@ -116,6 +118,19 @@ public class GlobalController {
 		view.sidePanelTaxonListText.setText(model.getTaxonNamesSetAsMultilineString());
 	}
 	
+	public void updateTaskbar(String message, int percentComplete){
+		view.taskLabel.setText(message);
+		view.taskbar.setValue(percentComplete);
+	}
+	
+	class ShowParametersWindowListener implements ActionListener{
+		
+		@Override
+		public void actionPerformed(ActionEvent arg0){
+			view.parametersWindow.setLocation(64, 128);
+			view.parametersWindow.setVisible(true);
+		}
+	}
 	
 	class SaveGlobalVariablesListener implements ActionListener{
 

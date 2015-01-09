@@ -3,12 +3,15 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui.controllers;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.HashSet;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellRenderer;
@@ -27,6 +30,7 @@ public class AlignmentsController {
 	AddSingleAlignmentsButtonListener 	addAlignmentsListenerSingle;
 	AddBatchAlignmentsButtonListener 	addAlignmentsListenerBatch;
 	RemoveSelectedAlignmentsButtonListener	removeSelectedAlignmentSingle;
+	GlobalController globalController;
 
 	/**
 	 * No-arg constructor - deprecated. 
@@ -57,6 +61,10 @@ public class AlignmentsController {
 		view.addListColumnSelectionListener(new AlignmentsColumnListener());
 	}
 
+	public void setGlobalController(GlobalController controller){
+		globalController = controller;
+	}
+	
 	public JComponent getView() {
 		return view.getPanel();
 	}
@@ -77,7 +85,7 @@ public class AlignmentsController {
 
 		// try and establish the preferred widths. the first row of each dataModel contains null vals anyway (we know this cos it's in their constructors, we put it there).
 		if(rowCount>0){
-			for (int col = 0; col < colCount; col++) {
+			for(int col = 0; col < colCount; col++){
 				column = table.getColumnModel().getColumn(col);
 
 				comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
@@ -86,6 +94,16 @@ public class AlignmentsController {
 				comp = table.getDefaultRenderer(model.getColumnClass(col)).getTableCellRendererComponent(table, model.getValueAt(0,col),false, false, 0, col);
 				cellWidth = comp.getPreferredSize().width;
 				column.setPreferredWidth(Math.max(headerWidth, cellWidth));
+			}
+		}else{
+			// try and set column widths based on the table column names (surely that's the obvious way to do it anyway? - Ed)
+			for(int col = 0; col < colCount; col++){
+				column = table.getColumnModel().getColumn(col);
+
+				comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
+				headerWidth = comp.getPreferredSize().width;
+				cellWidth = comp.getPreferredSize().width;
+				column.setPreferredWidth(headerWidth);
 			}
 		}
 	}
@@ -137,7 +155,7 @@ public class AlignmentsController {
 					int selectedRow = view.getTable().getSelectedRow();
 					System.out.println("remove selected alignment, row "+selectedRow);
 					model.removeRow(selectedRow);
-					view.repaint();
+					view.getTable().repaint();
 					break;
 				}
 				default:{
@@ -154,14 +172,24 @@ public class AlignmentsController {
 	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
 	 *
 	 */
-	public class AddBatchAlignmentsButtonListener implements ActionListener{
+	public class AddBatchAlignmentsButtonListener implements ActionListener, PropertyChangeListener{
+		AlignmentsImportTask task;
+		
 		@Override
 		public void actionPerformed(ActionEvent ev) {
 			int returnVal = view.getDirectoryChooser().showOpenDialog(view);
 			if(returnVal == JFileChooser.APPROVE_OPTION){
 				File alignmentDirectory = view.getDirectoryChooser().getSelectedFile();
 				if(alignmentDirectory.isDirectory()){
+			        task = new AlignmentsImportTask();
+			        task.addPropertyChangeListener((PropertyChangeListener) this);
+			        task.execute();
+					globalController.updateTaskbar("Done.", 100);
+
+					/*
 					File[] files  = alignmentDirectory.listFiles();
+					int totalFiles = files.length;
+					int filesTried = 0;
 					DisplayAlignment da = null;
 					for(File alignmentFile:files){
 						try {
@@ -176,18 +204,79 @@ public class AlignmentsController {
 						} catch (NullPointerException ex) {
 							ex.printStackTrace();
 						}
+						filesTried++;
+						int progress = Math.round(((float)filesTried / (float)totalFiles)*100f);
+						globalController.updateTaskbar("Adding alignments ("+filesTried+"; "+progress+"%)...", progress);
+						System.out.println("Adding alignments ("+filesTried+"; "+progress+"%)...");
 					}
 					if(da != null){
 						view.updateAlignmentScrollPanes(da);
 					}
 //					view.getTable().repaint();
-
+					globalController.updateTaskbar("Task: ", 0);
+					*/
 				}			
 			}
 		}
+		
+	    /**
+	     * Invoked when task's progress property changes.
+	     */
+	    public void propertyChange(PropertyChangeEvent evt) {
+	        if ("progress" == evt.getPropertyName()) {
+	            globalController.updateTaskbar("Adding alignments ("+task.getProgress()+";%)...", task.getProgress());
+	        } 
+	    }
+
 	}
 
-	
+    class AlignmentsImportTask extends SwingWorker<Void, Void> {
+        /*
+         * Main task. Executed in background thread.
+         */
+        @Override
+        public Void doInBackground() {
+            int progress = 0;
+            //Initialize progress property.
+            setProgress(0);
+			File[] files  = view.getDirectoryChooser().getSelectedFile().listFiles();
+			int totalFiles = files.length;
+			int filesTried = 0;
+			DisplayAlignment da = null;
+			for(File alignmentFile:files){
+				try {
+					AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
+					asr.loadSequences(alignmentFile, false);
+					asr.calculateAlignmentStats(false);
+					da = new DisplayAlignment(alignmentFile.getName(),asr);
+					model.addRow(da);
+				} catch (TaxaLimitException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NullPointerException ex) {
+					ex.printStackTrace();
+				}
+				filesTried++;
+				progress = Math.round(((float)filesTried / (float)totalFiles)*100f);
+				globalController.updateTaskbar("Adding alignments ("+filesTried+"; "+progress+"%)...", progress);
+                setProgress(Math.min(progress, 100));
+				System.out.println("Adding alignments ("+filesTried+"; "+progress+"%)...");
+			}
+			if(da != null){
+				view.updateAlignmentScrollPanes(da);
+			}
+          return null;
+        }
+
+        /*
+         * Executed in event dispatching thread
+         */
+        @Override
+        public void done() {
+			globalController.updateTaskbar("Complete.", 0);
+        }
+    }
+
 	public class AlignmentsColumnListener implements ListSelectionListener {
 		public void valueChanged(ListSelectionEvent event) {
 			if (event.getValueIsAdjusting()) {
@@ -213,8 +302,20 @@ public class AlignmentsController {
 			}
 			/* Get the table and print out some debug info... */
 			JTable alignmentsTable = view.getTable();
-			/* Get the selected table row, via view */
+			/* 
+			 * Get the selected table row, via view. 
+			 * Remember that getSelectedRow returns -1 if no row selected 
+			 * (delete events) / first row selected (multiple row selections)..
+			 */
 			int viewModelRow = alignmentsTable.getSelectedRow();
+			if(viewModelRow == -1){
+				// No row selected, probably a delete event so re-select first row
+				viewModelRow = 0;
+			}else{
+				if(alignmentsTable.getSelectedRowCount() > 1){
+					// multiple rows selected.
+				}
+			}
 			Object[] a_row = model.getData()[viewModelRow];
 			String val = a_row[4].toString();
 			String entropy = a_row[8].toString();

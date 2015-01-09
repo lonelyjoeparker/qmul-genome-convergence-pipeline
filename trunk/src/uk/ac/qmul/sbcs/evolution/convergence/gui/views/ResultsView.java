@@ -2,8 +2,10 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui.views;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -16,16 +18,22 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.models.ResultsTableModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.ResultsController.*;
 
 public class ResultsView extends JComponent {
-	private JPanel panel;
+	private JPanel panel, buttonPanel;
 	private JFileChooser fc = new JFileChooser();
-	private JButton addResults;
+	private JButton addResults, deleteResults;
 	private JTable resultsTable;
 	private JScrollPane resultsScrollPane;
 	
 	public ResultsView() {
-		panel = new JPanel(new FlowLayout());
+		panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		addResults = new JButton("Add results...");
-		panel.add(addResults);
+		deleteResults = new JButton("Delete results...");
+		buttonPanel.add(addResults);
+		buttonPanel.add(deleteResults);
+		panel.add(buttonPanel);
 	}
 
 	public JTable getTable(){
@@ -49,9 +57,13 @@ public class ResultsView extends JComponent {
         resultsTable.setColumnSelectionAllowed(true);
         resultsTable.setCellSelectionEnabled(true);
         resultsTable.setAutoCreateRowSorter(true);
-		resultsScrollPane = new JScrollPane(resultsTable);
+        resultsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        resultsScrollPane = new JScrollPane(resultsTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		/*
+        resultsScrollPane = new JScrollPane(resultsTable);
 		resultsScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		resultsScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		*/
         panel.add(resultsScrollPane);
  	}
 

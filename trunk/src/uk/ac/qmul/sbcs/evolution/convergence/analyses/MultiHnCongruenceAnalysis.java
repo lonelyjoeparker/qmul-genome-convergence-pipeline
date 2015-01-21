@@ -165,7 +165,30 @@ public class MultiHnCongruenceAnalysis {
 
 	
 	/**
-	 * 
+	 * @deprecated 
+	 * This constructor (and most of this class) initially cloned from one of 
+	 * the other uk.ac.qmul.sbcs.evolution.convergence.analyses (probably 
+	 * MultiHnCongruenceAnalysisNoCDFSitewiseLikelihoodOutputTemp). As a result,
+	 * it takes a variety of arguments (treefileH0, treefileH1.. treefileH3 etc
+	 * for example) pertaining to analyses with a fixed number of phylogenies (4)
+	 * as this was the prototype specification (April 2011-Summer 2012). 
+	 * <p>These, fixed-number-of-topologies-variables, were then analysed via
+	 * the deprecated {@link MultiHnCongruenceAnalysis#go()} method.</p>
+	 * <p>Both this constructor / these variables, and the 
+	 * {@link MultiHnCongruenceAnalysis#go()} method are deprecated. Instead, a 
+	 * MultiHnCongruenceAnalysis should be instantiated using the multi-tree 
+	 * constructor and variables, 
+	 * {@link MultiHnCongruenceAnalysis(File dataSet2, File mainTreesFile, 
+	 * File constraintTreeFile, File labelledTreesFile, File workDir2, File binaries, 
+	 * String runID2, TreeSet<String> taxaList2, String[] modelsList2, int thisFilter, 
+	 * boolean doFactor)}, and analysis called with the {@link MultiHnCongruenceAnalysis#run()}
+	 * method, as this allows for phylogeny sets of arbitary length.</p>
+	 * @see {@link MultiHnCongruenceAnalysis(File dataSet2, File mainTreesFile, 
+	 * File constraintTreeFile, File labelledTreesFile, File workDir2, File binaries, 
+	 * String runID2, TreeSet<String> taxaList2, String[] modelsList2, int thisFilter, 
+	 * boolean doFactor)}
+	 * @see {@link MultiHnCongruenceAnalysis#go()}
+	 * @see {@link MultiHnCongruenceAnalysis#run()}
 	 * @param data - absolute file location of sequence file in fasta / phylip / nexus format.
 	 * @param treefileH0 - absolute file location of H0 (null hypothesis) treefile, in Newick format.
 	 * @param treefileH1 - absolute file location of H1 (alternative hypothesis 1) treefile, in Newick format.
@@ -179,6 +202,7 @@ public class MultiHnCongruenceAnalysis {
 	 * @param thisFilter - filter out sites with this many (or greater) taxa having gaps (missing data)
 	 * @param filterThisByFactor - whether to filter by % or absolute number.
 	 */
+	@Deprecated
 	public MultiHnCongruenceAnalysis(File data, File treefileH0, File treefileH1, File treefileH2, File treefileH3, File treefileH1labelled, File treefileH2labelled, File treefileH3labelled, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
 		this.dataset = data;
 		this.treeFileH0 = treefileH0;
@@ -490,6 +514,19 @@ public class MultiHnCongruenceAnalysis {
 
 	/**
 	 * @deprecated - this method should not normally be used by CongruenceRunner, but run() instead. 
+	 * <b>However NOTE THAT</b> the go() and run() methods are expected to run with two separate constructors: 
+	 * <ul><li>The 
+	 * {@link MultiHnCongruenceAnalysis#go()} method should be run on an object that has been
+	 * instantiated with the {@link MultiHnCongruenceAnalysis.MultiHnCongruenceAnalysis(File data, 
+	  File treefileH0, File treefileH1, File treefileH2, File treefileH3, File treefileH1labelled, 
+	  File treefileH2labelled, File treefileH3labelled, File work, File binariesLocation, String ID, 
+	  TreeSet&lt;String&gt; taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor)}
+	 * constructor - <b>this combination dates from 2012 and is DEPRECATED</b></li>
+	 * <li>The <b>(preferred)</b> {@link MultiHnCongruenceAnalysis#run()} method is intended to be called
+	 * on objects that have been created via the <b>(preferred)</b> {@link 
+	  MultiHnCongruenceAnalysis.MultiHnCongruenceAnalysis(File dataSet2, File mainTreesFile, 
+	  File constraintTreeFile, File labelledTreesFile, File workDir2, File binaries, String runID2, 
+	  TreeSet&lt;String&gt; taxaList2, String[] modelsList2, int thisFilter, boolean doFactor)} constructor.</p>
 	 */
 	public void go(){
 		long time = System.currentTimeMillis();

@@ -172,7 +172,7 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 
 	
 	/**
-	 * 
+	 * @deprecated
 	 * @param data - absolute file location of sequence file in fasta / phylip / nexus format.
 	 * @param treefileH0 - absolute file location of H0 (null hypothesis) treefile, in Newick format.
 	 * @param treefileH1 - absolute file location of H1 (alternative hypothesis 1) treefile, in Newick format.
@@ -186,6 +186,7 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 	 * @param thisFilter - filter out sites with this many (or greater) taxa having gaps (missing data)
 	 * @param filterThisByFactor - whether to filter by % or absolute number.
 	 */
+	@Deprecated
 	public SiteSpecificLikelihoodSupportAnalysis(File data, File treefileH0, File treefileH1, File treefileH2, File treefileH3, File treefileH1labelled, File treefileH2labelled, File treefileH3labelled, File work, File binariesLocation, String ID, TreeSet<String> taxaList, int sitesToSimulate, int thisFilter, boolean filterThisByFactor){
 		this.dataset = data;
 		this.treeFileH0 = treefileH0;
@@ -557,6 +558,7 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 	/**
 	 * @deprecated - this method should not normally be used by CongruenceRunner, but run() instead. 
 	 */
+	@Deprecated
 	public void go(){
 		long time = System.currentTimeMillis();
 		// Read in the data and treefiles

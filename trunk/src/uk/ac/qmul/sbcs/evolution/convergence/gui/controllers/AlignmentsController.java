@@ -273,7 +273,7 @@ public class AlignmentsController {
          */
         @Override
         public void done() {
-			globalController.updateTaskbar("Complete.", 0);
+			globalController.updateTaskbar("Complete.", 100);
         }
     }
 
@@ -334,19 +334,34 @@ public class AlignmentsController {
 		}
 	}
 
-	public HashSet<String> updateTaxonSet(HashSet<String> taxonNamesSet) {
+	public HashSet<String> updateTaxonSet(HashSet<String> taxonNamesSet) throws EmptyAlignmentsListException {
 		Object[][] data = model.getData();
-		for(Object[] alignment:data){
-			DisplayAlignment a = (DisplayAlignment)alignment[0];
-			try {
-				taxonNamesSet = a.expandTaxonNameSet(taxonNamesSet);
-			} catch (NullPointerException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if(data != null){
+			for(Object[] alignment:data){
+				DisplayAlignment a = (DisplayAlignment)alignment[0];
+				try {
+					taxonNamesSet = a.expandTaxonNameSet(taxonNamesSet);
+				} catch (NullPointerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+			return taxonNamesSet;
+		}else{
+			throw new EmptyAlignmentsListException("Data array hashcode: "+data.hashCode());
 		}
-		return taxonNamesSet;
 	}
 
+	public class EmptyAlignmentsListException extends NullPointerException{
+		// no-arg constructor
+		public EmptyAlignmentsListException(){
+			System.err.println("There is no active and valid alignment data.");
+		}
+
+		// string-arg constructor
+		public EmptyAlignmentsListException(String message){
+			System.err.println("There is no active and valid alignment data ("+message+").");
+		}
+	}
 }
 

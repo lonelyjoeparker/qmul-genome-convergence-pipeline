@@ -2,7 +2,11 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui.controllers;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
+import javax.swing.JFileChooser;
+
+import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.EmptyAlignmentsListException;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.GlobalModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.GlobalApplicationView;
 
@@ -32,6 +36,8 @@ public class GlobalController {
 		view = globalView;
 		view.sidePanelUpdateGlobalSettingsButton.addActionListener(new UpdateGlobalVariablesListener());
 		view.sidePanelSaveGlobalSettingsButton.addActionListener(new SaveGlobalVariablesListener());
+		view.setBinariesLocation.addActionListener(new SetBinariesLocationListener());
+		view.setWorkdirLocation.addActionListener(new SetWorkdirLocationListener());
 	}
 
 	/**
@@ -112,7 +118,12 @@ public class GlobalController {
 
 	public void updateGlobalVariableView(){
 		// See if we can update the taxonList
-		model.setTaxonNamesSet(this.alignmentsController.updateTaxonSet(model.getTaxonNamesSet()));
+		try {
+			model.setTaxonNamesSet(this.alignmentsController.updateTaxonSet(model.getTaxonNamesSet()));
+		} catch (EmptyAlignmentsListException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// Update the view panels with actual values
 		view.sidePanelDebugIndicator.setSelected(model.isDEBUG());
 		view.sidePanelTaxonListText.setText(model.getTaxonNamesSetAsMultilineString());
@@ -151,6 +162,84 @@ public class GlobalController {
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			updateGlobalVariableView();			
+		}
+	}
+	
+	/**
+	 * Use a JFileChooser to select a directory for the required binaries.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 */
+	class SetBinariesLocationListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev){
+			int returnVal = view.setBinariesLocationChooser.showOpenDialog(view);
+			if(returnVal == JFileChooser.APPROVE_OPTION){
+				File userBinariesLocation = view.setBinariesLocationChooser.getSelectedFile();
+				if(userBinariesLocation.canRead()){
+					view.setBinariesLocationLabel(userBinariesLocation.getAbsolutePath());
+					model.setUserBinariesLocation(userBinariesLocation);
+				}else{
+					System.err.println("Unable to read "+userBinariesLocation.getAbsolutePath());
+					view.setBinariesLocationLabel("WARNING! Unable to read "+userBinariesLocation.getAbsolutePath());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Use a JFileChooser to select a directory for the working directory.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 */
+	class SetWorkdirLocationListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev){
+			int returnVal = view.setWorkdirLocationChooser.showOpenDialog(view);
+			if(returnVal == JFileChooser.APPROVE_OPTION){
+				File userWorkdirLocation = view.setWorkdirLocationChooser.getSelectedFile();
+				if(userWorkdirLocation.canRead()){
+					view.setWorkdirLocationLabel(userWorkdirLocation.getAbsolutePath());
+					model.setUserWorkdirLocation(userWorkdirLocation);
+				}else{
+					System.err.println("Unable to read "+userWorkdirLocation.getAbsolutePath());
+					view.setWorkdirLocationLabel("WARNING! Unable to read "+userWorkdirLocation.getAbsolutePath());
+				}
+			}
+		}
+	}
+
+	/**
+	 * Validate the binaries directory: check that each of the
+	 * required binaries can be found, executed, and gives 
+	 * expected output.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 */
+	class ValidateBinariesLocationListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev){
+			/*
+			 * Validate the binaries directory: check that each of the
+			 * required binaries can be found, executed, and gives 
+			 * expected output.
+			 */
+		}
+	}
+
+	/**
+	 * Validate the working directory: check that files / 
+	 * directories can be written and created.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 */
+	class ValidateWorkdirLocationListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev){
+			/*
+			 * Validate the working directory: check that files / 
+			 * directories can be written and created.
+			 */
 		}
 	}
 }

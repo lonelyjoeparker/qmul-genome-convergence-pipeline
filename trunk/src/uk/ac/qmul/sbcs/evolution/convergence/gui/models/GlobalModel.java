@@ -1,11 +1,13 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui.models;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 
 public class GlobalModel {
 	private boolean DEBUG;	// should we print debug info to console?
 	private HashSet<String> taxonNamesSet;	//the set of all taxon names seen in this data.
+	private File userBinariesLocation, userWorkdirLocation;	//the location of the required binaries; the location of the working directory.
 
 	/**
 	 * Default no-arg constructor.
@@ -42,5 +44,37 @@ public class GlobalModel {
 			buf.append(taxonItr.next()+"\n");
 		}
 		return buf.toString();
+	}
+
+	/**
+	 * Set the user-specified location of the required binaries
+	 * @param newLocation
+	 */
+	public void setUserBinariesLocation(File newLocation) {
+		userBinariesLocation = newLocation;
+	}
+	
+	/**
+	 * Get the user-specified location of the required binaries
+	 * @return java.io.File - directory where required binaries are expected to be found.
+	 */
+	public File getUserBinariesLocation(){
+		return userBinariesLocation;
+	}
+
+	/**
+	 * Set the user-specified location of the working directory
+	 * @param userWorkdirLocation the userWorkdirLocation to set
+	 */
+	public void setUserWorkdirLocation(File userWorkdirLocation) {
+		this.userWorkdirLocation = userWorkdirLocation;
+	}
+
+	/**
+	 * Get the user-specified location of the working directory
+	 * @return the userWorkdirLocation
+	 */
+	public File getUserWorkdirLocation() {
+		return userWorkdirLocation;
 	}
 }

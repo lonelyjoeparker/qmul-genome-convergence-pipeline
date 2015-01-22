@@ -34,7 +34,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 9134007401329133617L;
-	private File file;
+	public File file;
 	private SequenceCodingType alignmentSequenceCodingType = SequenceCodingType.UNDEFINED;
 	private ArrayList<String> rawInput;
 	private SequenceFileFormat inputSequenceFileFormat;

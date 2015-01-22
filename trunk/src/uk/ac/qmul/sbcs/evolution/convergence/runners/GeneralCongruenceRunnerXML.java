@@ -130,7 +130,7 @@ public class GeneralCongruenceRunnerXML {
 		return sb.toString();
 	}
 	
-	private static String[] setupInitCommands(){
+	protected static String[] setupInitCommands(){
 		String[] inits = new String[2];
 		inits[0] = "/bin/pwd";
 		inits[1] = "/bin/echo poo";

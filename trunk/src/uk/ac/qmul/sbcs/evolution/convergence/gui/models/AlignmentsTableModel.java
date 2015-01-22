@@ -2,6 +2,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui.models;
 
 import javax.swing.table.AbstractTableModel;
 
+import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 
 public	class AlignmentsTableModel extends AbstractTableModel {
@@ -16,7 +17,8 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 			"# sites (AA)",
 			"# invar. sites (AA)",
 			"mean entropy NT",
-	"Selection data?"};
+			"Selection data?",
+			"Source alignment"};
 	private Object[][] data;
 	public final Object[] longValues = {"file", "locus","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), Boolean.FALSE};
 
@@ -31,9 +33,10 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 	/**
 	 * Add a single row to the data.
  	 * <p><b>Note that this operation is NOT SYNCHRONISED</b></p>
-	 * @param rowData
+	 * @param rowDisplayAlignment - the DisplayAlignment that will be used to draw alignment panes
+	 * @param rowSourceAlignment - the AlignedSequenceRepresentation containing the original source data
 	 */
-	public void addRow(DisplayAlignment rowData){
+	public void addRow(DisplayAlignment rowDisplayAlignment, AlignedSequenceRepresentation rowSourceAlignment){
 		Object[][] newData;
 		if(data != null){
 			newData = new Object[getData().length+1][getData()[0].length];
@@ -41,30 +44,32 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 				newData[i] = getData()[i];
 			}
 			Object[] newRow = new Object[getData()[0].length];
-			newRow[0] = rowData;
-			newRow[1] = rowData.getNameGuess();
+			newRow[0] = rowDisplayAlignment;
+			newRow[1] = rowDisplayAlignment.getNameGuess();
 			newRow[2] = "None of the above";
-			newRow[3] = rowData.getNumberOfTaxa();
-			newRow[4] = rowData.getNumberOfSitesNT();
-			newRow[5] = rowData.getNumberOfInvariantSitesNT();
-			newRow[6] = rowData.getNumberOfSitesAA();
-			newRow[7] = rowData.getNumberOfInvariantSitesAA();
-			newRow[8] = rowData.getMeanSitewiseEntropyNT();
+			newRow[3] = rowDisplayAlignment.getNumberOfTaxa();
+			newRow[4] = rowDisplayAlignment.getNumberOfSitesNT();
+			newRow[5] = rowDisplayAlignment.getNumberOfInvariantSitesNT();
+			newRow[6] = rowDisplayAlignment.getNumberOfSitesAA();
+			newRow[7] = rowDisplayAlignment.getNumberOfInvariantSitesAA();
+			newRow[8] = rowDisplayAlignment.getMeanSitewiseEntropyNT();
 			newRow[9] = false;
+			newRow[10] = rowSourceAlignment;
 			newData[getData().length] = newRow;
 		}else{
 			newData = new Object[1][getColumnCount()];
 			Object[] newRow = new Object[getColumnCount()];
-			newRow[0] = rowData;
-			newRow[1] = rowData.getNameGuess();
+			newRow[0] = rowDisplayAlignment;
+			newRow[1] = rowDisplayAlignment.getNameGuess();
 			newRow[2] = "None of the above";
-			newRow[3] = rowData.getNumberOfTaxa();
-			newRow[4] = rowData.getNumberOfSitesNT();
-			newRow[5] = rowData.getNumberOfInvariantSitesNT();
-			newRow[6] = rowData.getNumberOfSitesAA();
-			newRow[7] = rowData.getNumberOfInvariantSitesAA();
-			newRow[8] = rowData.getMeanSitewiseEntropyNT();
+			newRow[3] = rowDisplayAlignment.getNumberOfTaxa();
+			newRow[4] = rowDisplayAlignment.getNumberOfSitesNT();
+			newRow[5] = rowDisplayAlignment.getNumberOfInvariantSitesNT();
+			newRow[6] = rowDisplayAlignment.getNumberOfSitesAA();
+			newRow[7] = rowDisplayAlignment.getNumberOfInvariantSitesAA();
+			newRow[8] = rowDisplayAlignment.getMeanSitewiseEntropyNT();
 			newRow[9] = false;
+			newRow[10] = rowSourceAlignment;
 			newData[0] = newRow;
 		}
 		setData(newData);

@@ -92,7 +92,7 @@ public class WireframeMultiTableController extends JTabbedPane implements Action
 				e.printStackTrace();
 			}
 			DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
-			alignmentsModel.addRow(da);
+			alignmentsModel.addRow(da, asr);
 			alignmentsTable.repaint();
 		}
 	}
@@ -145,7 +145,7 @@ public class WireframeMultiTableController extends JTabbedPane implements Action
 							asr.loadSequences(alignmentFile, false);
 							asr.calculateAlignmentStats(false);
 							DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
-							alignmentsModel.addRow(da);
+							alignmentsModel.addRow(da, asr);
 							alignmentsTable.repaint();
 						} catch (TaxaLimitException e) {
 							// TODO Auto-generated catch block
@@ -916,7 +916,7 @@ public class WireframeMultiTableController extends JTabbedPane implements Action
 		}
 		DisplayAlignment da = new DisplayAlignment(null,asr);
 		da.setName((alignmentsModel.getRowCount()+1)+"_file");
-		alignmentsModel.addRow(da);
+		alignmentsModel.addRow(da, asr);
 		alignmentsTable.repaint();    	
 	}
 

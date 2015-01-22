@@ -55,6 +55,7 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 			newRow[8] = rowDisplayAlignment.getMeanSitewiseEntropyNT();
 			newRow[9] = false;
 			newRow[10] = rowSourceAlignment;
+		//	newRow[10] = new Object();
 			newData[getData().length] = newRow;
 		}else{
 			newData = new Object[1][getColumnCount()];
@@ -70,6 +71,7 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 			newRow[8] = rowDisplayAlignment.getMeanSitewiseEntropyNT();
 			newRow[9] = false;
 			newRow[10] = rowSourceAlignment;
+		//	newRow[10] = new Object();
 			newData[0] = newRow;
 		}
 		setData(newData);

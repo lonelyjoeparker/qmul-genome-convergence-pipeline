@@ -7,6 +7,7 @@ import java.io.File;
 
 import javax.swing.table.AbstractTableModel;
 
+import uk.ac.qmul.sbcs.evolution.convergence.analyses.SiteSpecificLikelihoodSupportAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
 
 /**
@@ -118,5 +119,10 @@ public class AnalysesModel extends AbstractTableModel {
 		}
 		data = newData;
 		this.fireTableRowsInserted(data.length-1, data.length-1);
+	}
+
+	public void addAnalysisRow(SiteSpecificLikelihoodSupportAnalysis analysis) {
+		// TODO Auto-generated method stub
+		// TODO not implemented yet
 	}
 }

@@ -3,12 +3,22 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui.controllers;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+import java.util.TreeSet;
 
 import javax.swing.JFileChooser;
 
+import com.thoughtworks.xstream.XStream;
+
+import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.analyses.SiteSpecificLikelihoodSupportAnalysis;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.EmptyAlignmentsListException;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.GlobalModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.GlobalApplicationView;
+import uk.ac.qmul.sbcs.evolution.convergence.runners.GeneralCongruenceRunnerXML;
+import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 
 public class GlobalController {
 
@@ -19,6 +29,7 @@ public class GlobalController {
 	AnalysesController analysesController;
 	ResultsController resultsController;
 	MenuBarController menuBarController;
+	CreateAnalysesListener createAnalysesListener = new CreateAnalysesListener();
 	
 	/**
 	 * No-arg constructor. Deprecated
@@ -100,10 +111,15 @@ public class GlobalController {
 			menuBarController.addAddPhylogeniesMenuListener(phylogeniesController.addPhylogenyListener);
 		}
 		if((analysesController != null)&&(menuBarController != null)){
+			// Adds a listener to load previously written SSLS analyses as XMLs
 			menuBarController.addAddAnalysesMenuListener(analysesController.addAnalysesListener);
 		}
 		if((resultsController != null)&&(menuBarController != null)){
 			menuBarController.addAddResultsMenuListener(resultsController.addResultsListener);
+		}
+		if((alignmentsController != null)&&(phylogeniesController != null)&&(analysesController != null)&&(resultsController != null)&&(menuBarController != null)){
+			// Adds a listener to build new SSLS analyses from active taxon set/alignments/phylogenies/parameters
+			menuBarController.addCreateAnalysesMenuListener(createAnalysesListener);
 		}
 	}
 
@@ -242,4 +258,130 @@ public class GlobalController {
 			 */
 		}
 	}
+
+	/**
+	 * Class to create a set of SitewiseSpecificLikelihoodSupportAnalyses when global 'Create analyses...' action triggered
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 * @see uk.ac.qmul.sbcs.evolution.convergence.analyses.SiteSpecificLikelihoodSupportAnalysis
+	 */
+	public class CreateAnalysesListener implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent ev){
+			// TODO - create analyses from the alignment / phylogeny / global models
+			System.out.println("Creating analyses from active sets...");
+			Object[][] alignmentsData = alignmentsController.model.getData();
+			Object[][] phylogeniesData = phylogeniesController.model.getData();
+			File binariesLocation = model.getUserBinariesLocation();
+			File workdirLocation = model.getUserWorkdirLocation();
+			int thisFilter = 100;
+			boolean doFactor = true;
+			String[] modelsList = { "wag", "jones" };
+			String[] begins = { "/bin/pwd"	, "/bin/echo poo" };
+			String[] ends   = { "/bin/ls -t", "/bin/echo oop" };
+			String runID;
+			TreeSet<String> taxaList = new TreeSet<String>();
+			taxaList.addAll(model.getTaxonNamesSet());
+			File mainTreesFile, constraintTreeFile, labelledTreesFile, randomTreesFile; //not instantiated yet
+			
+			/* 
+			 * 
+			 * for each alignment, attempt to create a 
+			 * uk.ac.qmul.sbcs.evolution.convergence.analyses.SiteSpecificLikelihoodSupportAnalysis 
+			 * object using the alignment, trees, and other parameters..
+			 * 
+			 * first basic != null checking:
+			 */
+			if((alignmentsData.length>0) && (phylogeniesData.length>0) && (binariesLocation.canRead()) && (workdirLocation.canRead()) && (workdirLocation.canWrite())){
+				// for each alignment
+				for(Object[] alignmentData: alignmentsData){
+					SiteSpecificLikelihoodSupportAnalysis analysis;
+					AlignedSequenceRepresentation alignment;
+					File alignmentFile;
+					alignment = (AlignedSequenceRepresentation)alignmentData[alignmentData.length-1];	// assumes the AlignedSequenceRepresentation is the last column in the AlignmentsTableModel. See r340
+					
+					// set up a subdir in rundir
+					String alignmentBaseName = alignment.file.getName().split("\\.")[0];
+					File locusSubdirLocation = new File(workdirLocation.getAbsolutePath()+"/"+alignmentBaseName);
+					if(!locusSubdirLocation.exists()){
+						locusSubdirLocation.mkdir();
+					}
+					
+					// write alignment file
+					alignmentFile = new File(locusSubdirLocation.getAbsolutePath()+"/"+alignmentBaseName+".phy");
+		/*	
+					try {
+						alignmentFile.createNewFile();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						System.err.println("could not create "+locusSubdirLocation.getAbsolutePath()+"/"+alignmentBaseName+".phy");
+						e.printStackTrace();
+					}
+		*/			
+					alignment.writePhylipFile(alignmentFile, true);
+					
+					// write trees files: make the file paths
+					mainTreesFile 		= new File(locusSubdirLocation.getAbsolutePath()+"/"+"mainTrees.tre");
+					constraintTreeFile 	= new File(locusSubdirLocation.getAbsolutePath()+"/"+"constraintTree.tre");
+					labelledTreesFile 	= new File(locusSubdirLocation.getAbsolutePath()+"/"+"labelledTrees.tre");
+					randomTreesFile 	= new File(locusSubdirLocation.getAbsolutePath()+"/"+"randomTrees.tre");
+		/*			
+					try {
+						mainTreesFile.createNewFile();
+						constraintTreeFile.createNewFile();
+						labelledTreesFile.createNewFile();
+						randomTreesFile.createNewFile();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			*/		
+					// write trees files: write them
+					Object[] phylogenyRow = phylogeniesData[0];
+					NewickTreeRepresentation phylogeny = ((DisplayPhylogeny)phylogenyRow[0]).getNewickTree();
+					phylogeny.write(mainTreesFile);
+					phylogeny.write(constraintTreeFile);
+					phylogeny.write(labelledTreesFile);
+					phylogeny.write(randomTreesFile);
+					
+					// run ID is hardcoded for now
+					runID = "run_"+System.currentTimeMillis()+"_"+alignment.hashCode();
+					
+					// convert etc
+					// how to handle phylogenies...?
+					analysis = new SiteSpecificLikelihoodSupportAnalysis(
+							alignmentFile, 
+							mainTreesFile, 
+							constraintTreeFile,
+							labelledTreesFile, 
+							randomTreesFile, 
+							locusSubdirLocation, 
+							binariesLocation, 
+							runID, 
+							taxaList,
+							modelsList, 
+							thisFilter, 
+							doFactor, 
+							begins, 
+							ends
+						);
+					analysis.setDoFullyUnconstrainedRAxML(true); // do this through constructor eventually
+					analysis.preValidate();
+					
+					// add to analyses panel
+					analysesController.model.addAnalysisRow(analysis);
+					// write XML (?)
+					File XMLFile 	= new File(locusSubdirLocation.getAbsolutePath()+"/SSLSanalysis.xml");
+					try {
+						XStream xstream = new XStream();
+						new BasicFileWriter(XMLFile,xstream.toXML(analysis));
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
 }
+

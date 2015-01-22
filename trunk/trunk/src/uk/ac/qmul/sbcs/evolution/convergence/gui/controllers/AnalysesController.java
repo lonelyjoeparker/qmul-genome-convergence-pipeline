@@ -14,7 +14,6 @@ public class AnalysesController {
 	AnalysesModel model;
 	AnalysesView view;
 	AddAnalysesListener addAnalysesListener = new AddAnalysesListener();
-	
 	/**
 	 * Default no-arg constructor - deprecated.
 	 */
@@ -50,4 +49,5 @@ public class AnalysesController {
 			// view.repaint() should not be needed?
 		}
 	}
+
 }

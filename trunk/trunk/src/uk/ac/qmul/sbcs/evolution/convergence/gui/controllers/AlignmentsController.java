@@ -127,7 +127,7 @@ public class AlignmentsController {
 				e.printStackTrace();
 			}
 			DisplayAlignment da = new DisplayAlignment(alignmentFile.getName(),asr);
-			model.addRow(da);
+			model.addRow(da, asr);
 			view.updateAlignmentScrollPanes(da);
 //			view.repaint();
 		}
@@ -249,7 +249,7 @@ public class AlignmentsController {
 					asr.loadSequences(alignmentFile, false);
 					asr.calculateAlignmentStats(false);
 					da = new DisplayAlignment(alignmentFile.getName(),asr);
-					model.addRow(da);
+					model.addRow(da, asr);
 				} catch (TaxaLimitException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

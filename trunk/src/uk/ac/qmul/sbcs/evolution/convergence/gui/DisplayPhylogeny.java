@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import javax.swing.JPanel;
 
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceContext;
 import uk.ac.qmul.sbcs.evolution.convergence.TreeNode;
 
 /**
@@ -22,6 +23,7 @@ public class DisplayPhylogeny {
 	private String textTreeRepresentation;
 	private final File treeFile;
 	private PhylogenyDisplayPanel displayedPhylogeny;
+	private PhylogenyConvergenceContext convergenceType;
 	
 	/**
 	 * Default no-arg constructor
@@ -33,6 +35,7 @@ public class DisplayPhylogeny {
 		taxonSet = null;
 		textTreeRepresentation = null;
 		treeFile = null;
+		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 	
 	/**
@@ -46,6 +49,7 @@ public class DisplayPhylogeny {
 		taxonSet = null;
 		textTreeRepresentation = newickTree.getTreeString();
 		treeFile = null;
+		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
 	/**
@@ -59,6 +63,7 @@ public class DisplayPhylogeny {
 		taxonSet = null;
 		textTreeRepresentation = treeNode.printRecursively();
 		treeFile = null;
+		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 	
 	/**
@@ -72,6 +77,7 @@ public class DisplayPhylogeny {
 		taxonSet = newickTree.getTaxaNames();
 		textTreeRepresentation = newTreeAsString;
 		treeFile = new File("");
+		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
 	/**
@@ -88,6 +94,7 @@ public class DisplayPhylogeny {
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
 		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
+		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
 	@Override
@@ -117,5 +124,13 @@ public class DisplayPhylogeny {
 	
 	public JPanel getDisplayedPhylogeny() {
 		return displayedPhylogeny;
+	}
+
+	public PhylogenyConvergenceContext getConvergenceContext() {
+		return convergenceType;
+	}
+
+	public void setConvergenceContext(PhylogenyConvergenceContext convergenceType) {
+		this.convergenceType = convergenceType;
 	}
 }

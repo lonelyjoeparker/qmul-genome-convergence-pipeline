@@ -65,7 +65,7 @@ public class ResultsPrinterSimple{
 		}
 	}
 
-	private void go(){
+	public void go(){
 		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();
 		StringBuffer bufTree = new StringBuffer();

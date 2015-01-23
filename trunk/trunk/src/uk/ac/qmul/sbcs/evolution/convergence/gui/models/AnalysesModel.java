@@ -124,5 +124,30 @@ public class AnalysesModel extends AbstractTableModel {
 	public void addAnalysisRow(SiteSpecificLikelihoodSupportAnalysis analysis) {
 		// TODO Auto-generated method stub
 		// TODO not implemented yet
+		Object [][] newData;
+		if(data == null){
+			// data array is empty
+			System.out.println("the first row of the table is null");
+			// rather than update it we should just replace
+			newData = new Object[1][3];
+			Object[] newRow = new Object[3];
+			newRow[0] = analysis;
+			newRow[1] = analysis.getInputAlignment();
+			newRow[2] = false;
+			newData[0] = newRow;
+		}else{
+			// data array already exists
+			newData = new Object[data.length+1][data[0].length];
+			for(int i=0;i<data.length;i++){
+				newData[i] = data[i];
+			}
+			Object[] newRow = new Object[this.getColumnCount()];
+			newRow[0] = analysis;
+			newRow[1] = analysis.getInputAlignment();
+			newRow[2] = false;
+			newData[data.length] = newRow;
+		}
+		data = newData;
+		this.fireTableRowsInserted(data.length-1, data.length-1);
 	}
 }

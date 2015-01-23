@@ -4,13 +4,14 @@ import java.io.File;
 
 import javax.swing.table.AbstractTableModel;
 
+import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceContext;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
 
 public class PhylogeniesModel extends AbstractTableModel{
 
 	/* Object variables */
 	
-	public final String[] columnNames = new String[]{"File","Number of phylogenies","First phylogeny"};
+	public final String[] columnNames = new String[]{"File","Number of phylogenies","Number of tips","First phylogeny","Phylogeny convergence type"};
 	private Object[][] data;
 	
 	/* Utility methods for TableModel type behaviour */
@@ -60,12 +61,34 @@ public class PhylogeniesModel extends AbstractTableModel{
 		return getValueAt(0, c).getClass();
 	}
 
-	/*
-	 * Don't need to implement this method unless column's editable.
-	 */
-	public boolean isCellEditable(int row, int col) {
-		return false;
-	}
+    /**
+     * Overridden method to set value of (last column), ie the convergenceContextType
+     */
+   public boolean isCellEditable(int row, int col) {
+        if (col != getColumnCount()-1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    
+    /**
+     * Overridden method to set value of (last column), ie the convergenceContextType
+     */
+    public void setValueAt(Object value, int row, int col) {
+    	if(col == getColumnCount()-1){
+    		// get the convergence context
+    		PhylogenyConvergenceContext newPhylogenyConvergenceContext = (PhylogenyConvergenceContext)value;
+            // set the table value
+    		data[row][col] = newPhylogenyConvergenceContext;
+    		// don't forget to update the displayphylogeny
+            DisplayPhylogeny dp = (DisplayPhylogeny)data[row][0];
+            dp.setConvergenceContext(newPhylogenyConvergenceContext);
+            // and... update again
+            data[row][0] = dp;
+            fireTableCellUpdated(row, col);
+    	}
+    }
 
 	/**
 	 * Returns the internal Object[][] representing data. <b>Remember:</b>
@@ -98,8 +121,8 @@ public class PhylogeniesModel extends AbstractTableModel{
 		if(data == null){
 			System.out.println("the first row of the table is null");
 			// rather than update it we should just replace
-			newData = new Object[1][3];
-			Object[] newRow = new Object[3];
+			newData = new Object[1][getColumnCount()];
+			Object[] newRow = new Object[getColumnCount()];
 			DisplayPhylogeny dp;
 			try {
 				dp = new DisplayPhylogeny(newTreeAsFile);
@@ -114,9 +137,19 @@ public class PhylogeniesModel extends AbstractTableModel{
 				newRow[1] = 0;
 			}
 			try {
-				newRow[2] = dp.getTextTreeRepresentation();
+				newRow[2] = dp.getTreeNode().howManyTips();
 			} catch (Exception e) {
-				newRow[2] = "();";
+				newRow[2] = "0";
+			}
+			try {
+				newRow[3] = dp.getTextTreeRepresentation();
+			} catch (Exception e) {
+				newRow[3] = "();";
+			}
+			try {
+				newRow[4] = dp.getConvergenceContext();
+			} catch (Exception e) {
+				newRow[4] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 			}
 			newData[0] = newRow;
 		}else{
@@ -140,9 +173,19 @@ public class PhylogeniesModel extends AbstractTableModel{
 				newRow[1] = 0;
 			}
 			try {
-				newRow[2] = dp.getTextTreeRepresentation();
+				newRow[2] = dp.getTreeNode().howManyTips();
 			} catch (Exception e) {
-				newRow[2] = "();";
+				newRow[2] = "0";
+			}
+			try {
+				newRow[3] = dp.getTextTreeRepresentation();
+			} catch (Exception e) {
+				newRow[3] = "();";
+			}
+			try {
+				newRow[4] = dp.getConvergenceContext();
+			} catch (Exception e) {
+				newRow[4] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 			}
 			newData[data.length] = newRow;
 		}

@@ -19,6 +19,9 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.models.GlobalModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.GlobalApplicationView;
 import uk.ac.qmul.sbcs.evolution.convergence.runners.GeneralCongruenceRunnerXML;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
+import uk.ac.qmul.sbcs.evolution.convergence.util.VerboseSystemCommand;
+import uk.ac.qmul.sbcs.evolution.sandbox.ResultsPrinterSimple;
 
 public class GlobalController {
 
@@ -113,6 +116,7 @@ public class GlobalController {
 		if((analysesController != null)&&(menuBarController != null)){
 			// Adds a listener to load previously written SSLS analyses as XMLs
 			menuBarController.addAddAnalysesMenuListener(analysesController.addAnalysesListener);
+			menuBarController.addRunLocalAnalysesListener(new RunLocalAnalysesListener());
 		}
 		if((resultsController != null)&&(menuBarController != null)){
 			menuBarController.addAddResultsMenuListener(resultsController.addResultsListener);
@@ -259,6 +263,67 @@ public class GlobalController {
 		}
 	}
 
+	/**
+	 * Attempts to run convergence SSLSAnalysis analyses on this computer.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 * @see SiteSpecificLikelihoodSupportAnalysis
+	 * @see AnalysesModel
+	 * @see AnalysesController
+	 */
+	class RunLocalAnalysesListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev){
+			// try and set the working directory to workingdir
+			System.setProperty("user.dir", model.getUserWorkdirLocation().getAbsolutePath());
+			// try another means
+			try {
+				Runtime.getRuntime().exec("pwd");
+				Runtime.getRuntime().exec("cd "+model.getUserWorkdirLocation().getAbsolutePath());
+				Runtime.getRuntime().exec("pwd");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// try yet again
+			new VerboseSystemCommand("pwd");
+			new VerboseSystemCommand("cd "+model.getUserWorkdirLocation().getAbsolutePath());
+			new VerboseSystemCommand("pwd");
+			
+			/* iterate through the active analyses */
+			Object[][] data = analysesController.getModel().getData();
+			if(data != null){
+				try{
+					for(Object[] row:data){
+						if(row.length>0){
+							SiteSpecificLikelihoodSupportAnalysis analysis = (SiteSpecificLikelihoodSupportAnalysis)row[0];
+							int numberOfTrees = analysis.getMainTrees().getNumberOfTrees();
+							try{
+								analysis.run();
+								File localAnalysisSubDir = analysis.getWorkDir();
+								if(localAnalysisSubDir.isDirectory()){
+									// try and read the serfiles
+									File[] subdirContents = localAnalysisSubDir.listFiles(new SerfileFilter());
+									for(File resultsSerfile:subdirContents){
+										resultsController.addSerfileResults(resultsSerfile);
+									}
+									// attempt to analyse them here with a ResultsPrinterSimple
+									ResultsPrinterSimple rps = new ResultsPrinterSimple(localAnalysisSubDir.getAbsolutePath(), "1", ""+numberOfTrees);
+									rps.go();
+								}
+							}catch(Exception ex){
+								System.err.println("Unable to run analysis.");
+								ex.printStackTrace();
+							}
+						}
+					}
+				}catch(Exception ex){
+					System.err.println("Unable to retrieve data array.");
+					ex.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Class to create a set of SitewiseSpecificLikelihoodSupportAnalyses when global 'Create analyses...' action triggered
 	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>

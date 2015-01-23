@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -22,7 +23,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
+import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceContext;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.PhylogenyDisplayPanel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.PhylogeniesController.PhylogeniesRowListener;
@@ -36,6 +40,7 @@ public class PhylogeniesView extends JComponent {
 	private JFileChooser chooser = new JFileChooser("Choose a phylogeny");
 	private JPanel renderPhylogeny = new TreeGraphicsDisplay();
 	private JScrollPane textTreeScrollPane = new JScrollPane();
+	private JComboBox convergenceContextComboBox;
 	
 	/**
 	 * Default no-arg constructor
@@ -100,6 +105,17 @@ public class PhylogeniesView extends JComponent {
 		phylogenyTableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 		phylogenyTableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		selectionPanel.add(phylogenyTableScrollPane);
+		
+		/* attempt to set the phlogeny convergence context editor */
+		TableColumn convergenceContextColumn = phylogeniesTable.getColumnModel().getColumn(phylogeniesTable.getColumnCount()-1);
+		convergenceContextComboBox = new JComboBox();
+		for(PhylogenyConvergenceContext contextEnum:PhylogenyConvergenceContext.values()){
+			convergenceContextComboBox.addItem(contextEnum);
+		}
+		convergenceContextColumn.setCellEditor(new DefaultCellEditor(convergenceContextComboBox));
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
+        renderer.setToolTipText("Click to set convergence context");
+        convergenceContextColumn.setCellRenderer(renderer);
 	}
 	
 	public JTable getTable(){

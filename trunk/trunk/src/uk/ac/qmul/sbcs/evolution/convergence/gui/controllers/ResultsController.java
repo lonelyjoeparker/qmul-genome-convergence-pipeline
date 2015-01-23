@@ -127,5 +127,14 @@ public class ResultsController {
 			}
 		}
 	}
+
+
+	/**
+	 * Adds a row to the results table, assumed to be a results serfile
+	 * @param resultsSerfile
+	 */
+	public void addSerfileResults(File resultsSerfile) {
+		model.addRow(resultsSerfile);
+	}
 }
 

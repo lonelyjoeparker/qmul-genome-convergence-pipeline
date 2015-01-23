@@ -78,7 +78,7 @@ public class PhylogeniesController {
 			nTaxa = a_row[1].toString();
 			treeString = a_row[2].toString();
 			System.out.println("MODEL ROW ("+tableModelRow+") selected n taxa: "+nTaxa+", tree "+treeString);
-
+			System.out.println(a_row[3]);
 			/* Attempt to update the view representation */
 			DisplayPhylogeny dp = (DisplayPhylogeny) a_row[0];
 			view.updatePhylogenyDisplay(dp);

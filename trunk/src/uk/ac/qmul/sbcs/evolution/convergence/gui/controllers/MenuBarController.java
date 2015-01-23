@@ -13,6 +13,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsControlle
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.AddSingleAlignmentsButtonListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AnalysesController.AddAnalysesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.GlobalController.CreateAnalysesListener;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.GlobalController.RunLocalAnalysesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.PhylogeniesController.AddPhylogeniesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.GlobalModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.MenuBarFactory;
@@ -195,5 +196,13 @@ public class MenuBarController {
 				e.printStackTrace();
 			}
 		}	
+	}
+
+	/**
+	 * ActionListener for running local convergence analyses. Triggered when user selects 'run convergence analyses on this computer' menu item
+	 * @param runLocalAnalysesListener
+	 */
+	public void addRunLocalAnalysesListener(RunLocalAnalysesListener runLocalAnalysesListener) {
+		this.view.runLocalAnalysis.addActionListener(runLocalAnalysesListener);
 	}
 }

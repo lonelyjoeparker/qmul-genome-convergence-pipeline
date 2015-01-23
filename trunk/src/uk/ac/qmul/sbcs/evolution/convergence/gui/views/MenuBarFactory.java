@@ -72,6 +72,7 @@ public class MenuBarFactory extends JMenuBar {
 		actionMenu.add(createConvergenceAnalyses);
 		actionMenu.add(verifyDependencies);
 		actionMenu.add(loadAnalysisXMLs);
+		actionMenu.add(runLocalAnalysis);
 		actionMenu.add(runRemoteAnalysis);
 
 		// Add items to View menu

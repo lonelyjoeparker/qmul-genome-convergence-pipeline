@@ -304,7 +304,7 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 		
 		/* Concatenate pruned, resolved RAxML topology with pruned a priori ones */
 		try {
-			if(randomTrees.getNumberOfTrees() > 0){
+			if((randomTrees != null)&&(randomTrees.getNumberOfTrees() > 0)){
 				this.mainTrees = this.mainTrees.concatenate(randomTrees);
 			}
 			if(resolvedTree.getNumberOfTrees() > 0){
@@ -421,9 +421,24 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 
 	private void basicInputTreefileInitialisation() {
 		this.mainTrees 		= new NewickTreeRepresentation(this.mainTreesFile, 		this.taxaList);
-		this.labelledTrees 	= new NewickTreeRepresentation(this.labelledTreesFile, 	this.taxaList);
-		this.randomTrees	= new NewickTreeRepresentation(this.randomTreesFile,	this.taxaList);
-		this.constraintTree = new NewickTreeRepresentation(this.constraintTreeFile, this.taxaList);
+		try {
+			this.labelledTrees 	= new NewickTreeRepresentation(this.labelledTreesFile, 	this.taxaList);
+		} catch (Exception e) {
+			this.labelledTrees = null;
+			e.printStackTrace();
+		}
+		try {
+			this.randomTrees	= new NewickTreeRepresentation(this.randomTreesFile,	this.taxaList);
+		} catch (Exception e) {
+			this.randomTrees = null;
+			e.printStackTrace();
+		}
+		try {
+			this.constraintTree = new NewickTreeRepresentation(this.constraintTreeFile, this.taxaList);
+		} catch (Exception e) {
+			this.constraintTree = null;
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -475,19 +490,45 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 	}
 
 	private void pruneConstraintTree() {
-		NewickTreeRepresentation unprunedConstraintTree = new NewickTreeRepresentation(this.constraintTreeFile, this.taxaList);
-		this.constraintTree = this.pruneTaxa(unprunedConstraintTree, excludedTaxa);
+		/* Check the file is set, try to read constraint trees (but catch if not) */
+		if(constraintTreeFile != null){
+			try {
+				NewickTreeRepresentation unprunedConstraintTree = new NewickTreeRepresentation(this.constraintTreeFile, this.taxaList);
+				this.constraintTree = this.pruneTaxa(unprunedConstraintTree, excludedTaxa);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				this.constraintTree = null;
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void pruneRandomTrees() {
-		NewickTreeRepresentation unprunedRandomTrees = new NewickTreeRepresentation(this.randomTreesFile, this.taxaList);
-		this.randomTrees = this.pruneTaxa(unprunedRandomTrees, excludedTaxa);
-		
+		/* Check the file is set, try to read random trees (but catch if not) */
+		if(randomTreesFile != null){
+			try {
+				NewickTreeRepresentation unprunedRandomTrees = new NewickTreeRepresentation(this.randomTreesFile, this.taxaList);
+				this.randomTrees = this.pruneTaxa(unprunedRandomTrees, excludedTaxa);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				this.randomTrees = null;
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void pruneLabelledTrees() {
-		NewickTreeRepresentation unprunedLabelledTrees = new NewickTreeRepresentation(this.labelledTreesFile, this.taxaList);
-		this.labelledTrees = this.pruneTaxa(unprunedLabelledTrees, excludedTaxa);
+		/* Check the file is set, try to read labelled trees (but catch if not) */
+		if(labelledTreesFile != null){
+			try {
+				NewickTreeRepresentation unprunedLabelledTrees = new NewickTreeRepresentation(this.labelledTreesFile, this.taxaList);
+				this.labelledTrees = this.pruneTaxa(unprunedLabelledTrees, excludedTaxa);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				this.labelledTrees = null;
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private void pruneInputTrees() {
@@ -1030,5 +1071,33 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 	 */
 	public void setDoFullyUnconstrainedRAxML(boolean doFullyUnconstrainedRAxML) {
 		this.doFullyUnconstrainedRAxML = doFullyUnconstrainedRAxML;
+	}
+
+	/**
+	 * Returns a file path corresponding to the input sequence alignment
+	 * @return File - sequence alignment path
+	 */
+	public File getInputAlignment() {
+		return this.dataset;
+	}
+
+	public File getWorkDir() {
+		return workDir;
+	}
+
+	public File getBinariesLocation() {
+		return binariesLocation;
+	}
+
+	public NewickTreeRepresentation getMainTrees() {
+		return mainTrees;
+	}
+
+	public void setWorkDir(File workDir) {
+		this.workDir = workDir;
+	}
+
+	public void setBinariesLocation(File binariesLocation) {
+		this.binariesLocation = binariesLocation;
 	}
 }

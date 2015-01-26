@@ -3,6 +3,8 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui.controllers;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
@@ -11,6 +13,7 @@ import javax.swing.event.ListSelectionListener;
 
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.EmptyAlignmentsListException;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.PhylogeniesModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.PhylogeniesView;
 
@@ -86,4 +89,23 @@ public class PhylogeniesController {
 		}
 		
 	}
+	
+	public HashSet<String> updateTaxonSet(HashSet<String> taxonNamesSet) throws Exception{
+		Object[][] data = model.getData();
+		if(data != null){
+			for(Object[] alignment:data){
+				DisplayPhylogeny a = (DisplayPhylogeny)alignment[0];
+				try {
+					taxonNamesSet = a.expandTaxonNameSet(taxonNamesSet);
+				} catch (NullPointerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			return taxonNamesSet;
+		}else{
+			throw new Exception();
+		}
+	}
+
 }

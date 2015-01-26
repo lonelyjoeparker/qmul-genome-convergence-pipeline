@@ -38,7 +38,7 @@ public class PhylogeniesView extends JComponent {
 	private JTable phylogeniesTable;
 	private JScrollPane phylogenyTableScrollPane;
 	private JFileChooser chooser = new JFileChooser("Choose a phylogeny");
-	private JPanel renderPhylogeny = new TreeGraphicsDisplay();
+	private JPanel renderPhylogeny = new JPanel();
 	private JScrollPane textTreeScrollPane = new JScrollPane();
 	private JComboBox convergenceContextComboBox;
 	

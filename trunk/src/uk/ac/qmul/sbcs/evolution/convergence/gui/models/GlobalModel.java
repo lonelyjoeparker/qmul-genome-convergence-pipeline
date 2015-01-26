@@ -1,8 +1,11 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui.models;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 public class GlobalModel {
 	private boolean DEBUG;	// should we print debug info to console?
@@ -39,9 +42,10 @@ public class GlobalModel {
 	 */
 	public String getTaxonNamesSetAsMultilineString() {
 		StringBuffer buf = new StringBuffer();
-		Iterator<String> taxonItr = taxonNamesSet.iterator();
-		while(taxonItr.hasNext()){
-			buf.append(taxonItr.next()+"\n");
+		ArrayList<String> sortedTaxonList = new ArrayList(taxonNamesSet);
+		Collections.sort(sortedTaxonList);
+		for(String taxon:sortedTaxonList){
+			buf.append(taxon+"\n");
 		}
 		return buf.toString();
 	}

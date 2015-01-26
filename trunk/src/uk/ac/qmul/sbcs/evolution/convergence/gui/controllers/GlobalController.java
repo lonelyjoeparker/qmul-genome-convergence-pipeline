@@ -139,8 +139,8 @@ public class GlobalController {
 	public void updateGlobalVariableView(){
 		// See if we can update the taxonList
 		try {
-			model.setTaxonNamesSet(this.alignmentsController.updateTaxonSet(model.getTaxonNamesSet()));
-		} catch (EmptyAlignmentsListException e) {
+			model.setTaxonNamesSet(this.phylogeniesController.updateTaxonSet(model.getTaxonNamesSet()));
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -341,7 +341,7 @@ public class GlobalController {
 			File workdirLocation = model.getUserWorkdirLocation();
 			int thisFilter = 100;
 			boolean doFactor = true;
-			String[] modelsList = { "wag", "jones" };
+			String[] modelsList = { "wag" };
 			String[] begins = { "/bin/pwd"	, "/bin/echo poo" };
 			String[] ends   = { "/bin/ls -t", "/bin/echo oop" };
 			String runID;
@@ -404,6 +404,15 @@ public class GlobalController {
 					// write trees files: write them
 					Object[] phylogenyRow = phylogeniesData[0];
 					NewickTreeRepresentation phylogeny = ((DisplayPhylogeny)phylogenyRow[0]).getNewickTree();
+					
+					/* Collect all trees of each type from phylogeny model */
+					// main tress
+					// constraint trees
+					// random
+					// labelled
+					
+					/* concatenate types of trees */
+					/* Then write them to canonical outputs. temporarily, maintreesfile copied to -all- outputs */
 					phylogeny.write(mainTreesFile);
 					phylogeny.write(constraintTreeFile);
 					phylogeny.write(labelledTreesFile);

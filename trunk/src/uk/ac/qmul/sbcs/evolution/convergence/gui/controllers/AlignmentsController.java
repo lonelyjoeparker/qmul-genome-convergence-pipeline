@@ -10,6 +10,8 @@ import java.util.HashSet;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
@@ -174,6 +176,20 @@ public class AlignmentsController {
 	 */
 	public class AddBatchAlignmentsButtonListener implements ActionListener, PropertyChangeListener{
 		AlignmentsImportTask task;
+		JLabel taskLabel;
+		JProgressBar taskBar;
+		public final String completeText = "Done ";
+		public final int completeInt = 100;
+		
+		/**
+		 * Set an optional tasklabel/bar
+		 * @param label
+		 * @param bar
+		 */
+		public void setTaskBarComponents(JLabel label, JProgressBar bar){
+			taskLabel = label;
+			taskBar = bar;
+		}
 		
 		@Override
 		public void actionPerformed(ActionEvent ev) {
@@ -181,40 +197,21 @@ public class AlignmentsController {
 			if(returnVal == JFileChooser.APPROVE_OPTION){
 				File alignmentDirectory = view.getDirectoryChooser().getSelectedFile();
 				if(alignmentDirectory.isDirectory()){
-			        task = new AlignmentsImportTask();
+			        if(globalController != null){
+				        task = new AlignmentsImportTask(globalController.view.taskLabel, globalController.view.taskbar);
+			        }else if((taskLabel != null)&&(taskBar != null)){
+				        task = new AlignmentsImportTask(taskLabel, taskBar);
+			        }else{
+			        	task = new AlignmentsImportTask();
+			        }
 			        task.addPropertyChangeListener((PropertyChangeListener) this);
 			        task.execute();
-					globalController.updateTaskbar("Done.", 100);
-
-					/*
-					File[] files  = alignmentDirectory.listFiles();
-					int totalFiles = files.length;
-					int filesTried = 0;
-					DisplayAlignment da = null;
-					for(File alignmentFile:files){
-						try {
-							AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
-							asr.loadSequences(alignmentFile, false);
-							asr.calculateAlignmentStats(false);
-							da = new DisplayAlignment(alignmentFile.getName(),asr);
-							model.addRow(da);
-						} catch (TaxaLimitException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (NullPointerException ex) {
-							ex.printStackTrace();
-						}
-						filesTried++;
-						int progress = Math.round(((float)filesTried / (float)totalFiles)*100f);
-						globalController.updateTaskbar("Adding alignments ("+filesTried+"; "+progress+"%)...", progress);
-						System.out.println("Adding alignments ("+filesTried+"; "+progress+"%)...");
-					}
-					if(da != null){
-						view.updateAlignmentScrollPanes(da);
-					}
-//					view.getTable().repaint();
-					globalController.updateTaskbar("Task: ", 0);
-					*/
+			        if(globalController != null){
+			        	globalController.updateTaskbar(completeText, completeInt);
+			        }else if((taskLabel != null)&&(taskBar != null)){
+			        	taskLabel.setText(completeText);
+			        	taskBar.setValue(completeInt);
+			        }
 				}			
 			}
 		}
@@ -224,14 +221,42 @@ public class AlignmentsController {
 	     */
 	    public void propertyChange(PropertyChangeEvent evt) {
 	        if ("progress" == evt.getPropertyName()) {
-	            globalController.updateTaskbar("Adding alignments ("+task.getProgress()+";%)...", task.getProgress());
+	        	int progress = task.getProgress();
+	            String message = "Adding alignments ("+progress+";%)...";
+		        if(globalController != null){
+		        	globalController.updateTaskbar(message, progress);
+		        }else if((taskLabel != null)&&(taskBar != null)){
+		        	taskLabel.setText(message);
+		        	taskBar.setValue(progress);
+		        }
 	        } 
 	    }
-
 	}
 
     class AlignmentsImportTask extends SwingWorker<Void, Void> {
-        /*
+		JLabel taskLabel;
+		JProgressBar taskBar;
+		public final String completeText = "Done ";
+		public final int completeInt = 100;
+		
+		/**
+		 * Set an optional tasklabel/bar
+		 * @param label
+		 * @param bar
+		 */
+		public AlignmentsImportTask(JLabel label, JProgressBar bar){
+			taskLabel = label;
+			taskBar = bar;
+		}
+
+		/**
+		 * No-arg constructor - risky since taskLabel and taskBar will not be instantiated.
+		 */
+		public AlignmentsImportTask() {
+			// TODO Auto-generated constructor stub
+		}
+
+		/*
          * Main task. Executed in background thread.
          */
         @Override
@@ -258,7 +283,13 @@ public class AlignmentsController {
 				}
 				filesTried++;
 				progress = Math.round(((float)filesTried / (float)totalFiles)*100f);
-				globalController.updateTaskbar("Adding alignments ("+filesTried+"; "+progress+"%)...", progress);
+				String message = "Adding alignments ("+filesTried+"; "+progress+"%)...";
+		        if(globalController != null){
+		        	globalController.updateTaskbar(message, progress);
+		        }else if((taskLabel != null)&&(taskBar != null)){
+		        	taskLabel.setText(message);
+		        	taskBar.setValue(progress);
+		        }
                 setProgress(Math.min(progress, 100));
 				System.out.println("Adding alignments ("+filesTried+"; "+progress+"%)...");
 			}
@@ -273,7 +304,12 @@ public class AlignmentsController {
          */
         @Override
         public void done() {
-			globalController.updateTaskbar("Complete.", 100);
+	        if(globalController != null){
+	        	globalController.updateTaskbar(completeText, completeInt);
+	        }else if((taskLabel != null)&&(taskBar != null)){
+	        	taskLabel.setText(completeText);
+	        	taskBar.setValue(completeInt);
+	        }
         }
     }
 

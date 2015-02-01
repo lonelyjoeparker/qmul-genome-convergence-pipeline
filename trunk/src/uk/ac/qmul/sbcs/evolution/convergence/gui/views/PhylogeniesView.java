@@ -37,7 +37,8 @@ public class PhylogeniesView extends JComponent {
 	private JTextArea textTreeDisplay;
 	private JTable phylogeniesTable;
 	private JScrollPane phylogenyTableScrollPane;
-	private JFileChooser chooser = new JFileChooser("Choose a phylogeny");
+	private JFileChooser fileChooser = new JFileChooser("Choose a phylogeny");
+	private JFileChooser directoryChooser = new JFileChooser("Choose a directory");
 	private JPanel renderPhylogeny = new JPanel();
 	private JScrollPane textTreeScrollPane = new JScrollPane();
 	private JComboBox convergenceContextComboBox;
@@ -61,6 +62,7 @@ public class PhylogeniesView extends JComponent {
 		selectionPanel.setPreferredSize(new Dimension(320, 30));
 		mainPanel.add(selectionPanel);
 		mainPanel.add(displayPanel);
+		directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 	}
 	
 	/**
@@ -88,11 +90,19 @@ public class PhylogeniesView extends JComponent {
 	}
 	
 	/**
-	 * Get a file chooser.
+	 * Get a file chooser (files enabled).
 	 * @return
 	 */
 	public JFileChooser getFileChooser(){
-		return chooser;
+		return fileChooser;
+	}
+	
+	/**
+	 * Get a file chooser (directories enabled).
+	 * @return
+	 */
+	public JFileChooser getDirectoryChooser(){
+		return directoryChooser;
 	}
 	
 	/**

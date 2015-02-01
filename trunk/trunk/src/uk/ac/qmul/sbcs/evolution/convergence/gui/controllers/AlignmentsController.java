@@ -26,7 +26,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 public class AlignmentsController {
 
 	final AlignmentsTableModel model;
-	final AlignmentsView view;
+	public final AlignmentsView view;
 	AddSingleAlignmentsButtonListener 	addAlignmentsListenerSingle;
 	AddBatchAlignmentsButtonListener 	addAlignmentsListenerBatch;
 	RemoveSelectedAlignmentsButtonListener	removeSelectedAlignmentSingle;
@@ -362,6 +362,14 @@ public class AlignmentsController {
 		public EmptyAlignmentsListException(String message){
 			System.err.println("There is no active and valid alignment data ("+message+").");
 		}
+	}
+	
+	public AddSingleAlignmentsButtonListener getAddSingleAlignmentsButtonListener(){
+		return this.addAlignmentsListenerSingle;
+	}
+
+	public AddBatchAlignmentsButtonListener getAddBatchAlignmentsButtonListener(){
+		return this.addAlignmentsListenerBatch;
 	}
 }
 

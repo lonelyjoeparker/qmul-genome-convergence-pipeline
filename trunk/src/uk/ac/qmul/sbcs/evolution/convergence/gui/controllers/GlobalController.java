@@ -111,7 +111,7 @@ public class GlobalController {
 			alignmentsController.setGlobalController(this);
 		}
 		if((phylogeniesController != null)&&(menuBarController != null)){
-			menuBarController.addAddPhylogeniesMenuListener(phylogeniesController.addPhylogenyListener);
+			menuBarController.addAddPhylogeniesMenuListener(phylogeniesController.addSinglePhylogenyListener);
 		}
 		if((analysesController != null)&&(menuBarController != null)){
 			// Adds a listener to load previously written SSLS analyses as XMLs

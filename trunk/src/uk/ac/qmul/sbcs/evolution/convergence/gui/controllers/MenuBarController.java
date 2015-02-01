@@ -14,7 +14,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsControlle
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AnalysesController.AddAnalysesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.GlobalController.CreateAnalysesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.GlobalController.RunLocalAnalysesListener;
-import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.PhylogeniesController.AddPhylogeniesListener;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.PhylogeniesController.AddSinglePhylogeniesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.GlobalModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.MenuBarFactory;
 
@@ -78,7 +78,7 @@ public class MenuBarController {
 	 * Add an actionListener to the 'Add phylogenies...' menu item.
 	 * @param addAlignmentsListener
 	 */
-	public void addAddPhylogeniesMenuListener(AddPhylogeniesListener addPhylogeniesListener) {
+	public void addAddPhylogeniesMenuListener(AddSinglePhylogeniesListener addPhylogeniesListener) {
 		view.loadTrees.addActionListener(addPhylogeniesListener);
 	}
 

@@ -2,6 +2,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.TreeSet;
 
 import javax.swing.JPanel;
@@ -132,5 +133,19 @@ public class DisplayPhylogeny {
 
 	public void setConvergenceContext(PhylogenyConvergenceContext convergenceType) {
 		this.convergenceType = convergenceType;
+	}
+
+	/**
+	 * Compares a HashSet<String> of taxa against the String[] of taxa present in this DisplayPhylogeny. Any new taxa are added to the set and the set is returned.
+	 * @param originalNameSet
+	 * @return originalNameSet with any unseen taxa present in the DisplayPhylogeny added...
+	 */
+	public HashSet<String> expandTaxonNameSet(HashSet<String> originalNameSet) throws NullPointerException{
+		for(String someTaxon:taxonList){
+			if(!originalNameSet.contains(someTaxon)){
+				originalNameSet.add(someTaxon);
+			}
+		}
+		return originalNameSet;
 	}
 }

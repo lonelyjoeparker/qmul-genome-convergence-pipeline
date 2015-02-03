@@ -27,8 +27,10 @@ public class DisplayPhylogeny {
 	private PhylogenyConvergenceContext convergenceType;
 	
 	/**
-	 * Default no-arg constructor
+	 * Default no-arg constructor. Deprecated.
+	 * @deprecated
 	 */
+	@Deprecated
 	public DisplayPhylogeny(){
 		newickTree = null;
 		treeNode = null;
@@ -45,11 +47,14 @@ public class DisplayPhylogeny {
 	 */
 	public DisplayPhylogeny(NewickTreeRepresentation newNewickTree){
 		newickTree = newNewickTree;
-		treeNode = null;
-		taxonList = null;
-		taxonSet = null;
+		treeNode = new TreeNode(newickTree.getTreeString(),1);
+		taxonList = treeNode.getTipsBelow();
+		taxonSet = newickTree.getTaxaNames();
 		textTreeRepresentation = newickTree.getTreeString();
 		treeFile = null;
+		ArrayList<String> names = treeNode.getTipsInOrder();
+		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
+		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
@@ -58,12 +63,15 @@ public class DisplayPhylogeny {
 	 * @param newTreeNode
 	 */
 	public DisplayPhylogeny(TreeNode newTreeNode){
-		newickTree = null;
 		treeNode = newTreeNode;
+		newickTree = new NewickTreeRepresentation(treeNode.printRecursively());
 		taxonList = treeNode.getTipsBelow();
-		taxonSet = null;
+		taxonSet = newickTree.getTaxaNames();
 		textTreeRepresentation = treeNode.printRecursively();
 		treeFile = null;
+		ArrayList<String> names = treeNode.getTipsInOrder();
+		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
+		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 	
@@ -77,7 +85,10 @@ public class DisplayPhylogeny {
 		taxonList = treeNode.getTipsBelow();
 		taxonSet = newickTree.getTaxaNames();
 		textTreeRepresentation = newTreeAsString;
-		treeFile = new File("");
+		treeFile = null;
+		ArrayList<String> names = treeNode.getTipsInOrder();
+		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
+		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 

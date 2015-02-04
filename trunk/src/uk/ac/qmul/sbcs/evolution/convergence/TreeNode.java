@@ -35,7 +35,7 @@ public class TreeNode {
 	 * @param startAt
 	 */
 	public TreeNode(String tree, int startAt){
-		this.content = tree;
+		this.content = tree.replaceAll("\\s+", "");
 		this.startPos = startAt;
 		this.endPos = startPos;
 		this.isTerminal = false;

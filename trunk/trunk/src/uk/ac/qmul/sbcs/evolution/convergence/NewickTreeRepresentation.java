@@ -59,7 +59,7 @@ public class NewickTreeRepresentation {
 		this.numberOfTaxa = taxaNames.size();
 		this.separateTopologies = new String[this.numberOfTrees];
 		if(this.numberOfTrees>0){
-			this.separateTopologies = this.treeString.split(";");
+			this.separateTopologies = this.treeString.replaceAll("\\s+", "").split(";");
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}
@@ -89,7 +89,7 @@ public class NewickTreeRepresentation {
 		this.numberOfTaxa = taxaNames.size();
 		this.separateTopologies = new String[this.numberOfTrees];
 		if(this.numberOfTrees>0){
-			this.separateTopologies = this.treeString.split(";");
+			this.separateTopologies = this.treeString.replaceAll("\\s+", "").split(";");
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}
@@ -98,7 +98,7 @@ public class NewickTreeRepresentation {
 	public NewickTreeRepresentation(String tree, TreeSet<String> names){
 		this.treeString = tree;
 		this.taxaNames = names;
-		String[] separateTrees = treeString.split(";");
+		String[] separateTrees = treeString.replaceAll("\\s+", "").split(";");
 		for(String someTree:separateTrees){
 			if(someTree.length()>2){
 				this.numberOfTrees++;
@@ -128,10 +128,10 @@ public class NewickTreeRepresentation {
 		this.treeString = tree;
 		this.taxaNames = this.obtainTaxaNames(treeString);
 		this.numberOfTaxa = taxaNames.size();
-		this.numberOfTrees = treeString.split("\n").length;
+		this.numberOfTrees = treeString.replaceAll("\\s+", "").split(";").length;
 		this.separateTopologies = new String[this.numberOfTrees];
 		if(this.numberOfTrees>0){
-			this.separateTopologies = this.treeString.split("\n");
+			this.separateTopologies = this.treeString.replaceAll("\\s+", "").split(";");
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}

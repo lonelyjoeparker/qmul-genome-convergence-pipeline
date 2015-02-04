@@ -93,6 +93,25 @@ public class DisplayPhylogeny {
 	}
 
 	/**
+	 * Constructor using String and overloaded File argument (needed by {@link DisplayPhylogenyFactory#fromFile()} 
+	 * method to create multiple DisplayPhylogenies with the same source file. This is <b>VERY</b> likely to cause
+	 *  problems further on however.
+	 * @param newTreeAsString
+	 */
+	public DisplayPhylogeny(String newTreeAsString, File sourceFile){
+		newickTree = new NewickTreeRepresentation(newTreeAsString);
+		treeNode = new TreeNode(newTreeAsString,1);
+		taxonList = treeNode.getTipsBelow();
+		taxonSet = newickTree.getTaxaNames();
+		textTreeRepresentation = newTreeAsString;
+		treeFile = sourceFile;
+		ArrayList<String> names = treeNode.getTipsInOrder();
+		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
+		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
+		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
+	}
+
+	/**
 	 * Constructor using File. <b>Preferred constructor</b>.
 	 * @param newTreeAsFile
 	 */

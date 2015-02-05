@@ -18,6 +18,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceContext;
+import uk.ac.qmul.sbcs.evolution.convergence.RequiredPhylogenyNotSpecifiedException;
+import uk.ac.qmul.sbcs.evolution.convergence.TaxaListsMismatchException;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.AddBatchAlignmentsButtonListener;
@@ -62,7 +66,7 @@ public class PhylogeniesController {
 			view.getFileChooser().showOpenDialog(view);
 			File phylogenyFile = view.getFileChooser().getSelectedFile();
 			// do nothing for now
-			model.addPhylogenyRowAsStringTree(phylogenyFile);
+			model.addPhylogenyRow(phylogenyFile);
 			Object[][] modelData = model.getData();
 			view.updatePhylogenyDisplay((DisplayPhylogeny) modelData[modelData.length-1][0]);
 //			view.repaint();
@@ -163,7 +167,7 @@ public class PhylogeniesController {
 			int filesTried = 0;
 			for(File phylogenyFile:files){
 				try {
-					model.addPhylogenyRowAsStringTree(phylogenyFile);
+					model.addPhylogenyRow(phylogenyFile);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -249,5 +253,78 @@ public class PhylogeniesController {
 
 	public AddBatchPhylogeniesListener getAddBatchPhylogenyButtonListener(){
 		return this.addBatchPhylogeniesListener;
+	}
+
+	/**
+	 * Returns a NewickTreeRepresentation with exactly one tree corresponding to the reference/species
+	 * convergence context, if one is present in the active phylogenies model.
+	 * @return {@link NewickTreeRepresentation}
+	 * @see DisplayPhylogeny
+	 * @see PhylogenyConvergenceContext
+	 * @see NewickTreeRepresentation
+	 */
+	public NewickTreeRepresentation getReferenceSpeciesPhylogeny() throws RequiredPhylogenyNotSpecifiedException{
+		// call model's getPhylogeniesByConvergenceContext() method
+		DisplayPhylogeny[] speciesTree = model.getPhylogeniesByConvergenceContext(PhylogenyConvergenceContext.REFERENCE_SPECIES_NULL_PHYLOGENY);
+		if(speciesTree == null || speciesTree.length != 1){
+			throw new RequiredPhylogenyNotSpecifiedException("Exactly one species (reference) phylogeny must be specified - found "+speciesTree.length+"!");
+		}else{
+			return (NewickTreeRepresentation) speciesTree[0].getNewickTree();
+		}
+	}
+
+	/**
+	 * Returns a NewickTreeRepresentation corresponding to the alternative / 
+	 * test trees convergence context, if any are present in the active phylogenies model.
+	 * @return {@link NewickTreeRepresentation}
+	 * @see DisplayPhylogeny
+	 * @see PhylogenyConvergenceContext
+	 * @see NewickTreeRepresentation
+	 */
+	public NewickTreeRepresentation getAlternativeTestPhylogenies() throws RequiredPhylogenyNotSpecifiedException{
+		// call model's getPhylogeniesByConvergenceContext() method
+		DisplayPhylogeny[] alternativeTrees = model.getPhylogeniesByConvergenceContext(PhylogenyConvergenceContext.TEST_ALTERNATIVE_PHYLOGENY);
+		if(alternativeTrees == null || alternativeTrees.length < 1){
+			throw new RequiredPhylogenyNotSpecifiedException("At least one alternative (test hypothesis) phylogeny must be specified - found "+alternativeTrees.length+"!");
+		}else{
+			NewickTreeRepresentation returnTree = alternativeTrees[0].getNewickTree();
+			for(int i=1; i<alternativeTrees.length; i++){
+				try {
+					returnTree.concatenate(alternativeTrees[i].getNewickTree());
+				} catch (TaxaListsMismatchException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			return returnTree;
+		}
+	}
+
+	/**
+	 * Returns a NewickTreeRepresentation corresponding to the required 
+	 * convergence context (i.e., species/reference phylogeny, alternative/hypothesis phylogeny, 
+	 * RAxML constraint tree, etc)
+	 * @param context - {@link PhylogenyConvergenceContext}
+	 * @return {@link NewickTreeRepresentation}
+	 * @see DisplayPhylogeny
+	 * @see PhylogenyConvergenceContext
+	 * @see NewickTreeRepresentation
+	 */
+	public NewickTreeRepresentation getPhylogeniesByContext(PhylogenyConvergenceContext context) throws RequiredPhylogenyNotSpecifiedException {
+		DisplayPhylogeny[] matchingTreeArray = model.getPhylogeniesByConvergenceContext(context);
+		if(matchingTreeArray == null || matchingTreeArray.length < 1){
+			throw new RequiredPhylogenyNotSpecifiedException("No phylogenies of that convergence context type specified in the active dataset.");
+		}else{
+			NewickTreeRepresentation returnTree = matchingTreeArray[0].getNewickTree();
+			for(int i=1; i<matchingTreeArray.length; i++){
+				try {
+					returnTree.concatenate(matchingTreeArray[i].getNewickTree());
+				} catch (TaxaListsMismatchException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			return returnTree;
+		}
 	}
 }

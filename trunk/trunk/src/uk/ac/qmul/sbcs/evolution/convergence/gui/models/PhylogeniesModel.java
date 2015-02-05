@@ -1,11 +1,13 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui.models;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import javax.swing.table.AbstractTableModel;
 
 import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceContext;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogenyFactory;
 
 public class PhylogeniesModel extends AbstractTableModel{
 
@@ -116,80 +118,124 @@ public class PhylogeniesModel extends AbstractTableModel{
 	/**
 	 * Add a new phylogeny to the TableModel as a File.
 	 */
-	public void addPhylogenyRowAsStringTree(File newTreeAsFile){
-		Object[][] newData;
-		if(data == null){
-			System.out.println("the first row of the table is null");
-			// rather than update it we should just replace
-			newData = new Object[1][getColumnCount()];
-			Object[] newRow = new Object[getColumnCount()];
-			DisplayPhylogeny dp;
-			try {
-				dp = new DisplayPhylogeny(newTreeAsFile);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				dp = new DisplayPhylogeny("();");
+	public void addPhylogenyRow(File newTreeAsFile){
+		/* First, construct DisplayPhylogeny objects usind DisplayPhylogenyFactory methods */
+		DisplayPhylogeny[] phylogenies = DisplayPhylogenyFactory.fromFile(newTreeAsFile);
+		if((phylogenies != null)&&(phylogenies.length>0)){
+			/* 
+			 * The data[][] table will need to either be instantiated (if null) 
+			 * or have rows added (if not null), with # new/extra rows == phylogenies.length
+			 */
+			int numberOfPhylogenies = phylogenies.length;
+			Object[][] newData;
+			if(data == null){
+				System.out.println("the first row of the table is null");
+				// Create a new table
+				newData = new Object[numberOfPhylogenies][getColumnCount()];
+				int rowCount = 0;
+				for(DisplayPhylogeny dp:phylogenies){
+					// Create a new row as an Object[]
+					Object[] newRow = new Object[getColumnCount()];
+					newRow[0] = dp;
+					try {
+						newRow[1] = dp.getNewickTree().getNumberOfTrees();
+					} catch (Exception e) {
+						newRow[1] = 0;
+					}
+					try {
+						newRow[2] = dp.getTreeNode().howManyTips();
+					} catch (Exception e) {
+						newRow[2] = "0";
+					}
+					try {
+						newRow[3] = dp.getTextTreeRepresentation();
+					} catch (Exception e) {
+						newRow[3] = "();";
+					}
+					try {
+						newRow[4] = dp.getConvergenceContext();
+					} catch (Exception e) {
+						newRow[4] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
+					}
+					// Add the new row to the table
+					newData[rowCount] = newRow;
+					// Don't forget to increment the row counter
+					rowCount++;
+				}
+			}else{
+				// data already exists
+				// create a new data table, with additional rows equal to number of phylogenies
+				newData = new Object[data.length+numberOfPhylogenies][data[0].length];
+				for(int i=0;i<data.length;i++){
+					newData[i] = data[i];
+				}
+				// initialise row counter - set to data.length, e.g. first of the new (empty) rows
+				int rowCount = data.length;
+				for(DisplayPhylogeny dp:phylogenies){
+					// Create a new row as an Object[]
+					Object[] newRow = new Object[getColumnCount()];
+					newRow[0] = dp;
+					try {
+						newRow[1] = dp.getNewickTree().getNumberOfTrees();
+					} catch (Exception e) {
+						newRow[1] = 0;
+					}
+					try {
+						newRow[2] = dp.getTreeNode().howManyTips();
+					} catch (Exception e) {
+						newRow[2] = "0";
+					}
+					try {
+						newRow[3] = dp.getTextTreeRepresentation();
+					} catch (Exception e) {
+						newRow[3] = "();";
+					}
+					try {
+						newRow[4] = dp.getConvergenceContext();
+					} catch (Exception e) {
+						newRow[4] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
+					}
+					// Add the new row to the table
+					newData[rowCount] = newRow;
+					// Don't forget to increment the row counter
+					rowCount++;
+				}
 			}
-			newRow[0] = dp;
-			try {
-				newRow[1] = dp.getNewickTree().getNumberOfTrees();
-			} catch (Exception e) {
-				newRow[1] = 0;
-			}
-			try {
-				newRow[2] = dp.getTreeNode().howManyTips();
-			} catch (Exception e) {
-				newRow[2] = "0";
-			}
-			try {
-				newRow[3] = dp.getTextTreeRepresentation();
-			} catch (Exception e) {
-				newRow[3] = "();";
-			}
-			try {
-				newRow[4] = dp.getConvergenceContext();
-			} catch (Exception e) {
-				newRow[4] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
-			}
-			newData[0] = newRow;
-		}else{
-			// data already exists
-			newData = new Object[data.length+1][data[0].length];
-			for(int i=0;i<data.length;i++){
-				newData[i] = data[i];
-			}
-			Object[] newRow = new Object[this.getColumnCount()];
-			DisplayPhylogeny dp;
-			try {
-				dp = new DisplayPhylogeny(newTreeAsFile);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				dp = new DisplayPhylogeny("();");
-			}
-			newRow[0] = dp;
-			try {
-				newRow[1] = dp.getNewickTree().getNumberOfTrees();
-			} catch (Exception e) {
-				newRow[1] = 0;
-			}
-			try {
-				newRow[2] = dp.getTreeNode().howManyTips();
-			} catch (Exception e) {
-				newRow[2] = "0";
-			}
-			try {
-				newRow[3] = dp.getTextTreeRepresentation();
-			} catch (Exception e) {
-				newRow[3] = "();";
-			}
-			try {
-				newRow[4] = dp.getConvergenceContext();
-			} catch (Exception e) {
-				newRow[4] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
-			}
-			newData[data.length] = newRow;
+			data = newData;
+			this.fireTableRowsInserted(data.length-1, data.length-1);
 		}
-		data = newData;
-		this.fireTableRowsInserted(data.length-1, data.length-1);
+	}
+	
+	
+	/**
+	 * Returns an array containing those DisplayPhylogeny objects corresponding to the required 
+	 * convergence context (i.e., species/reference phylogeny, alternative/hypothesis phylogeny, 
+	 * RAxML constraint tree, etc)
+	 * @param context - {@link PhylogenyConvergenceContext}
+	 * @return {@link DisplayPhylogeny}[]
+	 * @see DisplayPhylogeny
+	 * @see PhylogenyConvergenceContext
+	 */
+	public DisplayPhylogeny[] getPhylogeniesByConvergenceContext(PhylogenyConvergenceContext context){
+		// Initialise an ArrayList to temp hold matching phylogenies 
+		ArrayList<DisplayPhylogeny> matchingPhylogenies = new ArrayList<DisplayPhylogeny>();
+		
+		// Iterate through data[][] array, adding DisplayPhylogenies to the arrayList if their contexts match
+		for(Object[] aRow:data){
+			if(context == ((PhylogenyConvergenceContext)aRow[aRow.length-1])){
+				matchingPhylogenies.add((DisplayPhylogeny)aRow[0]);
+			}
+		}
+		
+		// see if any matching phylogenies were found. 
+		if(matchingPhylogenies.size()>0){
+			// If so: Cast the arrayList to a DisplayPhylogeny[] array
+			DisplayPhylogeny[] returnPhylogeniesArray = matchingPhylogenies.toArray(new DisplayPhylogeny[matchingPhylogenies.size()]);
+			// return the array
+			return returnPhylogeniesArray;
+		}else{
+			// return null
+			return null;
+		}
 	}
 }

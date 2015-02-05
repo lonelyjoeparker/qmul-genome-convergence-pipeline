@@ -5,6 +5,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+
 import uk.ac.qmul.sbcs.evolution.convergence.util.CapitalisedFileReader;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 
@@ -336,7 +339,7 @@ public class NewickTreeRepresentation {
 	}
 
 	public NewickTreeRepresentation concatenate(NewickTreeRepresentation r) throws TaxaListsMismatchException {
-		if(this.taxaNames == r.getTaxaNames()){
+		if(this.taxaListsMatch(r)){
 			String concatenatedTreeString;
 			if(this.treeString.endsWith("\n")){
 				concatenatedTreeString = this.treeString  + r.getTreeString();
@@ -345,10 +348,42 @@ public class NewickTreeRepresentation {
 			}
 			return new NewickTreeRepresentation(concatenatedTreeString, this.taxaNames);
 		}else{
+			JOptionPane.showMessageDialog(null, "Taxon lists do not match - analysis likely to fail!", "Warning!", JOptionPane.WARNING_MESSAGE, UIManager.getIcon("OptionPane.warningIcon"));
 			throw new TaxaListsMismatchException();
 		}
 	}
 
+	/**
+	 * Tests whether another NewickTreeRepresentation's taxon list matches this one. Both lists are sorted and compared for string equality
+	 * @param otherTaxonList
+	 * @return
+	 */
+	public boolean taxaListsMatch(NewickTreeRepresentation otherTree){
+		// get the other list
+		TreeSet<String> otherTaxonList = otherTree.getTaxaNames();
+		// if they are different lengths (numbers of taxa) we know they don't match already..
+		if(this.taxaNames.size() != otherTaxonList.size()){
+			return false;
+		}else{
+			// TreeSet should already be sorted so no need to sort them
+			boolean match = true;
+			// Cast to String[] arrays, they will be the same size. we'll iterate through them
+			String[] theseNames = taxaNames.toArray(new String[taxaNames.size()]);
+			String[] otherNames = otherTaxonList.toArray(new String[taxaNames.size()]);
+			// We'll use a while loop, incrementing the array index. as soon as we find a mismatch we can stop
+			int index = 0;
+			while((match) && (index<theseNames.length)){
+				if(!theseNames[index].equals(otherNames[index])){
+					// they mismatch - set match flag to false, which should terminate the loop
+					match = false;
+				}
+				index++;
+			}
+			return match;
+		}
+		
+	}
+	
 	public int getNumberOfTrees() {
 		return this.numberOfTrees;
 	}

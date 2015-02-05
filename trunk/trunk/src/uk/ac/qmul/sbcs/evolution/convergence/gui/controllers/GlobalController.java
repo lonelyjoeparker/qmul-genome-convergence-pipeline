@@ -1,17 +1,30 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui.controllers;
 
+import java.awt.Dimension;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.TreeSet;
 
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
 
 import com.thoughtworks.xstream.XStream;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceContext;
+import uk.ac.qmul.sbcs.evolution.convergence.RequiredPhylogenyNotSpecifiedException;
+import uk.ac.qmul.sbcs.evolution.convergence.TaxaListsMismatchException;
 import uk.ac.qmul.sbcs.evolution.convergence.analyses.SiteSpecificLikelihoodSupportAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.EmptyAlignmentsListException;
@@ -33,13 +46,13 @@ public class GlobalController {
 	ResultsController resultsController;
 	MenuBarController menuBarController;
 	CreateAnalysesListener createAnalysesListener = new CreateAnalysesListener();
-	
+
 	/**
 	 * No-arg constructor. Deprecated
 	 */
 	@Deprecated
 	public GlobalController(){}
-	
+
 	/**
 	 * Preferred constructor.
 	 * @param globalModel
@@ -99,7 +112,7 @@ public class GlobalController {
 		this.menuBarController = menuController;
 		view.setANewJMenuBar(menuBarController.getTheMenuView());
 	}
-	
+
 	/**
 	 * Add those listeners which are global e.g. span multiple models/views/controllers
 	 */
@@ -148,14 +161,14 @@ public class GlobalController {
 		view.sidePanelDebugIndicator.setSelected(model.isDEBUG());
 		view.sidePanelTaxonListText.setText(model.getTaxonNamesSetAsMultilineString());
 	}
-	
+
 	public void updateTaskbar(String message, int percentComplete){
 		view.taskLabel.setText(message);
 		view.taskbar.setValue(percentComplete);
 	}
-	
+
 	class ShowParametersWindowListener implements ActionListener{
-		
+
 		@Override
 		public void actionPerformed(ActionEvent arg0){
 			if(view.parametersWindow.isVisible()){
@@ -168,7 +181,7 @@ public class GlobalController {
 			}
 		}
 	}
-	
+
 	class SaveGlobalVariablesListener implements ActionListener{
 
 		@Override
@@ -184,7 +197,7 @@ public class GlobalController {
 			updateGlobalVariableView();			
 		}
 	}
-	
+
 	/**
 	 * Use a JFileChooser to select a directory for the required binaries.
 	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
@@ -288,7 +301,7 @@ public class GlobalController {
 			new VerboseSystemCommand("pwd");
 			new VerboseSystemCommand("cd "+model.getUserWorkdirLocation().getAbsolutePath());
 			new VerboseSystemCommand("pwd");
-			
+
 			/* iterate through the active analyses */
 			Object[][] data = analysesController.getModel().getData();
 			if(data != null){
@@ -323,7 +336,7 @@ public class GlobalController {
 			}
 		}
 	}
-	
+
 	/**
 	 * Class to create a set of SitewiseSpecificLikelihoodSupportAnalyses when global 'Create analyses...' action triggered
 	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
@@ -334,6 +347,37 @@ public class GlobalController {
 		@Override
 		public void actionPerformed(ActionEvent ev){
 			// TODO - create analyses from the alignment / phylogeny / global models
+			try{
+				constructAnalyses();
+			}catch (NullPointerException nex){
+				String[] completeErrorMessage = "Unable to proceed.\n \nTo set up an analysis, you need:\n\t\t* At least one sequence alignment,\n\t\t* Exactly one species/reference phylogeny,\n\t\t* At least one alternative/test tree,\n\t\t* Location of directory for binaries,\n\t\t* Location of working directory, and\n\t\t* An active taxon list.\n \nError message: ".split("\n");
+				String stackTraceMessage = "\nNullPointerException.";
+				for(StackTraceElement elem:nex.getStackTrace()){
+					stackTraceMessage += "\n\tat: " + elem.toString() ;
+				}
+				JTextArea textArea = new JTextArea();
+				textArea.setEditable(false);
+				textArea.setText(stackTraceMessage);
+				
+				// stuff it in a scrollpane with a controlled size.
+				JScrollPane scrollPane = new JScrollPane(textArea);		
+				scrollPane.setPreferredSize(new Dimension(350, 150));
+				
+				JPanel panel = new JPanel();
+				panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
+				for(String message:completeErrorMessage){
+					panel.add(new JLabel(message));
+				}
+				panel.add(scrollPane);
+
+				JOptionPane.showMessageDialog(null, panel, "Unable to create analyses", JOptionPane.ERROR_MESSAGE, UIManager.getIcon("OptionPane.errorIcon"));
+				nex.printStackTrace();
+				return;
+				//throw new Exception("Need at least one alternative/test tree, and exactly one species tree, to proceed.");
+			}
+		}
+		
+		private void constructAnalyses(){
 			System.out.println("Creating analyses from active sets...");
 			Object[][] alignmentsData = alignmentsController.model.getData();
 			Object[][] phylogeniesData = phylogeniesController.model.getData();
@@ -348,7 +392,7 @@ public class GlobalController {
 			TreeSet<String> taxaList = new TreeSet<String>();
 			taxaList.addAll(model.getTaxonNamesSet());
 			File mainTreesFile, constraintTreeFile, labelledTreesFile, randomTreesFile; //not instantiated yet
-			
+
 			/* 
 			 * 
 			 * for each alignment, attempt to create a 
@@ -364,63 +408,119 @@ public class GlobalController {
 					AlignedSequenceRepresentation alignment;
 					File alignmentFile;
 					alignment = (AlignedSequenceRepresentation)alignmentData[alignmentData.length-1];	// assumes the AlignedSequenceRepresentation is the last column in the AlignmentsTableModel. See r340
-					
+
 					// set up a subdir in rundir
 					String alignmentBaseName = alignment.file.getName().split("\\.")[0];
 					File locusSubdirLocation = new File(workdirLocation.getAbsolutePath()+"/"+alignmentBaseName);
 					if(!locusSubdirLocation.exists()){
 						locusSubdirLocation.mkdir();
 					}
-					
+
 					// write alignment file
 					alignmentFile = new File(locusSubdirLocation.getAbsolutePath()+"/"+alignmentBaseName+".phy");
-		/*	
-					try {
-						alignmentFile.createNewFile();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						System.err.println("could not create "+locusSubdirLocation.getAbsolutePath()+"/"+alignmentBaseName+".phy");
-						e.printStackTrace();
-					}
-		*/			
+					/*	
+				try {
+					alignmentFile.createNewFile();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					System.err.println("could not create "+locusSubdirLocation.getAbsolutePath()+"/"+alignmentBaseName+".phy");
+					e.printStackTrace();
+				}
+					 */			
 					alignment.writePhylipFile(alignmentFile, true);
-					
+
 					// write trees files: make the file paths
 					mainTreesFile 		= new File(locusSubdirLocation.getAbsolutePath()+"/"+"mainTrees.tre");
 					constraintTreeFile 	= new File(locusSubdirLocation.getAbsolutePath()+"/"+"constraintTree.tre");
 					labelledTreesFile 	= new File(locusSubdirLocation.getAbsolutePath()+"/"+"labelledTrees.tre");
 					randomTreesFile 	= new File(locusSubdirLocation.getAbsolutePath()+"/"+"randomTrees.tre");
-		/*			
-					try {
-						mainTreesFile.createNewFile();
-						constraintTreeFile.createNewFile();
-						labelledTreesFile.createNewFile();
-						randomTreesFile.createNewFile();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-			*/		
-					// write trees files: write them
-					Object[] phylogenyRow = phylogeniesData[0];
-					NewickTreeRepresentation phylogeny = ((DisplayPhylogeny)phylogenyRow[0]).getNewickTree();
-					
-					/* Collect all trees of each type from phylogeny model */
+
+					/* write trees files: Collect all trees of each type from phylogeny model:
+					 * 
+					 *  mainTrees: speciesTree and alternativeTrees (concatenated together)
+					 *  speciesTree: a single phylogeny representing the null hypothesis (normally the species tree/ancestry)
+					 *  alternativeTrees: one or more alternative (hypothesis) trees, for instance a discordant gene tree
+					 *  contstraintTrees: one or more partially-resolved phylogenies (i.e., include soft polyomies), to be resolved with RAxML
+					 *  randomTrees: randomly generated phylogenies with the same tip labelling, used to form the expected random control trees distribution (required to calculate the Uc statistic)
+					 *  labelledTrees: trees with internal node labelling in PAML format, used for downstream codeml analyses outside of java runtime but parsed/pruned here for convenience
+					 *
+					 *
+					 * Then write them to canonical outputs.
+					 */
+
+					NewickTreeRepresentation mainTrees, speciesTree, alternativeTrees, constraintTrees, labelledTrees, randomTrees;
+					mainTrees = null;
 					// main tress
+					try {
+						speciesTree = phylogeniesController.getReferenceSpeciesPhylogeny();
+						alternativeTrees = phylogeniesController.getAlternativeTestPhylogenies();
+						if(speciesTree != null && alternativeTrees != null){
+							try {
+								mainTrees = speciesTree.concatenate(alternativeTrees);
+								mainTrees.write(mainTreesFile);
+							} catch (TaxaListsMismatchException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}else{
+							JOptionPane.showMessageDialog(null, "Need at least one alternative/test tree, and exactly one species tree, to proceed.", "Phylogenies missing!", JOptionPane.ERROR_MESSAGE, UIManager.getIcon("OptionPane.errorIcon"));
+							return;
+							//throw new Exception("Need at least one alternative/test tree, and exactly one species tree, to proceed.");
+						}
+					} catch (RequiredPhylogenyNotSpecifiedException e1) {
+						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null, "Need at least one alternative/test tree, and exactly one species tree, to proceed.", "Phylogenies missing!", JOptionPane.ERROR_MESSAGE, UIManager.getIcon("OptionPane.errorIcon"));
+						e1.printStackTrace();
+						return;
+						//throw new Exception("Need at least one alternative/test tree, and exactly one species tree, to proceed.");
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null, "Need at least one alternative/test tree, and exactly one species tree, to proceed.", "Phylogenies missing!", JOptionPane.ERROR_MESSAGE, UIManager.getIcon("OptionPane.errorIcon"));
+						e.printStackTrace();
+						return;
+						//throw new Exception("Need at least one alternative/test tree, and exactly one species tree, to proceed.");
+					}
 					// constraint trees
+					try {
+						constraintTrees = phylogeniesController.getPhylogeniesByContext(PhylogenyConvergenceContext.RAXML_RESOLVED_PARTIALLY_CONSTRAINED_PHYLOGENY);
+						// check to see if the constraint trees match the main trees' taxon list
+						if(!constraintTrees.taxaListsMatch(mainTrees)){
+							JOptionPane.showMessageDialog(null, "Taxon lists do not match (main and constraint trees) - analysis likely to fail!", "Warning!", JOptionPane.WARNING_MESSAGE, UIManager.getIcon("OptionPane.warningIcon"));
+						}
+						constraintTrees.write(constraintTreeFile);
+					} catch (RequiredPhylogenyNotSpecifiedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					// random
+					try {
+						randomTrees = phylogeniesController.getPhylogeniesByContext(PhylogenyConvergenceContext.RANDOM_CONTROL_PHYLOGENY);
+						// check to see if the random trees match the main trees' taxon list
+						if(!randomTrees.taxaListsMatch(mainTrees)){
+							JOptionPane.showMessageDialog(null, "Taxon lists do not match (main and random trees) - analysis likely to fail!", "Warning!", JOptionPane.WARNING_MESSAGE, UIManager.getIcon("OptionPane.warningIcon"));
+						}
+						randomTrees.write(randomTreesFile);
+					} catch (RequiredPhylogenyNotSpecifiedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					// labelled
-					
-					/* concatenate types of trees */
-					/* Then write them to canonical outputs. temporarily, maintreesfile copied to -all- outputs */
-					phylogeny.write(mainTreesFile);
-					phylogeny.write(constraintTreeFile);
-					phylogeny.write(labelledTreesFile);
-					phylogeny.write(randomTreesFile);
-					
+					try {
+						labelledTrees = phylogeniesController.getPhylogeniesByContext(PhylogenyConvergenceContext.NO_CONVERGENCE_CONTEXT_CODEML_NODE_LABELLING);
+						// check to see if the labelled trees match the main trees' taxon list
+						if(!labelledTrees.taxaListsMatch(mainTrees)){
+							JOptionPane.showMessageDialog(null, "Taxon lists do not match (main and labelled trees) - analysis likely to fail!", "Warning!", JOptionPane.WARNING_MESSAGE, UIManager.getIcon("OptionPane.warningIcon"));
+						}
+						labelledTrees.write(labelledTreesFile);
+					} catch (RequiredPhylogenyNotSpecifiedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+
 					// run ID is hardcoded for now
 					runID = "run_"+System.currentTimeMillis()+"_"+alignment.hashCode();
-					
+
 					// convert etc
 					// how to handle phylogenies...?
 					analysis = new SiteSpecificLikelihoodSupportAnalysis(
@@ -438,10 +538,10 @@ public class GlobalController {
 							doFactor, 
 							begins, 
 							ends
-						);
+					);
 					analysis.setDoFullyUnconstrainedRAxML(true); // do this through constructor eventually
 					analysis.preValidate();
-					
+
 					// add to analyses panel
 					analysesController.model.addAnalysisRow(analysis);
 					// write XML (?)

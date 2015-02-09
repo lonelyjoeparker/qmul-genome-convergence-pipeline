@@ -66,6 +66,7 @@ public class NewickTreeRepresentation {
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}
+		this.separateTopologies = StringCharAppender.appendEach(separateTopologies, ';');
 	}
 	
 	@Deprecated
@@ -96,6 +97,7 @@ public class NewickTreeRepresentation {
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}
+		this.separateTopologies = StringCharAppender.appendEach(separateTopologies, ';');
 	}
 	
 	public NewickTreeRepresentation(String tree, TreeSet<String> names){
@@ -119,6 +121,7 @@ public class NewickTreeRepresentation {
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}
+		this.separateTopologies = StringCharAppender.appendEach(separateTopologies, ';');
 	}
 
 	@Deprecated
@@ -138,6 +141,7 @@ public class NewickTreeRepresentation {
 		}else{
 			this.separateTopologies[0] = this.treeString;
 		}
+		this.separateTopologies = StringCharAppender.appendEach(separateTopologies, ';');
 	}
 	
 	public String getTreeString() {
@@ -414,5 +418,38 @@ public class NewickTreeRepresentation {
 		}
 		// Return buffer
 		return b.toString();
+	}
+	
+	/**
+	 * Private static class to append a char to each element of a string array.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+	 *
+	 */
+	private static class StringCharAppender{
+		/**
+		 * Append a char to each element of a string array.
+		 * <br/>If the array has zero elements, the input is returned unchanged.
+		 * <br/>If the array has one or more elements, each element has the charToAppend added, unless it is null.
+		 * @param input - String[] array
+		 * @param charToAppend - char to append
+		 * @return
+		 */
+		public static String[] appendEach(String[] input, char charToAppend){
+			int inputLength = input.length;
+			// check the input array has nonzero length, proceed if so
+			if(input.length>1){
+				String[] appendedInput = new String[inputLength];
+				for(int element=0;element<inputLength; element++){
+					if(input[element] != null){
+						// Only append char is element is non-null. Otherwise add a null element, unchanged.
+						appendedInput[element] = input[element]+charToAppend;
+					}
+				}
+				return appendedInput;
+			}else{
+				// No point in doing anything, just return input
+				return input;
+			}
+		}
 	}
 }

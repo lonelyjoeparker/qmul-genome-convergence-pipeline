@@ -296,10 +296,12 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 			treeRAxML = new NewickTreeRepresentation(treeFileRAxMLdeNovo,taxaList);
 		}
 		
-		/* Resolve old H2(3) topology by RAxML -g */
-		/* NB THIS ASSUMES A SINGLE TREE */
-		this.constraintTree.write(this.constraintTreeFilePruned);
-		this.resolvedTree = this.resolveTopologyWithSubtreeConstraint(this.constraintTree);
+		if(this.constraintTree != null){
+			/* Resolve a partial / constrainy topology by RAxML -g */
+			/* NB THIS ASSUMES A SINGLE TREE */
+			this.constraintTree.write(this.constraintTreeFilePruned);
+			this.resolvedTree = this.resolveTopologyWithSubtreeConstraint(this.constraintTree);
+		}
 		
 		
 		/* Concatenate pruned, resolved RAxML topology with pruned a priori ones */
@@ -307,7 +309,7 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 			if((randomTrees != null)&&(randomTrees.getNumberOfTrees() > 0)){
 				this.mainTrees = this.mainTrees.concatenate(randomTrees);
 			}
-			if(resolvedTree.getNumberOfTrees() > 0){
+			if((resolvedTree != null)&&(resolvedTree.getNumberOfTrees() > 0)){
 				this.mainTrees = this.mainTrees.concatenate(resolvedTree);
 			}
 			if(this.doFullyUnconstrainedRAxML){
@@ -319,7 +321,9 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 		
 		/* Write the pruned trees (labelled and main trees files; File vars are global) to disk for PAML */
 		mainTrees.write(this.mainTreesFilePruned);
-		labelledTrees.write(this.labelledTreesFilePruned);
+		if(this.labelledTrees != null){
+			labelledTrees.write(this.labelledTreesFilePruned);
+		}
 		
 		/* For each model, get lnL site patterns, for all trees */
 		
@@ -347,18 +351,6 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 			SSLS.setParameters((TreeMap<AamlParameters, String>) parameters.clone());
 			treeOneAaml.RunAnalysis();
 
-			/*
-			TreeMap<String, Float> aaDataTreeOneSSLS = treeOneAaml.getPatternSSLS();
-			float[] aaDataSSLSlnL0 = new float[aaDataTreeOneSSLS.size()];
-			Iterator dataSSLSItr0 = aaDataTreeOneSSLS.keySet().iterator();
-			int sIndex = 0;
-			while(dataSSLSItr0.hasNext()){
-				aaDataSSLSlnL0[sIndex] = aaDataTreeOneSSLS.get(dataSSLSItr0.next());
-				sIndex++;
-			}
-			*/
-//			treeOnelnL = new DataSeries(aaDataSSLSlnL1,"aa lnL data - tree 1");
-//			treeH0ObservedlnL = new ExperimentalDataSeries(sourceDataASR.getFullSitesLnL(aaDataTreeOneSSLS));
 			
 			/**
 			 * At this point everything would be loaded into a SitewiseSpecificLikelihoodSupport object

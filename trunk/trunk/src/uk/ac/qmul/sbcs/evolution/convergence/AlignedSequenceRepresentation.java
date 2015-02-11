@@ -181,10 +181,35 @@ public class AlignedSequenceRepresentation implements Serializable {
 			assert(rawInput.size()>0);
 			this.determineInputFileDatatype();
 			assert(sequenceFileTypeSet);
+			AlignmentParser parser;
 			switch(inputSequenceFileFormat){
-				case NEXUS: this.readNexusFile(); break;
-				case FASTA: this.readFastaFile(); break;
-				case PHYLIP: this.readPhylipFile(); break;
+				case NEXUS: 
+					//this.readNexusFile(); // old function call, now using AlignmentParser concrete subclasses
+					parser = new NexusParser();
+					if(parser.parseInput(rawInput)){
+						// do nothing
+						System.out.println();
+						this.extractParsedInformation(parser);
+					} 
+					break;
+				case FASTA: 
+					//this.readFastaFile(); // old function call, now using AlignmentParser concrete subclasses
+					parser = new FastaParser();
+					if(parser.parseInput(rawInput)){
+						// do nothing
+						System.out.println();
+						this.extractParsedInformation(parser);
+					} 
+					break;
+				case PHYLIP: 
+					//this.readPhylipFile();// old function call, now using AlignmentParser concrete subclasses
+					parser = new PhylipParser();
+					if(parser.parseInput(rawInput)){
+						// do nothing
+						System.out.println();
+						this.extractParsedInformation(parser);
+					} 
+					break;
 				case PHYDEX: this.readXMLFile(); break;
 				case NATIVE: break;
 			}
@@ -256,6 +281,18 @@ public class AlignedSequenceRepresentation implements Serializable {
 		}
 	}
 
+	/**
+	 * Takes a parser of AlignmentParser supertype and get aligment information from it to populate instance variables
+	 * @param parser
+	 */
+	private void extractParsedInformation(AlignmentParser parser){
+		this.numberOfSites = parser.getNumberOfSites();
+		this.numberOfTaxa = parser.getNumberOfTaxa();
+		this.sequenceHash = parser.getSequenceHash();
+		this.taxaList = parser.getTaxaList();
+		this.taxaListArray = parser.getTaxaListArray();
+	}
+	
 	public SequenceFileFormat determineInputFileDatatype(){
 		if (sequenceFileTypeSet != true){
 			System.out.println("determining input sequence format");

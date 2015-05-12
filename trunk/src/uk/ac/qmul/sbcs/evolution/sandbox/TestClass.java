@@ -44,4 +44,8 @@ public class TestClass {
 		sum = (sum / (new Double(count)));
 		return sum;
 	}
+	
+	public void testCommit(){
+		// A dummy method to test git commits
+	}
 }

@@ -7,8 +7,11 @@ import java.io.File;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.thoughtworks.xstream.XStream;
+
 import uk.ac.qmul.sbcs.evolution.convergence.analyses.SiteSpecificLikelihoodSupportAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
+import uk.ac.qmul.sbcs.evolution.convergence.runners.GeneralCongruenceRunnerXML;
 
 /**
  * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
@@ -94,15 +97,17 @@ public class AnalysesModel extends AbstractTableModel {
 	 * Add a new analysis to the TableModel as a File.
 	 */
 	public void addAnalysisFile(File newFile){
+		XStream xstream = new XStream();
+		SiteSpecificLikelihoodSupportAnalysis analysis = (SiteSpecificLikelihoodSupportAnalysis) xstream.fromXML(newFile);
+
 		Object [][] newData;
-//		if(((data.length == 1)&&(data[0][0] == null))||(data == null)){
 		if(data == null){
 			System.out.println("the first row of the table is null");
 			// rather than update it we should just replace
 			newData = new Object[1][3];
 			Object[] newRow = new Object[3];
-			newRow[0] = newFile;
-			newRow[1] = newFile;
+			newRow[0] = analysis;
+			newRow[1] = analysis.getInputAlignment();
 			newRow[2] = false;
 			newData[0] = newRow;
 		}else{
@@ -112,8 +117,8 @@ public class AnalysesModel extends AbstractTableModel {
 				newData[i] = data[i];
 			}
 			Object[] newRow = new Object[this.getColumnCount()];
-			newRow[0] = newFile;
-			newRow[1] = newFile;
+			newRow[0] = analysis;
+			newRow[1] = analysis.getInputAlignment();
 			newRow[2] = false;
 			newData[data.length] = newRow;
 		}
@@ -149,5 +154,43 @@ public class AnalysesModel extends AbstractTableModel {
 		}
 		data = newData;
 		this.fireTableRowsInserted(data.length-1, data.length-1);
+	}
+
+	public SiteSpecificLikelihoodSupportAnalysis getLastRowSSLSAnalysis() {
+		if(data.length > 0){
+			return (SiteSpecificLikelihoodSupportAnalysis) data[data.length-1][0];
+		}else{
+			return null;
+		}
+	}
+
+	/**
+	 *  Removes the selected row from the data model
+	 * <p><b>Note that this operation is NOT SYNCHRONISED</b></p>
+	 *  @param removeThisRow the row to delete
+	 */
+	public void removeRow(int removeThisRow) {
+		// check data is not null
+		if(data != null){
+			// check requested row index isn't out of range
+			if(removeThisRow < data.length){
+				// should be able to delete this row, attempt to initialise a new data array
+				Object[][] shorterTable = new Object[data.length-1][getColumnCount()];
+				int newRowIndex = 0;
+				// iterate through data adding rows to shorterTable, unless it's the row we want to delete...
+				for(int existingRowIndex=0;existingRowIndex<data.length;existingRowIndex++){
+					if(existingRowIndex != removeThisRow){
+						// this is a row we want, add it to the new shorterTable
+						shorterTable[newRowIndex] = data[existingRowIndex];
+						newRowIndex++;
+					}else{
+						// this is the row we want to remove - do nothing...
+					}
+				}
+				// we should now have a new shorterTable, replace the existing data..
+				data = shorterTable;
+				this.fireTableRowsDeleted(removeThisRow, removeThisRow);
+			}
+		}
 	}
 }

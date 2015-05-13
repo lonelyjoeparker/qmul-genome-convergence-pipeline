@@ -167,15 +167,15 @@ public class DisplayPhylogeny {
 
 	/**
 	 * Compares a HashSet<String> of taxa against the String[] of taxa present in this DisplayPhylogeny. Any new taxa are added to the set and the set is returned.
-	 * @param originalNameSet
+	 * @param treeSet
 	 * @return originalNameSet with any unseen taxa present in the DisplayPhylogeny added...
 	 */
-	public HashSet<String> expandTaxonNameSet(HashSet<String> originalNameSet) throws NullPointerException{
+	public TreeSet<String> expandTaxonNameSet(TreeSet<String> treeSet) throws NullPointerException{
 		for(String someTaxon:taxonList){
-			if(!originalNameSet.contains(someTaxon)){
-				originalNameSet.add(someTaxon);
+			if(!treeSet.contains(someTaxon)){
+				treeSet.add(someTaxon);
 			}
 		}
-		return originalNameSet;
+		return treeSet;
 	}
 }

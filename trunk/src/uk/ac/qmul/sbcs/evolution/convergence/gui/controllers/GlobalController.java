@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.TreeSet;
 
 import javax.swing.BoxLayout;
@@ -28,6 +29,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.TaxaListsMismatchException;
 import uk.ac.qmul.sbcs.evolution.convergence.analyses.SiteSpecificLikelihoodSupportAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.EmptyAlignmentsListException;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AnalysesModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.GlobalModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.GlobalApplicationView;
 import uk.ac.qmul.sbcs.evolution.convergence.runners.GeneralCongruenceRunnerXML;
@@ -129,6 +131,8 @@ public class GlobalController {
 		if((analysesController != null)&&(menuBarController != null)){
 			// Adds a listener to load previously written SSLS analyses as XMLs
 			menuBarController.addAddAnalysesMenuListener(analysesController.addAnalysesListener);
+			// Add an additional listener with access to global variables, to apply the XMLs' taxonlist/workdir info to global params
+			analysesController.addAnalysesListener.registerSecondActionListener(new UpdateGlobalVariablesFromAnalysisXMLsListener());
 			menuBarController.addRunLocalAnalysesListener(new RunLocalAnalysesListener());
 		}
 		if((resultsController != null)&&(menuBarController != null)){
@@ -336,6 +340,30 @@ public class GlobalController {
 			}
 		}
 	}
+	
+	public class UpdateGlobalVariablesFromAnalysisXMLsListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev){
+			try{
+				/* Try and get binaries dir, work dir, and taxon list from analyses */
+				SiteSpecificLikelihoodSupportAnalysis analysis = analysesController.model.getLastRowSSLSAnalysis();
+				File parametisedWorkDir = analysis.getWorkDir();
+				File parametisedBinariesDir = analysis.getBinariesLocation();
+				TreeSet<String> parametisedTaxonNamesSet = analysis.getTaxonNamesSet();
+				/* Try and set these in the global model */
+				model.setUserWorkdirLocation(parametisedWorkDir);
+				model.setUserBinariesLocation(parametisedBinariesDir);
+				model.setTaxonNamesSet(parametisedTaxonNamesSet);
+				/* Try and set these in the global view (params pane view) */
+				view.workdirLocation.setText(parametisedWorkDir.getAbsolutePath());
+				view.binariesLocation.setText(parametisedBinariesDir.getAbsolutePath());
+				view.sidePanelTaxonListText.setText(model.getTaxonNamesSetAsMultilineString());
+			}catch (Exception ex){
+				ex.printStackTrace();
+			}
+		}
+		
+	}
 
 	/**
 	 * Class to create a set of SitewiseSpecificLikelihoodSupportAnalyses when global 'Create analyses...' action triggered
@@ -346,7 +374,7 @@ public class GlobalController {
 
 		@Override
 		public void actionPerformed(ActionEvent ev){
-			// TODO - create analyses from the alignment / phylogeny / global models
+			// create analyses from the alignment / phylogeny / global models
 			try{
 				constructAnalyses();
 			}catch (NullPointerException nex){

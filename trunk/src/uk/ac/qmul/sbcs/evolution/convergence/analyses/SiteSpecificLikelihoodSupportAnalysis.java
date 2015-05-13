@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -1092,4 +1093,13 @@ public class SiteSpecificLikelihoodSupportAnalysis {
 	public void setBinariesLocation(File binariesLocation) {
 		this.binariesLocation = binariesLocation;
 	}
+
+	/**
+	 * Return the taxon names set - the maximal list of all taxa which <i>may</i> be present in the data.
+	 * @return
+	 */
+	public TreeSet<String> getTaxonNamesSet(){
+		return this.taxaList;
+	}
+	
 }

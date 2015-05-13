@@ -5,6 +5,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+/**
+ * A utility class to perform comparisons betwen ancestral state reconstructions and terminal tips.
+ * <p>Assumes the reconstructions themselves have already been performed on a TreeNode with a ParsimonyReconstruction.
+ * <p>This class likely called by a ParallelSubstitutionDetector
+ * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+ * @see TreeNode
+ * @see ParsimonyReconstruction
+ * @see uk.ac.qmul.sbcs.evolution.convergence.runners.ParallelSubstitutionDetector
+ * @see uk.ac.qmul.sbcs.evolution.convergence.runners.ParallelSubstitutionDetectorMRCA
+ */
 public class StateComparison {
 	HashMap<String,HashSet<String>[]> toCompare;
 	HashSet<String>[] ancestor;

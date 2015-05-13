@@ -6,10 +6,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.TreeSet;
 
 public class GlobalModel {
 	private boolean DEBUG;	// should we print debug info to console?
-	private HashSet<String> taxonNamesSet;	//the set of all taxon names seen in this data.
+	private TreeSet<String> taxonNamesSet;	//the set of all taxon names seen in this data.
 	private File userBinariesLocation, userWorkdirLocation;	//the location of the required binaries; the location of the working directory.
 
 	/**
@@ -17,14 +18,14 @@ public class GlobalModel {
 	 */
 	public GlobalModel(){
 		DEBUG = false;
-		taxonNamesSet = new HashSet<String>();	
+		taxonNamesSet = new TreeSet<String>();	
 	}
 	
-	public HashSet<String> getTaxonNamesSet() {
+	public TreeSet<String> getTaxonNamesSet() {
 		return taxonNamesSet;
 	}
 
-	public void setTaxonNamesSet(HashSet<String> taxonNamesSet) {
+	public void setTaxonNamesSet(TreeSet<String> taxonNamesSet) {
 		this.taxonNamesSet = taxonNamesSet;
 	}
 
@@ -34,7 +35,7 @@ public class GlobalModel {
 
 	public void setDEBUG(boolean dEBUG) {
 		DEBUG = dEBUG;
-	}
+	}	
 
 	/**
 	 * returns the taxonList as a readable list (newlines separate taxa)

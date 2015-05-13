@@ -7,6 +7,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.TreeSet;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -229,19 +230,19 @@ public class PhylogeniesController {
 		
 	}
 	
-	public HashSet<String> updateTaxonSet(HashSet<String> taxonNamesSet) throws Exception{
+	public TreeSet<String> updateTaxonSet(TreeSet<String> treeSet) throws Exception{
 		Object[][] data = model.getData();
 		if(data != null){
 			for(Object[] alignment:data){
 				DisplayPhylogeny a = (DisplayPhylogeny)alignment[0];
 				try {
-					taxonNamesSet = a.expandTaxonNameSet(taxonNamesSet);
+					treeSet = a.expandTaxonNameSet(treeSet);
 				} catch (NullPointerException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			return taxonNamesSet;
+			return treeSet;
 		}else{
 			throw new Exception();
 		}

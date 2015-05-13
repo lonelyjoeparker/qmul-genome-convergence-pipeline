@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
+import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AnalysesController.AddAnalysesListener;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AnalysesController.DeleteAnalysesListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.ResultsController.ResultsColumnListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.ResultsController.ResultsRowListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AnalysesModel;
@@ -86,4 +88,20 @@ public class AnalysesView extends JComponent {
 	public JFileChooser getFileChooser(){
 		return chooser;
 	}	
+	
+	/**
+	 * Add an ActionListener to add analyses
+	 * @param listener
+	 */
+	public void addAddAnalysesListener(AddAnalysesListener listener){
+		addAnalyses.addActionListener(listener);
+	}
+
+	/**
+	 * Add an ActionListener to delete analyses
+	 * @param listener
+	 */
+	public void addDeleteAnalysesListener(DeleteAnalysesListener listener){
+		deleteAnalyses.addActionListener(listener);
+	}
 }

@@ -27,7 +27,12 @@ public class ParallelSubstitutionDetectorMRCA {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		ParallelSubstitutionDetectorMRCA p = new ParallelSubstitutionDetectorMRCA();
-		p.go(args);
+		if(args.length==3){
+			SimpleMRCASubstitutionDetector simple = new SimpleMRCASubstitutionDetector(args);
+			simple.printResults();
+		}else{
+			p.go(args);
+		}
 	}
 
 	private void go(String[] args){
@@ -96,7 +101,23 @@ public class ParallelSubstitutionDetectorMRCA {
 						int pll_H2  = pr.findParallelSubtitutionsFromAncestral(echolocatorsH2, false);
 						int pll_H2c = pr.findParallelSubtitutionsFromAncestralRejectingAmbiguities(echolocatorsH2,baseStates,false);
 						int pll_H2o = pr.findParallelSubtitutionsFromAncestralRejectingAmbiguitiesControllingOutgroups(echolocatorsH2,baseStates, false, controls);
-						System.out.println(input.getName()+"\t"+candidate.getInputFileName()+"\t"+candidate.getModel()+"\t"+pll_H1+"\t"+pll_H1c+"\t"+pll_H1o+"\t"+MRCAnumParallel_H1+"\t"+MRCAnumParallel_H1fullRequire+"\t"+pll_H2+"\t"+pll_H2c+"\t"+pll_H2o+"\t"+MRCAnumParallel_H2+"\t"+MRCAnumParallel_H2controlTursiops+"\t"+MRCAnumParallel_H2controlTursiopsAndAmbiguity+"\t"+MRCAnumParallel_H2fullRequire+"\t"+ambiguousAtRoot);
+						System.out.println(
+								input.getName()+"\t"+
+								candidate.getInputFileName()+"\t"+
+								candidate.getModel()+"\t"+
+								pll_H1+"\t"+
+								pll_H1c+"\t"+
+								pll_H1o+"\t"+
+								MRCAnumParallel_H1+"\t"+
+								MRCAnumParallel_H1fullRequire+"\t"+
+								pll_H2+"\t"+
+								pll_H2c+"\t"+
+								pll_H2o+"\t"+
+								MRCAnumParallel_H2+"\t"+
+								MRCAnumParallel_H2controlTursiops+"\t"+
+								MRCAnumParallel_H2controlTursiopsAndAmbiguity+"\t"+
+								MRCAnumParallel_H2fullRequire+"\t"+
+							ambiguousAtRoot);
 						species.getEndPos();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block

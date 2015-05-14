@@ -806,23 +806,31 @@ public class TreeNode {
 	
 	/**
 	 * Return all the branches in the tree by postorder traversal
-	 * @return TreeBranch[] of all branches below this one
+	 * @return ArrayList<TreeBranch> of all branches below this one
 	 */
-	public TreeBranch[] getBranches(){
+	public ArrayList<TreeBranch> getBranches(){
 		/* First check if node numbering has been set for this tree as we'll need those...*/
 		if(this.nodeNumber < 0){
 			// TODO this.setNodeNumbers(maxTipNumbering, maxInternalNumbering);
+			this.setNodeNumbers(0, this.howManyTips());
+			// hoping this works - i.e the topnode, once set, will cause all the lower nodes to be numbered too.
 		}
 		
 		/* Instantiate the return array, same size as n daughter nodes */
-		TreeBranch[] allLowerBranches = new TreeBranch[this.daughters.size()];
+		ArrayList<TreeBranch> allLowerBranches = new ArrayList<TreeBranch>();
 		
 		/* Iterate over daughters */
-		int index = 0;
 		for(TreeNode daughter:daughters){
+			/* first get a branch from this taxon and daughter */
 			TreeBranch daughterBranch = new TreeBranch(this, daughter);
-			allLowerBranches[index] = daughterBranch;
-			index++;
+			allLowerBranches.add(daughterBranch);
+			/* Next check to see if there are branches to be collected from the daughter. 
+			 * We can use the daughterBranch isTerminal state to do this, may as well */
+			if(!daughterBranch.endsInTerminalTaxon){
+				// daughter isn't terminal, it has tips too. collect them
+				ArrayList<TreeBranch> allDaughterBranches = daughter.getBranches();
+				allLowerBranches.addAll(allDaughterBranches);
+			}
 		}
 		
 		/* Return */

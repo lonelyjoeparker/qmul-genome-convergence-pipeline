@@ -1,6 +1,15 @@
 package uk.ac.qmul.sbcs.evolution.convergence;
 
+/**
+ * A minimal class to hold branch information. 
+ * Note that this is intended as a lightweight class, 
+ * most complicated stuff can be got from the parent or daughter TreeNode objects.
+ * @author joeparker
+ * @see TreeNode
+ */
 public class TreeBranch {
+	TreeNode parentNode = null;
+	TreeNode daughterNode = null;
 	int nodeNumberFrom = -1;
 	int nodeNumberTo = -1;
 	String contentFrom = null;
@@ -22,10 +31,13 @@ public class TreeBranch {
 	 */
 	public TreeBranch(TreeNode parent, TreeNode daughter){
 		/* Instance variables set from parent and daughter treeNodes */
+		this.parentNode		= parent;
+		this.daughterNode	= daughter;
 		nodeNumberFrom 		= parent.nodeNumber;
 		nodeNumberTo 		= daughter.nodeNumber;
 		contentFrom 		= parent.content;
 		contentTo 			= daughter.content;
+		
 		// NB length and isTerminal status set from DAUGHTER not parent!
 		endsInTerminalTaxon = daughter.isTerminal;
 		branchLength 		= daughter.branchLength;

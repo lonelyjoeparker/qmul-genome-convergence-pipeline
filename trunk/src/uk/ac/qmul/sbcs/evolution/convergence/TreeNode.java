@@ -24,7 +24,7 @@ public class TreeNode {
 	String content;
 	int startPos;
 	int endPos;
-	int nodeNumber; // numbering of nodes; tips in order unless tip content is entirely numeric, in which case tips == numbers assumed. Internal nodes numbered L-R and root-tip
+	int nodeNumber = -1; // numbering of nodes; tips in order unless tip content is entirely numeric, in which case tips == numbers assumed. Internal nodes numbered L-R and root-tip
 	double branchLength;
 	public HashSet<String>[] states;
 	int fitchStateChanges;
@@ -802,6 +802,31 @@ public class TreeNode {
 			}
 			return retval;
 		}
+	}
+	
+	/**
+	 * Return all the branches in the tree by postorder traversal
+	 * @return TreeBranch[] of all branches below this one
+	 */
+	public TreeBranch[] getBranches(){
+		/* First check if node numbering has been set for this tree as we'll need those...*/
+		if(this.nodeNumber < 0){
+			// TODO this.setNodeNumbers(maxTipNumbering, maxInternalNumbering);
+		}
+		
+		/* Instantiate the return array, same size as n daughter nodes */
+		TreeBranch[] allLowerBranches = new TreeBranch[this.daughters.size()];
+		
+		/* Iterate over daughters */
+		int index = 0;
+		for(TreeNode daughter:daughters){
+			TreeBranch daughterBranch = new TreeBranch(this, daughter);
+			allLowerBranches[index] = daughterBranch;
+			index++;
+		}
+		
+		/* Return */
+		return allLowerBranches;
 	}
 	
 	/**

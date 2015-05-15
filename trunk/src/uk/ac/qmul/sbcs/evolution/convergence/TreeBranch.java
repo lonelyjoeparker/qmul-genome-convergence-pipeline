@@ -50,4 +50,36 @@ public class TreeBranch {
 	public String toString(){
 		return "Branch from: "+contentFrom+" # "+nodeNumberFrom+" =="+branchLength+"==> to: "+contentTo+" # "+nodeNumberTo+"(isTerminal: "+endsInTerminalTaxon+")";
 	}
+
+	public TreeNode getParentNode() {
+		return parentNode;
+	}
+
+	public TreeNode getDaughterNode() {
+		return daughterNode;
+	}
+
+	public int getNodeNumberFrom() {
+		return nodeNumberFrom;
+	}
+
+	public int getNodeNumberTo() {
+		return nodeNumberTo;
+	}
+
+	public String getContentFrom() {
+		return contentFrom;
+	}
+
+	public String getContentTo() {
+		return contentTo;
+	}
+
+	public boolean isEndsInTerminalTaxon() {
+		return endsInTerminalTaxon;
+	}
+
+	public double getBranchLength() {
+		return branchLength;
+	}
 }

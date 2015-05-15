@@ -9,6 +9,8 @@ import java.util.Iterator;
  * A utility class to perform comparisons betwen ancestral state reconstructions and terminal tips.
  * <p>Assumes the reconstructions themselves have already been performed on a TreeNode with a ParsimonyReconstruction.
  * <p>This class likely called by a ParallelSubstitutionDetector
+ * <p>States (of nucleotides, amino acids or other discrete data) are represented as an array of HashSet<String>s - 
+ * it is presumed that in the case of sequence data this array will therefore comprise one HashSet<String> per aligned sequence position.
  * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
  * @see TreeNode
  * @see ParsimonyReconstruction
@@ -324,5 +326,79 @@ public class StateComparison {
 
 	public int countParallelChanges(){
 		return this.parallelChanges;
+	}
+	
+	/**
+	 * This is a static utility method to print a comparison between two sets of states (implied to be from nodeOne and nodeTwo). 
+	 * <p><b>NOTE:</b> it is assumed 
+	 * @param nodeStatesOne - States of first node (e.g. [{A},{C},{C},{T}... n])
+	 * @param nodeStatesTwo - States of second node
+	 * @param nodeLabelOne  - Label of first node (e.g. name)
+	 * @param nodeLabelTwo  - Label of second node 
+	 * @return divergentStatePositions - array of positions <b>(indexed to 1, not 0)</b> of divergent 
+	 * states (positions/NTs/AAs) between nodeOne and nodeTwo. Calling divergentStatePositions.length 
+	 * will therefore give the count of substitutions (not including 'X' or '-' characters).
+	 * <br/><br/><i>*Indexed from (1..length) not (0..(length-1)) as this the convention when indexing 
+	 * sequence alignment positions</i>
+	 */
+	public static Integer[] printStateComparisonBetweenTwoNodes(HashSet<String>[] nodeStatesOne, HashSet<String>[] nodeStatesTwo, String nodeLabelOne, String nodeLabelTwo){
+		ArrayList<Integer> divergentStatePositionsList = new ArrayList<Integer>();	// We'll keep track of the number of mismatches and report back
+		
+		// Check the two arrays are equal size
+		if(nodeStatesOne.length != nodeStatesTwo.length){
+			throw new ArrayIndexOutOfBoundsException("Sequence state arrays are of unequal length ["+nodeStatesOne.length+"]["+nodeStatesTwo.length+"]");
+		}
+		
+		// Cast the two state HashSet[] arrays down into simple String[] arrays
+		String[] stateArrayOne = new String[nodeStatesOne.length];
+		String[] stateArrayTwo = new String[nodeStatesTwo.length];
+		
+		// Initialise output buffers
+		StringBuffer nodeOnePrintBuffer = new StringBuffer(nodeLabelOne+':');
+		StringBuffer comparisonPrintBuffer = new StringBuffer("<comparison>:");
+		StringBuffer nodeTwoPrintBuffer = new StringBuffer(nodeLabelTwo+':');
+		
+		// Pad the names to be equally sized, then finally append a tab to each
+		int maxNodeNameLength = Math.max(Math.max(nodeOnePrintBuffer.length(), nodeTwoPrintBuffer.length()), comparisonPrintBuffer.length());
+		while(nodeOnePrintBuffer.length() < maxNodeNameLength){nodeOnePrintBuffer.append(' ');}
+		while(comparisonPrintBuffer.length() < maxNodeNameLength){comparisonPrintBuffer.append(' ');}
+		while(nodeTwoPrintBuffer.length() < maxNodeNameLength){nodeTwoPrintBuffer.append(' ');}
+		nodeOnePrintBuffer.append("\t");
+		comparisonPrintBuffer.append("\t");
+		nodeTwoPrintBuffer.append("\t");
+
+		/*
+		 *  Iterate through (we should have checked they're of equal length by now). 
+		 *  Also buffer output of taxon states and comparison on this pass
+		 */
+		for(int i=0;i<nodeStatesOne.length;i++){
+			stateArrayOne[i] = (String)nodeStatesOne[i].toArray()[0];
+			stateArrayTwo[i] = (String)nodeStatesTwo[i].toArray()[0];
+			nodeOnePrintBuffer.append(stateArrayOne[i]);
+			nodeTwoPrintBuffer.append(stateArrayTwo[i]);
+			// Test whether the states are equal (or undetermined 'X', or a gap '-')
+			if((stateArrayOne[i].equals(stateArrayTwo[i]))||(stateArrayTwo[i].equals("X"))||(stateArrayTwo[i].equals("-"))){
+				// Identity: append consensus char to buffer
+				comparisonPrintBuffer.append('.');
+			}else{
+				// Divergent: append divergent char to buffer, increment divergent counter
+				comparisonPrintBuffer.append(stateArrayTwo[i]);
+				divergentStatePositionsList.add(i+1);
+			}
+		}
+		// Append line endings to buffers
+		nodeOnePrintBuffer.append("\n");
+		comparisonPrintBuffer.append("\n");
+		nodeTwoPrintBuffer.append("\n");
+		// Cast the divergent positions list to an array
+		Integer[] divergentStatePositions = divergentStatePositionsList.toArray(new Integer[divergentStatePositionsList.size()]);
+		// Print buffers
+		System.out.println(nodeOnePrintBuffer.toString()+comparisonPrintBuffer.toString()+nodeTwoPrintBuffer.toString());
+		System.out.print("substitutions ("+divergentStatePositions.length+")");
+		for(int position:divergentStatePositions){
+			System.out.print(" "+position);
+		}
+		System.out.println();
+		return divergentStatePositions;
 	}
 }

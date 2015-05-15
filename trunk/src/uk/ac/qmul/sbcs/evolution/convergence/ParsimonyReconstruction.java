@@ -17,18 +17,33 @@ public class ParsimonyReconstruction {
 	public void printAncestralComparison() {
 		// Convert ancestral states to array (NB, assumes they are resolved, e.g. one state only at each position)
 		HashSet<String>[] ancestor = phylogeny.getStates();
+		/*
+		 * We don't need to cast the ancestor HashSet into an String[] 
+		 * now as it will be handled via the static 
+		 * StateComparison.printStateComparisonBetweenTwoNodes() method,
+		 * see below.
+		 * 
 		String[] ancestorArray = new String[ancestor.length];
 		for(int i=0;i<ancestor.length;i++){
 			ancestorArray[i] = (String)ancestor[i].toArray()[0];
 		}
+		 * 
+		 * 
+		 */
 
-		//Iterate through the sequences
+		// Iterate through the sequences
 		Iterator<String> taxonItr = extantTaxonStates.keySet().iterator();
 		while(taxonItr.hasNext()){
 			// Convert extant states to array (NB, assumes they are resolved, e.g. one state only at each position)
 			String taxon = taxonItr.next();
-			HashSet<String>[] taxonSeq = extantTaxonStates.get(taxon);
-			String[] taxonArray = new String[taxonSeq.length];
+			HashSet<String>[] taxonSeq = extantTaxonStates.get(taxon);		
+			/*
+			 * Since 15/05/15, 
+			 * Print the same thing via the static StateComparison.printStateComparisonBetweenTwoNodes() method, 
+			 * which also returns the substitutions count (excludes 'X' or '-')
+			 * output should be identical apart from whitespace padding (roughly checked via assert() method:
+			 * 
+			 * 			String[] taxonArray = new String[taxonSeq.length];
 			for(int i=0;i<taxonSeq.length;i++){
 				taxonArray[i] = (String)taxonSeq[i].toArray()[0];
 			}
@@ -53,6 +68,12 @@ public class ParsimonyReconstruction {
 				System.out.print(state);
 			}
 			System.out.println("\nsubstitutions:\t"+substitutions+"\n");
+			
+			// Print the same thing via the static StateComparison.printStateComparisonBetweenTwoNodes() method, output should be identical apart form whitespace padding.
+			assert(substitutions == StateComparison.printStateComparisonBetweenTwoNodes(ancestor, taxonSeq, "ancestorSC", taxon));
+			 *
+			 */
+			StateComparison.printStateComparisonBetweenTwoNodes(ancestor, taxonSeq, "ancestorSC", taxon);
 		}
 		
 	}

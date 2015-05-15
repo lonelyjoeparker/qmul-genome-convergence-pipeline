@@ -222,6 +222,12 @@ public class TreeNode {
 	}
 
 	/**
+	 * Not a very clearly encapsulated method. This call achieves <i>three</i> things:
+	 * 	<ol>
+	 * 		<li>Set the states of the terminal taxa by matching the {@link TreeNode#content} for any {@link TreeNode#isTerminal} nodes to the corresponding String keyin the inputStates HashMap;</li>
+	 * 		<li>Set the states of the internal nodes of the tree, using the first pass of the Fitch (1967) algorithm (union or intersection) and the daughter node states</li>
+	 * 		<li>Return the states of the current node, e.g. the top  (root) node of the tree if this method is called on that node. These may also be ambiguous.</li>
+	 * </ol>
 	 * This calls a post-order (leaves-to-root) traversal of the tree, terminal taxa will have their states determined by the input list.
 	 * <p>Execution:
 	 * <pre>
@@ -261,26 +267,42 @@ public class TreeNode {
 			}else{
 				this.states = (HashSet<String>[]) Array.newInstance(HashSet.class, leftStates.length);
 				for(int i=0;i<leftStates.length;i++){
+					// We'll use HashSets to hold the states, remembering that entries are unique
 					HashSet<String> leftState =  leftStates[i];
 					HashSet<String>rightState = rightStates[i];
-					HashSet<String> unionSet = new HashSet<String>();
-					HashSet<String> intersectionSet = new HashSet<String>();
+					HashSet<String> unionSet = new HashSet<String>();		// Holds *all* states observed in either daughter nodes
+					HashSet<String> intersectionSet = new HashSet<String>();// Holds *only* states seen in *both* daughters
+					// Iterate through states in the left node (daughter)
 					for(String someState:leftState){
 						if(rightState.contains(someState)){
+							// This particular state from the left node is also present in the right node, add to the intersection set
 							intersectionSet.add(someState);
 						}else{
+							// This particular state from the left node is absent from the right node, but we will add it to the union set in case we need to pass that up
 							unionSet.add(someState);
 						}
 					}
 					if(intersectionSet.isEmpty()){
-						// there are no states from left present in right.
-						// create the union set (already done for left, add all right)
-					//	this.fitchStateChanges++;
+						/* There are no states from left present in right. So we need to pass up the union of left and right nodes (daughters).
+						 * create the union set (already done for left, add all right)
+						 */
+						//	this.fitchStateChanges++;
 						this.fitchStateChanges += unionSet.size()-1;
 						unionSet.addAll(rightState);
 						this.fitchStateChanges += rightState.size()-1;
 						states[i] = unionSet;
 					}else{
+						/* 
+						 * The 'intersection' set is not empty; meaning that there 
+						 * is at least one state present in both left and right. 
+						 * 
+						 * According to the Fitch (1967a) algorithm we'll therefore 
+						 * pass all the common states up the tree. 
+						 * 
+						 * There may be 1 or more than one in the intersection set; 
+						 * it doesn't matter as we'll resolve them in the second 
+						 * tree traversal.
+						 */
 						states[i] = intersectionSet;
 					}
 				}
@@ -290,7 +312,7 @@ public class TreeNode {
 	}
 	
 	/**
-	 * Performs the pre-order (root-leaves) traversal to set the fitch states, ASSUMING a pre-order traversal has occured.
+	 * Performs <i>no</i> traversal to set the fitch states, simply randomly picks any of the available states if ambiguous (e.g. states[i].size()>1).
 	 */
 	public void resolveFitchStatesTopnode(){
 		for(int i=0;i<states.length;i++){
@@ -305,7 +327,12 @@ public class TreeNode {
 	}
 
 	/**
-	 * Performs the pre-order (root-leaves) traversal to set the fitch states, ASSUMING a pre-order traversal has occured.
+	 * Performs the pre-order (root-leaves) traversal to set the fitch states, 
+	 * <br/>ASSUMING: 
+	 * <ul>
+	 * <li>a pre-order traversal has occured to set the states via {@link TreeNode#getFitchStates()};</i>
+	 * <li><i>and</i> any ambiguous states present in the top node have been resolved (randomly) via {@link TreeNode#resolveFitchStatesTopnode()}</li>
+	 * </ul>
 	 */
 	public void resolveFitchStates(HashSet<String>[] parentStates){
 		if(!this.isTerminal){

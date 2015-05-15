@@ -393,7 +393,7 @@ public class StateComparison {
 		// Cast the divergent positions list to an array
 		Integer[] divergentStatePositions = divergentStatePositionsList.toArray(new Integer[divergentStatePositionsList.size()]);
 		// Print buffers
-		System.out.println(nodeOnePrintBuffer.toString()+comparisonPrintBuffer.toString()+nodeTwoPrintBuffer.toString());
+		System.out.print(nodeOnePrintBuffer.toString()+comparisonPrintBuffer.toString()+nodeTwoPrintBuffer.toString());
 		System.out.print("substitutions ("+divergentStatePositions.length+")");
 		for(int position:divergentStatePositions){
 			System.out.print(" "+position);

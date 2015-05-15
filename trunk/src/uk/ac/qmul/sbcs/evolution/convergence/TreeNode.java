@@ -994,4 +994,28 @@ public class TreeNode {
 		return returnLineCoordinates;
 		
 	}
+
+	/**
+	 * Method to return the node corresponding to a particular node. NO GUARANTEE an ID is unique, or exists.
+	 * <p>Use with caution!!!!
+	 * @param nodeIDofMRCA
+	 * @return
+	 */
+	public TreeNode getNodeByNumberingID(int nodeID) {
+		// Traverse the daughters but first check if this is the right node (to save on traversal)
+		if(nodeNumber == nodeID){
+			return this;
+		}else{
+			if(isTerminal){
+				return null;
+			}else{
+				TreeNode returnLowerNode = null;
+				for(TreeNode daughter:daughters){
+					TreeNode daughterSearchReturnsNode = daughter.getNodeByNumberingID(nodeID);
+					if(daughterSearchReturnsNode != null){return daughterSearchReturnsNode;}
+				}
+				return returnLowerNode;
+			}
+		}
+	}
 }

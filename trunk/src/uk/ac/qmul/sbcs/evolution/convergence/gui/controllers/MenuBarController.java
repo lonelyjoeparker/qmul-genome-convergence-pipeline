@@ -49,9 +49,9 @@ public class MenuBarController {
 		view.close.addActionListener(new CloseApplicationListener());
 
 		// Add actionlisteners etc for Help menu
-		view.help.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/wiki/HelpPages"));
-		view.reportBugs.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/wiki/ReportBugsRequestFeatures"));
-		view.contributeCode.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline"));
+		view.help.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/HelpPages.md"));
+		view.reportBugs.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/ReportBugsRequestFeatures.md"));
+		view.contributeCode.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline"));
 	}
 
 	public JMenuBar getTheMenuView() {
@@ -158,10 +158,10 @@ public class MenuBarController {
 		String URL;
 		
 		/**
-		 * No-arg constructor. Points to default project URL https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/w/list
+		 * No-arg constructor. Points to default project URL https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline
 		 */
 		public OpenURLListener(){
-			URL = "https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/w/list";
+			URL = "https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline";
 		}
 
 		/**

@@ -96,7 +96,7 @@ public class MenuBarFactory extends JMenuBar {
 			JPanel panel = new JPanel(new FlowLayout());
 			panel.add(new JLabel("Genome Convergence Pipeline - alpha version."));
 			panel.add(new JLabel("This is a development-only private alpha: use at your own risk."));
-			panel.add(new JLabel("(c) Joe Parker / Queen Mary University of London, 2014."));
+			panel.add(new JLabel("(c) Joe Parker / Queen Mary University of London, 2013-5."));
 			add(panel);
 			setSize(450,200);
 			setVisible(true);

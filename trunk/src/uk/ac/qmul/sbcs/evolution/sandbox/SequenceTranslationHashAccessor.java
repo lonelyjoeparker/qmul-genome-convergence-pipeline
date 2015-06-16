@@ -19,6 +19,7 @@ public class SequenceTranslationHashAccessor {
 	translationLookup.put("GUN",'V');
 	translationLookup.put("GGN",'G');
 	translationLookup.put("GCN",'A');
+	translationLookup.put("---",'-');	// a complete gap character
 	/*
 	 * Orthodox / fully-specified characters
 	 */
@@ -93,6 +94,10 @@ public class SequenceTranslationHashAccessor {
 	}
 	
 	public static Character translate(String codon){
-		return translationLookup.get(codon);
+		Character translation = translationLookup.get(codon);
+		if(translation == null){
+			translation = 'X';
+		}
+		return translation;
 	}
 }

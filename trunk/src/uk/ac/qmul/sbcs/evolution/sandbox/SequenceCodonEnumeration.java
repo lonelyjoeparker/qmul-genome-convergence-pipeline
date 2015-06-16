@@ -1,5 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.sandbox;
 
+import java.util.TreeSet;
+
 /**
  * Ennumerates all possible codon combinations and attempts to translate them.
  * @author joeparker
@@ -17,7 +19,7 @@ public class SequenceCodonEnumeration {
 				'A',
 				'C',
 				'G',
-				'T',
+				'U',
 				'R',	// A|G
 				'Y',	// C|T
 				'R',	// A|G
@@ -32,6 +34,8 @@ public class SequenceCodonEnumeration {
 				'N',	// A|C|G|T
 				'-'	// gap
 		};
+		StringBuffer uniqueMappingsBuffer = new StringBuffer();
+		uniqueMappingsBuffer.append("\nUnique mappings:\n");
 		for(int first=0;first<nucleotides.length;first++){
 			for(int second=0;second<nucleotides.length;second++){
 				for(int third=0;third<nucleotides.length;third++){
@@ -42,6 +46,15 @@ public class SequenceCodonEnumeration {
 					char[] expanded_second = SequenceCodonEnumeration.expandAmbiguities(nucleotides[second]);
 					char[] expanded_third = SequenceCodonEnumeration.expandAmbiguities(nucleotides[third]);
 //					System.out.println("\tcorresponding real triplets: "+expanded_first.toString()+" "+expanded_second.toString()+" "+expanded_third.toString());
+					
+					/* For each expanded character permutation, 
+					 * translate it and add to a set of unique 
+					 * members.
+					 * If the set only has a single member by the end, 
+					 * this combination can be added to the overall 
+					 * unique mappings buffer
+					 */
+					TreeSet<Character> possibleAAs = new TreeSet<Character>();
 					for(int e_1=0;e_1<expanded_first.length;e_1++){
 						for(int e_2=0;e_2<expanded_second.length;e_2++){
 							for(int e_3=0;e_3<expanded_third.length;e_3++){
@@ -49,13 +62,25 @@ public class SequenceCodonEnumeration {
 								// Convert to string
 								String codon = new String(""+expanded_first[e_1]+expanded_second[e_2]+expanded_third[e_3]);
 								Character translated_AA = new SequenceTranslationHashAccessor().translate(codon);
+								possibleAAs.add(translated_AA);
 								System.out.println("\t"+nucleotides[first]+nucleotides[second]+nucleotides[third]+"\texpansion "+expanded_first[e_1]+expanded_second[e_2]+expanded_third[e_3]+" => "+translated_AA);
 							}
 						}
 					}
+					/* Check to see if possibleAAs set has size ­ 1 */
+					if(possibleAAs.size() == 1){
+						/* Only a single mapping was found over all 
+						 * nucleotide-expansion permutations. 
+						 * 
+						 * Add this mapping to the uniqueMappings 
+						 * buffer.
+						 */
+						uniqueMappingsBuffer.append("indices\t"+nucleotides[first]+nucleotides[second]+nucleotides[third]+"=>"+possibleAAs.first()+"\n");
+					}
 				}
 			}
 		}
+		System.out.println(uniqueMappingsBuffer);
 	}
 	
 	/**
@@ -73,19 +98,19 @@ public class SequenceCodonEnumeration {
 			case('A'):return "A".toCharArray();
 			case('C'):return "C".toCharArray();
 			case('G'):return "G".toCharArray();
-			case('T'):return "T".toCharArray();
+			case('U'):return "U".toCharArray();
 			case('-'):return "-".toCharArray();
 			case('R'):return "AG".toCharArray();
-			case('Y'):return "CT".toCharArray();
+			case('Y'):return "CU".toCharArray();
 			case('M'):return "AC".toCharArray();
-			case('K'):return "GT".toCharArray();
+			case('K'):return "GU".toCharArray();
 			case('S'):return "CG".toCharArray();
-			case('W'):return "AT".toCharArray();
-			case('H'):return "ACT".toCharArray();
-			case('B'):return "CGT".toCharArray();
+			case('W'):return "AU".toCharArray();
+			case('H'):return "ACU".toCharArray();
+			case('B'):return "CGU".toCharArray();
 			case('V'):return "ACG".toCharArray();
-			case('D'):return "AGT".toCharArray();
-			case('N'):return "ACGT".toCharArray();
+			case('D'):return "AGU".toCharArray();
+			case('N'):return "ACGU".toCharArray();
 			default:return "N".toCharArray();
 		}
 	}

@@ -11,10 +11,10 @@ Before reporting a new issue, please verify that:
   * Your computer is running at least Java 1.6.x or higher.
 
 ## Bug reports ##
-**Existing bugs** and issues are logged at [https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/issues/list](https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/issues/list). **Please check here first** to see if the issue you're experiencing has already been documented / fixed.
-If you have a **new issue** please report it using the simple form [here](https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/issues/entry). It takes a few minutes and you can report bugs anonymously (although if you're signed into Google it will help us if we need to contact you for any follow-up queries). Please provide as much information as possible.
+**Existing bugs** and issues are logged at [https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues). **Please check here first** to see if the issue you're experiencing has already been documented / fixed.
+If you have a **new issue** please report it using the simple form [here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/new). It takes a minute and you can report bugs anonymously (although if you're signed into Google it will help us if we need to contact you for any follow-up queries). Please provide as much information as possible.
 
 ## Feature requests ##
-You can request features and enhancements using [the same form](https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/issues/entry) but again, please [check existing requests first](https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/issues/list).
+You can request features and enhancements using [the same form](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues) but again, please [check existing requests first](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues).
 
 Thanks very much!

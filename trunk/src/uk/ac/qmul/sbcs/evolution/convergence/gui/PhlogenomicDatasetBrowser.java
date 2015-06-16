@@ -219,7 +219,7 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 				JPanel panel = new JPanel(new FlowLayout());
 				panel.add(new JLabel("Phylogenomic Dataset Browser - alpha version."));
 				panel.add(new JLabel("This is a development-only private alpha: use at your own risk."));
-				panel.add(new JLabel("(c) Joe Parker / Queen Mary University of London, 2014."));
+				panel.add(new JLabel("(c) Joe Parker / Queen Mary University of London, 2013-5."));
 				add(panel);
 				setSize(450,200);
 				setVisible(true);
@@ -253,9 +253,15 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 			/* Add action listeners for other menu items */
 			view.about.addActionListener(new AboutMenuListener());
 			view.close.addActionListener(new CloseApplicationListener());
+			view.help.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/HelpPages.md"));
+			view.reportBugs.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/ReportBugsRequestFeatures.md"));
+			view.contributeCode.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline"));
+			/*
+			 * Old project repository (googlecode) destination URLs (pre May 2015)
 			view.help.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/wiki/HelpPages"));
 			view.reportBugs.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/wiki/ReportBugsRequestFeatures"));
 			view.contributeCode.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline"));
+			 */
 		}
 		
 		/**

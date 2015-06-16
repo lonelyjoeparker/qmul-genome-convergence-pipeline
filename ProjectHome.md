@@ -7,6 +7,8 @@ Future goals are to provide GUI control of cluster computing job submission / mo
 
 Author: Joe Parker http://www.lonelyjoeparker.com
 
-Supported by the European Research Council, Royal Society and BBSRC (UK).
-
-If you want to use, contribute to, or fork this API you are encouraged to [look at the README](https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/wiki/README) in the wiki, and/or contact the author. Present email: j.d.parker@qmul.ac.uk
+Supported by:
+ (QMUL; 2011-2015): the European Research Council, Royal Society and BBSRC (UK).
+ (Royal Botanic Gardens, Kew; 2015-): The Kew Foundation.
+ 
+If you want to use, contribute to, or fork this API you are encouraged to [look at the README](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/README.md) in the wiki, and/or contact the author. Present email: j.parker2@kew.org

@@ -7,7 +7,7 @@ The Genome Convergence Pipeline library is an API for running batch-enabled high
 
 **This API is at alpha level only**
 This readme is a placeholder until we have tested the package to beta level.
-For more questions please contact Joe Parker: [mailto:j.d.parker@qmul.ac.uk](mailto:j.d.parker@qmul.ac.uk)
+For more questions please contact Joe Parker: [mailto:j.parker2@kew.org](mailto:j.parker2@kew.org)
 
 ## Capabilities ##
 The API functions include parsing and I/O support for most common alignment and phylogeny formats, including Phylip/PAML, Nexus and FASTA (sequential and interleaved). Interface layers for analyses such as [RAxML](https://github.com/stamatak/standard-RAxML), PAML/codeml, MrBayes, [BEAST](https://code.google.com/p/beast-mcmc/), Phylobayes and NewickUtilities are provided. Functionality includes:
@@ -20,15 +20,15 @@ The API functions include parsing and I/O support for most common alignment and 
 
 ## Using the API ##
 
-At present we are working on a release of the relevant binaries that enable pipeline analyses as used in our recent [papers](http://scholar.google.com/citations?user=_WCn7AYAAAAJ&hl=en). These are not at stable release level but to get a development copy, please email the author at: [mailto:j.d.parker@qmul.ac.uk](mailto:j.d.parker@qmul.ac.uk).
+At present we are working on a release of the relevant binaries that enable pipeline analyses as used in our recent [papers](http://scholar.google.com/citations?user=_WCn7AYAAAAJ&hl=en). These are not at stable release level but to get a development copy, please email the author at: [mailto:j.parker2@kew.org](mailto:j.parker2@kew.org).
 
 If you are interested in contributing to the project, please also contact us. However this API is openly available for use/re-use and will remain so for the lifetime of this project. If you want to checkout or fork the API contact us for help if you need. You might want to start with the Javadoc, at
-https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/source/browse/trunk/doc/index.html
+https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/doc/index.html
 
 # Acknowledgements #
 
 This work at Queen Mary, University of London, is supported by the European Research Council, BBSRC (UK) and the Royal Society.
 
-Written by Joe Parker in the Rossiter research group.
+Written by Joe Parker while in the Rossiter research group (2011-2015), and by Joe while an Early Career Research Fellow at RBG Kew (after April 2015).
 
 Infrastructure support for this project comes from [Steve Moss](http://about.me/gawbul) (School of Biological and Chemical Sciences) and Christopher Walker (Engineering and Physical Sciences)

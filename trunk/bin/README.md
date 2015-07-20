@@ -14,7 +14,7 @@ You should **use this code at your own risk** and in particular, compare to your
 *If you think you have found a bug, please report it here: https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues*
 
 ###Help###
-If you have a problem or need help using a binary, please first read: http://www.lonelyjoeparker.com/?p=1255
+If you have a problem or need help using a binary, please first read [this general release information](http://www.lonelyjoeparker.com/?p=1255).
 If you think you have found a bug or error please check the [existing issues on GitHub](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues).
 If you still haven't got any further and want to send a question, email joe+bioinformaticshelp@kitserve.org.uk. I may or may not be able to answer your question quickly. **Please include these details**: 
  * Which Java version, and which jarfile you are using (and where/when you downloaded it);

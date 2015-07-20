@@ -1,8 +1,8 @@
-The SimpleMRCASubstitutionDetector.jar jarfile will run with the attached input files as follows:
+The SimpleMRCASubstitutionDetector.jar jarfile will run with [these input files](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/examples/) as follows:
 
 `java -jar SimpleMRCASubstitutionDetector.jar input.phy input.tre CANIS:FELIS PTERONOTUS:MYOTIS`
 
-From that you should get this output:
+From that you should get [this output](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/examples/output_SimpleMRCASubstitutionDetector.txt).
 
 
 

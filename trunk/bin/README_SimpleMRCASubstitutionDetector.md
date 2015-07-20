@@ -28,4 +28,4 @@ Finally for each MRCA, print out substitituons from that node to the clades' tip
 There are also some pairwise tip comparisons as checks, and summary counts. 
 
 ##Detailed help##
-Detailed help/manuals aren't available at the moment (July 2015) but please see the [general help pages](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/README.md) for this API.
+Detailed help/manuals aren't available at the moment (July 2015) but please see the [general help pages](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/README.md#help) for this API.

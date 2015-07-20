@@ -1,4 +1,5 @@
-The SimpleMRCASubstitutionDetector.jar jarfile will run with [these input files](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/examples/) as follows:
+##Description##
+The [SimpleMRCASubstitutionDetector.jar](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/SimpleMRCASubstitutionDetector.jar) jarfile will run with [these input files](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/examples/) as follows:
 
 `java -jar SimpleMRCASubstitutionDetector.jar input.phy input.tre CANIS:FELIS PTERONOTUS:MYOTIS`
 
@@ -26,3 +27,5 @@ Finally for each MRCA, print out substitituons from that node to the clades' tip
 
 There are also some pairwise tip comparisons as checks, and summary counts. 
 
+##Detailed help##
+Detailed help/manuals aren't available at the moment (July 2015) but please see the [general help pages](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/edit/master/trunk/bin/README.md) for this API.

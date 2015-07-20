@@ -1,3 +1,5 @@
+#READ ME...#
+
 *Jump to: [Usage/contents](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin#usage) | [Help](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin#help)*
 
 Collection of executable jarfiles for a variety of tasks. 

@@ -1,4 +1,7 @@
+*Jump to: [Usage/contents](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin#usage) | [Help](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin#help)*
+
 Collection of executable jarfiles for a variety of tasks. 
+
 Generally compatible with Java 1.6+.
 
 ###Warranty###
@@ -19,5 +22,13 @@ If you still haven't got any further and want to send a question, email joe+bioi
 
 ###Usage###
 For usage details and examples, see the specific READMEs:
+ * BasicAlignmentStats: [no readme available yet]()
+  * *Reads an alignment or directory of alignments and prints descriptive statistics (length, gappiness, entropy etc) for each one.* 
+ * GeneralConvergenceApplicationGUI:  [no readme available yet]()
+  * *GUI application to create and run convergence detection analyses on phylogenomic data. Not released.*
+ * PhylogenomicDatasetBrowser:  [no readme available yet]()
+  * *GUI application to browse and rapidly sort/compare phylogenomic-scale datasets (thousands of alignments/phylogenies).*
  * SimpleMRCASubstitutionDetector: [README_SimpleMRCASubstitutionDetector.md](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/README_SimpleMRCASubstitutionDetector.md)
+  * *Reconstructs ancestral sequences using parsimony, finds and prints parallel substitutions*
+  
 

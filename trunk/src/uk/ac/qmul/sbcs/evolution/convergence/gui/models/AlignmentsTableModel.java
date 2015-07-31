@@ -22,6 +22,24 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 	private Object[][] data;
 	public final Object[] longValues = {"file", "locus","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), Boolean.FALSE};
 
+	@Override
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		if(data != null){
+			for(String columnName:this.columnNames){
+				sb.append(columnName+"\t");
+			}
+			sb.append("\n");
+			for(Object[] aRow:data){
+				for(Object o:aRow){
+					sb.append(o.toString()+"\t");
+				}
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
+	}
+	
 	public AlignmentsTableModel(){
 		DEBUG = false;
 	}

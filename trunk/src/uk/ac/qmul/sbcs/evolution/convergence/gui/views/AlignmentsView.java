@@ -24,6 +24,7 @@ public class AlignmentsView extends JComponent{
 	private JFileChooser dc = new JFileChooser();	// file chooser for directories
 	private JButton addAlignmentsButton;		// add alignment
 	private JButton removeAlignmentsButton;	// remove selected alignment
+	private JButton textDumpButton;			// dump all data to text
 	private JTable alignmentsTable;
 	private JScrollPane alignmentsScrollPane;
 	private JScrollPane sequencePaneNT;
@@ -37,8 +38,10 @@ public class AlignmentsView extends JComponent{
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		addAlignmentsButton = new JButton("Add alignments...");
 		removeAlignmentsButton = new JButton("Remove selected alignment...");
+		textDumpButton = new JButton("Dump statistics to text file...");
 		buttonPanel.add(addAlignmentsButton);
 		buttonPanel.add(removeAlignmentsButton);
+		buttonPanel.add(textDumpButton);
 		subPanel.add(buttonPanel);
 		panel.add(subPanel);
 		dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -82,6 +85,10 @@ public class AlignmentsView extends JComponent{
 	
 	public void addRemoveAlignmentsButtonListener(ActionListener al){
 		removeAlignmentsButton.addActionListener(al);
+	}
+
+	public void addTextDumpButtonListener(ActionListener al){
+		textDumpButton.addActionListener(al);
 	}
 
 	public void addListRowSelectionListener(AlignmentsRowListener arl){

@@ -23,6 +23,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsTableModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.AlignmentsView;
+import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 
 public class AlignmentsController {
@@ -32,6 +33,7 @@ public class AlignmentsController {
 	AddSingleAlignmentsButtonListener 	addAlignmentsListenerSingle;
 	AddBatchAlignmentsButtonListener 	addAlignmentsListenerBatch;
 	RemoveSelectedAlignmentsButtonListener	removeSelectedAlignmentSingle;
+	DumpTextFileButtonListener	dumpTextFileButtonListener;
 	GlobalController globalController;
 
 	/**
@@ -55,8 +57,10 @@ public class AlignmentsController {
 		addAlignmentsListenerSingle = new AddSingleAlignmentsButtonListener();
 		addAlignmentsListenerBatch = new AddBatchAlignmentsButtonListener();
 		removeSelectedAlignmentSingle = new RemoveSelectedAlignmentsButtonListener();
+		dumpTextFileButtonListener = new DumpTextFileButtonListener();
 		view.addAddAlignmentsButtonListener(addAlignmentsListenerSingle);
 		view.addRemoveAlignmentsButtonListener(removeSelectedAlignmentSingle);
+		view.addTextDumpButtonListener(dumpTextFileButtonListener);
 		view.addTable(model);
 		initColumnSizes();
 		view.addListRowSelectionListener(new AlignmentsRowListener());
@@ -107,6 +111,25 @@ public class AlignmentsController {
 				cellWidth = comp.getPreferredSize().width;
 				column.setPreferredWidth(headerWidth);
 			}
+		}
+	}
+
+	/**
+	 * Open a file chooser, pick a directory and write 'alignment_descriptive_stats.tdf' there; a dump of all the Alignment objects' stats.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / RBG Kew</a>
+	 *
+	 */
+	public class DumpTextFileButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev) {
+			// Get string representing table data
+			String output = model.toString();
+			// System I/O - get a directory to write to.
+			view.getDirectoryChooser().showOpenDialog(view);
+			File outputDirectory = view.getDirectoryChooser().getSelectedFile();
+			File outputTextFile = new File(outputDirectory,"alignment_descriptive_stats.tdf");
+			new BasicFileWriter(outputTextFile,output);
+			System.out.println("Writing output to "+outputTextFile.getPath()+"\n"+model.toString());
 		}
 	}
 

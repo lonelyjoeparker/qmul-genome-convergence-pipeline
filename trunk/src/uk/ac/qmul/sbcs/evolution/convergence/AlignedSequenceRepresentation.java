@@ -1105,7 +1105,9 @@ public class AlignedSequenceRepresentation implements Serializable {
 				System.out.println(taxon+"\t\ttranslated.\tambig: "+numAmbiguousCodons+"\tstops: "+numStopCodons+"\tseq: "+newAAseq.substring(0, 4));
 				sequenceHash.put(taxon, newAAseq.toString().toCharArray());
 			}
+			// Fire updates to alignment stats
 			numberOfSites = newMaxNoSites;
+			this.calculateAlignmentStats(false);
 			alignmentSequenceCodingType = SequenceCodingType.AA;
 		}
 	}
@@ -1936,6 +1938,9 @@ public class AlignedSequenceRepresentation implements Serializable {
 			this.meanSitewiseEntropy += siteEntropy;
 		}
 		this.meanSitewiseEntropy /= (float)this.numberOfSites;
+		
+		//do invariant sites
+		this.determineInvariantSites();
 	}
 
 	/**

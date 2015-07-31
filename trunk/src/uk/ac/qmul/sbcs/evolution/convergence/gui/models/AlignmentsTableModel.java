@@ -8,19 +8,51 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 public	class AlignmentsTableModel extends AbstractTableModel {
 
 	public final boolean DEBUG;
-	private String[] columnNames = {"Results",
-			"Alignment",
-			"Input type",
-			"# taxa",
-			"# sites (NT)",
-			"# invar. sites (NT)",
-			"# sites (AA)",
-			"# invar. sites (AA)",
-			"mean entropy NT",
-			"Selection data?",
-			"Source alignment"};
+	// Column names for the header and text output
+	private String[] columnNames = {		//column index
+			"Results",						//0		String
+			"Alignment",					//1		String
+			"Input type",					//2		String (enum)
+			"# taxa",						//3		int
+			"# sites (NT)",					//4		int
+			"# invar. sites (NT)",			//5		int
+			"# sites (AA)",					//6		int
+			"# invar. sites (AA)",			//7		int
+			"mean entropy (NT)",			//8		float
+			"mean entropy (AA)",			//9		float
+			"meanTaxonwiseLongestUngappedSequenceNT",//10	float
+			"meanTaxonwiseLongestUngappedSequenceAA",//11	float
+			"longestNonZeroEntropyRunNT",	//12	float
+			"whichNonZeroEntropyRunNT",		//13	float
+			"longestNonZeroEntropyRunAA",	//14	float
+			"whichNonZeroEntropyRunAA",		//15	float
+			"Selection data?",				//16	boolean
+			"Source alignment"};			//17	AlignedSequenceRepresentation.toString()
+	// The main data table
 	private Object[][] data;
-	public final Object[] longValues = {"file", "locus","None of the above", new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Integer(0), new Float(0), Boolean.FALSE};
+	// Default values for (hopefully) sizing the table, etc
+	public final Object[] longValues = {
+			"file", 
+			"locus",
+			"None of the above",
+			new Integer(0), 
+			new Integer(0), 
+			new Integer(0), 
+			new Integer(0), 
+			new Integer(0), 
+			new Float(0), 
+			new Float(0), 
+			new Float(0), 
+			new Float(0), 
+			new Float(0), 
+			new Float(0), 
+			new Float(0), 
+			new Float(0), 
+			new Float(0), 
+			new Float(0), 
+			Boolean.FALSE,
+			new Object()
+			};
 
 	@Override
 	public String toString(){
@@ -57,10 +89,13 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 	public void addRow(DisplayAlignment rowDisplayAlignment, AlignedSequenceRepresentation rowSourceAlignment){
 		Object[][] newData;
 		if(data != null){
+			/* Data table has been initialised. Add rows to it*/
+			// Copy data to newData with an extra row and populate it.
 			newData = new Object[getData().length+1][getData()[0].length];
 			for(int i=0;i<getData().length;i++){
 				newData[i] = getData()[i];
 			}
+			// Make a new row for the new data
 			Object[] newRow = new Object[getData()[0].length];
 			newRow[0] = rowDisplayAlignment;
 			newRow[1] = rowDisplayAlignment.getNameGuess();
@@ -71,12 +106,21 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 			newRow[6] = rowDisplayAlignment.getNumberOfSitesAA();
 			newRow[7] = rowDisplayAlignment.getNumberOfInvariantSitesAA();
 			newRow[8] = rowDisplayAlignment.getMeanSitewiseEntropyNT();
-			newRow[9] = false;
-			newRow[10] = rowSourceAlignment;
-		//	newRow[10] = new Object();
+			newRow[9] = rowDisplayAlignment.getMeanSitewiseEntropyAA();
+			newRow[10] = rowDisplayAlignment.getMeanTaxonwiseLongestUngappedSequenceNT();
+			newRow[11] = rowDisplayAlignment.getMeanTaxonwiseLongestUngappedSequenceAA();
+			newRow[12] = rowDisplayAlignment.getLongestNonZeroEntropyRunNT();
+			newRow[13] = rowDisplayAlignment.getWhichNonZeroEntropyRunNT();
+			newRow[14] = rowDisplayAlignment.getLongestNonZeroEntropyRunAA();
+			newRow[15] = rowDisplayAlignment.getWhichNonZeroEntropyRunAA();
+			newRow[16] = false;
+			newRow[17] = rowSourceAlignment;
+			// Write the new row to the data table
 			newData[getData().length] = newRow;
 		}else{
+			/* Data table is blank, instantate it with 1 row and as many cols as there are col names */
 			newData = new Object[1][getColumnCount()];
+			// Make a new row for the new data
 			Object[] newRow = new Object[getColumnCount()];
 			newRow[0] = rowDisplayAlignment;
 			newRow[1] = rowDisplayAlignment.getNameGuess();
@@ -87,9 +131,16 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 			newRow[6] = rowDisplayAlignment.getNumberOfSitesAA();
 			newRow[7] = rowDisplayAlignment.getNumberOfInvariantSitesAA();
 			newRow[8] = rowDisplayAlignment.getMeanSitewiseEntropyNT();
-			newRow[9] = false;
-			newRow[10] = rowSourceAlignment;
-		//	newRow[10] = new Object();
+			newRow[9] = rowDisplayAlignment.getMeanSitewiseEntropyAA();
+			newRow[10] = rowDisplayAlignment.getMeanTaxonwiseLongestUngappedSequenceNT();
+			newRow[11] = rowDisplayAlignment.getMeanTaxonwiseLongestUngappedSequenceAA();
+			newRow[12] = rowDisplayAlignment.getLongestNonZeroEntropyRunNT();
+			newRow[13] = rowDisplayAlignment.getWhichNonZeroEntropyRunNT();
+			newRow[14] = rowDisplayAlignment.getLongestNonZeroEntropyRunAA();
+			newRow[15] = rowDisplayAlignment.getWhichNonZeroEntropyRunAA();
+			newRow[16] = false;
+			newRow[17] = rowSourceAlignment;
+			// Write the new row to the data table
 			newData[0] = newRow;
 		}
 		setData(newData);

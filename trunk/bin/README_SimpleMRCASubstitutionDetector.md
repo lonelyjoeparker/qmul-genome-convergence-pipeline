@@ -1,3 +1,5 @@
+_Reconstructs ancestral sequences given a tree and alignment. Identifies parallel substitutions._
+
 ##Description
 The [SimpleMRCASubstitutionDetector.jar](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/SimpleMRCASubstitutionDetector.jar) jarfile will run with [these input files](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/examples/) as follows:
 

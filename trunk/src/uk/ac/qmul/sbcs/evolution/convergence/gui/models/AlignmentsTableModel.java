@@ -18,16 +18,35 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 			"# invar. sites (NT)",			//5		int
 			"# sites (AA)",					//6		int
 			"# invar. sites (AA)",			//7		int
-			"mean entropy (NT)",			//8		float
-			"mean entropy (AA)",			//9		float
-			"meanTaxonwiseLongestUngappedSequenceNT",//10	float
-			"meanTaxonwiseLongestUngappedSequenceAA",//11	float
-			"longestNonZeroEntropyRunNT",	//12	float
-			"whichNonZeroEntropyRunNT",		//13	float
-			"longestNonZeroEntropyRunAA",	//14	float
-			"whichNonZeroEntropyRunAA",		//15	float
+			"Mean entropy (NT)",			//8		float
+			"Mean entropy (AA)",			//9		float
+			"MeanTaxonwiseLongestUngappedSequenceNT",//10	float
+			"MeanTaxonwiseLongestUngappedSequenceAA",//11	float
+			"LongestNonZeroEntropyRunNT",	//12	float
+			"WhichNonZeroEntropyRunNT",		//13	float
+			"LongestNonZeroEntropyRunAA",	//14	float
+			"WhichNonZeroEntropyRunAA",		//15	float
 			"Selection data?",				//16	boolean
 			"Source alignment"};			//17	AlignedSequenceRepresentation.toString()
+	private String[] columnDefinitions = {	//column index
+			"Results = Results file (alignment if native)",						//0		String
+			"Alignment = Alignment file name",					//1		String
+			"Input type = Nuclotide/amino acid/codon/none",					//2		String (enum)
+			"# taxa = Number of taxa",						//3		int
+			"# sites (NT) = Number of nucleotides (NT)",					//4		int
+			"# invar. sites (NT) = Number of NT positions that are invariant across all taxa",			//5		int
+			"# sites (AA) = Number of amino acids in translated sequence (AA; first forward reading frame assumed)",					//6		int
+			"# invar. sites (AA) = Number of NT positions that are invariant across all taxa",			//7		int
+			"Mean entropy (NT) = Mean sitewise Shannon entropy (heterogeneity) in NT sequence",			//8		float
+			"Mean entropy (AA) = Mean sitewise Shannon entropy (heterogeneity) in NT sequence",			//9		float
+			"MeanTaxonwiseLongestUngappedSequenceNT = Longest contiguous ungapped NT sequence (averaged over all taxa)",//10	float
+			"MeanTaxonwiseLongestUngappedSequenceAA = Longest contiguous ungapped AA sequence (averaged over all taxa)",//11	float
+			"LongestNonZeroEntropyRunNT = Longest contiguous run of non-zero (ie, variant) NT sites",	//12	float
+			"WhichNonZeroEntropyRunNT = Value of Shannon entropy (sitewise heterogeneity) in longest non-zero NT run",		//13	float
+			"LongestNonZeroEntropyRunAA = Longest contiguous run of non-zero (ie, variant) NT sites",	//14	float
+			"WhichNonZeroEntropyRunAA = Value of Shannon entropy (sitewise heterogeneity) in longest non-zero AA run",		//15	float
+			"Selection data? = (not implemented)",				//16	boolean
+			"Source alignment = (Java object code - debug only)"};			//17	AlignedSequenceRepresentation.toString()
 	// The main data table
 	private Object[][] data;
 	// Default values for (hopefully) sizing the table, etc
@@ -272,5 +291,33 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 	 */
 	public Object[][] getData() {
 		return data;
+	}
+
+	/**
+	 * Get the definitions corresponding to each column in the data
+	 * @return String[] of table definitions
+	 */
+	public String[] getTableColumnDefinitions() {
+		// TODO Auto-generated method stub
+		return this.columnDefinitions;
+	}
+
+	/**
+	 * Get the definitions corresponding to each column in the data
+	 * @return String[] of table definitions as HTML, including &lt;html&gt; tag
+	 */
+	public String[] getTableColumnDefinitionsHTML() {
+		String [] HTMLdefinitions = new String[columnDefinitions.length+2];
+		HTMLdefinitions[0] = "<html>";
+		HTMLdefinitions[HTMLdefinitions.length-1] = "</html>";
+		int counter = 1;
+		for(String definition:columnDefinitions){
+			String[] separateDefinitions = definition.split("=");
+			if(separateDefinitions.length == 2){
+				HTMLdefinitions[counter] = "<p><b>"+separateDefinitions[0]+"</b><br><i>"+separateDefinitions[1]+"</i></p>";
+			}
+			counter++;
+		}
+		return HTMLdefinitions;
 	}
 }

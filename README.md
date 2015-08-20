@@ -4,7 +4,14 @@ Automatically exported from code.google.com/p/qmul-genome-convergence-pipeline
 A collection of Java libraries and executables for conducting phylogenomic analyses, mainly for convergence detection.
 Includes wrappers to a variety of tools including PAML, RAxML, and PhyloBayes.
 
-## Depdendencies and packaged libraries
+## Projects:
+
+Several projects including:
+* [CONTEXT, a phylogenomic dataset browser](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT.md) (_current: v0.8.prerelease_)
+* A [simple MRCA substitution detector](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/README_SimpleMRCASubstitutionDetector.md) for finding parallel substitutions given an alignment and phylogeny (_current: public alpha, no version number_)
+* A genome convergence detection pipeline (_current: in progress - no public release_)
+
+### Depdendencies and packaged libraries
 
 Requires Java 1.6+. 
 The codebase references the following open-source libraries:                 

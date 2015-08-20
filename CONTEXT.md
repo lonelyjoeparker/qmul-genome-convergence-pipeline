@@ -18,11 +18,11 @@ You can't manually edit, align, or infer phylogenies with CONTEXT. There's plent
 
 ## How do I get it?
 
-This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin) for the most recent builds.
+This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin) for the most recent builds - [current version here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/CONTEXT-PhylogenomicDatasetBrowser-v0.8.jar?raw=true) (v0.8 prerelease).
 
 ## How do I use it?
 
-Double-click the jarfile; or in a command-line run the jarfile with `java -jar ContextPhylogenomicDatasetBrowser.jar`. Once it's up and running, select "File > Open Alignments..." or "File > Open Phylogenies" to get started.
+Double-click the jarfile; or in a command-line run the jarfile with `java -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.jar`. Once it's up and running, select "File > Open Alignments..." or "File > Open Phylogenies" to get started.
 
 ## How do I get help?
 

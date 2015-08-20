@@ -43,7 +43,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.views.PhylogeniesView;
  * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
  *
  */
-public class PhlogenomicDatasetBrowser implements Runnable {
+public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 
 	private final static CONTEXTVersion version = new CONTEXTVersion();
 	
@@ -65,7 +65,7 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 	/**
 	 * Default no-arg constructor
 	 */
-	public PhlogenomicDatasetBrowser(){
+	public CONTEXTPhlogenomicDatasetBrowser(){
 		/* Instantiate the model-view-controllers */
 
 		//Instantiate the specific model / view / controllers first, so that the controllers can be passed to globalcontroller.
@@ -107,7 +107,7 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 	    	// handle exception
 	    }
 
-        javax.swing.SwingUtilities.invokeLater(new PhlogenomicDatasetBrowser());
+        javax.swing.SwingUtilities.invokeLater(new CONTEXTPhlogenomicDatasetBrowser());
 	}
 
 	@Override

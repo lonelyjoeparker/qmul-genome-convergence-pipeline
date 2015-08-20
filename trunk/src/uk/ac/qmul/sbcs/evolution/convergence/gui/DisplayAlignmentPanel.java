@@ -166,7 +166,7 @@ public class DisplayAlignmentPanel extends JPanel{
 		viewable_sequence_chars_end = (viewable_x_1 / x_cols_increment) - number_of_taxon_name_chars_before_sequences_start;
 		viewable_sequence_chars_end = Math.min(viewable_sequence_chars_end+20, sequencesAsCharArray[0].length);	// take a min so we don't run off the end of the array, but add a bit extra to cover fast scrolling.
 		// what can we see? (DEBUG only)
-		System.out.println("Draw limits:\t("+viewable_seqs_min+","+viewable_seqs_max+") seqs, ("+viewable_sequence_chars_start+","+viewable_sequence_chars_end+") sequence chars, ("+viewable_name_chars+") name chars");
+		//System.out.println("Draw limits:\t("+viewable_seqs_min+","+viewable_seqs_max+") seqs, ("+viewable_sequence_chars_start+","+viewable_sequence_chars_end+") sequence chars, ("+viewable_name_chars+") name chars");
 		
 		// Clear the canvas before repainting
 		g2d.setColor(Color.WHITE);

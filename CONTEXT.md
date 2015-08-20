@@ -26,7 +26,7 @@ Double-click the jarfile; or in a command-line run the jarfile with `java -jar C
 
 ## How do I get help?
 
-At the moment we're still writing the manual and help pages.
+At the moment we're still writing the manual and help pages. General information can be found in the [README](README.md) file.
 
 To report bugs or request features please use [this issue tracker](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues) - that way we can keep a better grip on what needs doing, and others may be able to benefit from your solutions. Please include as much detail as you can, including:
 * Which OS you're using

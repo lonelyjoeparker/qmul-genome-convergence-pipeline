@@ -24,7 +24,11 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.UIManager.*;
 
+import uk.ac.qmul.sbcs.evolution.convergence.CONTEXTVersion;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.AddBatchAlignmentsButtonListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.PhylogeniesController;
@@ -41,6 +45,8 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.views.PhylogeniesView;
  */
 public class PhlogenomicDatasetBrowser implements Runnable {
 
+	private final static CONTEXTVersion version = new CONTEXTVersion();
+	
 	// Alignments M-V-C
 	private AlignmentsTableModel alignmentsModel;
 	private AlignmentsView alignmentsView;
@@ -83,6 +89,24 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+	    try {
+            // Set System L&F
+        UIManager.setLookAndFeel(
+        	UIManager.getSystemLookAndFeelClassName());
+	    } 
+	    catch (UnsupportedLookAndFeelException e) {
+	    	// handle exception
+	    }
+	    catch (ClassNotFoundException e) {
+	    	// handle exception
+	    }
+	    catch (InstantiationException e) {
+	    	// handle exception
+	    }
+	    catch (IllegalAccessException e) {
+	    	// handle exception
+	    }
+
         javax.swing.SwingUtilities.invokeLater(new PhlogenomicDatasetBrowser());
 	}
 
@@ -120,7 +144,7 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 		JMenuItem help, reportBugs, contributeCode;														// helpMenu sub-items
 		
 		public PhylogenomicDatasetBrowserView(PhylogeniesView phy_view, AlignmentsView align_view){
-			super("Phylogenomic Dataset Browser - alpha");
+			super("CONTEXT - "+version.getVersionString());
 			phylogeniesView = phy_view;
 			alignmentsView = align_view;
 			mainTabPane = new JTabbedPane();
@@ -170,7 +194,7 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 			helpMenu = new JMenu("Help");
 			
 			// Instantiate the File menu items
-			about = new JMenuItem("About Phylogenomic Dataset Browser");
+			about = new JMenuItem("About CONTEXT, the Phylogenomic Dataset Browser");
 			loadAlignments = new JMenu("Load input alignments as .nex, .fa. .fasta or .phy files...");
 			loadAlignmentsSingle = new JMenuItem("As single file");
 			loadAlignmentsBatch = new JMenuItem("As directory of files (batch operation)");
@@ -181,12 +205,12 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 			loadTreesBatch = new JMenuItem("As directory of files (batch operation)");
 			loadTrees.add(loadTreesSingle);
 			loadTrees.add(loadTreesBatch);
-			close = new JMenuItem("Quit Phylogenomic Dataset Browser");
+			close = new JMenuItem("Quit CONTEXT/Phylogenomic Dataset Browser");
 						
 			// Instantiate the Help menu items
 			help = new JMenuItem("Help...");
 			reportBugs = new JMenuItem("Report a bug, error, or request a feature...");
-			contributeCode = new JMenuItem("Contribute to the Phylogenomic Dataset Browser codebase...");
+			contributeCode = new JMenuItem("Contribute to/fork the CONTEXT codebase on GitHub...");
 			
 			// Add items to menus, first File menu
 			fileMenu.add(about);
@@ -215,13 +239,17 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 
 		class AboutFrame extends JFrame{
 			public AboutFrame(){
-				super("About");
+				super("About CONTEXT (v"+version.getVersion()+")");
 				JPanel panel = new JPanel(new FlowLayout());
+				/*
 				panel.add(new JLabel("Phylogenomic Dataset Browser - alpha version."));
 				panel.add(new JLabel("This is a development-only private alpha: use at your own risk."));
 				panel.add(new JLabel("(c) Joe Parker / Queen Mary University of London, 2013-5."));
+				 */
+				panel.add(new JLabel("<html><center>"+version.getHTMLCredits()+"</html>"));
 				add(panel);
-				setSize(450,200);
+				setSize(650,700);
+				setLocationRelativeTo(null);
 				setVisible(true);
 				setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			}
@@ -253,7 +281,7 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 			/* Add action listeners for other menu items */
 			view.about.addActionListener(new AboutMenuListener());
 			view.close.addActionListener(new CloseApplicationListener());
-			view.help.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/HelpPages.md"));
+			view.help.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT.md"));
 			view.reportBugs.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/ReportBugsRequestFeatures.md"));
 			view.contributeCode.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline"));
 			/*
@@ -302,10 +330,10 @@ public class PhlogenomicDatasetBrowser implements Runnable {
 			String URL;
 			
 			/**
-			 * No-arg constructor. Points to default project URL https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/w/list
+			 * No-arg constructor. Points to default project URL https://github.com/lonelyjoeparker/
 			 */
 			public OpenURLListener(){
-				URL = "https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/w/list";
+				URL = "https://github.com/lonelyjoeparker";
 			}
 		
 			/**

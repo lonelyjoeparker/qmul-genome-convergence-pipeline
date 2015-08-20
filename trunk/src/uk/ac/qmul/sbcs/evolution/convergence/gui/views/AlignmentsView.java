@@ -9,6 +9,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -19,32 +21,81 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsTableModel;
 
 
 public class AlignmentsView extends JComponent{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3925504665016275161L;
 	private JPanel panel, subPanel, buttonPanel;
 	private JFileChooser fc = new JFileChooser();	// file chooser for single files
 	private JFileChooser dc = new JFileChooser();	// file chooser for directories
 	private JButton addAlignmentsButton;		// add alignment
-	private JButton removeAlignmentsButton;	// remove selected alignment
-	private JButton textDumpButton;			// dump all data to text
+	private JButton removeAlignmentsButton;		// remove selected alignment
+	private JButton textDumpButton;				// dump all data to text at 'alignment_descriptive_stats.tdf' in the selected dir
+	private JButton tableDefinitionButton;		// show definitions of alignment stats
 	private JTable alignmentsTable;
 	private JScrollPane alignmentsScrollPane;
 	private JScrollPane sequencePaneNT;
 	private JScrollPane sequencePaneAA;
+	public DefinitionsFrame definitionFrame;
 
 	public AlignmentsView() {
+		// set up panels
 		panel = new JPanel(new GridLayout(3,1));
 		subPanel = new JPanel();
 		subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
 		buttonPanel = new JPanel();
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-		addAlignmentsButton = new JButton("Add alignments...");
-		removeAlignmentsButton = new JButton("Remove selected alignment...");
-		textDumpButton = new JButton("Dump statistics to text file...");
+		// set up buttons
+		addAlignmentsButton = new JButton("Add...");
+		addAlignmentsButton.setToolTipText("Adds a single alignment. Use 'File>Add Alignments..>Directory' to add whole directories in batch mode.");
+		removeAlignmentsButton = new JButton("Remove...");
+		removeAlignmentsButton.setToolTipText("Removes the currently selected alignment.");
+		textDumpButton = new JButton("Export statistics..");
+		textDumpButton.setToolTipText("Selects a directory, then creates a file 'alignment_descriptive_stats.tdf' and dumps alignment statistics into it.");
+		tableDefinitionButton = new JButton("Statistics' definitions...");
+		tableDefinitionButton.setToolTipText("Display alignment statistics' definitions.");
+		// add buttons to panels
 		buttonPanel.add(addAlignmentsButton);
 		buttonPanel.add(removeAlignmentsButton);
 		buttonPanel.add(textDumpButton);
+		buttonPanel.add(tableDefinitionButton);
 		subPanel.add(buttonPanel);
 		panel.add(subPanel);
 		dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		// JFrame to display table's statistics
+		definitionFrame = new DefinitionsFrame();
+	}
+	
+	/**
+	 * Class extending a JFrame to hold the statistics definitions
+	 * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>
+	 * @since Aug 20, 2015
+	 * @version 0.1
+	 */
+	private class DefinitionsFrame extends JFrame{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2377591672408559870L;
+		JLabel definition;
+		private DefinitionsFrame(){
+			super("Statistics' definitions");
+			setSize(600, 650);
+			setLocationRelativeTo(null);
+			definition = new JLabel("");
+			add(definition);
+			setVisible(false);
+			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+		}
+		
+		private void setLabelText(String[] text){
+			String label = "";
+			for(String s:text){
+				label+=s;
+			}
+			this.definition.setText(label);
+		}
 	}
 	
 	public void addTable(AlignmentsTableModel alignmentsModel) {
@@ -91,6 +142,10 @@ public class AlignmentsView extends JComponent{
 		textDumpButton.addActionListener(al);
 	}
 
+	public void addTableDefinitionButtonListener(ActionListener al){
+		tableDefinitionButton.addActionListener(al);
+	}
+	
 	public void addListRowSelectionListener(AlignmentsRowListener arl){
         alignmentsTable.getSelectionModel().addListSelectionListener(arl);
 	}
@@ -144,5 +199,16 @@ public class AlignmentsView extends JComponent{
 		subPanel.repaint();
 		super.repaint();
 */
+	}
+
+
+	public void setStatisticDefinitions(String[] tableColumnDefinitions) {
+		definitionFrame.setLabelText(tableColumnDefinitions);
+		
+	}
+
+
+	public void setDefinitionFrameVisibility(boolean b) {
+		definitionFrame.setVisible(b);
 	}
 }

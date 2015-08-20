@@ -34,6 +34,7 @@ public class AlignmentsController {
 	AddBatchAlignmentsButtonListener 	addAlignmentsListenerBatch;
 	RemoveSelectedAlignmentsButtonListener	removeSelectedAlignmentSingle;
 	DumpTextFileButtonListener	dumpTextFileButtonListener;
+	TableDefinitionButtonListener tableDefinitionButtonListener;
 	GlobalController globalController;
 
 	/**
@@ -58,9 +59,11 @@ public class AlignmentsController {
 		addAlignmentsListenerBatch = new AddBatchAlignmentsButtonListener();
 		removeSelectedAlignmentSingle = new RemoveSelectedAlignmentsButtonListener();
 		dumpTextFileButtonListener = new DumpTextFileButtonListener();
+		tableDefinitionButtonListener = new TableDefinitionButtonListener();
 		view.addAddAlignmentsButtonListener(addAlignmentsListenerSingle);
 		view.addRemoveAlignmentsButtonListener(removeSelectedAlignmentSingle);
 		view.addTextDumpButtonListener(dumpTextFileButtonListener);
+		view.addTableDefinitionButtonListener(tableDefinitionButtonListener);
 		view.addTable(model);
 		initColumnSizes();
 		view.addListRowSelectionListener(new AlignmentsRowListener());
@@ -125,14 +128,29 @@ public class AlignmentsController {
 			// Get string representing table data
 			String output = model.toString();
 			// System I/O - get a directory to write to.
-			view.getDirectoryChooser().showOpenDialog(view);
-			File outputDirectory = view.getDirectoryChooser().getSelectedFile();
-			File outputTextFile = new File(outputDirectory,"alignment_descriptive_stats.tdf");
-			new BasicFileWriter(outputTextFile,output);
-			System.out.println("Writing output to "+outputTextFile.getPath()+"\n"+model.toString());
+			view.getDirectoryChooser().showSaveDialog(null);
+			//view.getDirectoryChooser().showOpenDialog(view);
+			//File outputDirectory = view.getDirectoryChooser().getSelectedFile();
+			//File outputTextFile = new File(outputDirectory,"alignment_descriptive_stats.tdf");
+			new BasicFileWriter(view.getDirectoryChooser().getSelectedFile(),output);
+			System.out.println("Writing output to "+view.getDirectoryChooser().getSelectedFile().getPath()+"\n"+model.toString());
 		}
 	}
 
+	/**
+	 * Add the table definitions to the definitionFrame, and display it
+	 * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>
+	 * @since Aug 20, 2015
+	 * @version 0.1
+	 */
+	public class TableDefinitionButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			view.setDefinitionFrameVisibility(true);
+			view.setStatisticDefinitions(model.getTableColumnDefinitionsHTML());
+		}
+	}
+	
 	/**
 	 * Open a file chooser, attempt to select an alignment file, read it in as a DisplayAlignment, and try to add it to the model/table
 	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>

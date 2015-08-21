@@ -37,15 +37,23 @@ To report bugs or request features please use [this issue tracker](https://githu
 
 Thanks!
 
-## Version
+## Version and Roadmap
 
 Currently at public 0.8 version. See [CONTEXT_versions.md](CONTEXT_versions.md) for more change log and version informations.
+
+There is no formal roadmap for this project at present.
 
 ## Credits
 
 CONTEXT is written in Java by Joe Parker with input from Steve Rossiter and other members of his lab. 
 
 CONTEXT was largely developed from the Genome Convergence API supported by the BBSRC (UK) and European Research Council (2011-2015), with additional work by Joe at Kitson Consulting Ltd (2015). Continuing development / mainenance is by Joe at Royal Botanic Gardens, Kew.
+
+## Project contact
+
+* If you have any help queries please try the help pages described above first. 
+* To log a bug or usability issue, please use the issues link above. 
+* For other enquiries, including funding, packaging, and commercial licensing, please use the project email: joe+CONTEXT@kitson-consulting.co.uk
 
 ## Depdendencies and packaged libraries
 

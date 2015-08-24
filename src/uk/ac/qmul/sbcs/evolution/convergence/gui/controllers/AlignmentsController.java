@@ -363,7 +363,9 @@ public class AlignmentsController {
 			// not sure what to do about that, unless we pass two views to the controller,
 			// the specific one and a the global one... hmm...  or globalViewActionsController...?
 			// view.text.setText("COLUMN SELECTION EVENT. ");
+			/* debug only, print selected row info
 			System.out.println("COLUMN SELECTION EVENT. ");
+			 */
 		}
 	}
 
@@ -396,14 +398,17 @@ public class AlignmentsController {
 			Object[] a_row = model.getData()[viewModelRow];
 			String val = a_row[4].toString();
 			String entropy = a_row[8].toString();
-			System.out.println("VIEW ROW ("+viewModelRow+") selected n sites nt: "+val+", entropy "+entropy);
+			/* debug only, print selected row info
+			 * System.out.println("VIEW ROW ("+viewModelRow+") selected n sites nt: "+val+", entropy "+entropy);
+			 */
 			/* Get the selected row, via model */
 			int tableModelRow = alignmentsTable.convertRowIndexToModel(viewModelRow);
 			a_row = model.getData()[tableModelRow];
 			val = a_row[4].toString();
 			entropy = a_row[8].toString();
-			System.out.println("MODEL ROW ("+tableModelRow+") selected n sites nt: "+val+", entropy "+entropy);
-
+			/* debug only, print selected row info
+			 * System.out.println("MODEL ROW ("+tableModelRow+") selected n sites nt: "+val+", entropy "+entropy);
+			 */
 			/* Attempt to update the view alignment representation JScrollPanes */
 			DisplayAlignment da = (DisplayAlignment) a_row[0];
 			view.updateAlignmentScrollPanes(da);

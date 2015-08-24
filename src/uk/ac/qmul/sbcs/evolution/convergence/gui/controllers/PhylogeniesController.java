@@ -214,14 +214,18 @@ public class PhylogeniesController {
 			Object[] a_row = model.getData()[viewModelRow];
 			String nTaxa = a_row[1].toString();
 			String treeString = a_row[2].toString();
-			System.out.println("VIEW ROW ("+viewModelRow+") selected n taxa : "+nTaxa+", tree "+treeString);
+			/* debug only, print selected row info
+			 * System.out.println("VIEW ROW ("+viewModelRow+") selected n taxa : "+nTaxa+", tree "+treeString);
+			 */
 			/* Get the selected row, via model */
 			int tableModelRow = phylogenyTable.convertRowIndexToModel(viewModelRow);
 			a_row = model.getData()[tableModelRow];
 			nTaxa = a_row[1].toString();
 			treeString = a_row[2].toString();
-			System.out.println("MODEL ROW ("+tableModelRow+") selected n taxa: "+nTaxa+", tree "+treeString);
-			System.out.println(a_row[3]);
+			/* debug only, print selected row info
+			 * System.out.println("MODEL ROW ("+tableModelRow+") selected n taxa: "+nTaxa+", tree "+treeString);
+			 * System.out.println(a_row[3]);
+			 */ 
 			/* Attempt to update the view representation */
 			DisplayPhylogeny dp = (DisplayPhylogeny) a_row[0];
 			view.updatePhylogenyDisplay(dp);

@@ -53,7 +53,9 @@ public class ResultsController {
 			// not sure what to do about that, unless we pass two views to the controller,
 			// the specific one and a the global one... hmm...  or globalViewActionsController...?
 			// view.text.setText("COLUMN SELECTION EVENT. ");
-			System.out.println("COLUMN SELECTION EVENT. ");
+			/* debug only, print selected row info
+			 * System.out.println("COLUMN SELECTION EVENT. ");
+			 */
 		}
 	}
 
@@ -74,12 +76,17 @@ public class ResultsController {
 			Object[] a_row = model.getData()[viewModelRow];
 			String val = a_row[4].toString();
 			String entropy = a_row[8].toString();
-			System.out.println("VIEW ROW ("+viewModelRow+") selected n sites nt: "+val+", entropy "+entropy);
+			/* debug only, print selected row info
+			 * System.out.println("VIEW ROW ("+viewModelRow+") selected n sites nt: "+val+", entropy "+entropy);
+			 */
+
 			int tableModelRow = resultsTable.convertRowIndexToModel(viewModelRow);
 			a_row = model.getData()[tableModelRow];
 			val = a_row[4].toString();
 			entropy = a_row[8].toString();
-			System.out.println("MODEL ROW ("+tableModelRow+") selected n sites nt: "+val+", entropy "+entropy);
+			/* debug only, print selected row info
+			 * System.out.println("MODEL ROW ("+tableModelRow+") selected n sites nt: "+val+", entropy "+entropy); 
+			 */
 		}
 	}
 

@@ -23,7 +23,7 @@ public class DisplayPhylogeny {
 	private final TreeSet<String> taxonSet;
 	private String textTreeRepresentation;
 	private final File treeFile;
-	private PhylogenyDisplayPanel displayedPhylogeny;
+	private DisplayPhylogenyPanel displayedPhylogeny;
 	private PhylogenyConvergenceContext convergenceType;
 	
 	/**
@@ -54,7 +54,7 @@ public class DisplayPhylogeny {
 		treeFile = null;
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
-		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
+		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
@@ -71,7 +71,7 @@ public class DisplayPhylogeny {
 		treeFile = null;
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
-		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
+		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 	
@@ -88,7 +88,7 @@ public class DisplayPhylogeny {
 		treeFile = null;
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
-		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
+		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
@@ -107,7 +107,7 @@ public class DisplayPhylogeny {
 		treeFile = sourceFile;
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
-		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
+		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
@@ -124,7 +124,7 @@ public class DisplayPhylogeny {
 		treeFile = newTreeAsFile;
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
-		displayedPhylogeny = new PhylogenyDisplayPanel(coordsFromBranches, names);
+		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 

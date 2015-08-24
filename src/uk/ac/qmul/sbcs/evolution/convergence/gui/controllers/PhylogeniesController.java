@@ -194,6 +194,9 @@ public class PhylogeniesController {
 	        	taskLabel.setText(completeText);
 	        	taskBar.setValue(completeInt);
 	        }
+			/* select the last imported phylogeny */
+	        Object[][] modelData = model.getData();
+	        if(modelData != null){view.updatePhylogenyDisplay((DisplayPhylogeny) modelData[modelData.length-1][0]);}
         }
     }
 	

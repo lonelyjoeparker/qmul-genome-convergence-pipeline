@@ -19,8 +19,9 @@ import javax.swing.JPanel;
  *
  */
 public class DisplayPhylogenyPanel extends JPanel {
-	int[][] lineCoordinates;	// Specifies the start (X1, Y1) and end (X2, Y2) points in cartesian space of a list of lines. 
-	ArrayList<String> taxonNames;			// Specifies the taxon names in order.
+	int[][] lineCoordinates;		// Specifies the start (X1, Y1) and end (X2, Y2) points in cartesian space of a list of lines. 
+	ArrayList<String> taxonNames;	// Specifies the taxon names in order.
+	int maxBranchesXpos = 0;				// Maximum x-pos (width) in any of the branches, used to position the tip labels safely
 	
 
 	/**
@@ -38,6 +39,12 @@ public class DisplayPhylogenyPanel extends JPanel {
 			Integer[] line = coords.get(i);
 			int[] lineArr = {line[0],line[1],line[2],line[3]};
 			lineCoordinates[i] = lineArr;
+			/* see if we need to update the max X position. 
+			 * all branches assumed to be either vertical or 
+			 * horixontal, ot at least specifed (top-left, 
+			 * bottom-right), so we'll only test X2 not X1.
+			 */
+			maxBranchesXpos = Math.max(maxBranchesXpos, line[2]);
 		}
 		this.taxonNames = names;
 	}
@@ -46,8 +53,12 @@ public class DisplayPhylogenyPanel extends JPanel {
 		Graphics2D g2 = (Graphics2D)g;
 		
 		// draw the taxon names and dash-bars
+		/* since we've introduced maxBranchesX we'll use this to set safeXpos limit
 		int guessSafeXposLimit = Math.round(((float)taxonNames.size())*0.75f); // the theoretical Xpos limit is #taxa * increment (20 here), but this is rarely reached except with *very* ladderlike trees, so we'll use 3/4 of this distance, giving a much nicer, more compact, tree.
 		int names_x = guessSafeXposLimit*20;
+		 * 
+		 */
+		int names_x = maxBranchesXpos + 10;
 		int names_y = 10;
 		for(String taxon: taxonNames){
 			g2.drawString(taxon, names_x, names_y);

@@ -868,6 +868,8 @@ public class TreeNode {
 	 * Returns a list of relative X,Y positions for line segments representing branches, to be rendered with a Graphics2D.drawLine(x1,y1,x2,y2) call or similar.
 	 * <br/>Note this method assumes a strictly bifurcating tree, e.g. n=2 daughters for each node exactly.
 	 * <br/>Note also that 'left' and 'right' refer to these two daughters, not left/right orientation on the screen.
+	 * <p><b>WARNING this behaviour is not correct for polytomies</b>:<br/>See <a href="https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/44">issue #44</a>.
+	 * @TODO Fix <a href="https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/44">issue #44</a>.
 	 * @param startX - Xposition to start from
 	 * @param startY - Y pos to start from
 	 * @param branchIncrementX - how much to increment each branch by (width)

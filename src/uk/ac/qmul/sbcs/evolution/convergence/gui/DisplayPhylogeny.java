@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.TreeSet;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import uk.ac.qmul.sbcs.evolution.convergence.NewickTreeRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceContext;
@@ -153,8 +154,11 @@ public class DisplayPhylogeny {
 		return textTreeRepresentation;
 	}
 	
-	public JPanel getDisplayedPhylogeny() {
-		return displayedPhylogeny;
+	public JScrollPane getDisplayedPhylogeny() {
+		JScrollPane scroller = new JScrollPane();
+		scroller = new JScrollPane(this.displayedPhylogeny,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scroller.setViewportView(this.displayedPhylogeny);
+		return scroller;
 	}
 
 	public PhylogenyConvergenceContext getConvergenceContext() {

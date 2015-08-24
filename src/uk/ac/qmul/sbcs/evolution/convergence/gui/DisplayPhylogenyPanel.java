@@ -19,7 +19,7 @@ import javax.swing.JPanel;
  *
  */
 public class DisplayPhylogenyPanel extends JPanel {
-	ArrayList<Integer[]> lineCoordinates;	// Specifies the start (X1, Y1) and end (X2, Y2) points in cartesian space of a list of lines. 
+	int[][] lineCoordinates;	// Specifies the start (X1, Y1) and end (X2, Y2) points in cartesian space of a list of lines. 
 	ArrayList<String> taxonNames;			// Specifies the taxon names in order.
 	
 
@@ -33,7 +33,12 @@ public class DisplayPhylogenyPanel extends JPanel {
 	 * @param coords - Specifies the start (X1, Y1) and end (X2, Y2) points in cartesian space of a list of lines. 
 	 */
 	public DisplayPhylogenyPanel(ArrayList<Integer[]> coords, ArrayList<String> names) {
-		this.lineCoordinates = coords;
+		this.lineCoordinates = new int[coords.size()][4];
+		for(int i=0;i<lineCoordinates.length;i++){
+			Integer[] line = coords.get(i);
+			int[] lineArr = {line[0],line[1],line[2],line[3]};
+			lineCoordinates[i] = lineArr;
+		}
 		this.taxonNames = names;
 	}
 
@@ -53,7 +58,7 @@ public class DisplayPhylogenyPanel extends JPanel {
 		}
 		
 		// draw the tree itself
-		for(Integer[] line:lineCoordinates){
+		for(int[] line:lineCoordinates){
 			g2.drawLine(line[0], line[1]+5, line[2], line[3]+5);
 		}
 		Dimension size = new Dimension(names_x+200,names_y+50);

@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 public class AlignedSequenceRepresentationTest extends TestCase {
 
 	private AlignedSequenceRepresentation sourceDataASR;
-	private File dataset = new File("/pamlTest/trialDataFromGeorgia/short.fa");
+	private File dataset = new File("trunk/examples/input.phy");
 	private SequenceCodingType inputSequenceCodingType;
 	
 	public AlignedSequenceRepresentationTest(String name) {

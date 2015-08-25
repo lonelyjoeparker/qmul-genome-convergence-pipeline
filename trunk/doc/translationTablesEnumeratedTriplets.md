@@ -1,4 +1,5 @@
 Unique mappings:
+````bash
 indices	AAA=>K
 indices	AAC=>N
 indices	AAG=>K
@@ -896,3 +897,4 @@ indices	--V=>X
 indices	--D=>X
 indices	--N=>X
 indices	---=>-
+````

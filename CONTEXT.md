@@ -6,7 +6,7 @@ _COmparative NucleoTide (and amino-acid) EXplorer Tool_
 
 ## What does it do?
 
-Simultaneously displays large numbers (~thousands) of multiple sequence alignments and/or phylogenies, along with summary statistics. 
+A QC (quality control) tool for phylogenomics data, basically - it simultaneously displays large numbers (~thousands) of multiple sequence alignments and/or phylogenies, along with summary statistics. 
 
 ## Why does it do that?
 
@@ -23,6 +23,12 @@ This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparke
 ## How do I use it?
 
 Double-click the jarfile; or in a command-line run the jarfile with `java -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.jar`. Once it's up and running, select "File > Open Alignments..." or "File > Open Phylogenies" to get started.
+
+#### Example input data
+
+Example phylogenies and alignments are [here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/examples/CONTEXT-phylogenomic-dataset-browser-examples).
+
+_Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers..._
 
 ## How do I get help?
 

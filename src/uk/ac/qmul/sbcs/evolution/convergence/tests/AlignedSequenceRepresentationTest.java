@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 public class AlignedSequenceRepresentationTest extends TestCase {
 
 	private AlignedSequenceRepresentation sourceDataASR;
-	private File dataset = new File("trunk/examples/input.phy");
+	private File dataset = new File("junit/debug/example_alignment_no_ambiguities_or_gaps.fa");
 	private SequenceCodingType inputSequenceCodingType;
 	
 	public AlignedSequenceRepresentationTest(String name) {

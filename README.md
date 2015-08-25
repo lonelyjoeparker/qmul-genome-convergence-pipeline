@@ -7,7 +7,7 @@ Includes wrappers to a variety of tools including PAML, RAxML, and PhyloBayes.
 ## Projects:
 
 Several projects including:
-* [CONTEXT, a phylogenomic dataset browser](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT.md) (_current: v0.8.prerelease_)
+* [CONTEXT, a phylogenomic dataset browser](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT.md) (_current major version: v0.8.prerelease_)([all versions](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT_versions.md))
 * A [simple MRCA substitution detector](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/README_SimpleMRCASubstitutionDetector.md) for finding parallel substitutions given an alignment and phylogeny (_current: public alpha, no version number_)
 * A genome convergence detection pipeline (_current: in progress - no public release_)
 

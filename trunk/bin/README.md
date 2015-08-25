@@ -6,6 +6,8 @@ Collection of executable jarfiles for a variety of tasks.
 
 Generally compatible with Java 1.6+.
 
+_Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers..._
+
 ###Warranty###
 While some elements of this code have test harnesses and been written to test specifications, the vast majority of methods have only undergone limited testing. 
 
@@ -45,6 +47,6 @@ The codebase references the following open-source libraries:
 * [JFreeChart](http://www.jfree.org/jfreechart/) (jfreechart-1.0.14.jar)
 * [JEBL](http://sourceforge.net/projects/jebl/) - Java Evolutionary Biology Library v0.4 (jebl-0.4.jar)
 
-These executable jarfiles (this trunk/bin directory) come with these build-path dependencies already packaged. They should run as standalone Java apps with no additional dependencies
+These executable jarfiles (this trunk/bin directory) come with these build-path dependencies already packaged. They should run as standalone Java apps with no additional dependencies.
 
 

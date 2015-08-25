@@ -1,5 +1,7 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui;
 
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,6 +28,7 @@ public class DisplayPhylogeny {
 	private final File treeFile;
 	private DisplayPhylogenyPanel displayedPhylogeny;
 	private PhylogenyConvergenceContext convergenceType;
+	private JScrollPane scroller;
 	
 	/**
 	 * Default no-arg constructor. Deprecated.
@@ -40,6 +43,8 @@ public class DisplayPhylogeny {
 		textTreeRepresentation = null;
 		treeFile = null;
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
+		displayedPhylogeny = null;
+		scroller = null;
 	}
 	
 	/**
@@ -56,6 +61,7 @@ public class DisplayPhylogeny {
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
 		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
+		initialiseScrollPane();
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
@@ -73,6 +79,7 @@ public class DisplayPhylogeny {
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
 		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
+		initialiseScrollPane();
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 	
@@ -90,6 +97,7 @@ public class DisplayPhylogeny {
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
 		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
+		initialiseScrollPane();
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
@@ -109,6 +117,7 @@ public class DisplayPhylogeny {
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
 		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
+		initialiseScrollPane();
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 	}
 
@@ -126,7 +135,27 @@ public class DisplayPhylogeny {
 		ArrayList<String> names = treeNode.getTipsInOrder();
 		ArrayList<Integer[]> coordsFromBranches = treeNode.getBranchesAsCoordinatesFromTips(0, 0);
 		displayedPhylogeny = new DisplayPhylogenyPanel(coordsFromBranches, names);
+		initialiseScrollPane();
 		convergenceType = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
+	}
+
+	/**
+	 * Initialises the scrollpane the same way each time, including registering the scrollbar actionlistener
+	 */
+	private void initialiseScrollPane(){
+		scroller = new JScrollPane();
+		scroller = new JScrollPane(this.displayedPhylogeny,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scroller.setViewportView(this.displayedPhylogeny);
+		scroller.getHorizontalScrollBar().addAdjustmentListener(new PhylogenyScrollerAdjustmentListener());
+		scroller.getVerticalScrollBar().addAdjustmentListener(new PhylogenyScrollerAdjustmentListener());
+	}
+	
+	private class PhylogenyScrollerAdjustmentListener implements AdjustmentListener{
+		@Override
+		public void adjustmentValueChanged(AdjustmentEvent arg0) {
+			// TODO Auto-generated method stub
+			displayedPhylogeny.repaint();
+		}
 	}
 
 	@Override
@@ -155,9 +184,6 @@ public class DisplayPhylogeny {
 	}
 	
 	public JScrollPane getDisplayedPhylogeny() {
-		JScrollPane scroller = new JScrollPane();
-		scroller = new JScrollPane(this.displayedPhylogeny,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scroller.setViewportView(this.displayedPhylogeny);
 		return scroller;
 	}
 

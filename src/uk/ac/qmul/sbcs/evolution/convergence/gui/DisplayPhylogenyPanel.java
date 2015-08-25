@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 /**
  * A JPanel that displays a cladogram-type representation of a phylogeny.
@@ -19,11 +20,13 @@ import javax.swing.JPanel;
  *
  */
 public class DisplayPhylogenyPanel extends JPanel {
-	int[][] lineCoordinates;		// Specifies the start (X1, Y1) and end (X2, Y2) points in cartesian space of a list of lines. 
-	ArrayList<String> taxonNames;	// Specifies the taxon names in order.
-	int maxBranchesXpos = 0;				// Maximum x-pos (width) in any of the branches, used to position the tip labels safely
+	private int[][] lineCoordinates;		// Specifies the start (X1, Y1) and end (X2, Y2) points in cartesian space of a list of lines. 
+	private ArrayList<String> taxonNames;	// Specifies the taxon names in order.
+	private int maxBranchesXpos = 0;		// Maximum x-pos (width) in any of the branches, used to position the tip labels safely
+	private int names_x_max, names_y_max;	// Maximum x-pos and y-pos of names (tip labels), used to set the Dimension preferredSize
+	private Dimension preferredSize;		// Preferred size of this panel
 	
-
+	
 	/**
 	 * No-arg constructor (deprecated - do not use)
 	 */
@@ -46,18 +49,26 @@ public class DisplayPhylogenyPanel extends JPanel {
 			 */
 			maxBranchesXpos = Math.max(maxBranchesXpos, line[2]);
 		}
-		this.taxonNames = names;
+		taxonNames = names;
+		/* Iterate through the names to get max name chars */
+		int maxNameChars = 0;
+		for(String name:taxonNames){
+			maxNameChars = Math.max(maxNameChars, name.length());
+		}
+		names_x_max = maxBranchesXpos + 10;
+		names_y_max = 10 + (taxonNames.size() * 20);
+		preferredSize = new Dimension((names_x_max+(maxNameChars*10)),names_y_max+10);	
+		this.setPreferredSize(preferredSize);
 	}
 
 	public void paintComponent(Graphics g){
 		Graphics2D g2 = (Graphics2D)g;
-		
+		drawNames(g2);
+		drawLines(g2, lineCoordinates);
+	}
+	
+	private void drawNames(Graphics2D g2){
 		// draw the taxon names and dash-bars
-		/* since we've introduced maxBranchesX we'll use this to set safeXpos limit
-		int guessSafeXposLimit = Math.round(((float)taxonNames.size())*0.75f); // the theoretical Xpos limit is #taxa * increment (20 here), but this is rarely reached except with *very* ladderlike trees, so we'll use 3/4 of this distance, giving a much nicer, more compact, tree.
-		int names_x = guessSafeXposLimit*20;
-		 * 
-		 */
 		int names_x = maxBranchesXpos + 10;
 		int names_y = 10;
 		for(String taxon: taxonNames){
@@ -67,13 +78,12 @@ public class DisplayPhylogenyPanel extends JPanel {
 			g2.setColor(Color.BLACK);
 			names_y += 20;
 		}
-		
+	}
+	
+	private void drawLines(Graphics2D g2, int[][] lineCoordinates){
 		// draw the tree itself
 		for(int[] line:lineCoordinates){
 			g2.drawLine(line[0], line[1]+5, line[2], line[3]+5);
 		}
-		Dimension size = new Dimension(names_x+200,names_y+50);
-		this.setPreferredSize(size);
 	}
-	
 }

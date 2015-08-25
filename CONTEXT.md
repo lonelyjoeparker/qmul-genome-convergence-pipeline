@@ -20,6 +20,8 @@ You can't manually edit, align, or infer phylogenies with CONTEXT. There's plent
 
 This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin) for the most recent builds - [current version here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/CONTEXT-PhylogenomicDatasetBrowser-v0.8.1.jar?raw=true) (v0.8.1 prerelease).
 
+_Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers..._
+
 ## How do I use it?
 
 Double-click the jarfile; or in a command-line run the jarfile with `java -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.jar`. Once it's up and running, select "File > Open Alignments..." or "File > Open Phylogenies" to get started.
@@ -72,6 +74,6 @@ The CONTEXT codebase references the following open-source libraries:
 * [JFreeChart](http://www.jfree.org/jfreechart/) (jfreechart-1.0.14.jar)
 * [JEBL](http://sourceforge.net/projects/jebl/) - Java Evolutionary Biology Library v0.4 (jebl-0.4.jar)
 
-The executable jarfiles (see trunk/bin directory) come with these build-path dependencies already packaged. They should run as standalone Java apps with no additional dependencies
+The executable jarfiles (see trunk/bin directory) come with these build-path dependencies already packaged. They should run as standalone Java apps with no additional dependencies.
 
 

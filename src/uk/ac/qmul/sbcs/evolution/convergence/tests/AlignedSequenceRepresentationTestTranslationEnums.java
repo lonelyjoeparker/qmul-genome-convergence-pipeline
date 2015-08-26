@@ -7,6 +7,8 @@ import java.io.File;
 
 import junit.framework.TestCase;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.SequenceTypeNotSupportedException;
+import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 
 /**
  * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>
@@ -52,8 +54,34 @@ public class AlignedSequenceRepresentationTestTranslationEnums extends TestCase{
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation#translate(boolean)}.
 	 */
-	public final void testTranslate() {
-		fail("Not yet implemented"); // TODO
+	public final void testTranslateOrthodox() {
+		/* 
+		 * this should load all sequences except empty file correctly
+		 * but in normal translation mode all alignments will contain
+		 * gaps except for normal File datasetOrthodox 
+		 */
+		try {
+			sourceDataASR.loadSequences(datasetOrthodox, false);
+		} catch (TaxaLimitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/* translate it */
+		try {
+			sourceDataASR.translate(false);
+		} catch (SequenceTypeNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/* check there are no gaps */
+		for(int seq=0;seq<sourceDataASR.getNumberOfTaxa();seq++){
+			char[] sequence = sourceDataASR.getSequenceChars(seq);
+			for(char translatedAA:sequence){
+				if(translatedAA == '-'){
+					fail("Translated sequence contains gaps"); // TODO
+				}
+			}
+		}
 	}
 
 }

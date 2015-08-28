@@ -31,13 +31,15 @@ package uk.ac.qmul.sbcs.evolution.convergence;
  * ambiguities are used. Any codon containing a gap {-} or ambiguity {R,Y,B,D,H...} characters will 
  * cause a ArrayIndexOutOfBoundsException to be thrown when the AlignedSequenceRepresentation tries 
  * to translate() it. This will be hopefully caught, and usually translated as a gap ('-') in the 
- * resulting amino-acid sequence alignment as a result.
+ * resulting amino-acid sequence alignment as a result. 
+ * <br/><i>Translation behaviour: {@link uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation#initialiseTranslationHash()}</i>
  * 
  * <h2>EXPANDED_CODONS_CONTAIN_AMBIGUITIES_NOT_GAPS (optional)</h2>
  * <p>This optional mode allows for codons to include a range of ambiguity characters but not gaps.
  * 
  * <br/>Codons' corresponding translations have been expanded (to include all possible AAs when
  * interpreting ambiguity characters) and all unique mappings included in the translation hash.
+ * <br/><i>Translation behaviour: {@link uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation#initialiseExpandedTranslationHashWithNoGapsInCodons()}</i>
  * 
  * <h2>DEBUG_CODONS_CONTAIN_AMBIGUITIES_OR_GAPS (debug/testing only)</h2>
  * <p>This optional mode allows for codons to include either gaps or a range of ambiguity characters.
@@ -47,6 +49,7 @@ package uk.ac.qmul.sbcs.evolution.convergence;
  * inclusion of gaps is open to interpretation (since gaps usually represent indels e.g. often 
  * resulting in a frameshift mutation when present as singletons) but since they might be used to 
  * encode missing data instead of indel processes this option is included for debug/testing purposes.
+ * <br/><i>Translation behaviour: {@link uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation#initialiseExpandedTranslationHash()}</i>
  * 
  * <h2>DEBUG_CODONS_CONTAIN_AT_LEAST_ONE_GAP_CAN_CONTAIN_AMBIGUITIES (debug/testing only)</h2>
  * <p>This optional mode allows for codons to include at least one gap and optionally a range of ambiguity characters.
@@ -56,6 +59,7 @@ package uk.ac.qmul.sbcs.evolution.convergence;
  * inclusion of gaps is open to interpretation (since gaps usually represent indels e.g. often 
  * resulting in a frameshift mutation when present as singletons) but since they might be used to 
  * encode missing data instead of indel processes this option is included for debug/testing purposes.
+ * <br/><i>Translation behaviour: {@link uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation#initialiseExpandedTranslationHashWithOnlyGapsInCodons()}</i>
  * 
  * <p>For triplet specifications, see:
  * <ul><li>{@link https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/doc/translationTablesEnumerated.txt}</li>

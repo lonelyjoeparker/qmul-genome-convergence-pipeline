@@ -844,9 +844,9 @@ public class AlignedSequenceRepresentation implements Serializable {
 	}
 	
 	/**
+	 * Initialise the translation hash (if it isn't instantiated already). Any codons not listed here will be translated as a gap '-' character.
 	 * @since 21/08/2012
 	 * @see translate(), removeStopCodonsInDNA()
-	 * Initialise the translation hash (if it isn't instantiated already)
 	 */
 	public void initialiseTranslationHash(){
 		/*
@@ -1008,7 +1008,8 @@ public class AlignedSequenceRepresentation implements Serializable {
 	}
 
 	/**
-	 * Initialises the 'expanded' translation hash (includes all ambiguity characters with unique expansions)
+	 * Initialises the 'expanded' translation hash (includes all ambiguity characters with unique expansions). Some of these codons include gaps - this is unorthodox behaviour.
+	 * Any codons not listed here will be translated as a gap '-' character.
 	 */
 	public void initialiseExpandedTranslationHash(){
 		if(translationLookup.size()<2){
@@ -2027,7 +2028,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 	}
 
 	/**
-	 * Initialises the 'expanded' translation hash (includes all ambiguity characters with unique expansions, <b>except</b> any with gap character)
+	 * Initialises the 'expanded' translation hash (includes all ambiguity characters with unique expansions, <b>except</b> any with gap character). None of these codons include gaps. Any codons containing gaps will be trainslated as a gap.
 	 */
 	public void initialiseExpandedTranslationHashWithNoGapsInCodons(){
 		if(translationLookup.size()<2){
@@ -2230,7 +2231,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 	}
 
 	/**
-	 * Initialises the 'expanded' translation hash (includes <b>only</b> ambiguity characters with unique expansions <b>and</b> at least one gap character)
+	 * Initialises the 'expanded' translation hash (includes <b>only</b> ambiguity characters with unique expansions <b>and</b> at least one gap character). ALL of these codons include gaps - this is unorthodox behaviour.
 	 */
 	public void initialiseExpandedTranslationHashWithOnlyGapsInCodons(){
 		if(translationLookup.size()<2){
@@ -4370,5 +4371,18 @@ public class AlignedSequenceRepresentation implements Serializable {
 				break;
 		}
 		this.determineInvariantSites();
+	}
+
+	/**
+	 * Forces the alignment to be translated ignoring which sequence type has been assumed. Debug only. 
+	 * @throws SequenceTypeNotSupportedException 
+	 * @deprecated Debug only.
+	 */
+	@Deprecated
+	public void forceTranslationIgnoringSequenceType() throws SequenceTypeNotSupportedException {
+		// force the coding type to DNA
+		this.alignmentSequenceCodingType = SequenceCodingType.DNA;
+		// translate as if it was a DNA sequence
+		this.translate(true);
 	}
 }

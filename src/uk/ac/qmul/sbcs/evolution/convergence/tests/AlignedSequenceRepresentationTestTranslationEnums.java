@@ -27,10 +27,10 @@ public class AlignedSequenceRepresentationTestTranslationEnums extends TestCase{
 	private File[] inputFiles = {
 			datasetOrthodox,
 			datasetExpanded,
-			datasetEmpty,
 			datasetDebugGap,
 			datasetDeAllGap,
-			datasetIllegal
+			datasetIllegal,
+			datasetEmpty
 	};	// holder for all input files needed for test
 	
 	/* (non-Javadoc)
@@ -54,7 +54,7 @@ public class AlignedSequenceRepresentationTestTranslationEnums extends TestCase{
 	/**
 	 * Test method for {@link uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation#translate(boolean)}.
 	 */
-	public final void testTranslateOrthodox() {
+	public final void testTranslateOrthodoxModeOrthodoxSequences() {
 		/* 
 		 * this should load all sequences except empty file correctly
 		 * but in normal translation mode all alignments will contain
@@ -84,4 +84,144 @@ public class AlignedSequenceRepresentationTestTranslationEnums extends TestCase{
 		}
 	}
 
+	public final void testLoadEmptyFileShouldFail(){
+		try {
+			sourceDataASR.loadSequences(this.datasetEmpty, false);
+		} catch (TaxaLimitException e) {
+			// will only get here if an taxaLimitException thrown
+			fail("sjould not read an empty file");
+			e.printStackTrace();
+		} catch (ArrayIndexOutOfBoundsException e){
+			// will only get here if an ArrayIndexOutOfBoundsException thrown but not a taxalimitexeption
+			return;
+		} catch (NullPointerException e){
+			// will only get here if an ArrayIndexOutOfBoundsException thrown but not a taxalimitexeption
+			return;
+		}
+		fail("Should never get here");
+	}
+	
+	public final void testTranslateOrthodoxModeUnorthodoxSequences() {
+		/* 
+		 * this should load all sequences except empty file correctly
+		 * but in normal translation mode all alignments will contain
+		 * gaps except for normal File datasetOrthodox 
+		 */
+		for(int inputFile=1;inputFile<inputFiles.length-1;inputFile++){
+			File alignment = inputFiles[inputFile];
+			sourceDataASR = new AlignedSequenceRepresentation();
+			try {
+				sourceDataASR.loadSequences(alignment, false);
+			} catch (TaxaLimitException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			/* translate it by force*/
+			try {
+				sourceDataASR.forceTranslationIgnoringSequenceType();
+			} catch (SequenceTypeNotSupportedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			/* check there are no gaps */
+			for(int seq=0;seq<sourceDataASR.getNumberOfTaxa();seq++){
+				char[] sequence = sourceDataASR.getSequenceChars(seq);
+				boolean gapSeen = false;
+				for(char translatedAA:sequence){
+					if(translatedAA == '-'){gapSeen = true;}
+				}
+				if(!gapSeen){fail("Translated sequence should  contain gaps (pass "+inputFile);}
+			}
+		}
+	}
+	
+	public void testTranslateUnorthodoxModeOrthodoxSequences(){
+		// use unorthodox translation hash and translate orthodox sequences
+		// should pass when implemented
+		
+		// load an orthodox alignment
+		// set mode=unorthodox : initialiseExpandedTranslationHashWithNoGapsInCodons()
+		// translate
+		// should have no gaps or fail
+		fail("not implemented");
+	}
+
+	public void testTranslateUnorthodoxModeUnorthodoxSequences(){
+		// use unorthodox translation hash and translate unorthodox sequences
+		// should pass when implemented for ungapped unorthodox sequences, fail for gapped unorthodox sequences
+		
+		// load an unorthodox alignment (no gaps)
+		// set mode=unorthodox : initialiseExpandedTranslationHashWithNoGapsInCodons()
+		// force-translate
+		// should have no gaps or fail
+		fail("not implemented");
+	}
+
+	public void testTranslateUnorthodoxModeUnorthodoxGapSequences(){
+		// use unorthodox translation hash and translate unorthodox and gapped sequences
+		// should pass when implemented for ungapped unorthodox sequences, pass for gapped unorthodox sequences
+		
+		// load an unorthodox alignment (WITH some gaps)
+		// set mode=unorthodox : initialiseExpandedTranslationHashWithNoGapsInCodons()
+		// force-translate
+		// should have ????? some gaps or fail
+		fail("not implemented");
+
+		// load an unorthodox alignment (WITH all gaps)
+		// set mode=unorthodox : initialiseExpandedTranslationHashWithNoGapsInCodons()
+		// force-translate
+		// should have all gaps or fail
+		fail("not implemented");
+	}
+
+	public void testTranslateUnorthodoxGapModeOrthodoxSequences(){
+		// use unorthodox gap translation hash and translate orthodox sequences (normal plus unorthodox w/o gaps)
+		// should pass when implemented for ungapped unorthodox sequences, fail for gapped unorthodox sequences
+		
+		// load an orthodox alignment
+		// set mode=unorthodox+gap : initialiseExpandedTranslationHashWithNoGapsInCodons()
+		// translate
+		// should have no gaps or fail
+		fail("not implemented");
+	}
+	
+	public void testTranslateUnorthodoxGapModeUnorthodoxSequences(){
+		// use unorthodox gap translation hash and translate unorthodox sequences (unorthodox w/ gaps)
+		// should pass when implemented for ungapped unorthodox sequences, pass for gapped unorthodox sequences
+
+		// load an unorthodox alignment (no gaps)
+		// set mode=unorthodox+gap : initialiseExpandedTranslationHashWithNoGapsInCodons()
+		// force-translate
+		// should have no gaps or fail
+		fail("not implemented");
+	}
+	
+	public void testTranslateUnorthodoxGapModeUnorthodoxGapSequences(){
+		// use unorthodox gap translation hash and translate unorthodox and gapped sequences
+		// should pass when implemented for orthodox sequences, ungapped unorthodox sequences, and gapped unorthodox sequences
+
+		// load an unorthodox alignment (WITH some gaps)
+		// set mode=unorthodox : initialiseExpandedTranslationHash()
+		// force-translate
+		// should have ????? some gaps or fail
+		fail("not implemented");
+
+		// load an unorthodox alignment (WITH all gaps)
+		// set mode=unorthodox : initialiseExpandedTranslationHash()
+		// force-translate
+		// should have all gaps or fail
+		fail("not implemented");
+
+		// load an unorthodox alignment (WITH some gaps)
+		// set mode=unorthodox : initialiseExpandedTranslationHashWithOnlyGapsInCodons()
+		// force-translate
+		// should have ????? some gaps or fail
+		fail("not implemented");
+
+		// load an unorthodox alignment (WITH all gaps)
+		// set mode=unorthodox : initialiseExpandedTranslationHashWithOnlyGapsInCodons()
+		// force-translate
+		// should have all gaps or fail
+		fail("not implemented");
+	}
 }

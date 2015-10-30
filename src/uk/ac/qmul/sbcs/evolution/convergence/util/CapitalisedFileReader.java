@@ -18,6 +18,7 @@ public class CapitalisedFileReader {
 
 	private File file;
 	private ArrayList<String> inputArrayListUnparsed = new ArrayList<String>();
+	private int minimumLineLengthInChars = 1;
 
 	public ArrayList<String> loadSequences(File inputFile){
 		file = inputFile;
@@ -32,7 +33,7 @@ public class CapitalisedFileReader {
 						if(line.length()<5){
 							readlength = line.length();
 						}
-						if(line.length() > 1){
+						if(line.length() > minimumLineLengthInChars){
 //							System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
 							inputArrayListUnparsed.add(line.toUpperCase());
 							lines++;
@@ -75,7 +76,7 @@ public class CapitalisedFileReader {
 							}
 //							System.out.println("buffer reading:\t"+line.substring(0,readlength));
 						}
-						if(line.length() > 1){
+						if(line.length() > minimumLineLengthInChars){
 							if(reportBufferStatus){
 //								System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
 							}
@@ -100,5 +101,13 @@ public class CapitalisedFileReader {
 		}
 		System.out.println("CapitalisedFileReader read "+lines+" lines in input file.");
 		return inputArrayListUnparsed;
+	}
+
+	public int getMinimumLineLengthInChars() {
+		return minimumLineLengthInChars;
+	}
+
+	public void setMinimumLineLengthInChars(int minimumLineLengthInChars) {
+		this.minimumLineLengthInChars = minimumLineLengthInChars;
 	}
 }

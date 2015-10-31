@@ -23,7 +23,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
  * @param numberOfTaxa				:	The number of taxa in the alignment. *most* alignment operations *should* preserve this (but worth checking where practicable.)	
  * @param taxaList					:	An TreeSet<String> holding the taxon names. NB it would usually be better to use an Iterator to iterate through sequenceHash.
  * @param taxaListArray				:	A String[] of taxon names.
- * @param truncatedNamesHash		:	A HashMap<String fullTaxonName, String truncatedTaxonName> of the truncated taxon names. These are max 10 chars, with unique taxon IDs ²999. Padded with underscores.
+ * @param truncatedNamesHash		:	A HashMap<String fullTaxonName, String truncatedTaxonName> of the truncated taxon names. These are max 10 chars, with unique taxon IDs ï¿½999. Padded with underscores.
  * @param meanSitewiseEntropy		:	The average (mean) Shannon entropy over all sites in the alignment, using base-4 or base-21 logs for NT/codon or AA datatypes, respectively.
  * @param meanTaxonwiseLongestUngappedSequence	:	The average (mean) longest contiguous data sequence without gaps, over all taxa in the alignment.
  */
@@ -712,17 +712,27 @@ public class AlignedSequenceRepresentation implements Serializable {
 	 */
 	public void writePhylipFile(File fullyPathQualifiedFileName, boolean useOriginalTaxonNames){
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(numberOfTaxa+"   "+numberOfSites+"\n");
+		buffer.append(taxaListArray.length+"   "+numberOfSites+"\n");
 		/*
 		 * We have to make sure the names are padded with enough space that (a) the sequences all line up, and (b) whitespace delimits names and sequences
 		 * First we find the maximum taxon name length - we will use this (+2) as the pad limit
 		 */
 		int max_name_length = 0; // Longest sequence name
-		for(String taxon:taxaListArray){
+		/* 31/10/2015: different length check depending on whether we're writing the original names or truncated names hash */
+		// first decide which array of taxon names to examine
+		String[] taxonNamesForLengthCheck;
+		if(useOriginalTaxonNames){
+			// using original (imported) names
+			taxonNamesForLengthCheck = taxaListArray;
+		}else{
+			// using truncated names from truncatedNamesHash.values
+			taxonNamesForLengthCheck = truncatedNamesHash.values().toArray(new String[truncatedNamesHash.size()]);
+		}
+		// now examine each name in the chosen array to get max length
+		for(String taxon:taxonNamesForLengthCheck){
 			if(taxon.length()>max_name_length){max_name_length = taxon.length();}
 		}
 		for(String taxon:taxaListArray){
-			// TODO get shortname from truncatedNamesHash
 			StringBuilder paddedTaxon;
 			if(useOriginalTaxonNames){
 				paddedTaxon = new StringBuilder(taxon);
@@ -3607,7 +3617,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 	 * @param filterByFactor - false to just use number of taxa missing as the threshold, true to use proportions.
 	 * @throws FilterOutOfAllowableRangeException 
 	 * The allowable filter bounds are:
-	 * 	0<filter²100 	- when using filterFactor = true;
+	 * 	0<filterï¿½100 	- when using filterFactor = true;
 	 *  0<numberOfTaxa 	- when using filterFactor = false (e.g., threshold no. of gaps per site.
 	 */
 	public void filterForMissingData(int filter, boolean filterByFactor) throws FilterOutOfAllowableRangeException{
@@ -3643,7 +3653,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 		 * 		housekeeping (invariant sites, numSites etc)
 		 */
 		if(filterByFactor){
-			// TODO filter the alignment by factor of sites - implies factor 0²n<100
+			// TODO filter the alignment by factor of sites - implies factor 0ï¿½n<100
 			if((filter<0) || (filter>100)){
 				throw new FilterOutOfAllowableRangeException();
 			}

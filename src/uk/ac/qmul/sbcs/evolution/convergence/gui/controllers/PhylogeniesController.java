@@ -61,6 +61,15 @@ public class PhylogeniesController {
 		return view.getPanel();
 	}
 	
+	/**
+	 * Forces the GUI view to show the last row of the model data table
+	 */
+	public void forceUpdateViewWithLastModelRow(){
+		Object[][] modelData = model.getData();
+		view.updatePhylogenyDisplay((DisplayPhylogeny) modelData[modelData.length-1][0]);
+		view.getTable().setRowSelectionInterval(modelData.length-1, modelData.length-1);
+	}
+	
 	public class AddSinglePhylogeniesListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent ev) {
@@ -68,8 +77,11 @@ public class PhylogeniesController {
 			File phylogenyFile = view.getFileChooser().getSelectedFile();
 			// do nothing for now
 			model.addPhylogenyRow(phylogenyFile);
+			forceUpdateViewWithLastModelRow();
+			/*
 			Object[][] modelData = model.getData();
 			view.updatePhylogenyDisplay((DisplayPhylogeny) modelData[modelData.length-1][0]);
+			*/
 //			view.repaint();
 		}
 	}

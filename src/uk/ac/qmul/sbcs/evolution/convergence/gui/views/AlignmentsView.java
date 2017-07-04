@@ -21,7 +21,7 @@ import javax.swing.JTable;
 
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.*;
-import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsTableModel;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsModel;
 
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.XYChart;
@@ -186,7 +186,7 @@ public class AlignmentsView extends JComponent{
 		}
 	}
 	
-	public void addTable(AlignmentsTableModel alignmentsModel) {
+	public void addTable(AlignmentsModel alignmentsModel) {
         // Init resultsTable
         alignmentsTable = new JTable(alignmentsModel);
         alignmentsTable.setPreferredScrollableViewportSize(new Dimension(700, 250));

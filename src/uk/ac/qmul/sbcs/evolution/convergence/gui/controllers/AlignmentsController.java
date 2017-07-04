@@ -22,14 +22,14 @@ import javax.swing.table.TableColumn;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
-import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsTableModel;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.AlignmentsView;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 
 public class AlignmentsController {
 
-	final AlignmentsTableModel model;
+	final AlignmentsModel model;
 	public final AlignmentsView view;
 	AddSingleAlignmentsButtonListener 	addAlignmentsListenerSingle;
 	AddBatchAlignmentsButtonListener 	addAlignmentsListenerBatch;
@@ -53,7 +53,7 @@ public class AlignmentsController {
 	 * @param alignmentsModel
 	 * @param alignmentsView
 	 */
-	public AlignmentsController(AlignmentsTableModel alignmentsModel, AlignmentsView alignmentsView) {
+	public AlignmentsController(AlignmentsModel alignmentsModel, AlignmentsView alignmentsView) {
 		model = alignmentsModel;
 		view = alignmentsView;
 		addAlignmentsListenerSingle = new AddSingleAlignmentsButtonListener();
@@ -388,22 +388,18 @@ public class AlignmentsController {
 					String printMsg = "COLUMN SELECTION EVENT. "+whichCol; // boilerplate print message
 					// see if it is numerical data
 					if(whichCol > 2 && whichCol < 16){
-						// probably is, try and cast it
-						// TODO this should DEFINITELY be in the model, not controller, eventually
-						
-						/* cast a given column to data */
-						// get data
-						Object[][] selectedData = model.getData();
 						// assign string name
 						String dataName = model.getColumnName(whichCol);
-						Double[] values = new Double[selectedData.length];
+						// get values
+						Double[] values = model.getColumnDataAsDouble(whichCol);
 						String stringValues = "";
 						for(int i=0;i<values.length;i++){
-							values[i] = new Double((Float)selectedData[i][whichCol]);
 							stringValues += "\n<br>"+values[i];
 						}
 						printMsg = dataName + stringValues;
 						view.plottingFrame.updateChart(dataName, values, values);
+					}else{
+						printMsg = "You must select a numeric data column.";
 					}
 					// print out what we've learnt is selected
 					System.out.println(printMsg);

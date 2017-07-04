@@ -1,11 +1,13 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui.models;
 
+import java.util.*;
+
 import javax.swing.table.AbstractTableModel;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 
-public	class AlignmentsTableModel extends AbstractTableModel {
+public	class AlignmentsModel extends AbstractTableModel {
 
 	public final boolean DEBUG;
 	// Column names for the header and text output
@@ -49,6 +51,10 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 			"Source alignment = (Java object code - debug only)"};			//17	AlignedSequenceRepresentation.toString()
 	// The main data table
 	private Object[][] data;
+	// Column indices of Integers
+	private Integer[] integerIndices = new Integer[]{3,4,5,6,7};
+	// Column indices of Floats
+	private Integer[] floatIndices = new Integer[]{8,9,10,11,12,13,14,15};
 	// Default values for (hopefully) sizing the table, etc
 	public final Object[] longValues = {
 			"file", 
@@ -91,11 +97,11 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 		return sb.toString();
 	}
 	
-	public AlignmentsTableModel(){
+	public AlignmentsModel(){
 		DEBUG = false;
 	}
 	
-	public AlignmentsTableModel(boolean doDebugOutput){
+	public AlignmentsModel(boolean doDebugOutput){
 		DEBUG = doDebugOutput;
 	}
 
@@ -293,6 +299,37 @@ public	class AlignmentsTableModel extends AbstractTableModel {
 		return data;
 	}
 
+	public Double[] getColumnDataAsDouble(int whichCol) throws ArrayIndexOutOfBoundsException{
+		// work out whether this index is an int, a float, or something horrible-er
+		if(whichCol < 3 || whichCol > 15){
+			// probably not a numeric data column
+			throw new ArrayIndexOutOfBoundsException("Not a numeric data column!");
+		}else{
+			// init return array
+			Double[] returnArr = new Double[this.data.length];
+
+			// now work out which data type we have and try to populate
+			ArrayList<Integer> listFloats = new ArrayList<Integer>();
+			listFloats.addAll(Arrays.asList(this.floatIndices));
+			ArrayList<Integer> listInts = new ArrayList<Integer>();
+			listInts.addAll(Arrays.asList(this.integerIndices));
+			if(listFloats.contains(whichCol)){
+				// probably a Float column
+				for(int i=0;i<returnArr.length;i++){
+					returnArr[i] = new Double((Float)this.data[i][whichCol]);
+				}
+			}else{
+				if(listInts.contains(whichCol)){
+					// probably an Integer column
+					for(int i=0;i<returnArr.length;i++){
+						returnArr[i] = new Double((Integer)this.data[i][whichCol]);
+					}
+				}
+			}
+			return returnArr;
+		}
+	}
+	
 	/**
 	 * Get the definitions corresponding to each column in the data
 	 * @return String[] of table definitions

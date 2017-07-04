@@ -20,7 +20,7 @@ public class CONTEXTVersion extends Version {
      */
     private static final String VERSION = "0.8.2";
 
-    private static final String DATE_STRING = "2011-2015";
+    private static final String DATE_STRING = "2011-2017";
 
     private static final boolean IS_PRERELEASE = true;
 
@@ -28,7 +28,7 @@ public class CONTEXTVersion extends Version {
     
     private static final String CONTEXT_SOURCE = "https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline";
     
-    private static final String CITATION = "Parker and Rossiter, 2015. CONTEXT: A phylogenomic dataset browser. In prep.";
+    private static final String CITATION = "Parker and Rossiter, 2017. CONTEXT: A phylogenomic dataset browser. In prep.";
     
     private static final String CITATION_URL = "http://www.lonelyjoeparker.com/?p=1205";
 

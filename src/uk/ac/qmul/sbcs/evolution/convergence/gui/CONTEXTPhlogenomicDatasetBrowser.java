@@ -6,8 +6,10 @@ package uk.ac.qmul.sbcs.evolution.convergence.gui;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.*;
@@ -219,13 +222,16 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			
 			// Add items to menus, first File menu
 			fileMenu.add(about);
+			fileMenu.addSeparator();
 			fileMenu.add(showPlots);
 			fileMenu.add(loadAlignments);
 			fileMenu.add(loadTrees);
+			fileMenu.addSeparator();
 			fileMenu.add(close);
 			
 			// Add items to Help menu
 			helpMenu.add(help);
+			helpMenu.addSeparator();
 			helpMenu.add(reportBugs);
 			helpMenu.add(contributeCode);
 
@@ -295,6 +301,7 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			view.loadAlignmentsBatch.addActionListener(batchAddAlignmentsListener);
 			view.loadTreesSingle.addActionListener(phylogeniesController.getAddSinglePhylogenyButtonListener());
 			view.loadTreesBatch.addActionListener(phylogeniesController.getAddBatchPhylogenyButtonListener());
+
 			
 			/* Add action listeners for other menu items */
 			view.about.addActionListener(new AboutMenuListener());
@@ -303,12 +310,15 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			view.help.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT.md"));
 			view.reportBugs.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/ReportBugsRequestFeatures.md"));
 			view.contributeCode.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline"));
-			/*
-			 * Old project repository (googlecode) destination URLs (pre May 2015)
-			view.help.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/wiki/HelpPages"));
-			view.reportBugs.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline/wiki/ReportBugsRequestFeatures"));
-			view.contributeCode.addActionListener(new OpenURLListener("https://code.google.com/a/eclipselabs.org/p/qmul-genome-convergence-pipeline"));
-			 */
+
+			// key stroke bindings for common actions
+			view.showPlots.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			view.loadAlignmentsSingle.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			view.loadAlignmentsBatch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()+1));
+			view.loadTreesSingle.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			view.loadTreesBatch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()+1));
+			view.close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			view.help.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		}
 		
 		/**

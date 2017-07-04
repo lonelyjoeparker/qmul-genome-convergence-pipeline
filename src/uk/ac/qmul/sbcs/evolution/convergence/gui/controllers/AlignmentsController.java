@@ -1,8 +1,11 @@
 package uk.ac.qmul.sbcs.evolution.convergence.gui.controllers;
 
+import java.awt.Adjustable;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -36,6 +39,7 @@ public class AlignmentsController {
 	RemoveSelectedAlignmentsButtonListener	removeSelectedAlignmentSingle;
 	DumpTextFileButtonListener	dumpTextFileButtonListener;
 	TableDefinitionButtonListener tableDefinitionButtonListener;
+	ShowPlottingFrameButtonListener showPlottingFrameButtonListener;
 	GlobalController globalController; 
 
 	/**
@@ -61,14 +65,18 @@ public class AlignmentsController {
 		removeSelectedAlignmentSingle = new RemoveSelectedAlignmentsButtonListener();
 		dumpTextFileButtonListener = new DumpTextFileButtonListener();
 		tableDefinitionButtonListener = new TableDefinitionButtonListener();
+		showPlottingFrameButtonListener = new ShowPlottingFrameButtonListener();
 		view.addAddAlignmentsButtonListener(addAlignmentsListenerSingle);
 		view.addRemoveAlignmentsButtonListener(removeSelectedAlignmentSingle);
 		view.addTextDumpButtonListener(dumpTextFileButtonListener);
 		view.addTableDefinitionButtonListener(tableDefinitionButtonListener);
+		view.addShowPlottingFrameButtonListener(showPlottingFrameButtonListener);
 		view.addTable(model);
 		initColumnSizes();
 		view.addListRowSelectionListener(new AlignmentsRowListener());
 		view.addListColumnSelectionListener(new AlignmentsColumnListener());
+		view.addScrollBarNTAdjustmentListener(new ScrollBarNTAdjustmentListener());
+		view.addScrollBarAAAdjustmentListener(new ScrollBarAAAdjustmentListener());
 	}
 
 	public void setGlobalController(GlobalController controller){
@@ -119,6 +127,19 @@ public class AlignmentsController {
 		}
 	}
 
+	/**
+	 * Show the plotting frame
+	 * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>
+	 * @since 4 Jul 2017
+	 * @version 0.1
+	 */
+	public class ShowPlottingFrameButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev) {
+			view.plottingFrame.setVisible(true);
+		}
+	}
+	
 	/**
 	 * Open a file chooser, pick a directory and write 'alignment_descriptive_stats.tdf' there; a dump of all the Alignment objects' stats.
 	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / RBG Kew</a>
@@ -390,7 +411,7 @@ public class AlignmentsController {
 						String dataYname = model.getColumnName(whichCols[1]);
 						Double[] dataX = model.getColumnDataAsDouble(whichCols[0]);
 						Double[] dataY = model.getColumnDataAsDouble(whichCols[1]);
-						view.plottingFrame.updateChart(dataXname+" vs "+dataYname, dataX, dataY);
+						view.plottingFrame.updateScatterChart(dataXname+" vs "+dataYname, dataX, dataY);
 					}else{
 						// more then 2, throw a fit
 						printMsg = "More than two (2) columns selected, or one or both contain non-numeric data. Select exactly 1 or 2 numeric data columns.";
@@ -404,12 +425,16 @@ public class AlignmentsController {
 						String dataName = model.getColumnName(whichCol);
 						// get values
 						Double[] values = model.getColumnDataAsDouble(whichCol);
+						/*
 						String stringValues = "";
 						for(int i=0;i<values.length;i++){
 							stringValues += "\n<br>"+values[i];
 						}
 						printMsg = dataName + stringValues;
-						view.plottingFrame.updateChart(dataName, values, values);
+						*/
+						System.out.println("firing update histogram");
+						view.plottingFrame.updateHistogramChart(dataName, values);
+						
 					}else{
 						printMsg = "You must select a numeric data column.";
 					}
@@ -466,6 +491,50 @@ public class AlignmentsController {
 			DisplayAlignment da = (DisplayAlignment) a_row[0];
 			view.updateAlignmentScrollPanes(da);
 //			view.repaint();
+		}
+	}
+	
+	/**
+	 * Custom adjustment linking the horizontal scrollbars in AA and NT panes
+	 * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>
+	 * @since 4 Jul 2017
+	 * @version 0.1
+	 */
+	public class ScrollBarNTAdjustmentListener implements AdjustmentListener {
+		@Override
+		public void adjustmentValueChanged(AdjustmentEvent evt) {
+			Adjustable source = evt.getAdjustable();
+			if(evt.getValueIsAdjusting()){
+				return;
+			}
+			int orient = source.getOrientation();
+			if (orient == Adjustable.HORIZONTAL) {
+				int valueNT = view.getScrollBarNT().getValue();
+				// try to push the AA bar value to 1/3 the distance of the NT one
+				view.getScrollBarAA().setValue((int)(valueNT/3.0));
+			}
+		}
+	}
+
+	/**
+	 * Custom adjustment linking the horizontal scrollbars in AA and NT panes
+	 * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>
+	 * @since 4 Jul 2017
+	 * @version 0.1
+	 */
+	public class ScrollBarAAAdjustmentListener implements AdjustmentListener {
+		@Override
+		public void adjustmentValueChanged(AdjustmentEvent evt) {
+			Adjustable source = evt.getAdjustable();
+			if(evt.getValueIsAdjusting()){
+				return;
+			}
+			int orient = source.getOrientation();
+			if (orient == Adjustable.HORIZONTAL) {
+				int valueAA = view.getScrollBarAA().getValue();
+				// try to push the NT bar value to 3 times the distance of the AA one
+				view.getScrollBarNT().setValue(valueAA*3);
+			}
 		}
 	}
 

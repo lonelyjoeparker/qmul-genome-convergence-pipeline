@@ -32,7 +32,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.CONTEXTVersion;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.AddBatchAlignmentsButtonListener;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.PhylogeniesController;
-import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsTableModel;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.PhylogeniesModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.AlignmentsView;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.MenuBarFactory;
@@ -48,7 +48,7 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 	private final static CONTEXTVersion version = new CONTEXTVersion();
 	
 	// Alignments M-V-C
-	private AlignmentsTableModel alignmentsModel;
+	private AlignmentsModel alignmentsModel;
 	private AlignmentsView alignmentsView;
 	private AlignmentsController alignmentsController;
 
@@ -70,7 +70,7 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 
 		//Instantiate the specific model / view / controllers first, so that the controllers can be passed to globalcontroller.
 		// First alignments MVC
-		alignmentsModel = new AlignmentsTableModel();
+		alignmentsModel = new AlignmentsModel();
 		alignmentsView = new AlignmentsView();
 		alignmentsController = new AlignmentsController(alignmentsModel, alignmentsView);
 

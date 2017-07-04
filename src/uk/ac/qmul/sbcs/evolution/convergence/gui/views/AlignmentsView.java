@@ -94,8 +94,10 @@ public class AlignmentsView extends JComponent{
 		JPanel panel;
 		JLabel label;
 		String internalText = "Some plotting data.";
-	    XYChart chart;
+	    String currentSeriesName = null;
+		XYChart chart;
 	    XChartPanel chartPanel;
+	    
 	    
 		public PlottingFrame(){
 			super("Data plotting");
@@ -118,7 +120,8 @@ public class AlignmentsView extends JComponent{
 		}
 
 		public void updateChart(String name, Double[] xData, Double[] yData){
-			chart.removeSeries("logarithmic data");
+			chart.removeSeries(currentSeriesName);
+			currentSeriesName = name;
 			try {
 				chart.addSeries(name, Arrays.asList(xData), Arrays.asList(yData));
 			} catch (IllegalArgumentException e) {
@@ -131,6 +134,7 @@ public class AlignmentsView extends JComponent{
 		public XYChart getChart(){
 
 			// Create Chart
+			currentSeriesName = "logarithmic data";
 			chart = new XYChartBuilder().width(800).height(600).title("Logarithmic Data").build();
 
 			// Customize Chart
@@ -148,7 +152,7 @@ public class AlignmentsView extends JComponent{
 				xData.add(Math.pow(10, nextRandom * 10));
 				yData.add(1000000000.0 + nextRandom);
 			}
-			chart.addSeries("logarithmic data", xData, yData);
+			chart.addSeries(currentSeriesName, xData, yData);
 
 			return chart;
 		}

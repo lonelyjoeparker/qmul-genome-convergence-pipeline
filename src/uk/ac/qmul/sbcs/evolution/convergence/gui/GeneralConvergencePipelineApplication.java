@@ -17,7 +17,7 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 	private GlobalController globalController;
 
 	// Alignments M-V-C
-	private AlignmentsTableModel alignmentsModel;
+	private AlignmentsModel alignmentsModel;
 	private AlignmentsView alignmentsView;
 	private AlignmentsController alignmentsController;
 
@@ -49,7 +49,7 @@ public class GeneralConvergencePipelineApplication implements Runnable{
 
 		//Instantiate the specific model / view / controllers first, so that the controllers can be passed to globalcontroller.
 		// First alignments MVC
-		alignmentsModel = new AlignmentsTableModel();
+		alignmentsModel = new AlignmentsModel();
 		alignmentsView = new AlignmentsView();
 		alignmentsController = new AlignmentsController(alignmentsModel, alignmentsView);
 

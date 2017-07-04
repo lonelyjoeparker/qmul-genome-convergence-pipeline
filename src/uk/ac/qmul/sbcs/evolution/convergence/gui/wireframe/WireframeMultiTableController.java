@@ -43,7 +43,7 @@ import javax.swing.table.TableModel;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
-import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsTableModel;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.MyAnalysesTableModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.ResultsTableModel;
 import uk.ac.qmul.sbcs.evolution.convergence.tests.AlignedSequenceRepresentationPreloader;
@@ -56,7 +56,7 @@ import uk.ac.qmul.sbcs.evolution.sandbox.FileTree;
  */
 public class WireframeMultiTableController extends JTabbedPane implements ActionListener {
 
-	private AlignmentsTableModel alignmentsModel;
+	private AlignmentsModel alignmentsModel;
 	private MyAnalysesTableModel analysesModel;
 	private JTabbedPane tabs = new JTabbedPane();
 	private final JFileChooser dc = new JFileChooser();
@@ -525,7 +525,7 @@ public class WireframeMultiTableController extends JTabbedPane implements Action
 		panel.add(text);
 
 		// init jtable models
-		alignmentsModel = new AlignmentsTableModel();
+		alignmentsModel = new AlignmentsModel();
 		analysesModel = new MyAnalysesTableModel();
 		resultsModel = new ResultsTableModel(true);
 
@@ -752,7 +752,7 @@ public class WireframeMultiTableController extends JTabbedPane implements Action
 	 * At the moment each tableModel has its own call to initXColumnsizes()
 	 * Not robust at all...
 	 */
-	private void initAlignmentColumnSizes(AlignmentsTableModel model, JTable table) {
+	private void initAlignmentColumnSizes(AlignmentsModel model, JTable table) {
 		TableColumn column = null;
 		Component comp = null;
 		int headerWidth = 0;
@@ -899,7 +899,7 @@ public class WireframeMultiTableController extends JTabbedPane implements Action
 		actionsMenu.add(new JMenuItem("Estimate convergent sites..."));
 		actionsMenu.add(new JMenuItem("Add taxon list..."));
 		actionsMenu.add(new JMenuItem("Verify taxon list..."));
-		actionsMenu.add(new JMenuItem("Correlate dN/dS and ÆSSLS"));
+		actionsMenu.add(new JMenuItem("Correlate dN/dS and ï¿½SSLS"));
 		actionsMenu.add(submenu);
 
 		return menuBar;

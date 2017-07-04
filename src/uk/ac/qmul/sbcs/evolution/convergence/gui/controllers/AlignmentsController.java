@@ -371,21 +371,33 @@ public class AlignmentsController {
 			/* Get the table and print out some debug info... */
 			JTable alignmentsTable = view.getTable();
 			/* 
-			 * Get the selected table row, via view. 
-			 * Remember that getSelectedRow returns -1 if no row selected 
-			 * (delete events) / first row selected (multiple row selections)..
+			 * Get the selected table column, via view. 
+			 * Remember that getSelectedColumn returns -1 if no column selected 
+			 * (delete events) / first column selected (multiple column selections)..
 			 */
-			int viewModelRow = alignmentsTable.getSelectedRow();
-			if(viewModelRow == -1){
-				// No row selected, probably a delete event so re-select first row
-				viewModelRow = 0;
+			String printMsg = null;
+			int viewModelCol = alignmentsTable.getSelectedColumn();
+			if(viewModelCol == -1){
+				// No column selected, probably a delete event so re-select first column
+				viewModelCol = 0;
 			}else{
-				if(alignmentsTable.getSelectedRowCount() > 1){
-					// multiple rows selected.
+				if(alignmentsTable.getSelectedColumnCount() > 1){
+					// multiple cols selected.
+					int [] whichCols = alignmentsTable.getSelectedColumns();
+					if((alignmentsTable.getSelectedColumnCount() == 2)&&(whichCols[0] > 2 && whichCols[0] < 16)&&(whichCols[1] > 2 && whichCols[1] < 16)){
+						// exactly 2 selected, we can do a bivariate plot
+						String dataXname = model.getColumnName(whichCols[0]);
+						String dataYname = model.getColumnName(whichCols[1]);
+						Double[] dataX = model.getColumnDataAsDouble(whichCols[0]);
+						Double[] dataY = model.getColumnDataAsDouble(whichCols[1]);
+						view.plottingFrame.updateChart(dataXname+" vs "+dataYname, dataX, dataY);
+					}else{
+						// more then 2, throw a fit
+						printMsg = "More than two (2) columns selected, or one or both contain non-numeric data. Select exactly 1 or 2 numeric data columns.";
+					}
 				}else{
-					// probably a single row. which one?
+					// probably a single column. which one?
 					int whichCol = alignmentsTable.getSelectedColumn();
-					String printMsg = "COLUMN SELECTION EVENT. "+whichCol; // boilerplate print message
 					// see if it is numerical data
 					if(whichCol > 2 && whichCol < 16){
 						// assign string name
@@ -401,13 +413,13 @@ public class AlignmentsController {
 					}else{
 						printMsg = "You must select a numeric data column.";
 					}
-					// print out what we've learnt is selected
-					System.out.println(printMsg);
-					// attempt to do a simple update on the plot
-					view.plottingFrame.updateLabelContent(printMsg);
 				}
 			}
-		}
+			// print out what we've learnt is selected
+			System.out.println(printMsg);
+			// attempt to do a simple update on the plot
+			view.plottingFrame.updateLabelContent(printMsg);
+	}
 	}
 
 	/**

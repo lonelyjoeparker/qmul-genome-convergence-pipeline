@@ -4,6 +4,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -18,6 +22,12 @@ import javax.swing.JTable;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.*;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsTableModel;
+
+import org.knowm.xchart.XChartPanel;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
+import org.knowm.xchart.style.Styler.LegendPosition;
 
 
 public class AlignmentsView extends JComponent{
@@ -37,7 +47,8 @@ public class AlignmentsView extends JComponent{
 	private JScrollPane sequencePaneNT;
 	private JScrollPane sequencePaneAA;
 	public DefinitionsFrame definitionFrame;
-
+	public PlottingFrame plottingFrame;
+	
 	public AlignmentsView() {
 		// set up panels
 		panel = new JPanel(new GridLayout(3,1));
@@ -62,10 +73,87 @@ public class AlignmentsView extends JComponent{
 		subPanel.add(buttonPanel);
 		panel.add(subPanel);
 		dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		// JFrame to display table's statistics
+		// JFrame to display table's statistics' definition
 		definitionFrame = new DefinitionsFrame();
+		// JFrame to display plots
+		plottingFrame = new PlottingFrame();
+		plottingFrame.setVisible(true);
 	}
 	
+	/**
+	 * A JFrame holding plotting (scatter, histogram) info
+	 * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>
+	 * @since 3 Jul 2017
+	 * @version 0.1
+	 */
+	public class PlottingFrame extends JFrame{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 4331637424478573163L;
+		JPanel panel;
+		JLabel label;
+		String internalText = "Some plotting data.";
+	    XYChart chart;
+	    XChartPanel chartPanel;
+	    
+		public PlottingFrame(){
+			super("Data plotting");
+			panel = new JPanel(new GridLayout(2,1));
+			label = new JLabel("<html><center>"+internalText+"</html>");
+			panel.add(label);
+			chart = this.getChart();
+			chartPanel = new XChartPanel<XYChart>(chart);
+			panel.add(chartPanel);
+			add(panel);
+			setSize(650,700);
+			setLocationRelativeTo(null);
+			setVisible(true);
+			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		}
+		
+		public void updateLabelContent(String newContent){
+			internalText = newContent;
+			label.setText("<html><center>"+internalText+"</html>");
+		}
+
+		public void updateChart(String name, Double[] xData, Double[] yData){
+			chart.removeSeries("logarithmic data");
+			try {
+				chart.addSeries(name, Arrays.asList(xData), Arrays.asList(yData));
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			chartPanel.repaint();
+		}
+		
+		public XYChart getChart(){
+
+			// Create Chart
+			chart = new XYChartBuilder().width(800).height(600).title("Logarithmic Data").build();
+
+			// Customize Chart
+			chart.getStyler().setDefaultSeriesRenderStyle(XYSeriesRenderStyle.Scatter);
+			//chart.getStyler().setXAxisLogarithmic(true);
+			chart.getStyler().setLegendPosition(LegendPosition.InsideN);
+
+			// Series
+			List<Double> xData = new ArrayList<Double>();
+			List<Double> yData = new ArrayList<Double>();
+			Random random = new Random();
+			int size = 10;
+			for (int i = 0; i < size; i++) {
+				double nextRandom = random.nextDouble();
+				xData.add(Math.pow(10, nextRandom * 10));
+				yData.add(1000000000.0 + nextRandom);
+			}
+			chart.addSeries("logarithmic data", xData, yData);
+
+			return chart;
+		}
+	}
+
 	/**
 	 * Class extending a JFrame to hold the statistics definitions
 	 * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>

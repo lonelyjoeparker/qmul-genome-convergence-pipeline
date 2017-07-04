@@ -129,6 +129,10 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 	 *
 	 */
 	private class PhylogenomicDatasetBrowserView extends JFrame{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -2801826275966071891L;
 		PhylogeniesView phylogeniesView;
 		AlignmentsView alignmentsView;
 		AboutFrame aboutFrame;
@@ -140,7 +144,7 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 		JFileChooser alignmentsFileChooser, alignmentsDirectoryChooser, phylogeniesFileChooser, phylogeniesDirectoryChooser;
 		JMenuBar menuBar;
 		JMenu fileMenu, helpMenu, loadAlignments, loadTrees;
-		JMenuItem loadAlignmentsSingle, loadAlignmentsBatch, loadTreesSingle, loadTreesBatch, close, about;				// fileMenu sub-items
+		JMenuItem loadAlignmentsSingle, loadAlignmentsBatch, loadTreesSingle, loadTreesBatch, close, about, showPlots;	// fileMenu sub-items
 		JMenuItem help, reportBugs, contributeCode;														// helpMenu sub-items
 		
 		public PhylogenomicDatasetBrowserView(PhylogeniesView phy_view, AlignmentsView align_view){
@@ -195,6 +199,7 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			
 			// Instantiate the File menu items
 			about = new JMenuItem("About CONTEXT, the Phylogenomic Dataset Browser");
+			showPlots = new JMenuItem("Show graphical plots");
 			loadAlignments = new JMenu("Load input alignments as .nex, .fa. .fasta or .phy files...");
 			loadAlignmentsSingle = new JMenuItem("As single file");
 			loadAlignmentsBatch = new JMenuItem("As directory of files (batch operation)");
@@ -214,6 +219,7 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			
 			// Add items to menus, first File menu
 			fileMenu.add(about);
+			fileMenu.add(showPlots);
 			fileMenu.add(loadAlignments);
 			fileMenu.add(loadTrees);
 			fileMenu.add(close);
@@ -237,7 +243,19 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			this.setJMenuBar(menuBar);
 		}
 
+		
+		/**
+		 * A JFrame holding the About info
+		 * @author <a href="http://github.com/lonelyjoeparker">@lonelyjoeparker</a>
+		 * @since 3 Jul 2017
+		 * @version 0.1
+		 */
 		class AboutFrame extends JFrame{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -8653612042902355731L;
+
 			public AboutFrame(){
 				super("About CONTEXT (v"+version.getVersion()+")");
 				JPanel panel = new JPanel(new FlowLayout());
@@ -280,6 +298,7 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			
 			/* Add action listeners for other menu items */
 			view.about.addActionListener(new AboutMenuListener());
+			view.showPlots.addActionListener(new ShowPlotsWindowListener());
 			view.close.addActionListener(new CloseApplicationListener());
 			view.help.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT.md"));
 			view.reportBugs.addActionListener(new OpenURLListener("https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/wiki/ReportBugsRequestFeatures.md"));
@@ -292,6 +311,17 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			 */
 		}
 		
+		/**
+		 * Show the application's Data plotting (scatter/histogram) frame.
+		 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>
+		 */
+		class ShowPlotsWindowListener implements ActionListener{
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				alignmentsView.plottingFrame.setVisible(true);
+			}
+		}
+
 		/**
 		 * Show the application's About message.
 		 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / Queen Mary University of London</a>

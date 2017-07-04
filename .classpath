@@ -9,5 +9,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XStream - Java XML bindings"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JFreeChart-minimal"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JEBL 0.4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/XChart"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

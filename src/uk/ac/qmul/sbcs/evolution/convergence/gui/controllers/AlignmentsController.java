@@ -10,6 +10,7 @@ import java.util.HashSet;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JTable;
@@ -35,7 +36,7 @@ public class AlignmentsController {
 	RemoveSelectedAlignmentsButtonListener	removeSelectedAlignmentSingle;
 	DumpTextFileButtonListener	dumpTextFileButtonListener;
 	TableDefinitionButtonListener tableDefinitionButtonListener;
-	GlobalController globalController;
+	GlobalController globalController; 
 
 	/**
 	 * No-arg constructor - deprecated. 
@@ -78,6 +79,7 @@ public class AlignmentsController {
 		return view.getPanel();
 	}
 
+	
 	/*
 	 * Attempt to write a generic init method for column sizes
 	 */
@@ -366,6 +368,49 @@ public class AlignmentsController {
 			/* debug only, print selected row info
 			System.out.println("COLUMN SELECTION EVENT. ");
 			 */
+			/* Get the table and print out some debug info... */
+			JTable alignmentsTable = view.getTable();
+			/* 
+			 * Get the selected table row, via view. 
+			 * Remember that getSelectedRow returns -1 if no row selected 
+			 * (delete events) / first row selected (multiple row selections)..
+			 */
+			int viewModelRow = alignmentsTable.getSelectedRow();
+			if(viewModelRow == -1){
+				// No row selected, probably a delete event so re-select first row
+				viewModelRow = 0;
+			}else{
+				if(alignmentsTable.getSelectedRowCount() > 1){
+					// multiple rows selected.
+				}else{
+					// probably a single row. which one?
+					int whichCol = alignmentsTable.getSelectedColumn();
+					String printMsg = "COLUMN SELECTION EVENT. "+whichCol; // boilerplate print message
+					// see if it is numerical data
+					if(whichCol > 2 && whichCol < 16){
+						// probably is, try and cast it
+						// TODO this should DEFINITELY be in the model, not controller, eventually
+						
+						/* cast a given column to data */
+						// get data
+						Object[][] selectedData = model.getData();
+						// assign string name
+						String dataName = model.getColumnName(whichCol);
+						Double[] values = new Double[selectedData.length];
+						String stringValues = "";
+						for(int i=0;i<values.length;i++){
+							values[i] = new Double((Float)selectedData[i][whichCol]);
+							stringValues += "\n<br>"+values[i];
+						}
+						printMsg = dataName + stringValues;
+						view.plottingFrame.updateChart(dataName, values, values);
+					}
+					// print out what we've learnt is selected
+					System.out.println(printMsg);
+					// attempt to do a simple update on the plot
+					view.plottingFrame.updateLabelContent(printMsg);
+				}
+			}
 		}
 	}
 

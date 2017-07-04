@@ -18,7 +18,7 @@ public class CONTEXTVersion extends Version {
     /**
      * Version string: assumed to be in format x.x.x
      */
-    private static final String VERSION = "0.8.1";
+    private static final String VERSION = "0.8.2";
 
     private static final String DATE_STRING = "2011-2015";
 
@@ -106,6 +106,7 @@ public class CONTEXTVersion extends Version {
                 "JSC - Java Statistical Classes v1.0 (jsc-1.jar), ",
                 "XStream - Java XML bindings (xstream-1.4.4.jar and dependencies), ",
                 "JFreeChart (jfreechart-1.0.14.jar), ",
+                "XChart (xchart-3.3.1.jar), ",
                 "JEBL - Java Evolutionary Biology Library v0.4 (jebl-0.4.jar)"};
 	}
 

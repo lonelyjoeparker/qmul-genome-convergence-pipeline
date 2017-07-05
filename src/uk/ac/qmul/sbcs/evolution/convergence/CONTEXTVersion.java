@@ -18,7 +18,7 @@ public class CONTEXTVersion extends Version {
     /**
      * Version string: assumed to be in format x.x.x
      */
-    private static final String VERSION = "0.8.2";
+    private static final String VERSION = "0.8.3";
 
     private static final String DATE_STRING = "2011-2017";
 

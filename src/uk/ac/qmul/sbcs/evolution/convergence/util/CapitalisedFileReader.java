@@ -2,6 +2,7 @@ package uk.ac.qmul.sbcs.evolution.convergence.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 
@@ -60,40 +61,51 @@ public class CapitalisedFileReader {
 		int lines = 0;
 		if(reportBufferStatus){
 			System.out.println("Trying to read file "+file.getAbsolutePath());
+		}else{
+			System.err.println(file.getAbsolutePath());
 		}
 		try{
-			if(file.canRead()&&file.exists()){
-				BufferedReader inputBuffer = new BufferedReader(new FileReader(file));
-				int readlength = 20;
-				try{
-					String line = null;
-					while((line = inputBuffer.readLine()) != null){
-						if(reportBufferStatus){
-							if(line.length()<20){
-								readlength = line.length();
-								if(line =="\n"){assert(false);}
-								if(line =="\r"){assert(false);}
-							}
-//							System.out.println("buffer reading:\t"+line.substring(0,readlength));
-						}
-						if(line.length() > minimumLineLengthInChars){
+			if(file.canRead()&&file.exists()&&!file.isDirectory()){
+				BufferedReader inputBuffer;
+				try {
+					inputBuffer = new BufferedReader(new FileReader(file));
+					int readlength = 20;
+					try{
+						String line = null;
+						while((line = inputBuffer.readLine()) != null){
 							if(reportBufferStatus){
-//								System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
+								if(line.length()<20){
+									readlength = line.length();
+									if(line =="\n"){assert(false);}
+									if(line =="\r"){assert(false);}
+								}
+//								System.out.println("buffer reading:\t"+line.substring(0,readlength));
 							}
-							inputArrayListUnparsed.add(line.toUpperCase());
-					//		lines++;
-						} // LINE SEPARATORS REMOVED, 30/09/2011
-						lines++;
+							if(line.length() > minimumLineLengthInChars){
+								if(reportBufferStatus){
+//									System.out.println("buffer reading (length "+line.length()+"):\t"+line.substring(0,readlength));
+								}
+								inputArrayListUnparsed.add(line.toUpperCase());
+						//		lines++;
+							} // LINE SEPARATORS REMOVED, 30/09/2011
+							lines++;
+						}
 					}
-				}
-				catch(Exception ex){
-					ex.printStackTrace();
-				}
-				finally{
-					inputBuffer.close();
+					catch(Exception ex){
+						ex.printStackTrace();
+					}
+					finally{
+						inputBuffer.close();
+					}
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					System.err.println("SERIOUS: unable to open this file.");
+					e.printStackTrace();
+					return null;
 				}
 			}else{
-				System.out.println("SERIOUS: unable to open this file.");
+				System.err.println("SERIOUS: unable to open this file.");
+				return null;
 			}
 		}
 		catch(Exception ex){

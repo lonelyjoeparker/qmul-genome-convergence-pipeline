@@ -51,12 +51,12 @@ public class AlignedSequenceRepresentation implements Serializable {
 	private String[] transposedSites;
 	private float meanSitewiseEntropy = Float.NaN;
 	private float meanTaxonwiseLongestUngappedSequence = Float.NaN;
-	private char[] basisCharsNucleotide 	= {'A','C','G','T','R','Y','S','W','K','M','B','D','H','V','N'};
-	private char[] basisCharsNucleotideGap 	= {'A','C','G','T','R','Y','S','W','K','M','B','D','H','V','N','-'};
-	private char[] basisCharsRNA		 	= {'A','C','G','U','R','Y','S','W','K','M','B','D','H','V','N'};
-	private char[] basisCharsRNAGap		 	= {'A','C','G','U','R','Y','S','W','K','M','B','D','H','V','N','-'};
-	private char[] basisCharsAminoAcid	 	= {'A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y','*'};
-	private char[] basisCharsAminoAcidGap 	= {'A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y','*','-'};
+	private final char[] basisCharsNucleotide 		= {'A','C','G','T','R','Y','S','W','K','M','B','D','H','V','N'};
+	private final char[] basisCharsNucleotideGap 	= {'A','C','G','T','R','Y','S','W','K','M','B','D','H','V','N','-'};
+	private final char[] basisCharsRNA		 		= {'A','C','G','U','R','Y','S','W','K','M','B','D','H','V','N'};
+	private final char[] basisCharsRNAGap		 	= {'A','C','G','U','R','Y','S','W','K','M','B','D','H','V','N','-'};
+	private final char[] basisCharsAminoAcid	 	= {'A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y','*'};
+	private final char[] basisCharsAminoAcidGap 	= {'A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y','*','-'};
 
 	
 	/**
@@ -170,64 +170,72 @@ public class AlignedSequenceRepresentation implements Serializable {
 		return newTnameHash;
 	}
 
-	public void loadSequences(File inputFile, boolean reportInputRead) throws TaxaLimitException{
+	public boolean loadSequences(File inputFile, boolean reportInputRead) throws TaxaLimitException{
 		file = inputFile;
 		if(!file.canRead()){System.out.println("SERIOUS: cannot find input file "+file.getAbsolutePath());}
 		try{
+			rawInput = null;
 			rawInput = new CapitalisedFileReader().loadSequences(file,reportInputRead);
-			for(String line:rawInput){
-				if(line.length() == 0){System.out.println("read: ["+line+"]");}
-			}
-			assert(rawInput.size()>0);
-			this.determineInputFileDatatype();
-			assert(sequenceFileTypeSet);
-			AlignmentParser parser;
-			switch(inputSequenceFileFormat){
-				case NEXUS: 
-					//this.readNexusFile(); // old function call, now using AlignmentParser concrete subclasses
-					parser = new NexusParser();
-					if(parser.parseInput(rawInput)){
-						// do nothing
-						System.out.println();
-						this.extractParsedInformation(parser);
-					} 
-					break;
-				case FASTA: 
-					//this.readFastaFile(); // old function call, now using AlignmentParser concrete subclasses
-					parser = new FastaParser();
-					if(parser.parseInput(rawInput)){
-						// do nothing
-						System.out.println();
-						this.extractParsedInformation(parser);
-					} 
-					break;
-				case PHYLIP: 
-					//this.readPhylipFile();// old function call, now using AlignmentParser concrete subclasses
-					parser = new PhylipParser();
-					if(parser.parseInput(rawInput)){
-						// do nothing
-						System.out.println();
-						this.extractParsedInformation(parser);
-					} 
-					break;
-				case PHYDEX: this.readXMLFile(); break;
-				case NATIVE: break;
-			}
-			if(numberOfTaxa > 999){
-				System.out.println("Too many taxa in alignment - limit is 999");
-				throw new TaxaLimitException(numberOfTaxa);
+			if(rawInput == null || rawInput.isEmpty()){
+				return false;
+			}else{
+				for(String line:rawInput){
+					if(line.length() == 0){System.out.println("read: ["+line+"]");}
+				}
+				assert(rawInput.size()>0);
+				this.determineInputFileDatatype();
+				assert(sequenceFileTypeSet);
+				AlignmentParser parser;
+				switch(inputSequenceFileFormat){
+					case NEXUS: 
+						//this.readNexusFile(); // old function call, now using AlignmentParser concrete subclasses
+						parser = new NexusParser();
+						if(parser.parseInput(rawInput)){
+							// do nothing
+							System.out.println();
+							this.extractParsedInformation(parser);
+						} 
+						break;
+					case FASTA: 
+						//this.readFastaFile(); // old function call, now using AlignmentParser concrete subclasses
+						parser = new FastaParser();
+						if(parser.parseInput(rawInput)){
+							// do nothing
+							System.out.println();
+							this.extractParsedInformation(parser);
+						} 
+						break;
+					case PHYLIP: 
+						//this.readPhylipFile();// old function call, now using AlignmentParser concrete subclasses
+						parser = new PhylipParser();
+						if(parser.parseInput(rawInput)){
+							// do nothing
+							System.out.println();
+							this.extractParsedInformation(parser);
+						} 
+						break;
+					case PHYDEX: this.readXMLFile(); return false;	// not implemented, return FALSE
+					case NATIVE: return false;						// not sequence data, return FALSE
+				}
+				if(numberOfTaxa > 999){
+					System.out.println("SERIOUS: Too many taxa in alignment - limit is 999");
+					System.err.println("SERIOUS: Too many taxa in alignment - limit is 999");
+					throw new TaxaLimitException(numberOfTaxa);
+				}
 			}
 		}
 		catch(Exception ex){
 			ex.printStackTrace();
 		}
+		// by now we should have a viable alignment file in a supported format, hopefully parsed...
 		alignmentSequenceCodingType = this.determineInputSequenceType();
 		// TODO write truncatedNamesHash. Remember to check for duplicates, and use UID where required
 		// TODO how are we going to handle on-the-fly UID generation w.r.t. compatibility with treefiles..?
 		int UIDroot = 1;
 		for(String longTaxon:taxaListArray){
 			if(UIDroot > 1000){
-				System.out.println("Too many taxa in alignment - limit is 999");
+				System.out.println("SERIOUS: Too many taxa in alignment - limit is 999");
+				System.err.println("SERIOUS: Too many taxa in alignment - limit is 999");
 				throw new TaxaLimitException(UIDroot);
 			}else{
 				StringBuilder shortTaxon = new StringBuilder();
@@ -249,6 +257,8 @@ public class AlignedSequenceRepresentation implements Serializable {
 		}
 		this.padSequences();
 		this.determineInvariantSites();
+		// if we've got this far, return TRUE
+		return true;
 	}
 	
 	/**
@@ -3168,7 +3178,9 @@ public class AlignedSequenceRepresentation implements Serializable {
 				if(newAAseq.length() > newMaxNoSites){
 					newMaxNoSites = newAAseq.length();
 				}
-				System.out.println(taxon+"\t\ttranslated.\tambig: "+numAmbiguousCodons+"\tstops: "+numStopCodons+"\tseq: "+newAAseq.substring(0, 4));
+				if(!suppressErrors){
+					System.out.println(taxon+"\t\ttranslated.\tambig: "+numAmbiguousCodons+"\tstops: "+numStopCodons+"\tseq: "+newAAseq.substring(0, 4));
+				}
 				sequenceHash.put(taxon, newAAseq.toString().toCharArray());
 			}
 			// Fire updates to alignment stats
@@ -4103,7 +4115,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 		}
 	}
 
-	public void loadSequences(ArrayList<String> inputData, boolean reportInputRead) throws TaxaLimitException{
+	public boolean loadSequences(ArrayList<String> inputData, boolean reportInputRead) throws TaxaLimitException{
 		try{
 			rawInput = inputData;
 			for(String line:rawInput){
@@ -4116,8 +4128,8 @@ public class AlignedSequenceRepresentation implements Serializable {
 				case NEXUS: this.readNexusFile(); break;
 				case FASTA: this.readFastaFile(); break;
 				case PHYLIP: this.readPhylipFile(); break;
-				case PHYDEX: this.readXMLFile(); break;
-				case NATIVE: break;
+				case PHYDEX: this.readXMLFile(); return false;		// not implemented so return FALSE
+				case NATIVE: return false;							// native (non-sequence) file so return FALSE
 			}
 			if(numberOfTaxa > 999){
 				System.out.println("Too many taxa in alignment - limit is 999");
@@ -4155,6 +4167,8 @@ public class AlignedSequenceRepresentation implements Serializable {
 		}
 		this.padSequences();
 		this.determineInvariantSites();
+		// if we've got this far we can return TRUE
+		return true;
 	}
 
 	public void printSharedSubs() {

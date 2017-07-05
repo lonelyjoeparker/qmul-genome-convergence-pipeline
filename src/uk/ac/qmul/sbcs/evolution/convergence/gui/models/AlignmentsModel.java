@@ -348,7 +348,8 @@ public	class AlignmentsModel extends AbstractTableModel {
 		for(int column=3;column<16; column++){
 			summaryStatistics.put(columnNames[column], new DataSeries(this.doubleArrayToFloat((this.getColumnDataAsDouble(column))), columnNames[column]));
 		}
-		System.out.println(this.printPrettySummaryData());
+		//debug only
+		//System.out.println(this.printPrettySummaryData());
 	}
 
 	/**

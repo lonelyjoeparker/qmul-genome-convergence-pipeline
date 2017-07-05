@@ -341,10 +341,11 @@ public class AlignmentsController {
 			for(File alignmentFile:files){
 				try {
 					AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
-					asr.loadSequences(alignmentFile, false);
-					asr.calculateAlignmentStats(false);
-					da = new DisplayAlignment(alignmentFile.getName(),asr);
-					model.addRow(da, asr);
+					if(asr.loadSequences(alignmentFile, false)){
+						asr.calculateAlignmentStats(false);
+						da = new DisplayAlignment(alignmentFile.getName(),asr);
+						model.addRow(da, asr);
+					}
 				} catch (TaxaLimitException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

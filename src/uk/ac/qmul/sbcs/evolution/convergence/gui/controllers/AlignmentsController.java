@@ -20,12 +20,14 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsModel;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.models.SummaryStatisticsTableModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.AlignmentsView;
 import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
@@ -40,7 +42,8 @@ public class AlignmentsController {
 	DumpTextFileButtonListener	dumpTextFileButtonListener;
 	TableDefinitionButtonListener tableDefinitionButtonListener;
 	ShowPlottingFrameButtonListener showPlottingFrameButtonListener;
-	GlobalController globalController; 
+	GlobalController globalController;
+	SummaryStatisticsTableModel summaryStatisticsTableModel = new SummaryStatisticsTableModel();
 
 	/**
 	 * No-arg constructor - deprecated. 
@@ -72,7 +75,9 @@ public class AlignmentsController {
 		view.addTableDefinitionButtonListener(tableDefinitionButtonListener);
 		view.addShowPlottingFrameButtonListener(showPlottingFrameButtonListener);
 		view.addTable(model);
-		initColumnSizes();
+		view.plottingFrame.addTable(summaryStatisticsTableModel);
+		initColumnSizes(view.getTable(),model);
+		initColumnSizes(view.plottingFrame.getStatsTable(),summaryStatisticsTableModel);
 		view.addListRowSelectionListener(new AlignmentsRowListener());
 		view.addListColumnSelectionListener(new AlignmentsColumnListener());
 		view.addScrollBarNTAdjustmentListener(new ScrollBarNTAdjustmentListener());
@@ -91,33 +96,32 @@ public class AlignmentsController {
 	/*
 	 * Attempt to write a generic init method for column sizes
 	 */
-	public void initColumnSizes() {
-		JTable table = view.getTable();
+	public void initColumnSizes(JTable someTable, AbstractTableModel someModel) {
 		TableColumn column = null;
 		Component comp = null;
 		int headerWidth = 0;
 		int cellWidth = 0;
-		int rowCount = model.getRowCount();
-		int colCount = model.getColumnCount();
+		int rowCount = someModel.getRowCount();
+		int colCount = someModel.getColumnCount();
 		//Object[] longValues = model.longValues; // longValues seems to be just the null vals for each column. we can get this from scratch...
-		TableCellRenderer headerRenderer = table.getTableHeader().getDefaultRenderer();
+		TableCellRenderer headerRenderer = someTable.getTableHeader().getDefaultRenderer();
 
 		// try and establish the preferred widths. the first row of each dataModel contains null vals anyway (we know this cos it's in their constructors, we put it there).
 		if(rowCount>0){
 			for(int col = 0; col < colCount; col++){
-				column = table.getColumnModel().getColumn(col);
+				column = someTable.getColumnModel().getColumn(col);
 
 				comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 				headerWidth = comp.getPreferredSize().width;
 
-				comp = table.getDefaultRenderer(model.getColumnClass(col)).getTableCellRendererComponent(table, model.getValueAt(0,col),false, false, 0, col);
+				comp = someTable.getDefaultRenderer(someModel.getColumnClass(col)).getTableCellRendererComponent(someTable, someModel.getValueAt(0,col),false, false, 0, col);
 				cellWidth = comp.getPreferredSize().width;
 				column.setPreferredWidth(Math.max(headerWidth, cellWidth));
 			}
 		}else{
 			// try and set column widths based on the table column names (surely that's the obvious way to do it anyway? - Ed)
 			for(int col = 0; col < colCount; col++){
-				column = table.getColumnModel().getColumn(col);
+				column = someTable.getColumnModel().getColumn(col);
 
 				comp = headerRenderer.getTableCellRendererComponent(null, column.getHeaderValue(), false, false, 0, 0);
 				headerWidth = comp.getPreferredSize().width;
@@ -196,6 +200,7 @@ public class AlignmentsController {
 			model.addRow(da, asr);
 			view.updateAlignmentScrollPanes(da);
 //			view.repaint();
+			summaryStatisticsTableModel.setData(model.getSummaryStatistics());
 		}
 	}
 	
@@ -222,6 +227,7 @@ public class AlignmentsController {
 					System.out.println("remove selected alignment, row "+selectedRow);
 					model.removeRow(selectedRow);
 					view.getTable().repaint();
+					summaryStatisticsTableModel.setData(model.getSummaryStatistics());
 					break;
 				}
 				default:{
@@ -359,6 +365,7 @@ public class AlignmentsController {
 			}
 			if(da != null){
 				view.updateAlignmentScrollPanes(da);
+				summaryStatisticsTableModel.setData(model.getSummaryStatistics());
 			}
           return null;
         }

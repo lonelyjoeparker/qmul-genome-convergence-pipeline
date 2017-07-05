@@ -29,6 +29,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.*;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.AlignmentsModel;
+import uk.ac.qmul.sbcs.evolution.convergence.gui.models.SummaryStatisticsTableModel;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.knowm.xchart.BitmapEncoder;
@@ -41,6 +42,7 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.XYSeries.XYSeriesRenderStyle;
+import org.knowm.xchart.style.Styler.ChartTheme;
 import org.knowm.xchart.style.Styler.LegendPosition;
 
 
@@ -111,8 +113,10 @@ public class AlignmentsView extends JComponent{
 		 * 
 		 */
 		private static final long serialVersionUID = 4331637424478573163L;
-		JPanel mainPanel, infoPanel, optionsPanel, chartPanel;
+		JPanel mainPanel, infoPanel, statsTablePanel, optionsPanel, chartPanel;
 		JLabel label;
+		JTable statsTable;
+		JScrollPane statsTableScrollPane, wholeViewScrollPane;
 		String internalText = "Some plotting data.";
 	    String currentScatterSeriesName = null;
 	    String currentHistogramSeriesName = null;
@@ -125,8 +129,10 @@ public class AlignmentsView extends JComponent{
 	    
 		public PlottingFrame(){
 			super("Data plotting");
-			mainPanel = new JPanel(new FlowLayout());
+			mainPanel = new JPanel();
+			mainPanel.setLayout(new BoxLayout(mainPanel,BoxLayout.Y_AXIS));
 			infoPanel = new JPanel(new FlowLayout());
+			statsTablePanel = new JPanel();
 			chartPanel = new JPanel(new GridLayout(2,1));
 			label = new JLabel("<html><center>"+internalText+"</html>");
 			optionsPanel = new JPanel(new FlowLayout());
@@ -139,20 +145,23 @@ public class AlignmentsView extends JComponent{
 			scatterChart = this.getScatterChart();
 			histogramChart = this.getHistogramChart();
 			scatterChartPanel = new XChartPanel<XYChart>(scatterChart);
-			scatterChartPanel.setSize(650,300);
-			//scatterChartPanel.setPreferredSize(new Dimension(650, 300));
+			scatterChartPanel.setSize(650,250);
+			scatterChartPanel.setPreferredSize(new Dimension(650, 250));
 			histogramChartPanel = new XChartPanel<CategoryChart>(histogramChart);
-			histogramChartPanel.setSize(650,300);
-			//histogramChartPanel.setPreferredSize(new Dimension(650, 300));
+			histogramChartPanel.setSize(650,250);
+			histogramChartPanel.setPreferredSize(new Dimension(650, 250));
 			chartPanel.add(histogramChartPanel);
 			chartPanel.add(scatterChartPanel);
-			//chartPanel.setPreferredSize(new Dimension(650,600));
+			chartPanel.setPreferredSize(new Dimension(650,500));
 			//infoPanel.add(label);
 			infoPanel.add(optionsPanel);
+			mainPanel.add(statsTablePanel);
 			mainPanel.add(infoPanel);
 			mainPanel.add(chartPanel);
-			add(mainPanel);
-			setSize(650,700);
+			wholeViewScrollPane = new JScrollPane(mainPanel);
+			wholeViewScrollPane.setPreferredSize(new Dimension(650,800));
+			add(wholeViewScrollPane);
+			setSize(650,900);
 			setLocationRelativeTo(null);
 			setVisible(true);
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -182,6 +191,26 @@ public class AlignmentsView extends JComponent{
 			collectOverlay.addActionListener(new CollectOverlayActionListener());
 		}
 		
+		public void addTable(SummaryStatisticsTableModel statisticsModel) {
+	        // Init resultsTable
+	        statsTable = new JTable(statisticsModel);
+	        statsTable.setPreferredSize(new Dimension(650,200));
+	        statsTable.setFillsViewportHeight(true);
+	        statsTable.setRowSelectionAllowed(true);
+	        statsTable.setColumnSelectionAllowed(true);
+	        statsTable.setCellSelectionEnabled(true);
+	        statsTable.setAutoCreateRowSorter(true);
+	        statsTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+	        /* Create scrollpanes  and add them to the pane */
+	        statsTableScrollPane = new JScrollPane(statsTable, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+	        statsTableScrollPane.setPreferredSize(new Dimension(650,300));
+	        
+	        statsTableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+	        statsTableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+	        statsTablePanel.removeAll();
+	        statsTablePanel.add(statsTableScrollPane);
+		}
+
 		/**
 		 * Update the label in the plotting window (mainly debug function)
 		 * @param newContent
@@ -326,7 +355,7 @@ public class AlignmentsView extends JComponent{
 			}
 			
 			// Create Chart
-		    CategoryChart histogramPlaceHolder = new CategoryChartBuilder().title("Histogram").height(300).width(650).build();
+		    CategoryChart histogramPlaceHolder = new CategoryChartBuilder().title("Histogram").theme(ChartTheme.GGPlot2).height(300).width(650).build();
 		    // Customize Chart
 		    histogramPlaceHolder.getStyler().setLegendPosition(LegendPosition.InsideNW);
 		    histogramPlaceHolder.getStyler().setAvailableSpaceFill(.96);
@@ -347,7 +376,7 @@ public class AlignmentsView extends JComponent{
 
 			// Create Chart
 			currentScatterSeriesName = "Dummy data - select two Alignments numeric columns to plot.";
-			scatterChart = new XYChartBuilder().title("Scatterplot").height(300).width(650).build();
+			scatterChart = new XYChartBuilder().title("Scatterplot").theme(ChartTheme.GGPlot2).height(300).width(650).build();
 
 			// Customize Chart
 			scatterChart.getStyler().setDefaultSeriesRenderStyle(XYSeriesRenderStyle.Scatter);
@@ -366,6 +395,14 @@ public class AlignmentsView extends JComponent{
 			scatterChart.addSeries(currentScatterSeriesName, xData, yData);
 
 			return scatterChart;
+		}
+
+		/**
+		 * Return the stats JTable
+		 * @return
+		 */
+		public JTable getStatsTable() {
+			return this.statsTable;
 		}
 	}
 

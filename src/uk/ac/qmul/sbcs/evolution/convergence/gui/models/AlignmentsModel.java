@@ -4,14 +4,17 @@ import java.util.*;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayAlignment;
+import uk.ac.qmul.sbcs.evolution.convergence.util.stats.DataSeries;
 
 public	class AlignmentsModel extends AbstractTableModel {
 
 	public final boolean DEBUG;
 	// Column names for the header and text output
-	private String[] columnNames = {			//column index
+	private final static String[] columnNames = {			//column index
 			"ResultsFilename",					//0		String
 			"AlignmentFilename",				//1		String
 			"InputType",						//2		String (enum)
@@ -30,7 +33,7 @@ public	class AlignmentsModel extends AbstractTableModel {
 			"WhichNonZeroEntropyRunAA",			//15	float
 			"HasSelectionData",					//16	boolean
 			"SourceAlignmentHash"};				//17	AlignedSequenceRepresentation.toString()
-	private String[] columnDefinitions = {	//column index
+	private final static String[] columnDefinitions = {	//column index
 			"Results = Results file (alignment if native)",		//0		String
 			"Alignment = Alignment file name",					//1		String
 			"Input type = Nuclotide/amino acid/codon/none",		//2		String (enum)
@@ -51,10 +54,12 @@ public	class AlignmentsModel extends AbstractTableModel {
 			"Source alignment = (Java object code - debug only)"};														//17	AlignedSequenceRepresentation.toString()
 	// The main data table
 	private Object[][] data;
+	// Holder for summary statistics
+	private HashMap<String,DataSeries> summaryStatistics = new HashMap<String,DataSeries>();
 	// Column indices of Integers
-	private Integer[] integerIndices = new Integer[]{3,4,5,6,7};
+	private final static Integer[] integerIndices = new Integer[]{3,4,5,6,7};
 	// Column indices of Floats
-	private Integer[] floatIndices = new Integer[]{8,9,10,11,12,13,14,15};
+	private final static Integer[] floatIndices = new Integer[]{8,9,10,11,12,13,14,15};
 	// Default values for (hopefully) sizing the table, etc
 	public final Object[] longValues = {
 			"file", 
@@ -214,6 +219,12 @@ public	class AlignmentsModel extends AbstractTableModel {
 		}
 	}
 
+	/*
+	 * Ensures the column names are available.
+	 * (non-Javadoc)
+	 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
+	 */
+	@Override
 	public String getColumnName(int col) {
 		return columnNames[col];
 	}
@@ -271,6 +282,32 @@ public	class AlignmentsModel extends AbstractTableModel {
 		}
 	}
 
+	/**
+	 * Print the summary statistics for numeric columns to a string, tab-delimited.
+	 * @return - String suitable for printing to STDOUT
+	 */
+	private String printPrettySummaryData(){
+		StringBuilder output = new StringBuilder();
+		output.append("Alignment stat\tN\tmin\tmedian\tmean\tmax\n");
+		Iterator stats = summaryStatistics.keySet().iterator();
+		while(stats.hasNext()){
+			String stat = (String)stats.next();
+			DataSeries data = summaryStatistics.get(stat);
+			output.append(stat+"\t");
+			output.append(data.getCount()+"\t");
+			output.append(NumberUtils.min(data.getData())+"\t");
+			output.append(data.getMedian()+"\t");
+			output.append(data.getMean()+"\t");
+			output.append(NumberUtils.max(data.getData())+"\n");
+		}
+		
+		return output.toString();
+	}
+	
+	/**
+	 * Print the table completely (DEBUG)
+	 */
+	@Deprecated
 	private void printDebugData() {
 		int numRows = getRowCount();
 		int numCols = getColumnCount();
@@ -286,10 +323,32 @@ public	class AlignmentsModel extends AbstractTableModel {
 	}
 
 	/**
+	 * Casts Double[] to float[] via Double.floatValue()
+	 * Typically this would be data model numeric column to DataSeries input.
+	 * @param someArray
+	 * @return
+	 */
+	private float[] doubleArrayToFloat(Double[] someArray){
+		float[] returnArr = new float[someArray.length];
+		for(int i=0;i<someArray.length;i++){
+			returnArr[i] = someArray[i].floatValue();
+		}
+		return returnArr;
+	}
+	
+	/**
+	 * Globally sets all the data in the data model, overwriting completely.
 	 * @param data the data to set
 	 */
 	public void setData(Object[][] data) {
+		// Replace the current data - with NO CHECKING or UNDOs
 		this.data = data;
+		
+		// Recalculate the DataSeries (summary stats) associated with each numeric column
+		for(int column=3;column<16; column++){
+			summaryStatistics.put(columnNames[column], new DataSeries(this.doubleArrayToFloat((this.getColumnDataAsDouble(column))), columnNames[column]));
+		}
+		System.out.println(this.printPrettySummaryData());
 	}
 
 	/**
@@ -297,6 +356,10 @@ public	class AlignmentsModel extends AbstractTableModel {
 	 */
 	public Object[][] getData() {
 		return data;
+	}
+
+	public HashMap<String, DataSeries> getSummaryStatistics() {
+		return summaryStatistics;
 	}
 
 	public Double[] getColumnDataAsDouble(int whichCol) throws ArrayIndexOutOfBoundsException{

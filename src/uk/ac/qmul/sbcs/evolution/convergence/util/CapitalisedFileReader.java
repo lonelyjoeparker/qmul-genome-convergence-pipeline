@@ -62,7 +62,7 @@ public class CapitalisedFileReader {
 			System.out.println("Trying to read file "+file.getAbsolutePath());
 		}
 		try{
-			if(file.canRead()){
+			if(file.canRead()&&file.exists()){
 				BufferedReader inputBuffer = new BufferedReader(new FileReader(file));
 				int readlength = 20;
 				try{

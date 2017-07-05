@@ -1018,12 +1018,13 @@ public class AlignedSequenceRepresentation implements Serializable {
 	}
 
 	/**
-	 * Initialises the 'expanded' translation hash (includes all ambiguity characters with unique expansions). Some of these codons include gaps - this is unorthodox behaviour.
+	 * Initialises the 'MEGA expanded' translation hash (includes all ambiguity characters with unique expansions). Some of these codons include gaps - this is unorthodox behaviour.
 	 * Any codons not listed here will be translated as a gap '-' character.
 	 */
 	public void initialiseExpandedTranslationHash(){
 		if(translationLookup.size()<2){
 			translationLookup = new TreeMap<String,Character>();
+
 			translationLookup.put("AAA",'K');
 			translationLookup.put("AAC",'N');
 			translationLookup.put("AAG",'K');
@@ -1728,6 +1729,7 @@ public class AlignedSequenceRepresentation implements Serializable {
 			translationLookup.put("NV-",'X');
 			translationLookup.put("ND-",'X');
 			translationLookup.put("NN-",'X');
+			translationLookup.put("NNN",'X');
 			translationLookup.put("N-A",'X');
 			translationLookup.put("N-C",'X');
 			translationLookup.put("N-G",'X');
@@ -3075,8 +3077,8 @@ public class AlignedSequenceRepresentation implements Serializable {
 	 */
 	public void translate(boolean suppressErrors) throws SequenceTypeNotSupportedException{
 
-		this.initialiseTranslationHash(); // make sure the translation hash is available
-		
+		//this.initialiseTranslationHash(); // make sure the translation hash is available
+		this.initialiseExpandedTranslationHash(); // expanded translation hash
 //		System.out.println(numberOfSites+" sites constructed translation hash (size "+translationLookup.size()+")");
 //		String testChar = "ACC";
 //		System.out.println(translationLookup.get(testChar));
@@ -3117,6 +3119,11 @@ public class AlignedSequenceRepresentation implements Serializable {
 							codonHolder[2] = '-';
 						}
 						codon = new String(codonHolder);
+						/*
+						 * 
+						 */
+						
+						
 						//					System.out.println(codon.length()+" "+pos+" candidate codon: "+codon);
 						//					System.out.println("printing the AA, "+codon);
 						if (!
@@ -3129,7 +3136,8 @@ public class AlignedSequenceRepresentation implements Serializable {
 								numAmbiguousCodons++;
 							} else {
 								try {
-									AA = translationLookup.get(codon);
+									//AA = translationLookup.get(codon);
+									AA = EnnumeratedTranslatorFullCodons.translate(codon);
 								} catch (NullPointerException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();

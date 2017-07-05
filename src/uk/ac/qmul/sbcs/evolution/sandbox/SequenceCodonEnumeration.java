@@ -2,6 +2,8 @@ package uk.ac.qmul.sbcs.evolution.sandbox;
 
 import java.util.TreeSet;
 
+import uk.ac.qmul.sbcs.evolution.convergence.EnnumeratedTranslatorOrthodoxCodons;
+
 /**
  * Ennumerates all possible codon combinations and attempts to translate them.
  * @author joeparker
@@ -42,9 +44,9 @@ public class SequenceCodonEnumeration {
 					// Enumerate the combinations for all allowed characters
 					System.out.println("indices\t"+nucleotides[first]+nucleotides[second]+nucleotides[third]);
 					// For each combination get the expanded set of corresponding DNA bases (A, C, G, T)
-					char[] expanded_first = SequenceCodonEnumeration.expandAmbiguities(nucleotides[first]);
+					char[] expanded_first  = SequenceCodonEnumeration.expandAmbiguities(nucleotides[first]);
 					char[] expanded_second = SequenceCodonEnumeration.expandAmbiguities(nucleotides[second]);
-					char[] expanded_third = SequenceCodonEnumeration.expandAmbiguities(nucleotides[third]);
+					char[] expanded_third  = SequenceCodonEnumeration.expandAmbiguities(nucleotides[third]);
 //					System.out.println("\tcorresponding real triplets: "+expanded_first.toString()+" "+expanded_second.toString()+" "+expanded_third.toString());
 					
 					/* For each expanded character permutation, 
@@ -61,13 +63,13 @@ public class SequenceCodonEnumeration {
 								// Now we have a potential code of actual nucleotides which might be translatable
 								// Convert to string
 								String codon = new String(""+expanded_first[e_1]+expanded_second[e_2]+expanded_third[e_3]);
-								Character translated_AA = new SequenceTranslationHashAccessor().translate(codon);
+								Character translated_AA = new EnnumeratedTranslatorOrthodoxCodons().translate(codon);
 								possibleAAs.add(translated_AA);
 								System.out.println("\t"+nucleotides[first]+nucleotides[second]+nucleotides[third]+"\texpansion "+expanded_first[e_1]+expanded_second[e_2]+expanded_third[e_3]+" => "+translated_AA);
 							}
 						}
 					}
-					/* Check to see if possibleAAs set has size ­ 1 */
+					/* Check to see if possibleAAs set has size ï¿½ 1 */
 					if(possibleAAs.size() == 1){
 						/* Only a single mapping was found over all 
 						 * nucleotide-expansion permutations. 
@@ -76,6 +78,10 @@ public class SequenceCodonEnumeration {
 						 * buffer.
 						 */
 						uniqueMappingsBuffer.append("indices\t"+nucleotides[first]+nucleotides[second]+nucleotides[third]+"=>"+possibleAAs.first()+"\n");
+					}else{
+						// more than one possible translation could be made from the expanded ambiguity chars;
+						// we'll have to call this one undetermined (x)
+						uniqueMappingsBuffer.append("indices\t"+nucleotides[first]+nucleotides[second]+nucleotides[third]+"=>X\n");
 					}
 				}
 			}

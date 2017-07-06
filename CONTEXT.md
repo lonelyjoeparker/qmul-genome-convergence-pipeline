@@ -1,6 +1,6 @@
 # CONTEXT / Phylogenomic Dataset Browser
 
-_COmparative NucleoTide (and amino-acid) EXplorer Tool_
+_COmparative Nucleotide (and amino-acid) and Trees EXplorer Tool_
 
 ---
 
@@ -18,19 +18,22 @@ You can't manually edit, align, or infer phylogenies with CONTEXT. There's plent
 
 ## How do I get it?
 
-This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin) for the most recent builds - [current version here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/CONTEXT-PhylogenomicDatasetBrowser-v0.8.1.jar?raw=true) (v0.8.1 prerelease).
+This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin) for the most recent builds - [current version here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/CONTEXT-PhylogenomicDatasetBrowser-v0.8.3.jar?raw=true) (v0.8.3 prerelease).
 
-_Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers..._
+    Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers...
 
 ## How do I use it?
 
-Double-click the jarfile; or in a command-line run the jarfile with `java -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.jar`. Once it's up and running, select "File > Open Alignments..." or "File > Open Phylogenies" to get started.
+Double-click the jarfile; or in a command-line run the jarfile with `java -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.3.jar`. Once it's up and running, select "File > Open Alignments..." or "File > Open Phylogenies" to get started.
+
+    We also recommend a minimum free system RAM of 2Gb, allocated using the '-Xmx' option in Java, e.g.: 
+    `java -Xmx2g -Xms2g -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.3.jar`
 
 #### Example input data
 
 Example phylogenies and alignments are [here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/examples/CONTEXT-phylogenomic-dataset-browser-examples).
 
-_Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers..._
+    Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers...
 
 ## How do I get help?
 
@@ -47,7 +50,7 @@ Thanks!
 
 ## Version and Roadmap
 
-Currently at public 0.8 version. See [CONTEXT_versions.md](CONTEXT_versions.md) for more change log and version informations.
+Currently at public major 0.8 version. See [CONTEXT_versions.md](CONTEXT_versions.md) for more change log and version informations.
 
 There is no formal roadmap for this project at present.
 
@@ -71,7 +74,8 @@ The CONTEXT codebase references the following open-source libraries:
 * [JAMA](http://math.nist.gov/javanumerics/jama/) - Java Matrix Algebra (1.0.3, 2012.11.09; Jama-1.0.3.jar)
 * [JSC](http://www.jsc.nildram.co.uk/) - Java Statistical Classes v1.0 (jsc-1.jar)
 * [XStream](http://x-stream.github.io/) - Java XML bindings (xstream-1.4.4.jar and dependencies)
-* [JFreeChart](http://www.jfree.org/jfreechart/) (jfreechart-1.0.14.jar)
+* [JFreeChart](http://www.jfree.org/jfreechart/) - Chart plotting library (jfreechart-1.0.14.jar)
+* [XChart](https://github.com/timmolter/XChart) - Chart Plotting Library v3.3.1 (XChart-3.3.1.jar)
 * [JEBL](http://sourceforge.net/projects/jebl/) - Java Evolutionary Biology Library v0.4 (jebl-0.4.jar)
 
 The executable jarfiles (see trunk/bin directory) come with these build-path dependencies already packaged. They should run as standalone Java apps with no additional dependencies.

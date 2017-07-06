@@ -26,14 +26,14 @@ If you still haven't got any further and want to send a question, email joe+bioi
 
 ### Usage
 For usage details and examples, see the specific READMEs:
- * CONTEXT (the COmparativeNucleotide(and)TreesExplorationTool; previously 'PhylogenomicDatasetBrowser'):  [CONTEXT.md](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT.md)
-  * *GUI application to browse and rapidly sort/compare phylogenomic-scale datasets (thousands of alignments/phylogenies).*
+ * CONTEXT (the COmparativeNucleotide(and)TreesExplorationTool; previously 'PhylogenomicDatasetBrowser'):  [CONTEXT.md](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/CONTEXT.md)     
+     * *GUI application to browse and rapidly sort/compare phylogenomic-scale datasets (thousands of alignments/phylogenies).*
+ * SimpleMRCASubstitutionDetector: [README_SimpleMRCASubstitutionDetector.md](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/README_SimpleMRCASubstitutionDetector.md)    
+    * *Reconstructs ancestral sequences using parsimony, finds and prints parallel substitutions*
  * BasicAlignmentStats: [no readme available yet]()
-  * *Reads an alignment or directory of alignments and prints descriptive statistics (length, gappiness, entropy etc) for each one.* 
- * GeneralConvergenceApplicationGUI:  [no readme available yet]()
-  * *GUI application to create and run convergence detection analyses on phylogenomic data. Not released.*
- * SimpleMRCASubstitutionDetector: [README_SimpleMRCASubstitutionDetector.md](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/README_SimpleMRCASubstitutionDetector.md)
-  * *Reconstructs ancestral sequences using parsimony, finds and prints parallel substitutions*
+     * *Reads an alignment or directory of alignments and prints descriptive statistics (length, gappiness, entropy etc) for each one.* 
+ * GeneralConvergenceApplicationGUI:  [no readme available yet]()   
+    * *GUI application to create and run convergence detection analyses on phylogenomic data. Not released.*
   
 
 ## Depdendencies and packaged libraries

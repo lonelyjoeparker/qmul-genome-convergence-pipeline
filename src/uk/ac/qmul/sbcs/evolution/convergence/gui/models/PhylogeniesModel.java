@@ -13,7 +13,18 @@ public class PhylogeniesModel extends AbstractTableModel{
 
 	/* Object variables */
 	
-	public final String[] columnNames = new String[]{"File","Number of phylogenies","Number of tips","First phylogeny","Phylogeny convergence type"};
+	public final String[] columnNames = new String[]{
+			"File",					// 0
+			"NumberOfPhylogenies",	// 1
+			"NumberOfTips",			// 2
+			"TreeHeight",			// 3
+			"TreeLength",			// 4
+			"CherryCount",			// 5
+			"Treeness",				// 6
+			"ExternalInternalRatio",// 7
+			"FirstPhylogeny",		// 8
+			"PhylogenyConvergenceType"	//9
+			};
 	private Object[][] data;
 	
 	/* Utility methods for TableModel type behaviour */
@@ -129,6 +140,20 @@ public class PhylogeniesModel extends AbstractTableModel{
 			int numberOfPhylogenies = phylogenies.length;
 			Object[][] newData;
 			if(data == null){
+				/*
+				 * Column numberings:
+				 * 
+				"File",					// 0
+				"NumberOfPhylogenies",	// 1
+				"NumberOfTips",			// 2
+				"TreeHeight",			// 3
+				"TreeLength",			// 4
+				"CherryCount",			// 5
+				"Treeness",				// 6
+				"ExternalInternalRatio",// 7
+				"FirstPhylogeny",		// 8
+				"PhylogenyConvergenceType"	//9
+				 */
 				System.out.println("the first row of the table is null");
 				// Create a new table
 				newData = new Object[numberOfPhylogenies][getColumnCount()];
@@ -148,14 +173,39 @@ public class PhylogeniesModel extends AbstractTableModel{
 						newRow[2] = "0";
 					}
 					try {
-						newRow[3] = dp.getTextTreeRepresentation();
+						newRow[3] = dp.getTreeNode().getTreeHeight();
 					} catch (Exception e) {
-						newRow[3] = "();";
+						newRow[3] = "0";
 					}
 					try {
-						newRow[4] = dp.getConvergenceContext();
+						newRow[4] = dp.getTreeNode().getTreeLength();
 					} catch (Exception e) {
-						newRow[4] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
+						newRow[4] = "0";
+					}
+					try {
+						newRow[5] = dp.getTreeNode().getTreeCherryCount();
+					} catch (Exception e) {
+						newRow[5] = "0";
+					}
+					try {
+						newRow[6] = dp.getTreeNode().getTreeTreeness();
+					} catch (Exception e) {
+						newRow[6] = "0";
+					}
+					try {
+						newRow[7] = dp.getTreeNode().getTreeExternalInternalRatio();
+					} catch (Exception e) {
+						newRow[7] = "0";
+					}
+					try {
+						newRow[8] = dp.getTextTreeRepresentation();
+					} catch (Exception e) {
+						newRow[8] = "();";
+					}
+					try {
+						newRow[9] = dp.getConvergenceContext();
+					} catch (Exception e) {
+						newRow[9] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 					}
 					// Add the new row to the table
 					newData[rowCount] = newRow;

@@ -161,31 +161,6 @@ public class NewickTreeRepresentation {
 	}
 	
 	
-	/*
-	 *	TREE STATS SECTION...
-	 *	TODO - implement these. Issue #46 
-	 */
-	
-	public double getTreeLength(){}
-
-	public double getTreeRootHeight(){}
-	
-	public double[] getAllTreeBranchLengths(){}
-	
-	public double[] getTreeInternalBranchLengths(){}
-	
-	public double[] getTreeTerminalBranchLengths(){}
-	
-	public double getTreeColless(){}
-	
-	public int getTreeCherryCount(){}
-	
-	public double getTreeTreeness(){}
-
-	/*
-	 *	...TREE STATS SECTION.
-	 */
-
 	public void write(){
 		if(this.treeFile == null){
 			this.treeFile = new File(System.getProperty("user.dir")+"/NewickTreeRepresentation"+System.currentTimeMillis()+".tre");

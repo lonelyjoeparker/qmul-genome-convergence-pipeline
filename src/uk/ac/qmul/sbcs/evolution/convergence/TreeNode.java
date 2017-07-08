@@ -28,6 +28,26 @@ public class TreeNode {
 	double branchLength;
 	public HashSet<String>[] states;
 	int fitchStateChanges;
+	// should only run tree stat calculations once
+	private boolean treeStatsCalculated = false;
+	// length of branches below, internal only
+	private double internalBranchLengths = 0.0d;
+	// length of branches below, external only
+	private double externalBranchLengths = 0.0d;
+	// sum of all internal and external branch lengths
+	private double treeLength = 0.0d;
+	// longest root-tip path
+	private double treeHeight = 0.0d;
+	// internal : (internal + external) branch lengths
+	private double treeness = 0.0d;
+	// external : internal branch lengths
+	private double externalInternalRatio = 0.0d;
+	// how many internal nodes have only external nodes (tips) as children
+	private double cherryCount = 0.0d;
+	// sum over internal nodes (abs(left daughter children - right daughter children)) / N
+	// NB: assumes bifurcating! 
+	// return -1 if polytomy
+	private double collessTreeImbalance = 0.0d;
 	
 	/**
 	 * Constructor for node
@@ -358,6 +378,180 @@ public class TreeNode {
 		}
 	}
 
+	/*
+	 *	TREE STATS SECTION...
+	 *	TODO - implement these. Issue #46 
+	 *
+	// 	daughterInternalBranchLengths:	length of branches below, internal only
+
+	// daughterExternalBranchLengths: 	length of branches below, external only
+	
+	// treeLength:	sum of all internal and external branch lengths
+	
+	// treeHeight:	longest root-tip path
+	
+	// treeness:	internal : (internal + external) branch lengths
+	
+	// externalInternalRatio:	external : internal branch lengths
+	
+	// cherryCount:	how many internal nodes have only external nodes (tips) as children
+	
+	// colless:	sum over internal nodes (abs(left daughter children - right daughter children)) / N
+	// NB: assumes bifurcating!	return -1 if polytomy
+	 */
+
+	public void calculateTreeStats(){
+		if(treeStatsCalculated){
+			return;
+		}else{
+			if(!this.isTerminal){
+				/*
+				 *  calculate tree stats for an internal node:
+				 *  	tree length
+				 */
+				boolean isCherry = true;
+				for(TreeNode daughter:daughters){
+					// calculate tree stats for lower nodes and get their lengths, add to this
+					daughter.calculateTreeStats();
+					// treeLength:	sum of all internal and external branch lengths
+					this.treeLength+=daughter.getTreeLength();
+					// treeHeight:	longest root-tip path
+					this.treeHeight = Math.max(this.treeHeight, daughter.getTreeHeight());
+					// cherryCount:	how many internal nodes have only external nodes (tips) as children
+					if(!daughter.isTerminal){ isCherry = false; }
+					this.cherryCount+=daughter.getTreeCherryCount();
+					// 	internalBranchLengths:	length of branches below, internal only
+					this.internalBranchLengths+=daughter.getInternalBranchLengths();
+					// externalBranchLengths: 	length of branches below, external only
+					this.externalBranchLengths+=daughter.getExternalBranchLengths();
+				}
+				// postorder stats
+				// 	internalBranchLengths:	length of branches below, internal only
+				this.internalBranchLengths = this.internalBranchLengths+this.branchLength;
+				
+				// externalBranchLengths: 	length of branches below, external only
+				// this.externalBranchLengths = this.externalBranchLengths;	nothing to do
+				
+				// treeLength:	sum of all internal and external branch lengths
+				this.treeLength = this.treeLength+this.branchLength;
+				
+				// treeHeight:	longest root-tip path
+				this.treeHeight = this.treeHeight+this.branchLength;
+				
+				// treeness:	internal : (internal + external) branch lengths
+				this.treeness = this.internalBranchLengths / (this.internalBranchLengths + this.externalBranchLengths);
+
+				// externalInternalRatio:	external : internal branch lengths
+				this.externalInternalRatio = this.externalBranchLengths / this.internalBranchLengths;
+
+				// cherryCount:	how many internal nodes have only external nodes (tips) as children
+				if(isCherry){ this.cherryCount++; }
+				// colless:	sum over internal nodes (abs(left daughter children - right daughter children)) / N
+				// NB: assumes bifurcating!	return -1 if polytomy
+			}else{
+				/*
+				 *  calculate tree stats for a tip node:
+				 *  	tree length
+				 */
+				// 	daughterInternalBranchLengths:	length of branches below, internal only
+				this.internalBranchLengths = 0;
+				
+				// daughterExternalBranchLengths: 	length of branches below, external only
+				this.externalBranchLengths = this.branchLength;
+
+				// treeLength:	sum of all internal and external branch lengths
+				this.treeLength = this.branchLength;
+				
+				// treeHeight:	longest root-tip path
+				this.treeHeight = this.branchLength;
+				
+				// treeness:	internal : (internal + external) branch lengths
+				this.treeness = Double.NaN;
+				
+				// externalInternalRatio:	external : internal branch lengths
+				this.externalInternalRatio = Double.NaN;
+				
+				// cherryCount:	how many internal nodes have only external nodes (tips) as children
+				this.cherryCount = 0;
+				
+				// colless:	sum over internal nodes (abs(left daughter children - right daughter children)) / N
+				// NB: assumes bifurcating!	return -1 if polytomy
+				this.collessTreeImbalance = 0;
+			}
+		}
+		this.treeStatsCalculated = true;
+	}
+
+	/*
+	 *	...TREE STATS SECTION.
+	 */
+	
+	// sum of all internal and external branch lengths
+	public double getTreeLength(){
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.treeLength;
+	}
+
+	// how many internal nodes have only external nodes (tips) as children
+	public double getTreeCherryCount() {
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.cherryCount;
+	}
+
+	// sum over internal nodes (abs(left daughter children - right daughter children)) / N
+	// NB: assumes bifurcating! 
+	// return -1 if polytomy
+	public double getTreeCollessTreeImbalance() {
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.collessTreeImbalance;
+	}
+
+	// internal : (internal + external) branch lengths
+	public double getTreeTreeness() {
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.treeness;
+	}
+
+	// longest root-tip path
+	public double getTreeHeight() {
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.treeHeight;
+	}
+
+	// external : internal branch lengths
+	public double getTreeExternalInternalRatio() {
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.externalInternalRatio;
+	}
+
+	// length of branches below, external only
+	public double getExternalBranchLengths() {
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.externalBranchLengths;
+	}
+
+	// length of branches below, internal only
+	public double getInternalBranchLengths() {
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.internalBranchLengths;
+	}
+
 	private int getFitchStateChanges(){
 		if(this.isTerminal){
 			return 0;
@@ -617,7 +811,7 @@ public class TreeNode {
 			int tipsBelow = this.howManyTips();
 			int sizeOfMRCA = someTaxa.size();
 			/*
-			 * If this clade is ² desired monophyletic clade, return true if all daughters have monophyly
+			 * If this clade is ï¿½ desired monophyletic clade, return true if all daughters have monophyly
 			 * Else return true if any daughters have monophyly
 			 */
 			if(tipsBelow <= sizeOfMRCA){

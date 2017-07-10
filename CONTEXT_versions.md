@@ -1,7 +1,23 @@
 # CONTEXT Versions
 _Versioning information for the [CONTEXT](CONTEXT.md) tool_
-## 0.8 Public
+## 0.8.4 Public
 *Mainly issues covered in [#43](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/43)*
+
+[_2016-07-10_ **0.8.4** | Prerelease](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/tag/v0.8.4prerelease)
+* Available at [trunk/builds-snapshots directory as executable jarfile](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/download/v0.8.4prerelease/CONTEXT-v0.8.4prerelease.jar)
+    - Closes [#43](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/43)
+* UI improvements:
+    - Charts and summary statistics for alignment stats
+    - Scrolling behaviour improved for alignments
+    - Tree statistics reported
+    - (Limited) support for phylogenies as NEXUS in addition to existing PAML/Phylip/strict NEWICK.
+* Method improvements:
+    - Tree statistics implemented
+    - Full translation of all possible codons, not just common ones
+* Robustness improvements:
+    - Error reporting improved
+    - Command-line output less verbose
+    - File I/O debugged somewhat
 
 _2017-07-06_ **0.8.3**:
 * Available at [trunk/bin directory as executable jarfile](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/CONTEXT-PhylogenomicDatasetBrowser-v0.8.3.jar?raw=true)

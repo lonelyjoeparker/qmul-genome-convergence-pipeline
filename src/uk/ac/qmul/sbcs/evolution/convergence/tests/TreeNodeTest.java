@@ -401,7 +401,7 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	public void testReinflateSerAndAssignStates() throws IOException, ClassNotFoundException{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
@@ -430,7 +430,7 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	public void testPrint() throws IOException, ClassNotFoundException{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
@@ -442,7 +442,7 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	public void testSubtreeContains() throws IOException, ClassNotFoundException{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
@@ -453,7 +453,7 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	public void testSubtreeContainsAll() throws IOException, ClassNotFoundException{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		String[] allTaxa = {"LOXODONTA","DASYPUS","CANIS","FELIS","EQUUS","TURSIOPS","BOS","VICUGNA","MYOTIS","RHINOLOPHUS","MEGADERMA","PTEROPUS","SOREX","ERINACEUS","MUS","ORYCTOLAGUS","OCHOTONA","PAN","HOMO","MONODELPHIS"};
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
@@ -464,7 +464,7 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	public void testPrintPaml() throws IOException, ClassNotFoundException{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		String[] echolocatorsH2 = {"TURSIOPS","MEGADERMA","RHINOLOPHUS","MYOTIS","PTERONOTUS"};
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
@@ -473,11 +473,11 @@ public class TreeNodeTest extends TestCase {
 			TreeNode tree = new TreeNode(trees[i].replaceAll("\\s", ""),1);
 			System.out.println("tree_"+i+" = "+tree.printRecursivelyLabelling(echolocatorsH2)+";");
 		}
-		candidate.getDataset().writePhylipFile("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/quick.phy");
+		candidate.getDataset().writePhylipFile("junit-test-inputs/quick.phy");
 	}
 	
 	public void testAreTipsPresentNonePresent() throws Exception{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
@@ -502,7 +502,7 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	public void testAreTipsPresentAllPresent() throws Exception{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
@@ -527,7 +527,7 @@ public class TreeNodeTest extends TestCase {
 	}
 
 	public void testAreTipsPresent() throws Exception{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
@@ -552,7 +552,7 @@ public class TreeNodeTest extends TestCase {
 	}
 	
 	public void testGetTipAndMCRAStatesOf() throws Exception{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
@@ -587,7 +587,7 @@ public class TreeNodeTest extends TestCase {
 	}
 	
 	public void testHowManyTips() throws Exception{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);
@@ -666,7 +666,7 @@ public class TreeNodeTest extends TestCase {
 	}
 	
 	public void testContainsMonophyleticClade() throws Exception{
-		InputStream serfile = new FileInputStream("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/g_100_ENSG0000PRESTIN_ng.fas/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
+		InputStream serfile = new FileInputStream("junit-test-inputs/g_100_ENSG0000PRESTIN_ng.fasinput100.faconv1367283909044wag.ser");
 		ObjectInputStream inOne = new ObjectInputStream(serfile);
 		SitewiseSpecificLikelihoodSupportAaml candidate = (SitewiseSpecificLikelihoodSupportAaml) inOne.readObject();
 		TreeNode species = new TreeNode(candidate.getFittedTrees()[0].replaceAll("\\s", ""),1);

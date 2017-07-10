@@ -103,7 +103,7 @@ public class NewickTreeRepresentation {
 						}
 					}
 				}
-			} catch (UnsupportedTreefileTypeParseException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				System.err.println("tree parsing failed.");
 				e.printStackTrace();
@@ -183,7 +183,7 @@ public class NewickTreeRepresentation {
 						}
 					}
 				}
-			} catch (UnsupportedTreefileTypeParseException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				System.err.println("tree parsing failed.");
 				e.printStackTrace();

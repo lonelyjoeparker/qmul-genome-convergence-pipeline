@@ -146,8 +146,8 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 		JProgressBar taskbar;
 		JFileChooser alignmentsFileChooser, alignmentsDirectoryChooser, phylogeniesFileChooser, phylogeniesDirectoryChooser;
 		JMenuBar menuBar;
-		JMenu fileMenu, helpMenu, loadAlignments, loadTrees;
-		JMenuItem loadAlignmentsSingle, loadAlignmentsBatch, loadTreesSingle, loadTreesBatch, close, about, showPlots;	// fileMenu sub-items
+		JMenu fileMenu, helpMenu, loadAlignments, loadTrees, exportData;
+		JMenuItem loadAlignmentsSingle, loadAlignmentsBatch, loadTreesSingle, loadTreesBatch, exportAlignments, exportTrees, close, about, showPlots;	// fileMenu sub-items
 		JMenuItem help, reportBugs, contributeCode;														// helpMenu sub-items
 		
 		public PhylogenomicDatasetBrowserView(PhylogeniesView phy_view, AlignmentsView align_view){
@@ -213,6 +213,11 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			loadTreesBatch = new JMenuItem("As directory of files (batch operation)");
 			loadTrees.add(loadTreesSingle);
 			loadTrees.add(loadTreesBatch);
+			exportData = new JMenu("Export alignment/tree statistics data...");
+			exportAlignments 	= new JMenuItem("Export alignment stats");
+			exportTrees 		= new JMenuItem("Export tree stats");
+			exportData.add(exportAlignments);
+			exportData.add(exportTrees);
 			close = new JMenuItem("Quit CONTEXT/Phylogenomic Dataset Browser");
 						
 			// Instantiate the Help menu items
@@ -226,6 +231,7 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			fileMenu.add(showPlots);
 			fileMenu.add(loadAlignments);
 			fileMenu.add(loadTrees);
+			fileMenu.add(exportData);
 			fileMenu.addSeparator();
 			fileMenu.add(close);
 			
@@ -301,7 +307,8 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			view.loadAlignmentsBatch.addActionListener(batchAddAlignmentsListener);
 			view.loadTreesSingle.addActionListener(phylogeniesController.getAddSinglePhylogenyButtonListener());
 			view.loadTreesBatch.addActionListener(phylogeniesController.getAddBatchPhylogenyButtonListener());
-
+			view.exportAlignments.addActionListener(alignmentsController.getExportAlignmentDataButtonListener());
+			view.exportTrees.addActionListener(phylogeniesController.getExportTreeDataButtonListener());
 			
 			/* Add action listeners for other menu items */
 			view.about.addActionListener(new AboutMenuListener());
@@ -317,6 +324,8 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 			view.loadAlignmentsBatch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()+1));
 			view.loadTreesSingle.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 			view.loadTreesBatch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()+1));
+			view.exportAlignments.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+			view.exportTrees.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()+1));
 			view.close.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 			view.help.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		}

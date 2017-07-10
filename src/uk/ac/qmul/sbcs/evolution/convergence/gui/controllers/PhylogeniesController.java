@@ -31,6 +31,7 @@ import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsControlle
 import uk.ac.qmul.sbcs.evolution.convergence.gui.controllers.AlignmentsController.EmptyAlignmentsListException;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.models.PhylogeniesModel;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.views.PhylogeniesView;
+import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.TaxaLimitException;
 
 public class PhylogeniesController {
@@ -38,6 +39,7 @@ public class PhylogeniesController {
 	PhylogeniesView view;
 	AddSinglePhylogeniesListener addSinglePhylogenyListener = new AddSinglePhylogeniesListener();
 	AddBatchPhylogeniesListener addBatchPhylogeniesListener = new AddBatchPhylogeniesListener();
+	ExportTreeDataButtonListener exportTreeDataButtonListener = new ExportTreeDataButtonListener();
 	
 	/**
 	 * No-arg constructor is deprecated
@@ -61,6 +63,10 @@ public class PhylogeniesController {
 		return view.getPanel();
 	}
 	
+	public ExportTreeDataButtonListener getExportTreeDataButtonListener(){
+		return this.exportTreeDataButtonListener;
+	}
+	
 	/**
 	 * Forces the GUI view to show the last row of the model data table
 	 */
@@ -76,7 +82,13 @@ public class PhylogeniesController {
 			view.getFileChooser().showOpenDialog(view);
 			File phylogenyFile = view.getFileChooser().getSelectedFile();
 			// do nothing for now
-			model.addPhylogenyRow(phylogenyFile);
+			if(phylogenyFile.canRead()&&(!phylogenyFile.isDirectory())&&(!phylogenyFile.getName().equals(".DS_Store"))){
+				try {
+					model.addPhylogenyRow(phylogenyFile);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
 			forceUpdateViewWithLastModelRow();
 			/*
 			Object[][] modelData = model.getData();
@@ -179,10 +191,12 @@ public class PhylogeniesController {
 			int totalFiles = files.length;
 			int filesTried = 0;
 			for(File phylogenyFile:files){
-				try {
-					model.addPhylogenyRow(phylogenyFile);
-				} catch (Exception ex) {
-					ex.printStackTrace();
+				if(phylogenyFile.canRead()&&(!phylogenyFile.isDirectory()&&(!phylogenyFile.getName().equals(".DS_Store")))){
+					try {
+						model.addPhylogenyRow(phylogenyFile);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
 				}
 				filesTried++;
 				progress = Math.round(((float)filesTried / (float)totalFiles)*100f);
@@ -249,6 +263,27 @@ public class PhylogeniesController {
 		
 	}
 	
+	/**
+	 * Open a file chooser, pick a directory and write 'tree_descriptive_stats.tdf' there; a dump of all the Alignment objects' stats.
+	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / RBG Kew</a>
+	 *
+	 */
+	public class ExportTreeDataButtonListener implements ActionListener{
+		@Override
+		public void actionPerformed(ActionEvent ev) {
+			// Get string representing table data
+			String output = model.toString();
+			// System I/O - get a directory to write to.
+			view.getDirectoryChooser().showSaveDialog(null);
+			//view.getDirectoryChooser().showOpenDialog(view);
+			//File outputDirectory = view.getDirectoryChooser().getSelectedFile();
+			//File outputTextFile = new File(outputDirectory,"alignment_descriptive_stats.tdf");
+			new BasicFileWriter(view.getDirectoryChooser().getSelectedFile(),output);
+			System.out.println("Writing output to "+view.getDirectoryChooser().getSelectedFile().getPath()+"\n"+model.toString());
+		}
+	}
+
+
 	public TreeSet<String> updateTaxonSet(TreeSet<String> treeSet) throws Exception{
 		Object[][] data = model.getData();
 		if(data != null){

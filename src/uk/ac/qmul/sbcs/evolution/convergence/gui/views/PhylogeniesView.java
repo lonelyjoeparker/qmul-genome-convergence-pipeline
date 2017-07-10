@@ -127,16 +127,16 @@ public class PhylogeniesView extends JComponent {
 	public void addTable(PhylogeniesModel newTableModel){
 		selectionPanel.remove(phylogenyTableScrollPane);
 		phylogeniesTable = new JTable(newTableModel);
-		/*
-		 * table view fiddling ported from AlignmentsView.addTable() and not checked/implemented
-		 * 
-		phylogeniesTable.setPreferredScrollableViewportSize(new Dimension(700, 250));
+		phylogeniesTable.setPreferredScrollableViewportSize(new Dimension(500, 500));
 		phylogeniesTable.setFillsViewportHeight(true);
 		phylogeniesTable.setRowSelectionAllowed(true);
 		phylogeniesTable.setColumnSelectionAllowed(true);
 		phylogeniesTable.setCellSelectionEnabled(true);
 		phylogeniesTable.setAutoCreateRowSorter(true);
 		phylogeniesTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		/*
+		 * table view fiddling ported from AlignmentsView.addTable() and not checked/implemented
+		 * 
 		 *
 		 */
 		phylogenyTableScrollPane = new JScrollPane(phylogeniesTable);

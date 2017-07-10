@@ -39,7 +39,7 @@ public class AlignmentsController {
 	AddSingleAlignmentsButtonListener 	addAlignmentsListenerSingle;
 	AddBatchAlignmentsButtonListener 	addAlignmentsListenerBatch;
 	RemoveSelectedAlignmentsButtonListener	removeSelectedAlignmentSingle;
-	DumpTextFileButtonListener	dumpTextFileButtonListener;
+	ExportAlignmentDataButtonListener	exportAlignmentDataButtonListener;
 	TableDefinitionButtonListener tableDefinitionButtonListener;
 	ShowPlottingFrameButtonListener showPlottingFrameButtonListener;
 	GlobalController globalController;
@@ -66,12 +66,12 @@ public class AlignmentsController {
 		addAlignmentsListenerSingle = new AddSingleAlignmentsButtonListener();
 		addAlignmentsListenerBatch = new AddBatchAlignmentsButtonListener();
 		removeSelectedAlignmentSingle = new RemoveSelectedAlignmentsButtonListener();
-		dumpTextFileButtonListener = new DumpTextFileButtonListener();
+		exportAlignmentDataButtonListener = new ExportAlignmentDataButtonListener();
 		tableDefinitionButtonListener = new TableDefinitionButtonListener();
 		showPlottingFrameButtonListener = new ShowPlottingFrameButtonListener();
 		view.addAddAlignmentsButtonListener(addAlignmentsListenerSingle);
 		view.addRemoveAlignmentsButtonListener(removeSelectedAlignmentSingle);
-		view.addTextDumpButtonListener(dumpTextFileButtonListener);
+		view.addTextDumpButtonListener(exportAlignmentDataButtonListener);
 		view.addTableDefinitionButtonListener(tableDefinitionButtonListener);
 		view.addShowPlottingFrameButtonListener(showPlottingFrameButtonListener);
 		view.addTable(model);
@@ -149,7 +149,7 @@ public class AlignmentsController {
 	 * @author <a href="mailto:joe@kitson-consulting.co.uk">Joe Parker, Kitson Consulting / RBG Kew</a>
 	 *
 	 */
-	public class DumpTextFileButtonListener implements ActionListener{
+	public class ExportAlignmentDataButtonListener implements ActionListener{
 		@Override
 		public void actionPerformed(ActionEvent ev) {
 			// Get string representing table data
@@ -582,6 +582,10 @@ public class AlignmentsController {
 
 	public AddBatchAlignmentsButtonListener getAddBatchAlignmentsButtonListener(){
 		return this.addAlignmentsListenerBatch;
+	}
+
+	public ExportAlignmentDataButtonListener getExportAlignmentDataButtonListener() {
+		return exportAlignmentDataButtonListener;
 	}
 }
 

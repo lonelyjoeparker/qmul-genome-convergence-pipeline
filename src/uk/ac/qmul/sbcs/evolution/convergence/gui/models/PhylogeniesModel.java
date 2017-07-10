@@ -6,25 +6,46 @@ import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 
 import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceContext;
+import uk.ac.qmul.sbcs.evolution.convergence.PhylogenyConvergenceType;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogeny;
 import uk.ac.qmul.sbcs.evolution.convergence.gui.DisplayPhylogenyFactory;
 
 public class PhylogeniesModel extends AbstractTableModel{
 
 	/* Object variables */
-	
-	public final String[] columnNames = new String[]{
-			"File",					// 0
-			"NumberOfPhylogenies",	// 1
-			"NumberOfTips",			// 2
-			"TreeHeight",			// 3
-			"TreeLength",			// 4
-			"CherryCount",			// 5
-			"Treeness",				// 6
-			"ExternalInternalRatio",// 7
-			"FirstPhylogeny",		// 8
-			"PhylogenyConvergenceType"	//9
+	// Column indices of Integers
+	private final static Integer[] integerIndices = new Integer[]{1,2,5};
+	// Column indices of Floats
+	private final static Integer[] floatIndices = new Integer[]{3,4,6,7};
+	// Default values for (hopefully) sizing the table, etc
+	public final Object[] longValues = {
+			new Object(), 		// 0
+			new String(),		// 1 
+			new Integer(0), 	// 2
+			new Integer(0), 	// 3
+			new Double(0), 		// 4
+			new Double(0), 		// 5
+			new Double(0), 		// 6
+			new Double(0), 		// 7
+			new Double(0), 		// 8
+			new String(),		// 9 
+			new Object()
 			};
+	// The column names
+	public final String[] columnNames = new String[]{
+			"FilePath",				// 0
+			"File",					// 1
+			"NumberOfPhylogenies",	// 2
+			"NumberOfTips",			// 3
+			"TreeHeight",			// 4
+			"TreeLength",			// 5
+			"CherryCount",			// 6
+			"Treeness",				// 7
+			"ExternalInternalRatio",// 8
+			"FirstPhylogeny",		// 9
+			"PhylogenyConvergenceType"	// 10
+			};
+	// The data itself
 	private Object[][] data;
 	
 	/* Utility methods for TableModel type behaviour */
@@ -54,7 +75,18 @@ public class PhylogeniesModel extends AbstractTableModel{
 	@Override
 	public Object getValueAt(int row, int col) {
 		if(data != null){
-			return data[row][col];
+			if(col==6||col==7||col==8){
+				Object returnData;
+				Double dataValue = (Double)data[row][col];
+				if(dataValue.equals(Double.NaN)){
+					returnData="NA";
+				}else{
+					returnData=data[row][col];
+				}
+				return returnData;
+			}else{
+				return data[row][col];
+			}
 		}else{
 			return null;
 		}
@@ -89,7 +121,7 @@ public class PhylogeniesModel extends AbstractTableModel{
      * Overridden method to set value of (last column), ie the convergenceContextType
      * TODO removed for now, causing problems
      * FIXME sort this
-     * 
+     */
    public void setValueAt(Object value, int row, int col) {
     	if(col == getColumnCount()-1){
     		try {
@@ -106,10 +138,10 @@ public class PhylogeniesModel extends AbstractTableModel{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+    		
             fireTableCellUpdated(row, col);
     	}
     }
-     */
  
 	/**
 	 * Returns the internal Object[][] representing data. <b>Remember:</b>
@@ -139,7 +171,13 @@ public class PhylogeniesModel extends AbstractTableModel{
 	 */
 	public void addPhylogenyRow(File newTreeAsFile){
 		/* First, construct DisplayPhylogeny objects usind DisplayPhylogenyFactory methods */
-		DisplayPhylogeny[] phylogenies = DisplayPhylogenyFactory.fromFile(newTreeAsFile);
+		DisplayPhylogeny[] phylogenies = null;
+		try {
+			phylogenies = DisplayPhylogenyFactory.fromFile(newTreeAsFile);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		if((phylogenies != null)&&(phylogenies.length>0)){
 			/* 
 			 * The data[][] table will need to either be instantiated (if null) 
@@ -151,7 +189,7 @@ public class PhylogeniesModel extends AbstractTableModel{
 				/*
 				 * Column numberings:
 				 * 
-				"File",					// 0
+				"Filename",				// 0
 				"NumberOfPhylogenies",	// 1
 				"NumberOfTips",			// 2
 				"TreeHeight",			// 3
@@ -160,7 +198,8 @@ public class PhylogeniesModel extends AbstractTableModel{
 				"Treeness",				// 6
 				"ExternalInternalRatio",// 7
 				"FirstPhylogeny",		// 8
-				"PhylogenyConvergenceType"	//9
+				"PhylogenyConvergenceType"	// 9
+				"FilePath"				// 10
 				 */
 				System.out.println("the first row of the table is null");
 				// Create a new table
@@ -171,49 +210,54 @@ public class PhylogeniesModel extends AbstractTableModel{
 					Object[] newRow = new Object[getColumnCount()];
 					newRow[0] = dp;
 					try {
-						newRow[1] = dp.getNewickTree().getNumberOfTrees();
+						newRow[1] = dp.getTreeFile().getName();
 					} catch (Exception e) {
-						newRow[1] = 0;
+						newRow[1] = null;
 					}
 					try {
-						newRow[2] = dp.getTreeNode().howManyTips();
+						newRow[2] = dp.getNewickTree().getNumberOfTrees();
 					} catch (Exception e) {
-						newRow[2] = "0";
+						newRow[2] = "NA";
 					}
 					try {
-						newRow[3] = dp.getTreeNode().getTreeHeight();
+						newRow[3] = dp.getTreeNode().howManyTips();
 					} catch (Exception e) {
-						newRow[3] = "0";
+						newRow[3] ="NA";
 					}
 					try {
-						newRow[4] = dp.getTreeNode().getTreeLength();
+						newRow[4] = dp.getTreeNode().getTreeHeight();
 					} catch (Exception e) {
-						newRow[4] = "0";
+						newRow[4] ="NA";
 					}
 					try {
-						newRow[5] = dp.getTreeNode().getTreeCherryCount();
+						newRow[5] = dp.getTreeNode().getTreeLength();
 					} catch (Exception e) {
-						newRow[5] = "0";
+						newRow[5] ="NA";
 					}
 					try {
-						newRow[6] = dp.getTreeNode().getTreeTreeness();
+						newRow[6] = dp.getTreeNode().getTreeCherryCount();
 					} catch (Exception e) {
-						newRow[6] = "0";
+						newRow[6] ="NA";
 					}
 					try {
-						newRow[7] = dp.getTreeNode().getTreeExternalInternalRatio();
+						newRow[7] = dp.getTreeNode().getTreeTreeness();
 					} catch (Exception e) {
-						newRow[7] = "0";
+						newRow[7] ="NA";
 					}
 					try {
-						newRow[8] = dp.getTextTreeRepresentation();
+						newRow[8] = dp.getTreeNode().getTreeExternalInternalRatio();
 					} catch (Exception e) {
-						newRow[8] = "();";
+						newRow[8] ="NA";
 					}
 					try {
-						newRow[9] = dp.getConvergenceContext();
+						newRow[9] = dp.getTextTreeRepresentation();
 					} catch (Exception e) {
-						newRow[9] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
+						newRow[9] = "NA";
+					}
+					try {
+						newRow[10] = dp.getConvergenceContext();
+					} catch (Exception e) {
+						newRow[10] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 					}
 					// Add the new row to the table
 					newData[rowCount] = newRow;
@@ -231,27 +275,57 @@ public class PhylogeniesModel extends AbstractTableModel{
 				int rowCount = data.length;
 				for(DisplayPhylogeny dp:phylogenies){
 					// Create a new row as an Object[]
-					Object[] newRow = new Object[getColumnCount()];
+					Object[] newRow = new Object[data[0].length];
 					newRow[0] = dp;
 					try {
-						newRow[1] = dp.getNewickTree().getNumberOfTrees();
+						newRow[1] = dp.getTreeFile().getName();
 					} catch (Exception e) {
-						newRow[1] = 0;
+						newRow[1] = null;
 					}
 					try {
-						newRow[2] = dp.getTreeNode().howManyTips();
+						newRow[2] = dp.getNewickTree().getNumberOfTrees();
 					} catch (Exception e) {
-						newRow[2] = "0";
+						newRow[2] = "NA";
 					}
 					try {
-						newRow[3] = dp.getTextTreeRepresentation();
+						newRow[3] = dp.getTreeNode().howManyTips();
 					} catch (Exception e) {
-						newRow[3] = "();";
+						newRow[3] ="NA";
 					}
 					try {
-						newRow[4] = dp.getConvergenceContext();
+						newRow[4] = dp.getTreeNode().getTreeHeight();
 					} catch (Exception e) {
-						newRow[4] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
+						newRow[4] ="NA";
+					}
+					try {
+						newRow[5] = dp.getTreeNode().getTreeLength();
+					} catch (Exception e) {
+						newRow[5] ="NA";
+					}
+					try {
+						newRow[6] = dp.getTreeNode().getTreeCherryCount();
+					} catch (Exception e) {
+						newRow[6] ="NA";
+					}
+					try {
+						newRow[7] = dp.getTreeNode().getTreeTreeness();
+					} catch (Exception e) {
+						newRow[7] ="NA";
+					}
+					try {
+						newRow[8] = dp.getTreeNode().getTreeExternalInternalRatio();
+					} catch (Exception e) {
+						newRow[8] ="NA";
+					}
+					try {
+						newRow[9] = dp.getTextTreeRepresentation();
+					} catch (Exception e) {
+						newRow[9] = "NA";
+					}
+					try {
+						newRow[10] = dp.getConvergenceContext();
+					} catch (Exception e) {
+						newRow[10] = PhylogenyConvergenceContext.NULL_CONVERGENCE_CONTEXT_NOT_SET;
 					}
 					// Add the new row to the table
 					newData[rowCount] = newRow;
@@ -259,8 +333,14 @@ public class PhylogeniesModel extends AbstractTableModel{
 					rowCount++;
 				}
 			}
+			// Important!
+			// We need to check where the rows are going to be inserted - because one treefile may contain MANY trees
+			int lastRowInExistingTable = 0;
+			if(data != null){
+				lastRowInExistingTable = data.length-1;
+			}
 			data = newData;
-			this.fireTableRowsInserted(data.length-1, data.length-1);
+			this.fireTableRowsInserted(lastRowInExistingTable, lastRowInExistingTable);
 		}
 	}
 	
@@ -280,7 +360,7 @@ public class PhylogeniesModel extends AbstractTableModel{
 		
 		// Iterate through data[][] array, adding DisplayPhylogenies to the arrayList if their contexts match
 		for(Object[] aRow:data){
-			if(context == ((PhylogenyConvergenceContext)aRow[aRow.length-1])){
+			if(context == ((PhylogenyConvergenceContext)aRow[aRow.length-2])){
 				matchingPhylogenies.add((DisplayPhylogeny)aRow[0]);
 			}
 		}
@@ -295,5 +375,23 @@ public class PhylogeniesModel extends AbstractTableModel{
 			// return null
 			return null;
 		}
+	}
+	
+	@Override
+	public String toString(){
+		StringBuffer sb = new StringBuffer();
+		if(data != null){
+			for(String columnName:this.columnNames){
+				sb.append(columnName+"\t");
+			}
+			sb.append("\n");
+			for(Object[] aRow:data){
+				for(Object o:aRow){
+					sb.append(o.toString()+"\t");
+				}
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
 	}
 }

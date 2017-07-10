@@ -167,6 +167,10 @@ public class DisplayPhylogeny {
 		return newickTree;
 	}
 
+	public File getTreeFile() {
+		return treeFile;
+	}
+
 	public TreeNode getTreeNode() {
 		return treeNode;
 	}

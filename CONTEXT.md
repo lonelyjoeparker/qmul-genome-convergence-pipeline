@@ -18,16 +18,16 @@ You can't manually edit, align, or infer phylogenies with CONTEXT. There's plent
 
 ## How do I get it?
 
-This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/bin) for the most recent builds - [current version here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/blob/master/trunk/bin/CONTEXT-PhylogenomicDatasetBrowser-v0.8.3.jar?raw=true) (v0.8.3 prerelease).
+This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/builds-snapshots) for the most recent builds - [current version here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/tag/v0.8.4prereleasee) (v0.8.4 prerelease).
 
     Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers...
 
 ## How do I use it?
 
-Double-click the jarfile; or in a command-line run the jarfile with `java -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.3.jar`. Once it's up and running, select "File > Open Alignments..." or "File > Open Phylogenies" to get started.
+Double-click the jarfile; or in a command-line run the jarfile with `java -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.4prerelease.jar`. Once it's up and running, select "File > Open Alignments..." or "File > Open Phylogenies" to get started.
 
     We also recommend a minimum free system RAM of 2Gb, allocated using the '-Xmx' option in Java, e.g.: 
-    `java -Xmx2g -Xms2g -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.3.jar`
+    `java -Xmx2g -Xms2g -jar CONTEXT-PhylogenomicDatasetBrowser-v0.8.4prerelease.jar`
 
 #### Example input data
 
@@ -50,9 +50,11 @@ Thanks!
 
 ## Version and Roadmap
 
-Currently at public major 0.8 version. See [CONTEXT_versions.md](CONTEXT_versions.md) for more change log and version informations.
+Currently at prereleasee version 0.8.4, major version 0.8. See [CONTEXT_versions.md](CONTEXT_versions.md) for more change log and version informations.
 
-There is no formal roadmap for this project at present.
+This is intended to be the final version of CONTEXT before the full, public (publication) release, v0.9.0.
+
+We'll start work on changes (based on user feedback) for 0.9.1+ after six months, aiming for a 1.0 release a year from now.
 
 ## Credits
 

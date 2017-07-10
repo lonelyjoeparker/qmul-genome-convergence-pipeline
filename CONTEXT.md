@@ -18,7 +18,7 @@ You can't manually edit, align, or infer phylogenies with CONTEXT. There's plent
 
 ## How do I get it?
 
-This repository. See [the trunk/bin directory](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/builds-snapshots) for the most recent builds - [current version here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/tag/v0.8.4prereleasee) (v0.8.4 prerelease).
+This repository. See [the trunk/builds-snapshots](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/tree/master/trunk/builds-snapshots) for the most recent builds - [current version here](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/tag/v0.8.4prereleasee) (v0.8.4 prerelease).
 
     Hint: you'll need to right-click on the compressed archives and choose 'Save link as...' in most browsers...
 

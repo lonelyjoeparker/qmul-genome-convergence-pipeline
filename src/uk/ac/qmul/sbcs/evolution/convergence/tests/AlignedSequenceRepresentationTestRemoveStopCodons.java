@@ -25,13 +25,13 @@ public class AlignedSequenceRepresentationTestRemoveStopCodons extends TestCase 
 		vicugna = new AlignedSequenceRepresentation();
 		taxon166881 = new AlignedSequenceRepresentation();
 		try {
-			singleStopDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/singleStopDNA.phy"),true);
-			singleGapDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/singleGapDNA.phy"),true);
-			singleCodonGapDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/singleCodonGapDNA.phy"),true);
-			multipleGapDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/multipleGapDNA.phy"),true);
-			multipleStopDNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/multipleStopDNA.phy"),true);
-			vicugna.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/trouble.phy"),true);
-			taxon166881.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testStripGapsPreserveCodons/166881.phy"),true);
+			singleStopDNA.loadSequences(new File("junit-test-inputs/testStripGapsPreserveCodons/singleStopDNA.phy"),true);
+			singleGapDNA.loadSequences(new File("junit-test-inputs/testStripGapsPreserveCodons/singleGapDNA.phy"),true);
+			singleCodonGapDNA.loadSequences(new File("junit-test-inputs/testStripGapsPreserveCodons/singleCodonGapDNA.phy"),true);
+			multipleGapDNA.loadSequences(new File("junit-test-inputs/testStripGapsPreserveCodons/multipleGapDNA.phy"),true);
+			multipleStopDNA.loadSequences(new File("junit-test-inputs/testStripGapsPreserveCodons/multipleStopDNA.phy"),true);
+			vicugna.loadSequences(new File("junit-test-inputs/testStripGapsPreserveCodons/trouble.phy"),true);
+			taxon166881.loadSequences(new File("junit-test-inputs/testStripGapsPreserveCodons/166881.phy"),true);
 		} catch (TaxaLimitException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

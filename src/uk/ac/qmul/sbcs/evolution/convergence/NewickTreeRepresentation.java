@@ -15,12 +15,17 @@ import uk.ac.qmul.sbcs.evolution.convergence.util.BasicFileWriter;
  * 
  * @author - Joe Parker
  * @since - 02/11/2011
- * @version - 0.0.1
+ * @updated - 09/07/2017
+ * @version - 0.1.0
  * This class provides <b>limited</b> support for a Newick tree file and associated I/O.
  * It assumes one single tree on one line (the first) of the file.
  * The main purpose is to provide functionality to prune phylogenetic trees through the pruneTaxon() method.
  * <p>Note that the pruneTaxon() method simply uses regular expressions to parse the tree string; it does <b>NOT</b> create (or rely on) a true Newick tree repsesentation as a series of nested nodes, with associated traversal operations etc. 
  * In particular there is no guarantee that non-standard treefile formats will be correctly parsed, including BEAST and MrBayes trees.
+ * 
+ * <b>Update 09/07/2017:</b>
+ * <b>Up-version to 0.1.0</b>
+ * Now explicitly trying to detect NEXUS file, if so dying gracefully.
  */
 public class NewickTreeRepresentation {
 	private String treeString = null;
@@ -46,27 +51,76 @@ public class NewickTreeRepresentation {
 	 */
 	public NewickTreeRepresentation(File inputFile, TreeSet<String> names){
 		this.treeFile = inputFile;
-		ArrayList<String> trees = new CapitalisedFileReader().loadSequences(treeFile,true);
-		treeString = null;
-		for(String tree:trees){
-			if(!tree.isEmpty()){
-				if(treeString == null){
-					treeString = tree;
+		if(treeFile.exists()&&treeFile.canRead()&&(!treeFile.isDirectory())&&treeFile.isFile()){
+			ArrayList<String> trees = new CapitalisedFileReader().loadSequences(treeFile,true);
+			CharSequence nexusCS = new String("NEXUS").subSequence(0, "NEXUS".length());
+			CharSequence treesCS = new String("TREES").subSequence(0, "TREES".length());
+			CharSequence endCS = new String("END").subSequence(0, "END".length());
+			try {
+				if(trees.get(0).toUpperCase().contains(nexusCS)){
+					// assume it is NEXUS
+					System.err.println("tree parsing NEXUS.");
+					boolean inTreesBlock = false;
+					treeString = null;
+					for(String tree:trees){
+						if((!tree.isEmpty())&&inTreesBlock){
+							if(tree.contains(endCS)){
+								inTreesBlock=false;
+							}else{
+								String[] splitOnEquals = tree.split("=",2);
+								if(splitOnEquals.length==2){
+									// it looks like we've found a line of form:
+									// tree FOO = (blah);
+									// .. and should have the bit after.
+									String cleanedTree = splitOnEquals[1].trim();
+									tree=cleanedTree;
+									if(treeString == null){
+										treeString = tree;
+									}else{
+										treeString = treeString + "\n"+ tree;
+									}
+									numberOfTrees++;
+									System.out.println(tree);
+								}
+							}
+						}else{
+							if(tree.contains(treesCS)){inTreesBlock=true;}
+						}
+					}
 				}else{
-					treeString = treeString + "\n"+ tree;
+					// assume not NEXUS
+					// assume it is Phylip/Newick
+					// but catch a treefile exception
+					treeString = null;
+					for(String tree:trees){
+						if(!tree.isEmpty()){
+							if(treeString == null){
+								treeString = tree;
+							}else{
+								treeString = treeString + "\n"+ tree;
+							}
+							numberOfTrees++;
+						}
+					}
 				}
-				numberOfTrees++;
+			} catch (UnsupportedTreefileTypeParseException e) {
+				// TODO Auto-generated catch block
+				System.err.println("tree parsing failed.");
+				e.printStackTrace();
 			}
-		}
-		this.taxaNames = names;
-		this.numberOfTaxa = taxaNames.size();
-		this.separateTopologies = new String[this.numberOfTrees];
-		if(this.numberOfTrees>0){
-			this.separateTopologies = this.treeString.replaceAll("\\s+", "").split(";");
+			this.taxaNames = names;
+			this.numberOfTaxa = taxaNames.size();
+			this.separateTopologies = new String[this.numberOfTrees];
+			if(this.numberOfTrees>0){
+				this.separateTopologies = this.treeString.replaceAll("\\s+", "").split(";");
+			}else{
+				this.separateTopologies[0] = this.treeString;
+			}
+			this.separateTopologies = StringCharAppender.appendEach(separateTopologies, ';');
 		}else{
-			this.separateTopologies[0] = this.treeString;
+			System.err.println("SERIOUS: cannot read/open treefile "+treeFile.getPath()+" for some reason.");
+			System.out.println("SERIOUS: cannot read/open treefile "+treeFile.getPath()+" for some reason.");
 		}
-		this.separateTopologies = StringCharAppender.appendEach(separateTopologies, ';');
 	}
 	
 	@Deprecated
@@ -77,27 +131,76 @@ public class NewickTreeRepresentation {
 	 */
 	public NewickTreeRepresentation(File inputFile){
 		this.treeFile = inputFile;
-		ArrayList<String> trees = new CapitalisedFileReader().loadSequences(treeFile,true);
-		treeString = null;
-		for(String tree:trees){
-			if(!tree.isEmpty()){
-				if(treeString == null){
-					treeString = tree;
+		if(treeFile.exists()&&treeFile.canRead()&&(!treeFile.isDirectory())&&treeFile.isFile()){
+			ArrayList<String> trees = new CapitalisedFileReader().loadSequences(treeFile,true);
+			CharSequence nexusCS = new String("NEXUS").subSequence(0, "NEXUS".length());
+			CharSequence treesCS = new String("TREES").subSequence(0, "TREES".length());
+			CharSequence endCS = new String("END").subSequence(0, "END".length());
+			try {
+				if(trees.get(0).toUpperCase().contains(nexusCS)){
+					// assume it is NEXUS
+					System.err.println("tree parsing NEXUS.");
+					boolean inTreesBlock = false;
+					treeString = null;
+					for(String tree:trees){
+						if((!tree.isEmpty())&&inTreesBlock){
+							if(tree.contains(endCS)){
+								inTreesBlock=false;
+							}else{
+								String[] splitOnEquals = tree.split("=",2);
+								if(splitOnEquals.length==2){
+									// it looks like we've found a line of form:
+									// tree FOO = (blah);
+									// .. and should have the bit after.
+									String cleanedTree = splitOnEquals[1].trim();
+									tree=cleanedTree;
+									if(treeString == null){
+										treeString = tree;
+									}else{
+										treeString = treeString + "\n"+ tree;
+									}
+									numberOfTrees++;
+									System.out.println(tree);
+								}
+							}
+						}else{
+							if(tree.contains(treesCS)){inTreesBlock=true;}
+						}
+					}
 				}else{
-					treeString = treeString + "\n"+ tree;
+					// assume not NEXUS
+					// assume it is Phylip/Newick
+					// but catch a treefile exception
+					treeString = null;
+					for(String tree:trees){
+						if(!tree.isEmpty()){
+							if(treeString == null){
+								treeString = tree;
+							}else{
+								treeString = treeString + "\n"+ tree;
+							}
+							numberOfTrees++;
+						}
+					}
 				}
-				numberOfTrees++;
+			} catch (UnsupportedTreefileTypeParseException e) {
+				// TODO Auto-generated catch block
+				System.err.println("tree parsing failed.");
+				e.printStackTrace();
 			}
-		}
-		this.taxaNames = this.obtainTaxaNames(treeString);
-		this.numberOfTaxa = taxaNames.size();
-		this.separateTopologies = new String[this.numberOfTrees];
-		if(this.numberOfTrees>0){
-			this.separateTopologies = this.treeString.replaceAll("\\s+", "").split(";");
+			this.taxaNames = this.obtainTaxaNames(treeString);
+			this.numberOfTaxa = taxaNames.size();
+			this.separateTopologies = new String[this.numberOfTrees];
+			if(this.numberOfTrees>0){
+				this.separateTopologies = this.treeString.replaceAll("\\s+", "").split(";");
+			}else{
+				this.separateTopologies[0] = this.treeString;
+			}
+			this.separateTopologies = StringCharAppender.appendEach(separateTopologies, ';');
 		}else{
-			this.separateTopologies[0] = this.treeString;
+			System.err.println("SERIOUS: cannot read/open treefile "+treeFile.getPath()+" for some reason.");
+			System.out.println("SERIOUS: cannot read/open treefile "+treeFile.getPath()+" for some reason.");
 		}
-		this.separateTopologies = StringCharAppender.appendEach(separateTopologies, ';');
 	}
 	
 	public NewickTreeRepresentation(String tree, TreeSet<String> names){

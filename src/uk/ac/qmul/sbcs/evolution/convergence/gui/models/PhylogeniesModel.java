@@ -87,22 +87,30 @@ public class PhylogeniesModel extends AbstractTableModel{
     
     /**
      * Overridden method to set value of (last column), ie the convergenceContextType
-     */
-    public void setValueAt(Object value, int row, int col) {
+     * TODO removed for now, causing problems
+     * FIXME sort this
+     * 
+   public void setValueAt(Object value, int row, int col) {
     	if(col == getColumnCount()-1){
-    		// get the convergence context
-    		PhylogenyConvergenceContext newPhylogenyConvergenceContext = (PhylogenyConvergenceContext)value;
-            // set the table value
-    		data[row][col] = newPhylogenyConvergenceContext;
-    		// don't forget to update the displayphylogeny
-            DisplayPhylogeny dp = (DisplayPhylogeny)data[row][0];
-            dp.setConvergenceContext(newPhylogenyConvergenceContext);
-            // and... update again
-            data[row][0] = dp;
+    		try {
+				// get the convergence context
+				PhylogenyConvergenceContext newPhylogenyConvergenceContext = (PhylogenyConvergenceContext)value;
+				// set the table value
+				data[row][col] = newPhylogenyConvergenceContext;
+				// don't forget to update the displayphylogeny
+				DisplayPhylogeny dp = (DisplayPhylogeny)data[row][0];
+				dp.setConvergenceContext(newPhylogenyConvergenceContext);
+				// and... update again
+				data[row][0] = dp;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             fireTableCellUpdated(row, col);
     	}
     }
-
+     */
+ 
 	/**
 	 * Returns the internal Object[][] representing data. <b>Remember:</b>
 	 * <ul>

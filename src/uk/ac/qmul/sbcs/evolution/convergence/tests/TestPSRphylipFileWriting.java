@@ -34,11 +34,11 @@ public class TestPSRphylipFileWriting {
 				PSR.loadSequences(inputFile,true);
 				PSR.printShortSequences(20);
 				System.out.println("read "+PSR.getNumberOfSites()+" sites and "+PSR.getNumberOfTaxa()+" taxa.");
-				PSR.writePhylipFile("/Users/gsjones/Documents/all_work/programming/java/testingOutputAndOtherCrap/testPSRwrite.txt");
+				PSR.writePhylipFile("junit-test-inputs/debug/testingOutputAndOtherCrap/testPSRwrite.txt");
 				try{
 					PSR.translate(true);
 					PSR.printShortSequences(20);
-					PSR.writePhylipFile("/Users/gsjones/Documents/all_work/programming/java/testingOutputAndOtherCrap/testPSRwriteTRANSLATED.txt");
+					PSR.writePhylipFile("junit-test-inputs/debug/testingOutputAndOtherCrap/testPSRwriteTRANSLATED.txt");
 				}catch(Exception e){}
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block

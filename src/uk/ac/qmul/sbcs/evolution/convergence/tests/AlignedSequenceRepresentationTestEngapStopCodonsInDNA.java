@@ -16,8 +16,8 @@ public class AlignedSequenceRepresentationTestEngapStopCodonsInDNA extends TestC
 		singleStop = new AlignedSequenceRepresentation();
 		singleStopRNA = new AlignedSequenceRepresentation();
 		try {
-			singleStop.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testEngapStopCodonsInDNA/singleStop.phy"),true);
-			singleStopRNA.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testEngapStopCodonsInDNA/singleStopRNA.phy"),true);
+			singleStop.loadSequences(new File("junit-test-inputs/testEngapStopCodonsInDNA/singleStop.phy"),true);
+			singleStopRNA.loadSequences(new File("junit-test-inputs/testEngapStopCodonsInDNA/singleStopRNA.phy"),true);
 		} catch (TaxaLimitException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

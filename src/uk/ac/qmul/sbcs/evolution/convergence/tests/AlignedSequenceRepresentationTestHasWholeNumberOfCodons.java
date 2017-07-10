@@ -29,14 +29,14 @@ public class AlignedSequenceRepresentationTestHasWholeNumberOfCodons extends Tes
 		emptyFile = new AlignedSequenceRepresentation();
 		
 		try {
-			bigWhole.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testHasWholeNumberOfCodons/largeWhole.phy"),true);
-			bigOneOff.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testHasWholeNumberOfCodons/largeOneOff.phy"),true);
-			bigTwoOff.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testHasWholeNumberOfCodons/largeTwoOff.phy"),true);
-			smallWhole.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testHasWholeNumberOfCodons/smallWhole.phy"),true);
-			one.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testHasWholeNumberOfCodons/one.phy"),true);
-			two.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testHasWholeNumberOfCodons/two.phy"),true);
-		//	none.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testHasWholeNumberOfCodons/none.phy"),true);
-		//	emptyFile.loadSequences(new File("/Users/gsjones/Documents/all_work/programming/java/QMUL_GCP/debug_data/testHasWholeNumberOfCodons/emptyFile.phy"),true);
+			bigWhole.loadSequences(new File("junit-test-inputs/testHasWholeNumberOfCodons/largeWhole.phy"),true);
+			bigOneOff.loadSequences(new File("junit-test-inputs/testHasWholeNumberOfCodons/largeOneOff.phy"),true);
+			bigTwoOff.loadSequences(new File("junit-test-inputs/testHasWholeNumberOfCodons/largeTwoOff.phy"),true);
+			smallWhole.loadSequences(new File("junit-test-inputs/testHasWholeNumberOfCodons/smallWhole.phy"),true);
+			one.loadSequences(new File("junit-test-inputs/testHasWholeNumberOfCodons/one.phy"),true);
+			two.loadSequences(new File("junit-test-inputs/testHasWholeNumberOfCodons/two.phy"),true);
+		//	none.loadSequences(new File("junit-test-inputs/testHasWholeNumberOfCodons/none.phy"),true);
+		//	emptyFile.loadSequences(new File("junit-test-inputs/testHasWholeNumberOfCodons/emptyFile.phy"),true);
 		} catch (TaxaLimitException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

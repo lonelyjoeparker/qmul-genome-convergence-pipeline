@@ -30,7 +30,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 	}
 
 	public void testNewickTreeRepresentationFileTreeSetOfString() {
-		File file = new File("/pamlTest/simpleNewick.tre");
+		File file = new File("junit-test-inputs/simpleNewick.tre");
 		TreeSet<String> names = new TreeSet<String>();
 		names.add("Human");
 		names.add("Chimpanzee");
@@ -44,6 +44,40 @@ public class NewickTreeRepresentationTest extends TestCase {
 
 	public void testNewickTreeRepresentationFile() {
 		fail("Not yet implemented"); // TODO
+	}
+	
+	public void testNewickTreeRepresentationSimpleNexusFileWithNamesSet(){
+		File simpleNexus = new File("junit-test-inputs/exampleTree.tre");
+		File simplePhylip = new File("junit-test-inputs/exampleTree2.tre");
+		TreeSet<String> names = new TreeSet<String>();
+		names.add("a");
+		names.add("b");
+		names.add("c");
+		names.add("d");
+		names.add("e");
+		NewickTreeRepresentation nexusTree = new NewickTreeRepresentation(simpleNexus,names);
+		NewickTreeRepresentation phylipTree = new NewickTreeRepresentation(simplePhylip,names);
+		System.out.println(nexusTree.getNumberOfTaxa()+" taxa read.");
+		nexusTree.printSimply();
+		if(!((nexusTree.getNumberOfTrees()==phylipTree.getNumberOfTrees())&&(phylipTree.getNumberOfTrees()>2))){
+			fail("parsing has failed");
+		}else{
+			System.out.println("limited treeParsing NEXUS seems to have worked...");
+		}
+	}
+
+	public void testNewickTreeRepresentationSimpleNexusFileNoNamesSet(){
+		File simpleNexus = new File("junit-test-inputs/exampleTree.tre");
+		File simplePhylip = new File("junit-test-inputs/exampleTree2.tre");
+		NewickTreeRepresentation nexusTree = new NewickTreeRepresentation(simpleNexus);
+		NewickTreeRepresentation phylipTree = new NewickTreeRepresentation(simplePhylip);
+		System.out.println(nexusTree.getNumberOfTaxa()+" taxa read.");
+		nexusTree.printSimply();
+		if(!((nexusTree.getNumberOfTrees()==phylipTree.getNumberOfTrees())&&(phylipTree.getNumberOfTrees()>2))){
+			fail("parsing has failed");
+		}else{
+			System.out.println("limited treeParsing NEXUS seems to have worked...");
+		}
 	}
 
 	public void testNewickTreeRepresentationStringTreeSetOfString() {
@@ -122,7 +156,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 
 	@Deprecated
 	public void testWriteFile() {
-		File alternativeFile = new File("/pamlTest/newickTestWrite.tre");
+		File alternativeFile = new File("junit-test-inputs/newickTestWrite.tre");
 		String input = ("(((Human:0.1,Chimpanzee:0.2):0.8,Gorilla:0.3):0.7,Orangutan:0.4,Gibbon:0.5);");
 		TreeSet<String> names = new TreeSet<String>();
 		names.add("Human");
@@ -145,7 +179,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 	}
 
 	public void testPruneTaxon() {
-		File file = new File("/pamlTest/simpleNewick.tre");
+		File file = new File("junit-test-inputs/simpleNewick.tre");
 		TreeSet<String> names = new TreeSet<String>();
 		names.add("Human");
 		names.add("Chimpanzee");
@@ -166,7 +200,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 	}
 
 	public void testPruneTaxonTwo() {
-		File file = new File("/pamlTest/simpleNewick.tre");
+		File file = new File("junit-test-inputs/simpleNewick.tre");
 		TreeSet<String> names = new TreeSet<String>();
 		names.add("Human");
 		names.add("Chimpanzee");
@@ -187,7 +221,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 	}
 	
 	public void testPrunePipeline(){
-		File treeFileH0 = new File("/pamlTest/topologies/20120330/Spp.tre");
+		File treeFileH0 = new File("junit-test-inputs/Spp.tre");
 		TreeSet<String> taxaList = new TreeSet<String>();
 		TreeSet<String> pruneList = new TreeSet<String>();
 		taxaList.add("TURSIOPS");
@@ -226,8 +260,8 @@ public class NewickTreeRepresentationTest extends TestCase {
 	}
 
 	public void testPrunePipelineNWUtilsPrune(){
-		File treeFileH0 = new File("/pamlTest/topologies/20120330/Spp.UC.tre");
-		File binaries = new File("/usr/local/bin/");
+		File treeFileH0 = new File("junit-test-inputs/Spp.UC.tre");
+		File binaries = new File("./bin-dependencies");
 		TreeSet<String> taxaList = new TreeSet<String>();
 		TreeSet<String> pruneList = new TreeSet<String>();
 		taxaList.add("TURSIOPS");
@@ -267,8 +301,8 @@ public class NewickTreeRepresentationTest extends TestCase {
 	}
 
 	public void testPrunePipelineNWUtilsPruneAndDeRoot(){
-		File treeFileH0 = new File("/pamlTest/topologies/20120330/Spp.UC.tre");
-		File binaries = new File("/usr/local/bin/");
+		File treeFileH0 = new File("junit-test-inputs/Spp.UC.tre");
+		File binaries = new File("./bin-dependencies");
 		TreeSet<String> taxaList = new TreeSet<String>();
 		TreeSet<String> pruneList = new TreeSet<String>();
 		taxaList.add("TURSIOPS");
@@ -309,8 +343,8 @@ public class NewickTreeRepresentationTest extends TestCase {
 	}
 
 	public void testPrunePipelineNWUtilsPruneAndDeRootEmptyPruneList(){
-			File treeFileH0 = new File("/pamlTest/topologies/20120330/Spp.UC.tre");
-			File binaries = new File("/usr/local/bin/");
+			File treeFileH0 = new File("junit-test-inputs/Spp.UC.tre");
+			File binaries = new File("./bin-dependencies");
 			TreeSet<String> taxaList = new TreeSet<String>();
 			TreeSet<String> pruneList = new TreeSet<String>();
 			taxaList.add("TURSIOPS");
@@ -356,7 +390,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 	 */
 	public void testPrintIterativelyLabellingTips(){
 		// set up the tree object itself as an initialised NewickTreeRepresentation
-		File file = new File("/pamlTest/simpleNewick.tre");
+		File file = new File("junit-test-inputs/simpleNewick.tre");
 		TreeSet<String> names = new TreeSet<String>();
 		names.add("Human");
 		names.add("Chimpanzee");
@@ -376,7 +410,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 	 */
 	public void testWriteIterativelyLabellingTips(){
 		// set up the tree object itself as an initialised NewickTreeRepresentation
-		File file = new File("/pamlTest/simpleNewick.tre");
+		File file = new File("junit-test-inputs/simpleNewick.tre");
 		TreeSet<String> names = new TreeSet<String>();
 		names.add("Human");
 		names.add("Chimpanzee");
@@ -386,7 +420,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 		NewickTreeRepresentation r = new NewickTreeRepresentation(file,names);
 		
 		// write the tree with iterative branch labelling
-		r.writeLabellingTipsRecursively(new File("/pamlTest/labelledIterativelyNewick.tre"));
+		r.writeLabellingTipsRecursively(new File("junit-test-inputs/labelledIterativelyNewick.tre"));
 	}
 	
 	public void testReadMultipleTrees(){
@@ -425,7 +459,7 @@ public class NewickTreeRepresentationTest extends TestCase {
 
 	public void testPrunePipelineNWUtilsPruneMultipleTrees(){
 		File treeFileH0 = new File("/Users/gsjones/Documents/all_work/QMUL/FSD/results_revision_mar2013/f_100_ENSG00000070214_ng.fas/debug.tre");
-		File binaries = new File("/usr/local/bin/");
+		File binaries = new File("./bin-dependencies");
 		TreeSet<String> taxaList = new TreeSet<String>();
 		TreeSet<String> pruneList = new TreeSet<String>();
 		taxaList.add("TURSIOPS");

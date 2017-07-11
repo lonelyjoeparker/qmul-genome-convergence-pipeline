@@ -235,76 +235,48 @@ public class TreeNodeTest extends TestCase {
 		n1.getEndPos();
 	}
 
-	public void testCalculateTreeStats(){
+	public void testCalculateTreeStatsFelsenstein2004Data(){
 		/*
-		 * Tree stats from TreeStat v1.7.4:
-		 * Tree Length	36
-		 * Tree Height	18
-		 * Height 1	5
-		 * Height 2	8
-		 * Height 3	11
-		 * Height 4	18
-		 * Branch 1	3
-		 * Branch 2	6
-		 * Branch 3	7
-		 * a	11
-		 * b	12
-		 * c	17
-		 * d	18
-		 * e	8
-		 * tMRCA	18
-		 * B1	2.5
-		 * Cherry count	2
-		 * Colless tree-imbalance	0.5
-		 * N_bar	2.6
-		 * Treeness	0.444444444
-		 * Gamma	-0.6
-		 * Delta	-1.642857143
+		 * Use the tree in Felsenstein (2004)pp.563 toTree stats from TreeStat v1.7.4:
 		 * External/Internal ratio	1.25
-		 * Fu & Li's D	-0.209394767
+		 * Treeness	0.444444444
+		 * Tree Height	5
+		 * Tree Length	18
+		 * Cherry count	4
+		 * Colless tree-imbalance	0.194444444
+		 * Tips 10
 		 */
 		
 		// implemented so far; test should pass these
-		final double predictedTreeLength = 36;
-		final double predictedCherryCount = 2;
+		final double predictedTreeLength = 18;
+		final double predictedCherryCount = 4;
 		final double predictedTreeness = 0.444444444;
-		final double predictedTreeHeight = 18;
+		final double predictedTreeHeight = 5;
 		final double predictedExternalInternalRatio = 1.25;
+		final double predictedTipCount = 10;
 		// TODO TOP priority to implement
-		final double predictedCollessTreeImbalance = 0.5;
-		// TODO next priotity to implement
-		final double predictedB1 = 2.5;
-		final double predictedN_bar = 2.6;
-		final double predictedGamma = -0.6;
-		final double predictedDelta	= -1.642857143;
-		final double predictedFuAndLiD = -0.209394767;
-		// not a priority to implement
-		final double predictedHeight_1 = 5;
-		final double predictedHeight_2 = 8;
-		final double predictedHeight_3 = 11;
-		final double predictedHeight_4 = 18;
-		final double predictedBranch_1 = 3;
-		final double predictedBranch_2 = 6;
-		final double predictedBranch_3 = 7;
-		final double predicted_a = 11;
-		final double predicted_b = 12;
-		final double predicted_c = 17;
-		final double predicted_d = 18;
-		final double predicted_e = 8;
+		final double predictedCollessTreeImbalance = 0.194444444;
+
 		// tolerable rounding errors
 		final double tolerableError = 0.00001d;
 		// the tree which should have these
-		TreeNode testTree = new TreeNode("(((a:1,b:2):3,(c:4,d:5):6):7,e:8);",1);
+		String felsenstein = "(((((a1:1.0,a2:1.0):1.0,b:1.0):1.0,c:1.0):1.0,(d1:1.0,d2:1.0):1.0):1.0,((f1:1.0,f2:1.0):1.0,(g1:1.0,g2:1.0):1.0):1.0);";
+		TreeNode felsensteinTree = new TreeNode(felsenstein,1);
 		// get the stats
-		double treeTreeLength = testTree.getTreeLength();
-		double treeCherryCount = testTree.getTreeCherryCount();
-		double treeCollessTreeImbalance = testTree.getTreeCollessTreeImbalance();
-		double treeTreeness = testTree.getTreeTreeness();
-		double treeTreeHeight = testTree.getTreeHeight();
-		double treeExternalInternalRatio = testTree.getTreeExternalInternalRatio();
+		double treeTreeLength = felsensteinTree.getTreeLength();
+		double treeCherryCount = felsensteinTree.getTreeCherryCount();
+		double treeCollessTreeImbalance = felsensteinTree.getTreeCollessNormalised();
+		double treeTreeness = felsensteinTree.getTreeTreeness();
+		double treeTreeHeight = felsensteinTree.getTreeHeight();
+		double treeExternalInternalRatio = felsensteinTree.getTreeExternalInternalRatio();
+		double treeTipCount = (double)felsensteinTree.getCountTipsBelow();
+		// quick check on tips count for interest
+		if(felsensteinTree.getCountTipsBelow() != felsensteinTree.getTipsBelow().length){
+			fail("Tree tip counts by String[]  and int methods disagree!");
+		}
 		// print the stats (verbose, convenient for now)
-		System.out.println("length\t"+treeTreeLength + "\t" + testTree.getContent());
-		System.out.println("height\t"+treeTreeHeight + "\t" + testTree.getContent());
+		System.out.println("length\t"+treeTreeLength + "\t" + felsensteinTree.getContent());
+		System.out.println("height\t"+treeTreeHeight + "\t" + felsensteinTree.getContent());
 		// compare the stats
 		HashMap<String,Double> testResults;
 		// should PASS
@@ -314,6 +286,7 @@ public class TreeNodeTest extends TestCase {
 		testResults.put("treeErrorTreeness",Math.abs(treeTreeness-predictedTreeness));
 		testResults.put("treeErrorExternalInternalRatio",Math.abs(treeExternalInternalRatio-predictedExternalInternalRatio));
 		testResults.put("treeErrorCherryCount",Math.abs(treeCherryCount-predictedCherryCount));
+		testResults.put("treeErrorCollessTreeImbalance",Math.abs(treeCollessTreeImbalance-predictedCollessTreeImbalance));
 		// fail test
 		Iterator<String> resultsChecker;
 		resultsChecker = testResults.keySet().iterator();
@@ -775,5 +748,110 @@ public class TreeNodeTest extends TestCase {
 		System.out.println(numbered.printRecursivelyAsNumberedNodes());
 		System.out.println(numbered.printRecursively());
 	
+	}
+
+	public void testCalculateTreeStats(){
+		/*
+		 * Tree stats from TreeStat v1.7.4:
+		 * Tree Length	36
+		 * Tree Height	18
+		 * Height 1	5
+		 * Height 2	8
+		 * Height 3	11
+		 * Height 4	18
+		 * Branch 1	3
+		 * Branch 2	6
+		 * Branch 3	7
+		 * a	11
+		 * b	12
+		 * c	17
+		 * d	18
+		 * e	8
+		 * tMRCA	18
+		 * B1	2.5
+		 * Cherry count	2
+		 * Colless tree-imbalance	0.5
+		 * N_bar	2.6
+		 * Treeness	0.444444444
+		 * Gamma	-0.6
+		 * Delta	-1.642857143
+		 * External/Internal ratio	1.25
+		 * Fu & Li's D	-0.209394767
+		 */
+		
+		// implemented so far; test should pass these
+		final double predictedTreeLength = 36;
+		final double predictedCherryCount = 2;
+		final double predictedTreeness = 0.444444444;
+		final double predictedTreeHeight = 18;
+		final double predictedExternalInternalRatio = 1.25;
+		// TODO TOP priority to implement
+		final double predictedCollessTreeImbalance = 0.5;
+		// TODO next priotity to implement
+		final double predictedB1 = 2.5;
+		final double predictedN_bar = 2.6;
+		final double predictedGamma = -0.6;
+		final double predictedDelta	= -1.642857143;
+		final double predictedFuAndLiD = -0.209394767;
+		// not a priority to implement
+		final double predictedHeight_1 = 5;
+		final double predictedHeight_2 = 8;
+		final double predictedHeight_3 = 11;
+		final double predictedHeight_4 = 18;
+		final double predictedBranch_1 = 3;
+		final double predictedBranch_2 = 6;
+		final double predictedBranch_3 = 7;
+		final double predicted_a = 11;
+		final double predicted_b = 12;
+		final double predicted_c = 17;
+		final double predicted_d = 18;
+		final double predicted_e = 8;
+		// tolerable rounding errors
+		final double tolerableError = 0.00001d;
+		// the tree which should have these
+		TreeNode testTree = new TreeNode("(((a:1,b:2):3,(c:4,d:5):6):7,e:8);",1);
+		// get the stats
+		double treeTreeLength = testTree.getTreeLength();
+		double treeCherryCount = testTree.getTreeCherryCount();
+		double treeCollessTreeImbalance = testTree.getTreeCollessTreeImbalanceNumerator();
+		double treeTreeness = testTree.getTreeTreeness();
+		double treeTreeHeight = testTree.getTreeHeight();
+		double treeExternalInternalRatio = testTree.getTreeExternalInternalRatio();
+		// print the stats (verbose, convenient for now)
+		System.out.println("length\t"+treeTreeLength + "\t" + testTree.getContent());
+		System.out.println("height\t"+treeTreeHeight + "\t" + testTree.getContent());
+		// compare the stats
+		HashMap<String,Double> testResults;
+		// should PASS
+		testResults = new HashMap<String,Double>();
+		testResults.put("treeErrorLength",Math.abs(treeTreeLength-predictedTreeLength));
+		testResults.put("treeErrorHeight",Math.abs(treeTreeHeight-predictedTreeHeight));
+		testResults.put("treeErrorTreeness",Math.abs(treeTreeness-predictedTreeness));
+		testResults.put("treeErrorExternalInternalRatio",Math.abs(treeExternalInternalRatio-predictedExternalInternalRatio));
+		testResults.put("treeErrorCherryCount",Math.abs(treeCherryCount-predictedCherryCount));
+		// fail test
+		Iterator<String> resultsChecker;
+		resultsChecker = testResults.keySet().iterator();
+		while(resultsChecker.hasNext()){
+			String stat = (String) resultsChecker.next();
+			if(testResults.get(stat)>tolerableError){
+				fail("Wrong "+stat+",\terror "+testResults.get(stat)+", tolerable error "+tolerableError+")");
+			}else{
+				System.out.println("Passed "+stat+",\terror "+testResults.get(stat)+", tolerable error "+tolerableError+")");
+			}
+		}
+		// currently FAILING
+		testResults = new HashMap<String,Double>();
+		testResults.put("treeErrorCollessTreeImbalance",Math.abs(treeCollessTreeImbalance-predictedCollessTreeImbalance));
+		// fail test
+		resultsChecker = testResults.keySet().iterator();
+		while(resultsChecker.hasNext()){
+			String stat = (String) resultsChecker.next();
+			if(testResults.get(stat)>tolerableError){
+				fail("Wrong "+stat+",\terror "+testResults.get(stat)+", tolerable error "+tolerableError+")");
+			}else{
+				System.out.println("Passed "+stat+",\terror "+testResults.get(stat)+", tolerable error "+tolerableError+")");
+			}
+		}
 	}
 }

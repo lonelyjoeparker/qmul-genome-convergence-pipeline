@@ -3,7 +3,7 @@ _Versioning information for the [CONTEXT](CONTEXT.md) tool_
 ## 0.8.4 Public
 *Mainly issues covered in [#43](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/43)*
 
-[_2016-07-10_ **0.8.4** | Prerelease](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/tag/v0.8.4prerelease)
+[_2016-07-10_ **0.8.4** | Prerelease](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/tag/v0.8.4prerelease):
 * Available at [trunk/builds-snapshots directory as executable jarfile](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/download/v0.8.4prerelease/CONTEXT-v0.8.4prerelease.jar)
     - Closes [#43](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/43)
 * UI improvements:
@@ -40,12 +40,12 @@ _2015-08-25_ **0.8.1**:
    * Fixes issues [#45](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/45) [#44](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/44) [#39](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/issues/39)
    * Updates to GUI layout and rendering performance for phylogenies.
 
-_2015-08-19_ **0.8 | First public version**:
+[_2015-08-19_ **0.8 | Prerelease | First public version**](https://github.com/lonelyjoeparker/qmul-genome-convergence-pipeline/releases/tag/v0.8.1-prerelease):
 * Renamed for public release to **CONTEXT** which is backronyms fairly weakly to 'COmparative NucleoTide (and amino-acid) EXplorer Tool'
    * Adds support for dump of alignment stats to tab-delimited textfile
    * Improvements to GUI rendering in DisplayAlignmentPanel to speed it up (a lot). Now handles ~000s alignments, even on a Raspi 2.
 
 ## Previous versions
 
-_2011-2015_ Internal version 0.1 - 0.9:
+_2011-2015_ Internal version 0.1 - 0.8:
 * Known as 'BasicAlignmentStats', 'BasicAlignmentStatsGUI', and 'PhylogenomicDatasetBrowser'

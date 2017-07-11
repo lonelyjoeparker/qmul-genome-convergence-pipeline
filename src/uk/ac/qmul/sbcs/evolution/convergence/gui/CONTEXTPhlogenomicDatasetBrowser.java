@@ -10,6 +10,8 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,6 +29,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.*;
@@ -89,6 +92,38 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 	}
 	
 	/**
+	 * constructor (mainly intended for benchmarks) where a file is loaded first
+	 * @param preloadFile
+	 */
+	public CONTEXTPhlogenomicDatasetBrowser(String preloadFile){
+		/* Instantiate the model-view-controllers */
+
+		//Instantiate the specific model / view / controllers first, so that the controllers can be passed to globalcontroller.
+		// First alignments MVC
+		alignmentsModel = new AlignmentsModel();
+		alignmentsView = new AlignmentsView();
+		alignmentsController = new AlignmentsController(alignmentsModel, alignmentsView);
+
+		// Phylogenies MVC
+		phylogeniesModel = new PhylogeniesModel();
+		phylogeniesView = new PhylogeniesView();
+		phylogeniesController = new PhylogeniesController(phylogeniesModel, phylogeniesView);
+		
+		// PhylogenomicDatasetBrowser MVC
+		model = new PhylogenomicDatasetBrowserModel();
+		view = new PhylogenomicDatasetBrowserView(phylogeniesView, alignmentsView);
+		controller = new PhylogenomicDatasetBrowserController(model, view, alignmentsController, phylogeniesController);
+		
+		File loadMe = new File(preloadFile);
+		
+		if(loadMe.isDirectory()){
+			alignmentsController.forceLoadDirectory(loadMe);
+		}			
+		System.exit(0);
+		
+	}
+	
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -110,7 +145,12 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 	    	// handle exception
 	    }
 
-        javax.swing.SwingUtilities.invokeLater(new CONTEXTPhlogenomicDatasetBrowser());
+	    if(args.length>0){
+	    	System.out.println("invoked with arg");
+	        javax.swing.SwingUtilities.invokeLater(new CONTEXTPhlogenomicDatasetBrowser(args[0]));  	
+	    }else{
+	    	javax.swing.SwingUtilities.invokeLater(new CONTEXTPhlogenomicDatasetBrowser());
+	    }
 	}
 
 	@Override

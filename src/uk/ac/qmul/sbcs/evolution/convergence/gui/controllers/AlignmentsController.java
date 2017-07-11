@@ -302,10 +302,47 @@ public class AlignmentsController {
 	        } 
 	    }
 	}
+	
+	public void forceLoadDirectory(File forceOpen){
+		AlignmentsImportTask task;
 
+		if(forceOpen.isDirectory()){
+            File[] files;
+            if(forceOpen != null && forceOpen.isDirectory()){
+            	files = forceOpen.listFiles();
+            }else{
+    			files  = view.getDirectoryChooser().getSelectedFile().listFiles();
+            }
+			int totalFiles = files.length;
+			int filesTried = 0;
+			DisplayAlignment da = null;
+			for(File alignmentFile:files){
+				try {
+					AlignedSequenceRepresentation asr = new AlignedSequenceRepresentation();
+					if(asr.loadSequences(alignmentFile, false)){
+						asr.calculateAlignmentStats(false);
+						da = new DisplayAlignment(alignmentFile.getName(),asr);
+						model.addRow(da, asr);
+					}
+				} catch (TaxaLimitException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NullPointerException ex) {
+					ex.printStackTrace();
+				}
+				filesTried++;
+			}
+			if(da != null){
+				view.updateAlignmentScrollPanes(da);
+				summaryStatisticsTableModel.setData(model.getSummaryStatistics());
+			}
+		}			
+	}
+	
     class AlignmentsImportTask extends SwingWorker<Void, Void> {
 		JLabel taskLabel;
 		JProgressBar taskBar;
+		File forceOpen = null;
 		public final String completeText = "Done ";
 		public final int completeInt = 100;
 		
@@ -326,6 +363,13 @@ public class AlignmentsController {
 			// TODO Auto-generated constructor stub
 		}
 
+		/**
+		 * Force the task to open a certain File
+		 * @param file
+		 */
+		public void setForceOpen(File file){
+			forceOpen = file;
+		}
 		/*
          * Main task. Executed in background thread.
          */
@@ -334,7 +378,12 @@ public class AlignmentsController {
             int progress = 0;
             //Initialize progress property.
             setProgress(0);
-			File[] files  = view.getDirectoryChooser().getSelectedFile().listFiles();
+            File[] files;
+            if(forceOpen != null && forceOpen.isDirectory()){
+            	files = forceOpen.listFiles();
+            }else{
+    			files  = view.getDirectoryChooser().getSelectedFile().listFiles();
+            }
 			int totalFiles = files.length;
 			int filesTried = 0;
 			DisplayAlignment da = null;

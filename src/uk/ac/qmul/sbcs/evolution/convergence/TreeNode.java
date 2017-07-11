@@ -47,7 +47,9 @@ public class TreeNode {
 	// sum over internal nodes (abs(left daughter children - right daughter children)) / N
 	// NB: assumes bifurcating! 
 	// return -1 if polytomy
-	private double collessTreeImbalance = 0.0d;
+	private double collessTreeImbalanceNumerator = 0.0d;
+	// number of terminal tips below this node (nb =1 ifTerminal)
+	private int tipsBelowCount = 0;
 	
 	/**
 	 * Constructor for node
@@ -424,6 +426,22 @@ public class TreeNode {
 					this.internalBranchLengths+=daughter.getInternalBranchLengths();
 					// externalBranchLengths: 	length of branches below, external only
 					this.externalBranchLengths+=daughter.getExternalBranchLengths();
+					// count of tips below this node
+					this.tipsBelowCount+=daughter.getCountTipsBelow();
+				}
+				// colless:	sum over internal nodes (abs(left daughter children - right daughter children)) / N
+				// NB: assumes bifurcating!	return -1 if polytomy
+				// return the numerator only
+				if(daughters.size()==2){
+					int daughterLeftTips  = daughters.get(0).getCountTipsBelow();
+					int daughterRightTips = daughters.get(1).getCountTipsBelow();
+					int C = 2*(Math.abs(daughterLeftTips - daughterRightTips));
+					this.collessTreeImbalanceNumerator = 
+							daughters.get(0).getTreeCollessTreeImbalanceNumerator() +
+							daughters.get(1).getTreeCollessTreeImbalanceNumerator() +
+							C;
+				}else{
+					this.collessTreeImbalanceNumerator = Double.NaN;
 				}
 				// postorder stats
 				// 	internalBranchLengths:	length of branches below, internal only
@@ -448,6 +466,7 @@ public class TreeNode {
 				if(isCherry){ this.cherryCount++; }
 				// colless:	sum over internal nodes (abs(left daughter children - right daughter children)) / N
 				// NB: assumes bifurcating!	return -1 if polytomy
+				// return the numerator only
 			}else{
 				/*
 				 *  calculate tree stats for a tip node:
@@ -476,7 +495,10 @@ public class TreeNode {
 				
 				// colless:	sum over internal nodes (abs(left daughter children - right daughter children)) / N
 				// NB: assumes bifurcating!	return -1 if polytomy
-				this.collessTreeImbalance = 0;
+				this.collessTreeImbalanceNumerator = 0;
+				
+				// number of tips below, 1
+				this.tipsBelowCount = 1;
 			}
 		}
 		this.treeStatsCalculated = true;
@@ -486,6 +508,18 @@ public class TreeNode {
 	 *	...TREE STATS SECTION.
 	 */
 	
+	// number of tips below this node (nb if isTerminal, returns 1)
+	public int getCountTipsBelow() {
+		if(isTerminal){
+			return 1;
+		}else{
+			if(!treeStatsCalculated){
+				this.calculateTreeStats();
+			}
+			return this.tipsBelowCount;
+		}
+	}
+
 	// sum of all internal and external branch lengths
 	public double getTreeLength(){
 		if(!treeStatsCalculated){
@@ -502,14 +536,40 @@ public class TreeNode {
 		return this.cherryCount;
 	}
 
-	// sum over internal nodes (abs(left daughter children - right daughter children)) / N
-	// NB: assumes bifurcating! 
-	// return -1 if polytomy
-	public double getTreeCollessTreeImbalance() {
+	/**
+	 * Colless (1982):
+	 * 
+	 * Sum over internal nodes 2*(abs(left daughter children - right daughter children)) 
+	 * NB: assumes bifurcating! 
+	 * 
+	 * To get the full Colless stat, C / (n-1)(n-2), use the getTreeCollessNormalised() method.
+	 * 
+	 * @return int the NUMERATOR only of the Colless (1982) statistic. NaN if polytomy
+	 */
+	public double getTreeCollessTreeImbalanceNumerator() {
 		if(!treeStatsCalculated){
 			this.calculateTreeStats();
 		}
-		return this.collessTreeImbalance;
+		return this.collessTreeImbalanceNumerator;
+	}
+
+	/**
+	 * Colless (1982):
+	 * 
+	 * Sum over internal nodes 2*(abs(left daughter children - right daughter children)) 
+	 * NB: assumes bifurcating! 
+	 * 
+	 * This method DOES NOT traverse the tree, therefore can only give sensible results if called on the top (root) node.
+	 * Returns Double.NaN if any polytomies.
+	 * Tree traversal for the numerator of the statistic is calculated/held by getTreeCollessTreeImbalanceNumerator()
+	 * 
+	 * @return double the NORMALISED Colless (1982) statistic. 
+	 */
+	public double getTreeCollessNormalised() {
+		if(!treeStatsCalculated){
+			this.calculateTreeStats();
+		}
+		return this.collessTreeImbalanceNumerator / ( (this.getCountTipsBelow() - 1) * (this.getCountTipsBelow() - 2) );
 	}
 
 	// internal : (internal + external) branch lengths

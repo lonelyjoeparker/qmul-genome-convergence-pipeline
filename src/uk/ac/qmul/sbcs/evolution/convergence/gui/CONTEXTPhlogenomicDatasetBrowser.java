@@ -117,7 +117,15 @@ public class CONTEXTPhlogenomicDatasetBrowser implements Runnable {
 		File loadMe = new File(preloadFile);
 		
 		if(loadMe.isDirectory()){
-			alignmentsController.forceLoadDirectory(loadMe);
+			try {
+				alignmentsController.forceLoadDirectory(loadMe);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println("SERIOUS: force loading FAILED");
+				System.err.println("SERIOUS: force loading FAILED");
+				e.printStackTrace();
+				System.exit(1);
+			}
 		}			
 		System.exit(0);
 		

@@ -2,6 +2,10 @@
 
 _COmparative Nucleotide (and amino-acid) and Trees EXplorer Tool_
 
+![Alignment browser in CONTEXT](images/CONTREXT-alignmentsDisplay.png)
+![Alignment browser in CONTEXT](images/CONTREXT-plottingDisplay.png)
+![Alignment browser in CONTEXT](images/CONTREXT-phylogeniesDisplay.png)
+
 ---
 
 ## What does it do?
@@ -82,4 +86,8 @@ The CONTEXT codebase references the following open-source libraries:
 
 The executable jarfiles (see trunk/bin directory) come with these build-path dependencies already packaged. They should run as standalone Java apps with no additional dependencies.
 
+## Benchmarking
 
+We are undertaking benchmarking on a variety of machines to improve performance, especially loading speed. These are implemented so far in [./benchmarks](./benchmarks). If you'd like to help, the [benchmarking build](./trunk/builds-snapshots/CONTEXT-v0.8.4prerelease-benchmarking.jar) of CONTEXT is intended to initialise, load a sample dataset (directory of alignments) specified through the command line, and then exit. The alignments used are available on request (partly from [doi:10.1038/nature12511](http://dx.doi.org/10.1038/nature12511)).
+
+![Benchmarking output](benchmarks/BenchmarkingContext-figure.png)

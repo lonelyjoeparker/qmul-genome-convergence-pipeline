@@ -36,12 +36,12 @@ from shutil import copyfile
 #subprocess.call(["ls","-laht"])
 
 #print subprocess.check_output("ls -laht", shell=True)
-timing_string = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease.jar /mnt/1C58FFD758FFAE20/nature_12511/manually_curated_2 >/dev/null 2>/dev/null'
-timing_string = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease.jar /mnt/1C58FFD758FFAE20/nature_12511/cds_alns_20120815  >/dev/null 2>/dev/null'
+#timing_string = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease-benchmarking.jar /mnt/1C58FFD758FFAE20/nature_12511/manually_curated_2 >/dev/null 2>/dev/null'
+#timing_string = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease-benchmarking.jar /mnt/1C58FFD758FFAE20/nature_12511/cds_alns_20120815  >/dev/null 2>/dev/null'
 
-then = time.time()
+#then = time.time()
 #print subprocess.check_output(timing_string, shell=True)
-now = time.time()
+#now = time.time()
 #print (now - then)
 
 reps = {}
@@ -56,56 +56,55 @@ index = 0
 
 print "\t".join(str(x) for x in reps.values())
 
-# sampled_files = os.listdir(sampling_dir)
-# for file in sampled_files:
-#     if file.endswith(".fas"):
-#         os.remove(os.path.join(sampling_dir,file))
 
 # In[129]:
 #
-nature_dir = '/mnt/1C58FFD758FFAE20/nature_12511/cds_alns_20120815/'
-timing_string_replicates = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease.jar ./benchmark_inputs/  >/dev/null 2>/dev/null'
+nature_dir = '/nature_12511/cds_alns_20120815/'
+timing_string_replicates = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease-benchmarking.jar ./benchmark_inputs/  >/dev/null 2>/dev/null'
 source_contents = os.listdir(nature_dir)
 replicates = 5
 sampling_dir = "./benchmark_inputs/"
-#
-#for sample in [10,50,100,500,1000]:
-#     print 'sampling' , sample
-#
-#     reps = {}
-#     index = 0
-#     for r in range(replicates):
-#         empty_list_dicts = {}
-#         #print 'replicate',r
-#
-#         for file in source_contents:
-#             #print file
-#             empty_list_dicts[os.urandom(8)] = file
-#
-#
-#         selection = 0
-#         for k, v in sorted(empty_list_dicts.items()):
-#             if selection < sample:
-#                 #print k, "\t\t", v
-#                 fullpath = os.path.join(nature_dir,v)
-#                 destpath = os.path.join(sampling_dir,v)
-#                 copyfile(fullpath,destpath)
-#                 selection+=1
-#
-#         then = time.time()
-#         print subprocess.check_output(timing_string_replicates, shell=True)
-#         now = time.time()
-#         print sample, "22sp\t," , (now - then)
-#         index += 1
-#         #print "\n"
-#
-# #    print "\t".join(str(x) for x in reps.values())
-# #    print "\n--\n"
-#     sampled_files = os.listdir(sampling_dir)
-#     for file in sampled_files:
-#         if file.endswith(".fas"):
-#             os.remove(os.path.join(sampling_dir,file))
 
+# delete old before we start
+sampled_files = os.listdir(sampling_dir)
+for file in sampled_files:
+	if file.endswith(".fas"):
+		os.remove(os.path.join(sampling_dir,file))
+
+# for sample in [10,50,100,500,1000]:
+#      print 'sampling' , sample
+# 
+#      reps = {}
+#      index = 0
+#      for r in range(replicates):
+#          empty_list_dicts = {}
+#          #print 'replicate',r
+# 
+#          for file in source_contents:
+#              #print file
+#              empty_list_dicts[os.urandom(8)] = file
+# 
+# 
+#          selection = 0
+#          for k, v in sorted(empty_list_dicts.items()):
+#              if selection < sample:
+#                  #print k, "\t\t", v
+#                  fullpath = os.path.join(nature_dir,v)
+#                  destpath = os.path.join(sampling_dir,v)
+#                  copyfile(fullpath,destpath)
+#                  selection+=1
+# 
+#          then = time.time()
+#          print subprocess.check_output(timing_string_replicates, shell=True)
+#          now = time.time()
+#          time.sleep(5) # bit of a delay to help the OS out
+#          print sample, "22sp\t," , (now - then)
+#          index += 1
+#          sampled_files = os.listdir(sampling_dir)
+#          for file in sampled_files:
+#          	 if file.endswith(".fas"):
+#          		 os.remove(os.path.join(sampling_dir,file))
+# 
 
 #
 # # In[132]:
@@ -115,26 +114,32 @@ sampling_dir = "./benchmark_inputs/"
 # mao_4_spp  = '/mnt/1C58FFD758FFAE20/mao_for_joe_4_spp/'
 # mao_10_spp = '/mnt/1C58FFD758FFAE20/mao_for_joe_10_spp-genes3655/'
 #
-# timing_string_replicates = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease.jar ./benchmark_inputs/  >/dev/null 2>/dev/null'
-#
+mao_10_joe = '/Users/joeparker/Documents/all_work/QMUL-convEvol/mao_introgression/10spp/for_Joe_10species/genes_3655'
+mao_4_joe = '/Users/joeparker/Documents/all_work/QMUL-convEvol/mao_introgression/for_Joe_4species/genes'
+
+mao_4_spp = mao_4_joe
+mao_10_spp = mao_10_joe
+
+# timing_string_replicates = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease-benchmarking.jar ./benchmark_inputs/  >/dev/null 2>/dev/null'
+# #
 # source_contents = os.listdir(mao_4_spp)
 # replicates = 5
 # sampling_dir = "./benchmark_inputs/"
-#
+# #
 # for sample in [10,50,100,500,1000,2000,3000]:
 #     print 'sampling 4spp' , sample
-#
+# #
 #     reps = {}
 #     index = 0
 #     for r in range(replicates):
 #         empty_list_dicts = {}
 #         #print 'replicate',r
-#
+# #
 #         for file in source_contents:
 #             #print file
 #             empty_list_dicts[os.urandom(8)] = file
-#
-#
+# #
+# #
 #         selection = 0
 #         for k, v in sorted(empty_list_dicts.items()):
 #             if selection < sample:
@@ -143,37 +148,38 @@ sampling_dir = "./benchmark_inputs/"
 #                 destpath = os.path.join(sampling_dir,v)
 #                 copyfile(fullpath,destpath)
 #                 selection+=1
-#
+# #
 #         then = time.time()
 #         print subprocess.check_output(timing_string_replicates, shell=True)
 #         now = time.time()
+#         time.sleep(5) # bit of a delay to help the OS out
 #         print sample, " 4spp\t," , (now - then)
 #         index += 1
-#
-#     # delete files before starting a new replicate
-#     sampled_files = os.listdir(sampling_dir)
-#     for file in sampled_files:
-#         if file.endswith(".fas"):
-#             os.remove(os.path.join(sampling_dir,file))
-#
-
-#
+# #
+# 		# delete files before starting a new replicate
+#         sampled_files = os.listdir(sampling_dir)
+#         for file in sampled_files:
+#             if file.endswith(".fas"):
+#                 os.remove(os.path.join(sampling_dir,file))
+# #
+# 
+# #
 
 # In[4]:
 
 #repeat for the 4spp and 10spp cases. they have more loci so we can push the sample sizes a bit B)
-
-mao_4_spp  = '/mnt/1C58FFD758FFAE20/mao_for_joe_4_spp/'
-mao_10_spp = '/mnt/1C58FFD758FFAE20/mao_for_joe_10_spp-genes3655/'
-
-timing_string_replicates = 'java -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease.jar ./benchmark_inputs/  >/dev/null 2>/dev/null'
+# 
+# mao_4_spp  = '/mnt/1C58FFD758FFAE20/mao_for_joe_4_spp/'
+# mao_10_spp = '/mnt/1C58FFD758FFAE20/mao_for_joe_10_spp-genes3655/'
+# 
+timing_string_replicates = 'java -Xmx4g -Xms4g -jar ../trunk/builds-snapshots/CONTEXT-v0.8.4prerelease-benchmarking.jar ./benchmark_inputs/  >>java.log 2>>java.err'
 
 source_contents = os.listdir(mao_10_spp)
 replicates = 5
 sampling_dir = "./benchmark_inputs/"
 
 samples = [10,50,100,500,1000,2000,3000]
-samples.reverse()
+samples.reverse()	#start with the larges first
 for sample in samples:
     print 'sampling 10spp' , sample
 
@@ -201,14 +207,19 @@ for sample in samples:
                 selection+=1
 
         # run the context benchmark on this sample
-        then = time.time()
-        print subprocess.check_output(timing_string_replicates, shell=True)
-        now = time.time()
-        print sample, " 10spp\t," , (now - then)
+        try: 
+            then = time.time()
+            print subprocess.check_output(timing_string_replicates, shell=True)
+            now = time.time()
+            print sample, " 10spp\t," , (now - then)
+        except:
+            print sample, " 10spp\t, NA"
+
+        time.sleep(5)	# bit of a delay to help the OS out
         index += 1
 
-    # delete files before starting a new replicate
-    sampled_files = os.listdir(sampling_dir)
-    for file in sampled_files:
-        if file.endswith(".fas"):
-            os.remove(os.path.join(sampling_dir,file))
+		# delete files before starting a new replicate
+        sampled_files = os.listdir(sampling_dir)
+        for file in sampled_files:
+            if file.endswith(".fas"):
+                os.remove(os.path.join(sampling_dir,file))

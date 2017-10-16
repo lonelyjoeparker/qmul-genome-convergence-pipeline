@@ -16,21 +16,35 @@ import javax.swing.JFileChooser;
 import uk.ac.qmul.sbcs.evolution.convergence.util.CustomFileWriter;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SerfileFilter;
 import uk.ac.qmul.sbcs.evolution.convergence.AlignedSequenceRepresentation;
+import uk.ac.qmul.sbcs.evolution.convergence.analyses.MultiHnCongruenceAnalysis;
 import uk.ac.qmul.sbcs.evolution.convergence.util.SitewiseSpecificLikelihoodSupportAaml;
 
 public class ResultsPrinterSimple{
 
-	static String arg1;
+	static String inputDirectoryString;
 	boolean printSites = false;
 	int maxTrees;
 	File dir;
 
-	public ResultsPrinterSimple(String arg12, String arg2, String maxtreesInt) {
+	/**
+	 * Attempts to parse the output of the convergence/congruence pipeline, e.g. *.ser serialized {@link SitewiseSpecificLikelihoodSupportAaml} files.
+	 * @param inputDirectory - <String> A string path to a directory. Will be searched non-recursively for *.ser files.
+	 * @param printSitewiseSSLS - <0|1> should sitewise dSSLS characters be printed to STDOUT?
+	 * @param maxtreesInt - <2...N> Maximum number of trees to look for in the analyses. This will take a minimum value of 2, e.g. the H0 'species' topology and an H1 'alternative' topology.
+	 * 
+	 * Output is: fitted species trees to output.trees; and tab-delimited results to STOUT and output.txt, one per line for each *.ser file found.
+	 * In addition, sitewise dSSLS values will be printed out for each results file if printSites=1 is specified.
+	 * 
+ 	 * @see {@link ResultsPrinterSimple#extractEnsemblCodeFromSerFile()}
+ 	 * @see {@link ResultsPrinterSimple#go()}
+ 	 * @see {@link SitewiseSpecificLikelihoodSupportAaml} 
+	 */
+	public ResultsPrinterSimple(String inputDirectory, String printSitewiseSSLS, String maxtreesInt) {
 		// TODO Auto-generated constructor stub
-		this.arg1 = arg12;
-		this.dir = new File(arg1);
-		if(arg2 != null){
-			int intval = Integer.parseInt(arg2);
+		this.inputDirectoryString = inputDirectory;
+		this.dir = new File(inputDirectoryString);
+		if(printSitewiseSSLS != null){
+			int intval = Integer.parseInt(printSitewiseSSLS);
 			if(intval==1){
 				this.printSites = true;
 			}
@@ -40,10 +54,10 @@ public class ResultsPrinterSimple{
 		}
 	}
 
-	public ResultsPrinterSimple(String arg12) {
+	public ResultsPrinterSimple(String inputDirectory) {
 		// TODO Auto-generated constructor stub
-		this.arg1 = arg12;
-		this.dir = new File(arg1);
+		this.inputDirectoryString = inputDirectory;
+		this.dir = new File(inputDirectoryString);
 		this.maxTrees = 0;
 		this.printSites = false;
 	}
@@ -55,26 +69,129 @@ public class ResultsPrinterSimple{
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		try {
-			new ResultsPrinterSimple(args[0], args[1], args[2]).go();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			new ResultsPrinterSimple(args[0]).go();
-			e.printStackTrace();
+		// look for help message
+		if(args[0].equals("-h")){
+			// print help message and exit
+			System.out.println(""+
+"* Attempts to parse the output of the convergence/congruence pipeline, e.g. *.ser serialized {@link SitewiseSpecificLikelihoodSupportAaml} files.\n"+
+"* @param inputDirectory - <String> A string path to a directory. Will be searched non-recursively for *.ser files.\n"+
+"* @param printSitewiseSSLS - <0|1> should sitewise dSSLS characters be printed to STDOUT?\n"+
+"* @param maxtreesInt - <2...N> Maximum number of trees to look for in the analyses. This will take a minimum value of 2, e.g. the H0 'species' topology and an H1 'alternative' topology.\n"+
+"* \n"+
+"* Output is: fitted species trees to output.trees; and tab-delimited results to STOUT and output.txt, one per line for each *.ser file found.\n"+
+"* In addition, sitewise dSSLS values will be printed out for each results file if printSites=1 is specified.\n"+
+"* \n"+
+"/**\n"+
+"* The analysis method called by main():\n"+
+"* \n"+
+"* <ul>\n"+
+"* <li>Scans the directory given and looks (non-recursively) for *.ser serialized SitewiseSpecificLikekihoodSupportAaml objects.</li>\n"+
+"* <li>Attempts to open each one in turn.</li>\n"+
+"* <li>Prints out the fitted species trees to output.trees</li>\n"+
+"* <li>Prints out results to screen and output.txt</li>\n"+
+"* </ul>\n"+
+"* \n"+
+"* The results are printed as tab-delimited ASCII data, one line per file (usually in the input order,\n"+
+"* e.g. filesystem default alphanumeric sorting - check to verify on your system..!)\n"+
+"* </ul>\n"+
+"* The ordering is:\n"+
+"* <ul>\n"+
+"* <li>	Column	Name	Values	Meaning</li>\n"+
+"* <li>	0	locus	String	Name of the locus, <b>if</b> it contains an Ensembl code parseable by {@link ResultsPrinterSimple#extractEnsemblCodeFromSerFile()} - usually doesn't</li>\n"+
+"* <li>	1	ensemblURL	String	URL for the ensembl gene (see above)</li>\n"+
+"* <li>	2	shortcode	String	Shortcode for the ensemble gene (see above)</li>\n"+
+"* <li>	3	description String	Description for the ensemble gene (see above)</li>\n"+
+"* <li>	4	homog	float	The observed chi-sq heterogeneity in the input data, via PAML</li>\n"+
+"* <li>	5	model	String	The amino-acid substitution model, one of {wag,jones,dayhoff}</li>\n"+
+"* <li>	6	missingData float or int	The value of the missing data filter applied to input alignments to filter gaps. This will be float (if a % of taxa) or int (if absolute number)</li>\n"+
+"* <li>	7	lnL (species tree)	float	The log-likelihood of the species (H0) tree, e.g. the first tree fitted. This is obtained from PAML via the aaml.out file and may contain rounding.</li>\n"+
+"* <li>	8	length (species tree) float	Length of the species tree in expected substitutions, again from PAML with rounding etc.</li>\n"+
+"* <li>	9	model alpha	float	Alpha parameter of the substitution model</li>\n"+
+"* <li>	10	numberOfTaxa	int	Number of taxa in the alignment/tree</li>\n"+
+"* <li>	11	numberOfSites	int	Number of sites in the alignment</li>\n"+
+"* <li>	12	preferredTopology	int	Which topology is denoted 'preferred' by PAML (refers to input order of trees given in AAML .ctl file / aaml.out, e.g. 0=first, 1=second etc). This uses the SH or KH statistics. See PAML reference for details. Where branch lengths are very short this designation may be meaningless.</li>\n"+
+"* </ul>\n"+
+"* In addition, the following columns are appended for each of the alternative trees H1...Hn (column numberings increment with each additional tree)\n"+
+"* <ul>\n"+
+"* <li>	13	d_lnL_H1	float	The difference in log-likelihoods for the H0 - H1 trees, as reported by PAML's aaml.out file. Note that due to PAML's rounding, this may equal zero even when small sitewise SSLS differences exist.</li>\n"+
+"* <li>	14	dSSLS_H1	float	The average of the sitewise dSSLS values, e.g. sitewise H0 - sitewise H1. This is calculated to {@link java.math.BigDecimal} precision and ResultsPrinterSimple will attempt to print to 16 decimal place precision; but may be rounded further when printing - do not trust values smaller than about |10e-4| to |10e-6|... <b>NOTE</b> that the denominator for this calculation is the <i>total</i> number of sites, not the number of informative sites, or the number of site patterns.</li>\n"+
+"* <li>	15	tSSLS_H1	float	Average of sitewise dSSLS values as above, except that only 'big threshold' sitewise differences (bigger than |0.1| magnitude in log-units) are counted. <b>NOTE</b> that the denominator for this calculation is the <i>total</i> number of sites, not the count of big-threshold sites, the number of informative sites, or the number of site patterns.</li>\n"+
+"* <li>	16	numThresh_H1	float	The number of individual sitewise dSSLS values for the H0-H1 comparison smaller than -0.1 (e.g. more extreme / very incongruent with H0 / much more supportive of H1)</li>\n"+
+"* <li>	17	d_lnL_H2	float	And so on for each alternative H2, H3.. Hn etc...</li>\n"+
+"* </ul>\n"+
+"* In addition, the individual sitewise dSSLS values are printed out for each .ser file in turn if the printSites=1 option has been invoked.\n"+
+"* \n"+
+"* @see {@link MultiHnCongruenceAnalysis#go()}\n"+
+"* @see {@link ResultsPrinterSimple#extractEnsemblCodeFromSerFile()}\n"+
+"* @see {@link ResultsPrinterSimple#extractEnsemblCodeFromSerFile()}\n"+
+"* @see {@link ResultsPrinterSimple#go()}\n"+
+"* @see {@link SitewiseSpecificLikelihoodSupportAaml} \n"+
+"");
+		}else{
+			// execute
+			try {
+				new ResultsPrinterSimple(args[0], args[1], args[2]).go();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				new ResultsPrinterSimple(args[0]).go();
+				e.printStackTrace();
+			}
 		}
 	}
 
+	/**
+	 * The analysis method called by main():
+	 * 
+	 * <ul>
+	 * <li>Scans the directory given and looks (non-recursively) for *.ser serialized SitewiseSpecificLikekihoodSupportAaml objects.</li>
+	 * <li>Attempts to open each one in turn.</li>
+	 * <li>Prints out the fitted species trees to output.trees</li>
+	 * <li>Prints out results to screen and output.txt</li>
+	 * </ul>
+	 * 
+	 * The results are printed as tab-delimited ASCII data, one line per file (usually in the input order,
+	 * e.g. filesystem default alphanumeric sorting - check to verify on your system..!)
+	 * </ul>
+	 * The ordering is:
+	 * <ul>
+	 * <li>	Column	Name	Values	Meaning</li>
+	 * <li>	0	locus	String	Name of the locus, <b>if</b> it contains an Ensembl code parseable by {@link ResultsPrinterSimple#extractEnsemblCodeFromSerFile()} - usually doesn't</li>
+	 * <li>	1	ensemblURL	String	URL for the ensembl gene (see above)</li>
+	 * <li>	2	shortcode	String	Shortcode for the ensemble gene (see above)</li>
+	 * <li>	3	description String	Description for the ensemble gene (see above)</li>
+	 * <li>	4	homog	float	The observed chi-sq heterogeneity in the input data, via PAML</li>
+	 * <li>	5	model	String	The amino-acid substitution model, one of {wag,jones,dayhoff}</li>
+	 * <li>	6	missingData float or int	The value of the missing data filter applied to input alignments to filter gaps. This will be float (if a % of taxa) or int (if absolute number)</li>
+	 * <li>	7	lnL (species tree)	float	The log-likelihood of the species (H0) tree, e.g. the first tree fitted. This is obtained from PAML via the aaml.out file and may contain rounding.</li>
+	 * <li>	8	length (species tree) float	Length of the species tree in expected substitutions, again from PAML with rounding etc.</li>
+	 * <li>	9	model alpha	float	Alpha parameter of the substitution model</li>
+	 * <li>	10	numberOfTaxa	int	Number of taxa in the alignment/tree</li>
+	 * <li>	11	numberOfSites	int	Number of sites in the alignment</li>
+	 * <li>	12	preferredTopology	int	Which topology is denoted 'preferred' by PAML (refers to input order of trees given in AAML .ctl file / aaml.out, e.g. 0=first, 1=second etc). This uses the SH or KH statistics. See PAML reference for details. Where branch lengths are very short this designation may be meaningless.</li>
+	 * </ul>
+	 * In addition, the following columns are appended for each of the alternative trees H1...Hn (column numberings increment with each additional tree)
+	 * <ul>
+	 * <li>	13	d_lnL_H1	float	The difference in log-likelihoods for the H0 - H1 trees, as reported by PAML's aaml.out file. Note that due to PAML's rounding, this may equal zero even when small sitewise SSLS differences exist.</li>
+	 * <li>	14	dSSLS_H1	float	The average of the sitewise dSSLS values, e.g. sitewise H0 - sitewise H1. This is calculated to {@link java.math.BigDecimal} precision and ResultsPrinterSimple will attempt to print to 16 decimal place precision; but may be rounded further when printing - do not trust values smaller than about |10e-4| to |10e-6|... <b>NOTE</b> that the denominator for this calculation is the <i>total</i> number of sites, not the number of informative sites, or the number of site patterns.</li>
+	 * <li>	15	tSSLS_H1	float	Average of sitewise dSSLS values as above, except that only 'big threshold' sitewise differences (bigger than |0.1| magnitude in log-units) are counted. <b>NOTE</b> that the denominator for this calculation is the <i>total</i> number of sites, not the count of big-threshold sites, the number of informative sites, or the number of site patterns.</li>
+	 * <li>	16	numThresh_H1	float	The number of individual sitewise dSSLS values for the H0-H1 comparison smaller than -0.1 (e.g. more extreme / very incongruent with H0 / much more supportive of H1)</li>
+	 * <li>	17	d_lnL_H2	float	And so on for each alternative H2, H3.. Hn etc...</li>
+	 * </ul>
+	 * In addition, the individual sitewise dSSLS values are printed out for each .ser file in turn if the printSites=1 option has been invoked.
+	 * 
+	 * @see {@link MultiHnCongruenceAnalysis#go()}
+	 * @see {@link ResultsPrinterSimple#extractEnsemblCodeFromSerFile()}
+	 */
 	public void go(){
 		FilenameFilter serFileFilter = new SerfileFilter();
 		StringBuffer bufMain = new StringBuffer();
 		StringBuffer bufTree = new StringBuffer();
 
-//		bufMain.append("locus\tensembl_URL\tshortcode\tdescription\thomog\tmodel\tmissingData\tlnl (species tree)\tlength (species tree)\tmodel alpha\tnumberOfTaxa\tnumberOfSites\tpreferredTopology\td_lnL_H1\td_lnL_H2 (old H2, not in paper, HARD bat-bat polytomy)\td_lnL_H3 (old H3, 'H2' in the paper, HARD polytomy)\td_lnL_H4 (H2a)\td_lnL_H5 (H2b)\td_lnL_H6 (H2c)\td_lnL_H7 (H2d)\td_lnL_H8 (H2e)\td_lnL_H9 (H2f)\td_lnL_H10 (H2g)\td_lnL_H12_random\td_lnL_H12_random\td_lnL_H13_random\td_lnL_H14_random\td_lnL_H15_random\td_lnL_H16_random\td_lnL_H17_random\td_lnL_H18_random\td_lnL_H19_random\td_lnL_H20_random\td_lnL_H21 (H2 resolved by ML)\tdSSLS_H1\tdSSLS_H2 (old H2, not in paper, HARD bat-bat polytomy)\tdSSLS_H3 (old H3, 'H2' in the paper, HARD polytomy)\tdSSLS_H4 (H2a)\tdSSLS_H5 (H2b)\tdSSLS_H6 (H2c)\tdSSLS_H7 (H2d)\tdSSLS_H8 (H2e)\tdSSLS_H9 (H2f)\tdSSLS_H10 (H2g)\tdSSLS_H12_random\tdSSLS_H12_random\tdSSLS_H13_random\tdSSLS_H14_random\tdSSLS_H15_random\tdSSLS_H16_random\tdSSLS_H17_random\tdSSLS_H18_random\tdSSLS_H19_random\tdSSLS_H20_random\tdSSLS_H21 (H2 resolved by ML)\ttÆSSLS_H1\ttÆSSLS_H2\ttÆSSLS_H3\ttÆSSLS_H4\ttÆSSLS_H5\ttÆSSLS_H6\ttÆSSLS_H7\ttÆSSLS_H8\ttÆSSLS_H9\ttÆSSLS_H10\ttÆSSLS_H12_random\ttÆSSLS_H12_random\ttÆSSLS_H13_random\ttÆSSLS_H14_random\ttÆSSLS_H15_random\ttÆSSLS_H16_random\ttÆSSLS_H17_random\ttÆSSLS_H18_random\ttÆSSLS_H19_random\ttÆSSLS_H20_random\ttÆSSLS_H21 (H2 resolved by ML)\tnumSitesBigDiff_H1\tnumSitesBigDiff_H2 (old H2, not in paper, HARD bat-bat polytomy)\tnumSitesBigDiff_H3 (old H3, 'H2' in the paper, HARD polytomy)\tnumSitesBigDiff_H4 (H2a)\tnumSitesBigDiff_H5 (H2b)\tnumSitesBigDiff_H6 (H2c)\tnumSitesBigDiff_H7 (H2d)\tnumSitesBigDiff_H8 (H2e)\tnumSitesBigDiff_H9 (H2f)\tnumSitesBigDiff_H10 (H2g)\tnumSitesBigDiff_H11_random\tnumSitesBigDiff_H12_random\tnumSitesBigDiff_H13_random\tnumSitesBigDiff_H14_random\tnumSitesBigDiff_H15_random\tnumSitesBigDiff_H16_random\tnumSitesBigDiff_H17_random\tnumSitesBigDiff_H18_random\tnumSitesBigDiff_H19_random\tnumSitesBigDiff_H20_random\tnumSitesBigDiff_H21 (H2 resolved by ML)\n");
+//		bufMain.append("locus\tensembl_URL\tshortcode\tdescription\thomog\tmodel\tmissingData\tlnl (species tree)\tlength (species tree)\tmodel alpha\tnumberOfTaxa\tnumberOfSites\tpreferredTopology\td_lnL_H1\td_lnL_H2 (old H2, not in paper, HARD bat-bat polytomy)\td_lnL_H3 (old H3, 'H2' in the paper, HARD polytomy)\td_lnL_H4 (H2a)\td_lnL_H5 (H2b)\td_lnL_H6 (H2c)\td_lnL_H7 (H2d)\td_lnL_H8 (H2e)\td_lnL_H9 (H2f)\td_lnL_H10 (H2g)\td_lnL_H12_random\td_lnL_H12_random\td_lnL_H13_random\td_lnL_H14_random\td_lnL_H15_random\td_lnL_H16_random\td_lnL_H17_random\td_lnL_H18_random\td_lnL_H19_random\td_lnL_H20_random\td_lnL_H21 (H2 resolved by ML)\tdSSLS_H1\tdSSLS_H2 (old H2, not in paper, HARD bat-bat polytomy)\tdSSLS_H3 (old H3, 'H2' in the paper, HARD polytomy)\tdSSLS_H4 (H2a)\tdSSLS_H5 (H2b)\tdSSLS_H6 (H2c)\tdSSLS_H7 (H2d)\tdSSLS_H8 (H2e)\tdSSLS_H9 (H2f)\tdSSLS_H10 (H2g)\tdSSLS_H12_random\tdSSLS_H12_random\tdSSLS_H13_random\tdSSLS_H14_random\tdSSLS_H15_random\tdSSLS_H16_random\tdSSLS_H17_random\tdSSLS_H18_random\tdSSLS_H19_random\tdSSLS_H20_random\tdSSLS_H21 (H2 resolved by ML)\ttï¿½SSLS_H1\ttï¿½SSLS_H2\ttï¿½SSLS_H3\ttï¿½SSLS_H4\ttï¿½SSLS_H5\ttï¿½SSLS_H6\ttï¿½SSLS_H7\ttï¿½SSLS_H8\ttï¿½SSLS_H9\ttï¿½SSLS_H10\ttï¿½SSLS_H12_random\ttï¿½SSLS_H12_random\ttï¿½SSLS_H13_random\ttï¿½SSLS_H14_random\ttï¿½SSLS_H15_random\ttï¿½SSLS_H16_random\ttï¿½SSLS_H17_random\ttï¿½SSLS_H18_random\ttï¿½SSLS_H19_random\ttï¿½SSLS_H20_random\ttï¿½SSLS_H21 (H2 resolved by ML)\tnumSitesBigDiff_H1\tnumSitesBigDiff_H2 (old H2, not in paper, HARD bat-bat polytomy)\tnumSitesBigDiff_H3 (old H3, 'H2' in the paper, HARD polytomy)\tnumSitesBigDiff_H4 (H2a)\tnumSitesBigDiff_H5 (H2b)\tnumSitesBigDiff_H6 (H2c)\tnumSitesBigDiff_H7 (H2d)\tnumSitesBigDiff_H8 (H2e)\tnumSitesBigDiff_H9 (H2f)\tnumSitesBigDiff_H10 (H2g)\tnumSitesBigDiff_H11_random\tnumSitesBigDiff_H12_random\tnumSitesBigDiff_H13_random\tnumSitesBigDiff_H14_random\tnumSitesBigDiff_H15_random\tnumSitesBigDiff_H16_random\tnumSitesBigDiff_H17_random\tnumSitesBigDiff_H18_random\tnumSitesBigDiff_H19_random\tnumSitesBigDiff_H20_random\tnumSitesBigDiff_H21 (H2 resolved by ML)\n");
 		bufMain.append("locus\tensembl_URL\tshortcode\tdescription\thomog\tmodel\tmissingData\tlnl (species tree)\tlength (species tree)\tmodel alpha\tnumberOfTaxa\tnumberOfSites\tpreferredTopology");
 //		"d_lnL_H1\td_lnL_H2 (old H2, not in paper, HARD bat-bat polytomy)\td_lnL_H3 (old H3, 'H2' in the paper, HARD polytomy)\td_lnL_H4 (H2a)\td_lnL_H5 (H2b)\td_lnL_H6 (H2c)\td_lnL_H7 (H2d)\td_lnL_H8 (H2e)\td_lnL_H9 (H2f)\td_lnL_H10 (H2g)\td_lnL_H12_random\td_lnL_H12_random\td_lnL_H13_random\td_lnL_H14_random\td_lnL_H15_random\td_lnL_H16_random\td_lnL_H17_random\td_lnL_H18_random\td_lnL_H19_random\td_lnL_H20_random\td_lnL_H21 (H2 resolved by ML)
 //		"\tdSSLS_H1\tdSSLS_H2 (old H2, not in paper, HARD bat-bat polytomy)\tdSSLS_H3 (old H3, 'H2' in the paper, HARD polytomy)\tdSSLS_H4 (H2a)\tdSSLS_H5 (H2b)\tdSSLS_H6 (H2c)\tdSSLS_H7 (H2d)\tdSSLS_H8 (H2e)\tdSSLS_H9 (H2f)\tdSSLS_H10 (H2g)\tdSSLS_H12_random\tdSSLS_H12_random\tdSSLS_H13_random\tdSSLS_H14_random\tdSSLS_H15_random\tdSSLS_H16_random\tdSSLS_H17_random\tdSSLS_H18_random\tdSSLS_H19_random\tdSSLS_H20_random\tdSSLS_H21 (H2 resolved by ML)
-//		\ttÆSSLS_H1\ttÆSSLS_H2\ttÆSSLS_H3\ttÆSSLS_H4\ttÆSSLS_H5\ttÆSSLS_H6\ttÆSSLS_H7\ttÆSSLS_H8\ttÆSSLS_H9\ttÆSSLS_H10\ttÆSSLS_H12_random\ttÆSSLS_H12_random\ttÆSSLS_H13_random\ttÆSSLS_H14_random\ttÆSSLS_H15_random\ttÆSSLS_H16_random\ttÆSSLS_H17_random\ttÆSSLS_H18_random\ttÆSSLS_H19_random\ttÆSSLS_H20_random\ttÆSSLS_H21 (H2 resolved by ML)
+//		\ttï¿½SSLS_H1\ttï¿½SSLS_H2\ttï¿½SSLS_H3\ttï¿½SSLS_H4\ttï¿½SSLS_H5\ttï¿½SSLS_H6\ttï¿½SSLS_H7\ttï¿½SSLS_H8\ttï¿½SSLS_H9\ttï¿½SSLS_H10\ttï¿½SSLS_H12_random\ttï¿½SSLS_H12_random\ttï¿½SSLS_H13_random\ttï¿½SSLS_H14_random\ttï¿½SSLS_H15_random\ttï¿½SSLS_H16_random\ttï¿½SSLS_H17_random\ttï¿½SSLS_H18_random\ttï¿½SSLS_H19_random\ttï¿½SSLS_H20_random\ttï¿½SSLS_H21 (H2 resolved by ML)
 //		\tnumSitesBigDiff_H1\tnumSitesBigDiff_H2 (old H2, not in paper, HARD bat-bat polytomy)\tnumSitesBigDiff_H3 (old H3, 'H2' in the paper, HARD polytomy)\tnumSitesBigDiff_H4 (H2a)\tnumSitesBigDiff_H5 (H2b)\tnumSitesBigDiff_H6 (H2c)\tnumSitesBigDiff_H7 (H2d)\tnumSitesBigDiff_H8 (H2e)\tnumSitesBigDiff_H9 (H2f)\tnumSitesBigDiff_H10 (H2g)\tnumSitesBigDiff_H11_random\tnumSitesBigDiff_H12_random\tnumSitesBigDiff_H13_random\tnumSitesBigDiff_H14_random\tnumSitesBigDiff_H15_random\tnumSitesBigDiff_H16_random\tnumSitesBigDiff_H17_random\tnumSitesBigDiff_H18_random\tnumSitesBigDiff_H19_random\tnumSitesBigDiff_H20_random\tnumSitesBigDiff_H21 (H2 resolved by ML)\n");
 		
 		for(int i=1;i<this.maxTrees;i++){
@@ -217,14 +334,14 @@ public class ResultsPrinterSimple{
 								float[] lnLsumAvg 		= new float[(this.maxTrees-1)];
 								float[] lnLsumDiffAvgs 	= new float[(this.maxTrees-1)];
 								for(int k=0;k<(this.maxTrees-1);k++){
-									// Average the ÆSSLS
+									// Average the ï¿½SSLS
 									BigDecimal avgOfSummedDiffs = diffsSummed[k].divide(new BigDecimal(nSites),RoundingMode.HALF_EVEN);
 									String AOSD = String.format("%.16f",avgOfSummedDiffs);
 									System.out.print("\t"+AOSD);
 									buf.append("\t"+AOSD);
 								}
 								for(int k=0;k<(this.maxTrees-1);k++){
-									// Average the ÆSSLS (threshold-corrected values)
+									// Average the ï¿½SSLS (threshold-corrected values)
 									BigDecimal avgOfSummedDiffs = diffsSummedThresh[k].divide(new BigDecimal(nSites),RoundingMode.HALF_EVEN);
 									String AOSD = String.format("%.16f",avgOfSummedDiffs);
 									System.out.print("\t"+AOSD);
@@ -252,8 +369,8 @@ public class ResultsPrinterSimple{
 				}
 			}
 			bufTree.append("\nEnd;\n");
-			new CustomFileWriter(new File(arg1+"/output.txt"),bufMain.toString());
-			new CustomFileWriter(new File(arg1+"/output.trees"),bufTree.toString());
+			new CustomFileWriter(new File(inputDirectoryString+"/output.txt"),bufMain.toString());
+			new CustomFileWriter(new File(inputDirectoryString+"/output.trees"),bufTree.toString());
 		}else{
 			System.out.println("arg must be a directory");
 		}
